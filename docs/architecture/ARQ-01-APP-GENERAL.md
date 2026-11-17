@@ -288,7 +288,7 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. La f
 
 ## 10. Preguntas para el Paso 3 (motor genérico)
 
-Las decide el equipo. Este documento solo fija **dónde** viven las piezas, no **cómo** son por dentro:
+Las decide el equipo. Este documento solo fija **dónde** viven las piezas, no **cómo** son por dentro. **Las opciones y recomendaciones de las 6 preguntas están en `ARQ-02-MOTOR.md`** (decisiones D-29 a D-35):
 
 1. ~~**D-07:** coordenada genérica o abstracta~~ → **decidida: opción A** (ARQ-A-09). Queda para el Paso 3: cómo se despacha la topología en el *composition root* y hasta qué capa llega `TCoord` (¿los casos de uso y el cubit también son genéricos en `TCoord`, o se ocultan detrás de una interfaz?).
 2. ¿Qué son `TCell`, `TMove` y `TState` en cada variante? ¿Qué restricciones de tipo llevan y por qué? (por ejemplo, `TCell extends Mergeable<TCell>` en Merge)

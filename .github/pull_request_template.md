@@ -12,7 +12,7 @@
 - [ ] Title follows Conventional Commits in English (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
 - [ ] Tests added or updated, named `should_<result>_when_<condition>`, following AAA; examples `E-*` from the rules are covered.
 - [ ] CI is green (format, analyze, tests, architecture check).
-- [ ] The engine (`hexa_engine`) and the use cases (`hexa_application`) do not reference any specific variant.
+- [ ] The engine (`hexa_engine`) and the use cases (`hexa_application`) do not reference any specific variant or cell shape (topology).
 - [ ] No secrets, tokens or real user data in code, tests or prompts.
 - [ ] `AI_USAGE.md` updated if AI was used in this PR.
 - [ ] Docs updated if behavior or rules changed (`docs/requirements/`, traceability).

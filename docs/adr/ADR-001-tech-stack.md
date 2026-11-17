@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -41,12 +41,12 @@ Restricciones del equipo:
 | Aspecto | Elección | Justificación |
 |---|---|---|
 | Lenguaje / framework | **Dart 3 + Flutter** (última versión estable al iniciar; la versión exacta se fija en `pubspec.yaml` y en el README) | Genéricos con restricciones (`T extends Mergeable<T>`), *sealed classes* y *pattern matching* para modelar movimientos y eventos. Pruebas de widget nativas |
-| Organización | **Pub workspace** con el paquete Dart puro `packages/hexa_engine` (dominio) y la app Flutter | El dominio **no puede importar Flutter**, porque su `pubspec` no lo declara. La regla de dependencia de Clean se cumple por construcción. Se prueba con `dart test`, sin emulador |
+| Organización | **Pub workspace** con paquetes Dart puros para el dominio y los casos de uso (como mínimo `packages/hexa_engine`) y la app Flutter. La propuesta de 4 paquetes (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) está en `ARQ-01-APP-GENERAL.md` §3 (D-21) | El dominio **no puede importar Flutter**, porque su `pubspec` no lo declara. La regla de dependencia de Clean se cumple por construcción. Se prueba con `dart test`, sin emulador |
 | Render del tablero | `CustomPainter` | Son juegos por turnos y no necesitan *game loop*. **Se descarta Flame**, porque su propio ciclo de juego competiría con `GameEngine`. Hay **una estrategia de dibujo por topología** (hexágonos, cuadrados, triángulos); la vista 3D de los cubos es *Could* y se evaluará aparte (`02-RN-TOPOLOGIAS.md` §2) |
 | Presentación (capa 3) | `flutter_bloc` (Cubit como ViewModel) + `bloc_test` | Estado explícito y fácil de probar |
 | Inyección de dependencias | `get_it` con un único *composition root* | Ahí se registra la Abstract Factory de cada variante |
 | Persistencia local | **Drift** (SQLite, vía `drift_flutter`) | Tipado, con migraciones versionadas, mantenido, y con BD en memoria (`NativeDatabase.memory()`) para las pruebas de integración. Vive en la capa 4, detrás de `IProgressRepository` e `ILevelRepository`. **Se descartan Hive e Isar** por falta de mantenimiento de su autor original |
-| Preferencias | `shared_preferences` | Idioma y audio. **Nunca** para tokens ni datos sensibles |
+| Preferencias | `shared_preferences` | Idioma, audio y figura de las celdas (D-25). **Nunca** para tokens ni datos sensibles |
 | Almacenamiento seguro | `flutter_secure_storage` | Guarda el JWT en Keystore/Keychain (SEC-MOB-01) |
 | HTTP | `dio`, envuelto en un Adapter | Sus interceptores sirven para el aspecto de reintentos y el token JWT |
 | i18n | `flutter_localizations` + ARB (`gen-l10n`) | Solución oficial para es/en |
@@ -59,11 +59,12 @@ Restricciones del equipo:
 
 | Dato | Almacenamiento |
 |---|---|
-| Progreso por `gameId`: niveles completados, estrellas, récord | Drift: tabla `progress` |
+| Perfiles locales (invitado y cuentas que iniciaron sesión en el dispositivo, D-05, D-06) | Drift: tabla `profiles` |
+| Progreso por perfil y `gameId` (y figura, propuesta D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
 | Niveles descargados del servidor (id, `gameId`, orden, versión, JSON) | Drift: tabla `downloaded_levels` |
 | Cambios de progreso pendientes de sincronizar (*outbox*) | Drift: tabla `sync_outbox` |
 | Niveles incluidos en la app | Assets JSON (`assets/levels/<gameId>/*.json`), cargados con el Builder |
-| Idioma y audio | `shared_preferences` |
+| Idioma, audio y figura de las celdas | `shared_preferences` |
 | JWT | `flutter_secure_storage` |
 
 ### 2.2 Backend — `hexablock-api`
@@ -73,7 +74,7 @@ Restricciones del equipo:
 | Lenguaje / framework | **TypeScript + NestJS** (impuesto por la cátedra) sobre **Node.js LTS activa** | — |
 | Base de datos | **PostgreSQL** | Relacional, con soporte JSONB para la sección específica de cada `gameId` en los niveles |
 | ORM / migraciones | **Prisma** | Esquema declarativo y migraciones versionadas (`migrate deploy` al arrancar) |
-| Autenticación | `@nestjs/jwt` + Passport; contraseñas con **argon2** (o bcrypt) | §5.2 punto 1 |
+| Autenticación | `@nestjs/jwt` + Passport; contraseñas con **argon2id** | §5.2 punto 1; SEC-API-02 |
 | Validación | `class-validator` + `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` | Errores 400 con detalle por campo; bloquea la asignación masiva (SEC-API-03) |
 | Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/auth/*`) | SEC-API-04, SEC-API-08 |
 | Autorización | `RolesGuard` con denegación por defecto; `userId` siempre tomado del JWT | SEC-API-01, SEC-API-05 |
@@ -109,14 +110,14 @@ Costo estimado (on-demand, `us-east-1`): unos USD 15/mes por la instancia, unos 
 | Visibilidad | **Públicos** (confirmado por el profesor el 11-11-2026) |
 | Minutos de Actions | Ilimitados en los runners estándar (repos públicos). Si algún día pasaran a privados: 3.000/mes de la cuenta Pro del dueño |
 | Administración | Solo el dueño configura la protección de ramas, los secretos, Dependabot y los Environments. Es punto único de falla: la configuración se documenta en `docs/ops/GITHUB-SETUP.md` para poder rehacerla |
-| Ramas | `main` protegida: todo cambio entra por **PR**, con **CI en verde** y la rama actualizada; sin *force push* ni borrado. **No se exige la aprobación de otra persona** (el enunciado pide ramas protegidas y pull requests, no un número de revisores): el autor se revisa con la checklist de la plantilla de PR, y la revisión de un compañero es recomendada. Ramas de trabajo con el formato `feat/<issue>-<slug>`, `fix/...`, `docs/...` |
+| Ramas | `main` protegida con el ruleset `protect-main`: todo cambio entra por **PR**, solo *squash*, historial lineal, sin *force push*, sin borrado y sin bypass; **CI en verde** y la rama actualizada en cuanto exista el primer workflow (G-10). **No se exige la aprobación de otra persona** (el enunciado pide ramas protegidas y pull requests, no un número de revisores): el autor se revisa con la checklist de la plantilla de PR, y la revisión de un compañero es recomendada. Ramas de trabajo con el formato `feat/<issue>-<slug>`, `fix/...`, `docs/...` |
 | Commits | **Conventional Commits en inglés**, validados con `commitlint` + hook local (`lefthook` en los dos repos) y también en CI |
 | CI en cada PR (app) | `dart format --set-exit-if-changed` → `flutter analyze` → `dart test` (motor) → `flutter test` (widgets) → verificación de arquitectura |
 | CI en cada PR (api) | `lint` → `test` (unitarias) → `test:e2e` con Postgres → validación contra `openapi.yaml` |
-| Verificación de arquitectura | Script en CI que falla si `hexa_engine` importa Flutter o paquetes de infraestructura, o si nombra una variante concreta |
+| Verificación de arquitectura | Script en CI que falla si `hexa_engine` importa Flutter o paquetes de infraestructura, o si nombra una variante o una figura de celda concreta (detalle en `ARQ-01-APP-GENERAL.md` §8) |
 | Release | Un tag `v*` en `hexablock-app` dispara la compilación del **APK firmado** (keystore en GitHub Secrets) y lo publica en un GitHub Release |
 | Eficiencia | `concurrency` con `cancel-in-progress`, caché de `pub` y `npm`, filtros por ruta (`paths-ignore: docs/**`), sin runners macOS |
-| Seguridad del repositorio | *Secret scanning* + *push protection*, Dependabot (pub, npm, Actions, Docker), `npm audit` en CI, `CODEOWNERS` para `CLAUDE.md`, `.claude/`, `.clinerules`, `.github/workflows/` y `docs/security/`, `CODEOWNERS` solo para pedir revisión automáticamente (no bloquea el merge) |
+| Seguridad del repositorio | *Secret scanning* + *push protection*, Dependabot (pub, npm, Actions, Docker), `npm audit` en CI, `CODEOWNERS` para `CLAUDE.md`, `.claude/`, `.clinerules`, `.github/workflows/`, `docs/security/` y `docs/adr/` (solo pide revisión automáticamente; no bloquea el merge) |
 | Seguridad del pipeline | `permissions:` mínimos por workflow, **sin `pull_request_target`**, deploy solo desde `main` a través del GitHub Environment `production` |
 
 ### 2.5 Documentación y diagramas

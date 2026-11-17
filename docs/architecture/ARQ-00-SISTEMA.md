@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo (Paso 2) |
-| Fecha | 2026-11-11 |
+| Fecha | 2026-11-11 (revisión de coherencia: 12-11) |
 | Repositorio | **Compartido:** `docs/architecture/` en `hexablock-app` y `hexablock-api`; las dos copias deben ser idénticas |
 | Relacionados | `ADR-001-tech-stack.md`, `ARQ-01-APP-GENERAL.md` (app), `ARQ-01-API-GENERAL.md` (API), `02-RN-CUENTA-PROGRESO-RANKING.md` |
 
@@ -68,7 +68,7 @@ flowchart TB
 | **Consolidación** del progreso | **Ambos**, con la misma regla y los mismos ejemplos de prueba | La app consolida al recibir la respuesta; el servidor, al recibir el progreso (RN-COM-83, 84) |
 | **Ranking** | **Solo la API** | Necesita los datos de todos los jugadores |
 | **Niveles publicados** | **La API** (fuente); la app guarda copias | La app trae niveles incluidos y descarga los nuevos (RN-COM-72) |
-| **Validación de niveles** | API: estructural; app: estructural y **geométrica** | Validar que una pieza es una rotación de su forma requiere las topologías, que viven solo en la app (D-19) |
+| **Validación de niveles** | API: estructural; app: estructural y **geométrica** | Validar que una pieza es una rotación de su forma requiere las topologías, que viven solo en la app (propuesta D-19) |
 | **Identidad y sesión** | **La API** emite el JWT; la app lo guarda en almacenamiento seguro | SEC-API-02, SEC-MOB-01 |
 | **Contrato** entre app y API | **`openapi.yaml`**, fuente única | Se define en el Paso 5 (D-23) |
 
@@ -162,5 +162,5 @@ sequenceDiagram
 | ARQ-S-01 | Arquitectura **cliente–servidor offline-first**: el dispositivo es la fuente primaria del progreso; el servidor consolida y calcula el ranking | ✅ (P-08) |
 | ARQ-S-02 | El servidor **no ejecuta reglas de juego**; solo valida la plausibilidad de los resultados (RN-COM-108) | 🟡 |
 | ARQ-S-03 | La consolidación existe **dos veces** (Dart y TypeScript), con **ejemplos de prueba compartidos** (E-COM-2, E-COM-3) para garantizar que dan el mismo resultado | 🟡 |
-| ARQ-S-04 | Sincronización por **snapshot completo por `gameId`** (no por eventos) porque el progreso es chico y la consolidación es repetible | 🟡 |
+| ARQ-S-04 | Sincronización por **snapshot completo por `gameId` y figura** (no por eventos) porque el progreso es chico y la consolidación es repetible. Cómo se guarda la figura en el servidor depende de D-27 | 🟡 |
 | ARQ-S-05 | El contrato (`openapi.yaml`) y los ejemplos compartidos en formato JSON viven en `hexablock-api/docs/contracts/` y se copian a la app para sus pruebas de contrato | ⚠️ D-23 (Paso 5) |

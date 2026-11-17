@@ -44,7 +44,7 @@
 | RN-TOP-30 | En **Ajustes** existe la opción **"Figura de las celdas"**. Solo muestra las topologías **disponibles**: las que tienen dominio y presentación implementados (hexágonos siempre; cuadrados, triángulos y cubos cuando estén listos). Valor por defecto: **hexágonos**. La elección se guarda entre sesiones | Equipo | ✅ D-25 (11-11) |
 | RN-TOP-31 | La figura se **fija al crear la partida** y queda guardada en su estado. **No se puede cambiar durante la partida**: mientras haya una partida en curso o en pausa, la opción aparece bloqueada con un aviso. Cambiarla desde el inicio afecta solo a la **próxima** partida. Una partida guardada se reanuda siempre con su propia figura | Equipo | ✅ D-25 (11-11) |
 | RN-TOP-32 | La figura elegida es **una sola para todo el juego** (las 4 variantes) | Equipo | ⚠️ D-26 (propuesta) |
-| RN-TOP-33 | El **progreso, el récord y el ranking** se separan **por figura** (clave: perfil, `gameId` y topología), porque los tableros y la dificultad no son comparables | Equipo | ⚠️ D-27 (propuesta) |
+| RN-TOP-33 | El **progreso, el récord y el ranking** se separan **por figura** (perfil, `gameId` y topología), porque los tableros y la dificultad no son comparables. Cómo se guarda en el servidor (topología en la clave o una sección por figura dentro de la entrada de cada variante, por el enunciado §5.2) se decide con D-27 | Equipo | ⚠️ D-27 (propuesta) |
 | RN-TOP-34 | **Niveles por figura.** Un nivel de Hexa Fit pertenece a una topología (su figura está hecha de esas celdas). Un nivel de Hexa Sort **sin pilas iniciales** sirve para **cualquier** topología (usa el tablero por defecto, §3). Si una variante por niveles no tiene niveles para la figura elegida, su tarjeta dice **"No disponible con esta figura"**. Los mínimos del enunciado (15 de Fit y 10 de Sort) se cumplen con **hexágonos**; para las otras figuras basta con niveles de muestra | Equipo | ⚠️ D-28 (propuesta) |
 
 > **Relación con D-07 (opción A):** como la coordenada es un parámetro genérico, una partida creada con `HexCoord` no puede pasar a otra figura; el bloqueo de RN-TOP-31 lo garantiza también el compilador.
@@ -79,9 +79,9 @@ Estado: 🟡 (los de hexágonos son ✅ por el enunciado). Se ajustan jugando; s
 | RN-HEX-02 | **Direcciones** (`dq, dr`): E `(+1, 0)`, O `(−1, 0)`, NE `(+1, −1)`, SO `(−1, +1)`, NO `(0, −1)`, SE `(0, +1)` | ✅ |
 | RN-HEX-03 | **Vecinas:** las 6 celdas que se obtienen sumando cada dirección (las que estén dentro del tablero) | ✅ |
 | RN-HEX-04 | **Ejes y líneas:** eje **r** = filas horizontales (`r` constante, recorridas E–O); eje **q** = `q` constante (recorridas NO–SE); eje **s** = `s` constante (recorridas NE–SO) | ✅ |
-| RN-HEX-05 | **Tablero hexagonal de radio R:** todas las celdas con `max(|q|, |r|, |s|) ≤ R`. Tiene `3R(R+1) + 1` celdas y `2R + 1` líneas por eje, de largos R+1, R+2, …, 2R+1, …, R+1 | ✅ |
+| RN-HEX-05 | **Tablero hexagonal de radio R:** todas las celdas con `max(\|q\|, \|r\|, \|s\|) ≤ R`. Tiene `3R(R+1) + 1` celdas y `2R + 1` líneas por eje, de largos R+1, R+2, …, 2R+1, …, R+1 | ✅ |
 | RN-HEX-06 | **Giro básico (60° horario):** `(q, r, s) → (−r, −s, −q)`. Seis giros devuelven la forma original | ✅ |
-| RN-HEX-07 | **Distancia** entre dos celdas: `(|Δq| + |Δr| + |Δs|) / 2` | ✅ |
+| RN-HEX-07 | **Distancia** entre dos celdas: `(\|Δq\| + \|Δr\| + \|Δs\|) / 2` | ✅ |
 | RN-HEX-08 | **Orden de vecinas** (horario desde las 12): NE (≈ 1 en punto), E (3), SE (5), SO (7), O (9), NO (11) | ✅ |
 
 | Radio | Celdas | Líneas por eje | Largos de las líneas | Total de líneas |

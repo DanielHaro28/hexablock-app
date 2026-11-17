@@ -37,9 +37,9 @@
 
 El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 
-**Stack e infraestructura (ADR-001, rev. 1.6):**
+**Stack e infraestructura (ADR-001, rev. 1.7):**
 - **App:** Flutter + Dart 3; pub workspace con paquetes Dart puros; `CustomPainter` (sin Flame); `flutter_bloc` (Cubit); `get_it`; **Drift** (SQLite); `shared_preferences` (solo ajustes); `flutter_secure_storage` (JWT); `dio`; i18n con ARB; `--dart-define=API_BASE_URL`.
-- **Backend (impuesto por la cátedra):** NestJS + TypeScript, PostgreSQL, Prisma, JWT + argon2id, `class-validator` con whitelist, `helmet`, `@nestjs/throttler`, Swagger con `openapi.yaml` como contrato, Jest + Supertest, Docker.
+- **Backend (impuesto por la cátedra):** NestJS + TypeScript, PostgreSQL, Prisma, JWT + argon2id (ADR rev. 1.7), `class-validator` con whitelist, `helmet`, `@nestjs/throttler`, Swagger con `openapi.yaml` como contrato, Jest + Supertest, Docker.
 - **Despliegue:** AWS EC2 `t3.small` en `us-east-1` con Docker Compose (Caddy + API + Postgres), HTTPS con Let's Encrypt sobre DuckDNS, imágenes en GHCR, deploy por SSH desde Actions. Cuenta AWS en plan Free: USD 100 hasta el 11-05-2027 (la cuenta se cierra si se acaban los créditos: hay que crear el budget).
 - **GitHub:** repos **públicos** `hexablock-app` y `hexablock-api` en la cuenta de **DanielHaro28** (D-01). Ruleset `protect-main` en ambos: PR obligatorio **sin aprobaciones obligatorias** (D-24), solo *squash*, historial lineal, sin *force push* ni borrado, sin bypass. Plantilla de PR con checklist de autorrevisión. Status checks: se activan cuando exista el CI (G-10).
 - **Diagramas:** clases en **PlantUML** (lo exige la notación de plantilla de §4.1); capas, extensibilidad y apoyo en **Mermaid**.
@@ -74,9 +74,11 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 | 7 | Plan: Issues por repo, milestones, Definition of Done | ☐ |
 | 8 | Preparación para Claude Code: `CLAUDE.md`, agentes, permisos | ☐ |
 
+**Revisión de integridad (12-11):** se revisaron todos los documentos de los dos repos contra el enunciado y entre sí. Los IDs citados existen todos, los compartidos son idénticos y los 59 chequeos de ejemplos pasan con el simulador. Se corrigieron desajustes de redacción: estrellas 1–3 en SEC-API-06, D-03 como pendiente en SECURITY §3, argon2id, tabla `profiles` y figura en preferencias en el ADR (rev. 1.7), D-07 ya no figura como abierta en ARQ-01-APP §0, script de CI por identificadores, TEC-08 alineada con RN-TOP-04, PRG-03 y RF-32 con figura, RF-90 a 93, E-COM-3 con un puntaje posible y decisiones abiertas en las trazabilidades. Hallazgo de fondo: **D-27 choca con la letra del enunciado §5.2** ("una entrada de progreso por usuario y por variante"); en `PENDIENTES.md` quedan las dos formas de guardarlo, con recomendación.
+
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 
-**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí), D-28 (niveles por figura).
+**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura).
 
 **Preguntas de partida del Paso 3** (`ARQ-01-APP-GENERAL.md` §10): cómo se despacha la topología y hasta qué capa llega `TCoord`; qué son `TCell`, `TMove` y `TState` por variante y sus restricciones; deshacer con Memento o Command; forma de los eventos de dominio; capacidades opcionales (deshacer, tiempo, azar, niveles); máquina de estados con clases (State) o enum.
 

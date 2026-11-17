@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo |
-| Fecha | 2026-11-11 |
+| Fecha | 2026-11-11 (revisión de coherencia: 12-11) |
 | Repositorio | **Compartido:** `hexablock-app` y `hexablock-api`, en `docs/requirements/`. Las dos copias deben ser **idénticas**: se modifica en un PR de cada repo, con el mismo cambio |
 | Relacionados | `02-RN-NIVELES.md`, `docs/security/SECURITY-BASELINE.md` |
 
@@ -26,7 +26,7 @@ Formato de las reglas y estados (✅ acordada / 🟡 propuesta / ⚠️ decidir)
 
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
-| RN-COM-80 | El progreso se guarda **por perfil, por variante y por figura de celda** (topología; RN-TOP-33, propuesta D-27): niveles completados, mejor intento por nivel y récord | Enunciado §5.1, §5.2 | ✅ |
+| RN-COM-80 | El progreso se guarda **por perfil, por variante y por figura de celda** (topología; RN-TOP-33, propuesta D-27): niveles completados, mejor intento por nivel y récord | Enunciado §5.1, §5.2 | ✅ (por figura: ⚠️ D-27) |
 | RN-COM-81 | **Modo invitado:** sin cuenta se pueden jugar las 4 variantes y el progreso se guarda en el dispositivo, en el perfil **invitado** | Profesor (P-08) | ✅ |
 | RN-COM-82 | **Offline-first:** con o sin conexión, el juego funciona igual. El progreso se guarda **primero en el dispositivo**; la conexión solo hace falta para sincronizar, ver el ranking global y descargar niveles nuevos | Profesor (P-08) | ✅ |
 | RN-COM-83 | **El progreso solo mejora.** Para combinar dos versiones del mismo progreso (dispositivo y servidor, o dos dispositivos) se aplica la **consolidación**: niveles completados = **unión**; récord = **máximo**; mejor intento de cada nivel = **el mejor de los dos** según el criterio de la variante, tomado completo | Profesor (P-08) | ✅ |
@@ -52,7 +52,7 @@ Aplicar la consolidación otra vez con el resultado no cambia nada.
 
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
-| RN-COM-100 | Hay un ranking global **por `gameId` y por figura de celda** (RN-TOP-33, propuesta D-27) y, en las variantes por niveles, también **por nivel** | Enunciado §5.2 | ✅ |
+| RN-COM-100 | Hay un ranking global **por `gameId` y por figura de celda** (RN-TOP-33, propuesta D-27) y, en las variantes por niveles, también **por nivel** | Enunciado §5.2 | ✅ (por figura: ⚠️ D-27) |
 | RN-COM-101 | Variantes sin fin (Lines, Merge): se ordena por **récord descendente** | Enunciado §1.5 | ✅ |
 | RN-COM-102 | Hexa Fit por nivel: **estrellas ↓ → tiempo ↑ → movimientos ↑**, comparando el mejor intento **completo** de cada jugador | Profesor (P-07) | ✅ |
 | RN-COM-103 | Hexa Sort por nivel: **movimientos ↑ → puntaje ↓** (gana quien completa el nivel colocando menos pilas; el puntaje solo desempata). Así el ranking premia la eficiencia y no alargar la partida | Equipo | ✅ D-04 / D-12 (11-11) |
@@ -74,7 +74,9 @@ Aplicar la consolidación otra vez con el resultado no cambia nada.
 |---|---|---|---|
 | Ana | 12 | 300 | 3 |
 | Beto | 12 | 450 | 2 |
-| Caro | 10 | 100 | **1** (menos movimientos; el puntaje solo desempata) |
+| Caro | 10 | 112 | **1** (menos movimientos; el puntaje solo desempata) |
+
+_(Los puntajes de Hexa Sort son posibles según RN-HS-60: completar un nivel exige al menos 1 meta y al menos 1 ficha transferida, así que el mínimo es 101.)_
 
 **Criterios de "mejor intento" por variante** (los usan la consolidación y el ranking):
 

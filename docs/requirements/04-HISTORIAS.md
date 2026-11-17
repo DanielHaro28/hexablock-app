@@ -314,7 +314,7 @@ Como jugador, quiero ver mi resultado al perder, para reintentar rápido.
 
 ### PRG-03 · Guardar el progreso en el dispositivo
 Como jugador, quiero que mi progreso se guarde en el teléfono, para no perderlo al cerrar la app.
-- Dado que completo un nivel o termino una partida, entonces se guarda localmente, por perfil y variante (RN-COM-80).
+- Dado que completo un nivel o termino una partida, entonces se guarda localmente, por perfil, variante y figura (RN-COM-80).
 - Dado que cierro y vuelvo a abrir la app sin conexión, entonces mi progreso sigue disponible.
 
 **Must** · RF-60 · RN-COM-80
@@ -462,7 +462,7 @@ Como equipo de desarrollo, quiero implementar las topologías de cuadrados y de 
 ### TEC-08 · Cubos en el dominio
 Como equipo de desarrollo, quiero una topología de cubos con pruebas, para demostrar que el motor y las reglas también funcionan en 3D.
 - Existe la topología de cubos con sus pruebas, incluidas las 24 orientaciones (Anexo D, E-CUB-1).
-- Hay pruebas en las que Hexa Merge y Hexa Sort resuelven tableros 3D con las mismas reglas.
+- Hay pruebas en las que **las 4 variantes** resuelven tableros 3D con las mismas reglas (RN-TOP-04, D-18). Hexa Lines usa el catálogo de cubos (D-20) y Hexa Fit, un nivel de muestra (D-28).
 - No requiere interfaz.
 
 **Should** · RNF-04 · RN-TOP-04

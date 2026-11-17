@@ -4,7 +4,7 @@
 >
 > Reúne los que estaban en `ADR-001-tech-stack.md` §6, `SECURITY-BASELINE.md` §9 y `CONTEXTO-CONVERSACION.md` §7; esos documentos ahora apuntan aquí.
 >
-> **Última actualización:** 2026-11-12 · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-12 (revisión de integridad de todos los documentos contra el enunciado; resumen en `ai/CONTEXTO-CONVERSACION.md` §4) · **Entrega:** lunes 14-12-2026
 >
 > Completar la columna **Responsable** al repartir el trabajo. Al cerrar un ítem: cambiar ☐ por ☑ y anotar la fecha.
 
@@ -17,14 +17,14 @@
 | # | Pendiente | Responsable | Fecha límite | Origen |
 |---|---|---|---|---|
 | ☐ D-02 | **Repartir variantes y áreas** entre los 3 integrantes. Propuesta a discutir: motor + Hexa Merge · Hexa Lines + Hexa Sort · Hexa Fit + backend | Equipo | 12-11 | CONTEXTO §5 |
-| ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración) | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
+| ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración). SECURITY §3 y API-01 ya describen la opción A como propuesta | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
 | ☐ D-19 | **Quién valida qué en los niveles.** Propuesta: el backend valida el esquema y las reglas estructurales; el dominio de la app valida además las geométricas (RN-HF-12 f) y ofrece un validador para usar antes de publicar | Equipo | Paso 5 (contratos) | RN-COM-76 |
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos | Equipo | Al implementar cada topología | RN-TOP-21 a 23 |
 | ☐ D-21 | **Paquetes de la app:** 4 paquetes Dart puros (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter; variantes en un solo paquete con una carpeta por variante | Equipo | Reunión de revisión del Paso 2 | ARQ-01-APP §3, §9 |
 | ☐ D-22 | **Estructura del backend:** módulos por área con `domain` / `application` / `presentation` / `infrastructure`; un servicio por caso de uso; progreso como JSON por `gameId` y mejores intentos en tabla para el ranking | Equipo | Reunión de revisión del Paso 2 | ARQ-01-API §9 |
 | ☐ D-23 | **Contrato y ejemplos compartidos:** `openapi.yaml` y los ejemplos JSON (E-COM-2, E-COM-3, E-HF-NIVEL) viven en `hexablock-api` y se copian a la app para sus pruebas | Equipo | Paso 5 | ARQ-00 §6 |
 | ☐ D-26 | **Figura global o por variante.** Recomendación: **una sola figura para todo el juego**, elegida en Ajustes | Equipo | Reunión | RN-TOP-32 |
-| ☐ D-27 | **Progreso, récord y ranking separados por figura.** Recomendación: **sí** (clave perfil + `gameId` + topología), porque los tableros no son comparables | Equipo | Reunión (afecta el Paso 5) | RN-TOP-33, RN-COM-80, 100 |
+| ☐ D-27 | **Progreso, récord y ranking separados por figura.** Recomendación: **sí**, porque los tableros no son comparables. **Cuidado con el enunciado §5.2**, que pide "una entrada de progreso por usuario y por variante". Dos formas de guardarlo: **A)** la topología forma parte de la clave (`userId` + `gameId` + `topology`): consultas simples, pero hay varias entradas por usuario y variante, lo que se aparta de la letra del enunciado; **B)** una entrada por `userId` + `gameId`, con una sección por figura dentro del JSON: cumple el enunciado al pie de la letra, a cambio de que la consolidación recorra las secciones. `BEST_ATTEMPT` lleva la columna `topology` en los dos casos, porque el ranking la filtra. Recomendación: **B**. Los documentos describen hoy A como borrador (ARQ-01-API §6) | Equipo | Reunión (afecta el Paso 5) | RN-TOP-33, RN-COM-80, 100; Enunciado §5.2 |
 | ☐ D-28 | **Niveles por figura.** Recomendación: los 15 de Fit y 10 de Sort obligatorios en hexágonos; Fit con niveles de muestra para las otras figuras; los de Sort sin pilas iniciales sirven para cualquier figura (`topology: any`); "No disponible con esta figura" si no hay niveles | Equipo | Paso 6 | RN-TOP-34, RN-COM-75 |
 
 ### 1.2 Cerradas
@@ -86,7 +86,7 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 | 0 | `docs/adr/ADR-001-tech-stack.md` | Ambos (compartido) | ✅ Hecho (rev. 1.6) | — |
 | 0b | `docs/security/SECURITY-BASELINE.md` | Ambos (compartido) | ✅ Hecho | — |
 | 1 | **Requisitos** (`docs/requirements/`): glosario, reglas de negocio (comunes, topologías, 4 variantes, niveles, cuenta/progreso/ranking), RF + RNF, historias, trazabilidad | Ambos (ver `docs/README.md`) | 📝 **Borrador listo — revisión de cada integrante.** Abiertas: D-19, D-20 | |
-| 2 | **Arquitectura general** (`docs/architecture/`): `ARQ-00-SISTEMA.md` (compartido), `ARQ-01-APP-GENERAL.md`, `ARQ-01-API-GENERAL.md` | Ambos | 📝 **Borrador listo — revisión del equipo** (D-21, D-22, D-23) | |
+| 2 | **Arquitectura general** (`docs/architecture/`): `ARQ-00-SISTEMA.md` (compartido), `ARQ-01-APP-GENERAL.md`, `ARQ-01-API-GENERAL.md` | Ambos | 📝 **Borrador listo — revisión del equipo** (D-21, D-22, D-23, más las propuestas 🟡 sin número de pendiente: ARQ-S-02 a 04, ARQ-A-05 a 08, ARQ-B-04) | |
 | 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07). **Lo decide el equipo**; las 6 preguntas de partida están en `ARQ-01-APP-GENERAL.md` §10 | App | ⏭️ **Siguiente** | |
 | 4 | **Arquitectura detallada:** casos de uso genéricos, puertos y adaptadores, mapa de patrones, aspecto AOP, los 3 diagramas (clases en PlantUML; capas y extensibilidad en Mermaid) y `EXTENSIBILITY.md` | Ambos | ☐ Pendiente | |
 | 5 | **Contratos:** `openapi.yaml`, JSON Schema de niveles, modelo de datos local y del servidor (cierra D-19) | Ambos | ☐ Pendiente | |

@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo (Paso 2) |
-| Fecha | 2026-11-11 |
+| Fecha | 2026-11-11 (revisión de coherencia: 12-11) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-01-APP-GENERAL.md`) |
 | Relacionados | `ARQ-00-SISTEMA.md` (compartido), `ADR-001-tech-stack.md`, `03-REQUISITOS.md` (RNF-01 a 11), `02-RN-TOPOLOGIAS.md` |
 
@@ -12,7 +12,7 @@
 **Decide:** las capas, los paquetes y su grafo de dependencias, qué componente vive en cada capa, los puertos principales, los flujos de alto nivel, dónde se configura cada variante y cada topología, y qué controla el CI.
 
 **No decide** (se deja para los pasos siguientes):
-- **Paso 3, motor genérico (lo decide el equipo):** firmas de los genéricos (`TCell`, `TMove`, `TState`), representación de la coordenada (D-07), máquina de estados, modelo de eventos, cómo se implementa deshacer.
+- **Paso 3, motor genérico (lo decide el equipo):** firmas de los genéricos (`TCell`, `TMove`, `TState`), hasta qué capa llega `TCoord` (la coordenada como parámetro genérico ya está decidida: D-07, ARQ-A-09), máquina de estados, modelo de eventos, cómo se implementa deshacer.
 - **Paso 4, arquitectura detallada:** firmas de los casos de uso, mapa de patrones (patrón → clase → por qué), aspectos AOP concretos, diagramas oficiales y `EXTENSIBILITY.md`.
 
 **Estados:** ✅ ya decidido (ADR-001 o enunciado) · 🟡 propuesta para que el equipo confirme.
@@ -165,7 +165,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 
 | Puerto | Responsabilidad | Implementación (capa 3 → 4) |
 |---|---|---|
-| `IProgressRepository` | Progreso por perfil y por `gameId` | Repositorio → Drift |
+| `IProgressRepository` | Progreso por perfil y por `gameId` (y figura, propuesta D-27) | Repositorio → Drift |
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Cola de sincronización | Repositorio → Drift |
@@ -174,7 +174,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 | `ILeaderboardGateway` | Consultar el ranking | Gateway → dio (+ caché) |
 | `IAuthGateway` | Registro e inicio de sesión | Gateway → dio |
 | `ISessionStore` | Guardar y borrar el JWT | Almacenamiento seguro |
-| `ISettingsRepository` | Idioma y audio | Preferencias |
+| `ISettingsRepository` | Idioma, audio y figura de las celdas (D-25) | Preferencias |
 | `IClock` | Hora actual y tiempo activo | Reloj del sistema (en pruebas: reloj falso) |
 | `IConnectivity` | Saber si hay red | Plugin de conectividad |
 | `ILogger` | Registro estructurado (lo usan los aspectos, no los casos de uso) | Logger de plataforma |
@@ -263,8 +263,10 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. La f
 | Control | Cómo | Requisito |
 |---|---|---|
 | El dominio no importa Flutter ni paquetes externos | Los `pubspec.yaml` de los paquetes de dominio no los declaran: no compila | RNF-06 |
-| El motor no ve las variantes | `hexa_engine` no depende de `hexa_variants`; además, un script falla si el motor menciona `lines`, `fit`, `sort` o `merge` | RNF-02 |
-| El motor no ve las figuras | `hexa_engine` no depende de `hexa_topologies`; además, el mismo script falla si el motor menciona `hex`, `square`, `tri` o `cube` (fuera de comentarios) | RNF-04 |
+| El motor no ve las variantes | `hexa_engine` no depende de `hexa_variants`; además, un script falla si el código del motor (fuera de comentarios) contiene un **identificador** de variante: `HexaLines`, `HexaFit`, `HexaSort`, `HexaMerge`, `hexa_variants` o los `gameId` (`hexa-lines`…) | RNF-02 |
+| El motor no ve las figuras | `hexa_engine` no depende de `hexa_topologies`; además, el mismo script falla si aparece un identificador de figura: `HexCoord`, `HexTopology`, `SquareCoord`, `TriCoord`, `CubeCoord`, `HexBoard` o `hexa_topologies` | RNF-04 |
+
+> Se buscan **identificadores completos** y no palabras sueltas: buscar `sort`, `tri` o `hex` daría falsos positivos con `List.sort()`, `String` o el propio nombre `hexa_engine`.
 | Los casos de uso no ven las variantes | `hexa_application` no depende de `hexa_variants` | RNF-07 |
 | Ningún caso de uso llama al logger | Script que busca usos de `ILogger` fuera de `aspects/` | RNF-10 |
 | Niveles incluidos válidos | Validador de niveles sobre `assets/levels/` | RF-83 |
@@ -292,5 +294,5 @@ Las decide el equipo. Este documento solo fija **dónde** viven las piezas, no *
 2. ¿Qué son `TCell`, `TMove` y `TState` en cada variante? ¿Qué restricciones de tipo llevan y por qué? (por ejemplo, `TCell extends Mergeable<TCell>` en Merge)
 3. ¿Deshacer se implementa guardando estados completos (Memento) o con movimientos reversibles (Command)? Hexa Fit necesita deshacer ilimitado; Merge necesita restaurar el generador.
 4. ¿Cómo son los eventos de dominio: una jerarquía *sealed* común o un tipo por variante?
-5. ¿Cómo se modelan las capacidades opcionales (deshacer, tiempo, azar, niveles): interfaces separadas o configuración?
-6. ¿La máquina de estados de la partida (RN-COM-30, 31) es una clase por estado (State) o un enum con transiciones?
+5. ¿Cómo se modelan las capacidades opcionales (deshacer, tiempo, azar, niveles): interfaces separadas o configuración? (El enunciado §3.2, ISP, pone como ejemplo `IUndoable`, `ITimed` e `IRandomSeeded`, con Hexa Lines sin `IUndoable`.)
+6. ¿La máquina de estados de la partida (RN-COM-30, 31) es una clase por estado (State) o un enum con transiciones? (El enunciado §3.3 nombra `MenuState`, `PlayingState`, `ResolvingState`, `PausedState`, `GameOverState` y `VictoryState`; RN-COM-30 no incluye el menú porque no es un estado de la partida.)

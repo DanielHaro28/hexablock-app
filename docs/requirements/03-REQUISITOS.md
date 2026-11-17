@@ -58,7 +58,7 @@
 |---|---|---|---|---|
 | RF-30 | Ofrece al menos 15 niveles de Hexa Fit diseñados a mano, cargados desde archivos de configuración y con dificultad creciente | RN-COM-03, RN-HF-10 a 13 | §1.2, §5.1 (5) | Must |
 | RF-31 | Permite colocar, mover y retirar piezas dentro de la figura, sin solapamientos ni celdas fuera | RN-HF-30, 32 a 34 | §1.2 | Must |
-| RF-32 | Permite rotar las piezas de la bandeja en pasos de 60° | RN-HF-31 | §1.2 | Must |
+| RF-32 | Permite rotar las piezas de la bandeja con el giro básico de la topología (60° en hexágonos) | RN-COM-14, RN-HF-31 | §1.2 | Must |
 | RF-33 | Permite deshacer y rehacer sin límite | RN-HF-80 a 82 | §1.2, §5.1 (8) | Must |
 | RF-34 | Detecta la figura cubierta, calcula las estrellas (movimientos y tiempo) y guarda el mejor intento | RN-HF-50 a 52, 60 a 64, 70, 71 | §1.2 | Must |
 
@@ -111,7 +111,7 @@
 | RF-82 | Valida cada nivel, incluido o descargado (esquema + todas las validaciones de su variante, también las geométricas), y descarta los inválidos | RN-COM-71, 76, RN-HF-12, RN-HS-12 | §5.2 (4) | Must |
 | RF-83 | Ofrece un **validador de niveles** (prueba o script en CI) para los niveles incluidos y para revisar un nivel antes de publicarlo por la API | RN-COM-76 | D-19 | Must |
 
-> RF-81 (publicar niveles) y RF-90 a 92 (Swagger, errores, salud) solo tienen parte de servidor: ver `hexablock-api`.
+> RF-81 (publicar niveles) y RF-90 a 93 (Swagger, errores, salud y plausibilidad de resultados) solo tienen parte de servidor: ver `hexablock-api`.
 
 ---
 

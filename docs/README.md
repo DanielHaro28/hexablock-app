@@ -12,7 +12,8 @@ docs/
 │   └── ADR-001-tech-stack.md              [compartido]
 ├── architecture/
 │   ├── ARQ-00-SISTEMA.md                  [compartido] vista del sistema (app + API + EC2)
-│   └── ARQ-01-APP-GENERAL.md           arquitectura general de este repo
+│   ├── ARQ-01-APP-GENERAL.md              arquitectura general de este repo
+│   └── ARQ-02-MOTOR.md                    motor genérico: opciones y patrones del dominio (Paso 3)
 ├── security/
 │   └── SECURITY-BASELINE.md               [compartido]
 ├── requirements/
@@ -56,7 +57,7 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 
 1. `ADR-001-tech-stack.md`: qué se usa y por qué.
 2. `01-GLOSARIO.md`: el vocabulario.
-3. `ARQ-00-SISTEMA.md` y `ARQ-01-APP-GENERAL.md`: cómo está organizado el sistema y la app.
+3. `ARQ-00-SISTEMA.md` y `ARQ-01-APP-GENERAL.md`: cómo está organizado el sistema y la app. `ARQ-02-MOTOR.md`: cómo es el motor por dentro y qué patrones usa.
 4. `02-RN-COMUNES.md` y `02-RN-TOPOLOGIAS.md`: cómo funciona cualquier variante.
 5. La regla de la variante en la que vas a trabajar (`02-RN-HEXA-*.md`).
 6. `03-REQUISITOS.md` y `04-HISTORIAS.md`: qué hay que construir.

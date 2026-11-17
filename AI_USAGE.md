@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-17
+> **Última actualización:** 2026-11-17 (IA-10)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -130,6 +130,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | `AI_USAGE.md` en la raíz de los dos repos (A-03) |
 | Modificaciones del equipo | ⚠️ completar los campos marcados y las transcripciones de IA-01 a IA-06 |
 | Lecciones | La IA no puede registrar lo que no vio: las conversaciones anteriores al 12-11 tienen que completarse con sus transcripciones |
+
+### IA-10 · Paso 3: opciones del motor genérico y patrones del dominio — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 17-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "OK vamos con el paso 3 y dame recomendaciones y propuestas, acuerdate que hay que incluir patrones de diseño en el motor que es el dominio" |
+| Resultado | `docs/architecture/ARQ-02-MOTOR.md`: opciones, ventajas, desventajas y recomendación para las 6 preguntas del Paso 3 (D-29 a D-35), 14 patrones GoF ubicados en el dominio con el problema que resuelve cada uno, y esbozos en Dart. `tools/reference-sim/engine_model.py`: modelo en Python que comprueba la lógica de deshacer y de fases contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63 |
+| Modificaciones del equipo | ⚠️ pendiente: el equipo decide D-29 a D-35 |
+| Lecciones | La IA propone y el equipo decide (§7.3): ninguna opción queda cerrada en el documento. En su propia revisión, la IA encontró que el primer borrador del despacho necesitaba un cast para el layout y lo corrigió agrupando topología y layout en una entrada del registro. Sin SDK de Dart, los esbozos no se pudieron compilar: se validan en el *spike* de TEC-01 |
 
 ## 4. Evaluación crítica
 

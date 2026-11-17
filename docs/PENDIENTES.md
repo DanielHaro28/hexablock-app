@@ -4,7 +4,7 @@
 >
 > Reúne los que estaban en `ADR-001-tech-stack.md` §6, `SECURITY-BASELINE.md` §9 y `CONTEXTO-CONVERSACION.md` §7; esos documentos ahora apuntan aquí.
 >
-> **Última actualización:** 2026-11-17 (documentos de planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-17 (planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; opciones del Paso 3 en `ARQ-02-MOTOR.md`, D-29 a D-35) · **Entrega:** lunes 14-12-2026
 >
 > Completar la columna **Responsable** al repartir el trabajo. Al cerrar un ítem: cambiar ☐ por ☑ y anotar la fecha.
 
@@ -26,6 +26,13 @@
 | ☐ D-26 | **Figura global o por variante.** Recomendación: **una sola figura para todo el juego**, elegida en Ajustes | Equipo | Reunión | RN-TOP-32 |
 | ☐ D-27 | **Progreso, récord y ranking separados por figura.** Recomendación: **sí**, porque los tableros no son comparables. **Cuidado con el enunciado §5.2**, que pide "una entrada de progreso por usuario y por variante". Dos formas de guardarlo: **A)** la topología forma parte de la clave (`userId` + `gameId` + `topology`): consultas simples, pero hay varias entradas por usuario y variante, lo que se aparta de la letra del enunciado; **B)** una entrada por `userId` + `gameId`, con una sección por figura dentro del JSON: cumple el enunciado al pie de la letra, a cambio de que la consolidación recorra las secciones. `BEST_ATTEMPT` lleva la columna `topology` en los dos casos, porque el ranking la filtra. Recomendación: **B**. Los documentos describen hoy A como borrador (ARQ-01-API §6) | Equipo | Reunión (afecta el Paso 5) | RN-TOP-33, RN-COM-80, 100; Enunciado §5.2 |
 | ☐ D-28 | **Niveles por figura.** Recomendación: los 15 de Fit y 10 de Sort obligatorios en hexágonos; Fit con niveles de muestra para las otras figuras; los de Sort sin pilas iniciales sirven para cualquier figura (`topology: any`); "No disponible con esta figura" si no hay niveles | Equipo | Paso 6 | RN-TOP-34, RN-COM-75 |
+| ☐ D-29 | **Despacho de la figura y alcance de `TCoord`.** Recomendación: **registro de topologías + Visitor genérico** (`accept` → `visit<C>`), sin `switch`; `TCoord` llega hasta el widget del tablero. Alternativa: `switch` en el *composition root* | Equipo | Reunión del Paso 3 | ARQ-02 §3 |
+| ☐ D-30 | **`TCell`, `TMove`, `TState` y restricciones.** Recomendación: estado **inmutable**; celda vacía = `null` con `TCell extends Object`; movimientos *sealed* por variante; `TState extends GameState<C, TCell>`; en Merge, `Tile implements Mergeable<Tile>` en vez de `int`. Instanciación por variante en ARQ-02 §4.2 | Equipo | Reunión del Paso 3 | ARQ-02 §4 |
+| ☐ D-31 | **Deshacer y rehacer.** Recomendación: **Command + Memento** con un `UndoHistory` genérico (sin límite + rehacer en Fit; límite 1 en Merge); las fases bloquean deshacer tras la derrota. Alternativas: Memento puro, Command con inversa, repetición desde la semilla | Equipo | Reunión del Paso 3 | ARQ-02 §5 |
+| ☐ D-32 | **Eventos de dominio.** Recomendación: las reglas **devuelven** los eventos en orden y el motor los publica en un `Stream` (Observer); base `abstract base` y una familia *sealed* por variante | Equipo | Reunión del Paso 3 | ARQ-02 §6 |
+| ☐ D-33 | **Capacidades opcionales.** Recomendación: `IUndoable`, `ITimed`, `IRandomSeeded` e `ILevelBased` implementadas por componentes que la fábrica compone en una `GameSession` (Lines sin `IUndoable`); puerto `IMonotonicClock` en el dominio | Equipo | Reunión del Paso 3 | ARQ-02 §7 |
+| ☐ D-34 | **Fases de la partida.** Recomendación: patrón **State** con una jerarquía *sealed* (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); `Victory(canContinue)` para Merge | Equipo | Reunión del Paso 3 | ARQ-02 §8 |
+| ☐ D-35 | **Patrones de diseño del dominio.** Recomendación: 14 patrones con un problema real cada uno. Creacionales: Abstract Factory, Builder, Factory Method. Estructurales: Bridge, Composite, Decorator. De comportamiento: Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor. Falta decidir cómo se protege el Template Method: `@nonVirtual` de `package:meta` (dependencia externa) o regla de revisión | Equipo | Reunión del Paso 3 | ARQ-02 §9 |
 
 ### 1.2 Cerradas
 
@@ -87,7 +94,7 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 | 0b | `docs/security/SECURITY-BASELINE.md` | Ambos (compartido) | ✅ Hecho | — |
 | 1 | **Requisitos** (`docs/requirements/`): glosario, reglas de negocio (comunes, topologías, 4 variantes, niveles, cuenta/progreso/ranking), RF + RNF, historias, trazabilidad | Ambos (ver `docs/README.md`) | 📝 **Borrador listo — revisión de cada integrante.** Abiertas: D-19, D-20 | |
 | 2 | **Arquitectura general** (`docs/architecture/`): `ARQ-00-SISTEMA.md` (compartido), `ARQ-01-APP-GENERAL.md`, `ARQ-01-API-GENERAL.md` | Ambos | 📝 **Borrador listo — revisión del equipo** (D-21, D-22, D-23, más las propuestas 🟡 sin número de pendiente: ARQ-S-02 a 04, ARQ-A-05 a 08, ARQ-B-04) | |
-| 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07). **Lo decide el equipo**; las 6 preguntas de partida están en `ARQ-01-APP-GENERAL.md` §10 | App | ⏭️ **Siguiente** | |
+| 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07). **Lo decide el equipo** | App | 📝 **Opciones listas en `docs/architecture/ARQ-02-MOTOR.md`** — falta que el equipo decida D-29 a D-35 | |
 | 4 | **Arquitectura detallada:** casos de uso genéricos, puertos y adaptadores, mapa de patrones, aspecto AOP, los 3 diagramas (clases en PlantUML; capas y extensibilidad en Mermaid) y `EXTENSIBILITY.md` | Ambos | ☐ Pendiente | |
 | 5 | **Contratos:** `openapi.yaml`, JSON Schema de niveles, modelo de datos local y del servidor (cierra D-19) | Ambos | ☐ Pendiente | |
 | 6 | **Contenido y pruebas:** 15 niveles de Hexa Fit y 10 de Hexa Sort; estrategia de pruebas | App (+ API para pruebas) | ☐ Pendiente | |

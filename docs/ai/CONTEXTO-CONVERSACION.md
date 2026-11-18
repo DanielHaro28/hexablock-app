@@ -2,7 +2,7 @@
 
 > **Para qué sirve:** retomar la planificación en otra conversación o herramienta (Claude, Claude Code, Cline…) sin perder nada de lo decidido. Es una **foto del estado actual**; el detalle está en los documentos que se citan.
 >
-> **Última actualización:** 2026-11-12 · **Idioma de trabajo:** español (código, commits y README en inglés).
+> **Última actualización:** 2026-11-17 · **Idioma de trabajo:** español (código, commits y README en inglés).
 >
 > **Va junto con:** `docs/PENDIENTES.md` (estado de todo lo que falta) y el prompt `PROMPT-NUEVA-CONVERSACION.md`.
 
@@ -82,7 +82,9 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 
 **Preguntas de partida del Paso 3** (`ARQ-01-APP-GENERAL.md` §10): cómo se despacha la topología y hasta qué capa llega `TCoord`; qué son `TCell`, `TMove` y `TState` por variante y sus restricciones; deshacer con Memento o Command; forma de los eventos de dominio; capacidades opcionales (deshacer, tiempo, azar, niveles); máquina de estados con clases (State) o enum.
 
-**Configuración de GitHub pendiente:** invitar colaboradores (G-01), secret scanning + push protection + Dependabot (G-03), `CODEOWNERS` (G-04), `SECURITY.md` (G-05), aprobación de workflows de forks (G-06), `GITHUB-SETUP.md` (G-08), `AI_USAGE.md` (A-03), `APPROVED-TOOLS.md` (A-04).
+**Configuración de GitHub pendiente:** invitar colaboradores (G-01), secret scanning + push protection + Dependabot (G-03), `CODEOWNERS` (G-04), `SECURITY.md` (G-05), aprobación de workflows de forks (G-06), `GITHUB-SETUP.md` (G-08), completar `AI_USAGE.md` (A-03, creado en los PR #2), `APPROVED-TOOLS.md` (A-04).
+
+**Repos en GitHub (17-11):** los documentos de los Pasos 0 a 2 están en `main` de los dos repos (PR #1, *squash*). Claude tiene acceso de escritura y trabaja siempre con una rama `docs/...` y un PR que sigue la plantilla del repo, con título Conventional Commits con ámbito (p. ej. `docs(planning): …`), porque con *squash* el título del PR es el commit que queda en `main`.
 
 ## 5. Arquitectura en breve
 

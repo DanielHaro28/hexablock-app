@@ -277,9 +277,9 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. La f
 | ID | Decisión | Estado |
 |---|---|---|
 | ARQ-A-01 | Cuatro capas Clean según el enunciado §3.4 | ✅ |
-| ARQ-A-02 | Pub workspace con **4 paquetes Dart puros** (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter | 🟡 D-21 |
-| ARQ-A-03 | Los casos de uso (capa 2) van en un paquete propio, sin Flutter, para que no puedan ver las variantes y se prueben sin emulador | 🟡 D-21 |
-| ARQ-A-04 | Las variantes en **un solo paquete** con una carpeta por variante (no un paquete por variante): menos configuración, y la regla que importa (el motor no ve las variantes) se cumple igual | 🟡 D-21 |
+| ARQ-A-02 | Pub workspace con **4 paquetes Dart puros** (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter | ✅ D-21 (17-11) |
+| ARQ-A-03 | Los casos de uso (capa 2) van en un paquete propio, sin Flutter, para que no puedan ver las variantes y se prueben sin emulador | ✅ D-21 (17-11) |
+| ARQ-A-04 | Las variantes en **un solo paquete** con una carpeta por variante (no un paquete por variante): menos configuración, y la regla que importa (el motor no ve las variantes) se cumple igual | ✅ D-21 (17-11) |
 | ARQ-A-05 | Los aspectos AOP son decoradores en la capa 2 que dependen solo de puertos; se conectan en el composition root | 🟡 |
 | ARQ-A-06 | El tablero se dibuja combinando **layout de topología × pintor de contenido de la variante** | 🟡 |
 | ARQ-A-07 | El audio reacciona a los eventos de dominio desde la capa 4 (Observer + Facade); no hay puerto de audio en los casos de uso | 🟡 |

@@ -1,8 +1,9 @@
 # DECISIONES — hexablock-app
 
-> Registro de **todas las decisiones cerradas** que afectan a `hexablock-app`: las del equipo (`D-*`) y las respuestas del profesor o del enunciado (`P-*`).
+> Registro de las **decisiones cerradas** que afectan a `hexablock-app`: las del equipo (`D-*`) y las respuestas del profesor o del enunciado (`P-*`).
 >
 > - Las decisiones **abiertas** están en `hexablock-app/docs/PENDIENTES.md` §1.1. Al cerrarse, pasan aquí con su fecha y se borran de allí.
+> - Este archivo reúne **todas** las decisiones del proyecto; la columna *Repos* dice a cuál afecta cada una.
 > - Las decisiones que afectan a los dos repos aparecen **con el mismo texto** en el `DECISIONES.md` de `hexablock-api` (columna *Repos*: **Ambos**). Si cambian, se cambian en los dos.
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
@@ -49,6 +50,13 @@
 |---|---|---|---|---|
 | D-18 | **Topologías:** solo rejillas regulares. Hexágonos (dominio + app, Must); cuadrados y triángulos (dominio + app 2D, Should); cubos (dominio con pruebas, Should; vista 3D, Could) | RN-COM-18, RN-TOP-01 a 04 | Ambos | 11-11 |
 | D-25 | **El jugador elige la figura de las celdas en Ajustes** (solo las disponibles; hexágonos por defecto). La figura se fija al crear la partida y **no se puede cambiar durante ella**: la opción se bloquea mientras haya una partida en curso o en pausa | RN-COM-19, RN-COM-113, RN-TOP-30, 31; RF-09; NAV-08 | Ambos | 11-11 |
+
+### Arquitectura general (Paso 2)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-21 | **Paquetes de la app:** pub workspace con **4 paquetes Dart puros** y la app Flutter. Capa 1: `hexa_engine`, `hexa_topologies` y `hexa_variants` (una carpeta por variante). Capa 2: `hexa_application` (casos de uso genéricos, puertos y aspectos). Capas 3 y 4: la app (`lib/adapters/` = capa 3; `lib/frameworks/`, `lib/config/` y `main.dart` = capa 4). Los paquetes de las capas 1 y 2 no tienen dependencias de terceros (enunciado §3.4) y su `pubspec` impide importar capas externas | ARQ-01-APP §3, ARQ-A-02 a 04 | App | 17-11 |
+| D-22 | **Estructura del backend:** módulos por área (`auth`, `users`, `progress`, `leaderboard`, `levels`, `health`) con `domain/` (capa 1), `application/` (capa 2: casos de uso y puertos), `presentation/` e `infrastructure/` (capa 3: controladores y DTOs; adaptadores que implementan los puertos, como repositorios Prisma, argon2 y JWT). `main.ts`, `src/prisma/` y la configuración de NestJS son capa 4. **Un caso de uso por clase.** Cómo se guarda el progreso (JSON) queda para D-27 | ARQ-01-API §2 a §4, ARQ-B-01, 02 | API | 17-11 |
 
 ### Motor genérico (Paso 3)
 

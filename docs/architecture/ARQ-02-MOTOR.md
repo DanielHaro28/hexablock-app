@@ -590,7 +590,7 @@ GameOutcome evaluate(SortState<C> state) =>
 
 `TurnResult` es *sealed*: `PlayedTurn` (estado nuevo, eventos y resultado) o `RejectedTurn` (el mismo estado y el motivo, RN-COM-21). Cada `Step` es un estado más los eventos de ese paso.
 
-Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. Está abierto en **D-36** (`PENDIENTES.md` §1.1), con la recomendación de usar `@nonVirtual`.
+Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. Está abierto en **D-36** (`PENDIENTES.md` §1.1). La recomendación es la **regla + prueba de arquitectura**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa.
 
 ---
 
@@ -626,4 +626,4 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 | D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | ✅ Decidida (17-11) |
 | D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | ✅ Decidida (17-11) |
 | D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8). Cómo se protege el Template Method pasó a D-36 | ✅ Decidida (17-11) |
-| D-36 | Protección del Template Method | `@nonVirtual` de `package:meta` | 🟡 Abierta |
+| D-36 | Protección del Template Method | Regla en la plantilla de PR + prueba de arquitectura en CI (sin dependencias, por el enunciado §3.4) | 🟡 Abierta |

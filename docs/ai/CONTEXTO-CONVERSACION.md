@@ -67,7 +67,7 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 | 0 | ADR-001 + SECURITY-BASELINE | ✅ |
 | 1 | Requisitos: glosario, reglas de negocio, RF/RNF, historias, trazabilidad | 📝 Borrador listo; revisión de cada integrante |
 | 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | 📝 Borrador listo; aprobar D-21 a D-23 |
-| **3** | **Motor genérico** (lo decide el equipo) | ⏭️ **Siguiente** |
+| **3** | **Motor genérico** (lo decide el equipo) | 📝 Opciones listas en `ARQ-02-MOTOR.md`; DanielHaro28 de acuerdo (17-11); **confirmar D-29 a D-35 con el equipo** |
 | 4 | Arquitectura detallada: casos de uso, puertos, mapa de patrones, AOP, 3 diagramas, `EXTENSIBILITY.md` | ☐ |
 | 5 | Contratos: `openapi.yaml`, JSON Schema de niveles, modelo de datos | ☐ |
 | 6 | Contenido (15 + 10 niveles) y estrategia de pruebas | ☐ |
@@ -78,11 +78,13 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 
-**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura).
+**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura); y las del Paso 3, D-29 a D-35 (ver abajo).
 
-**Preguntas de partida del Paso 3** (`ARQ-01-APP-GENERAL.md` §10): cómo se despacha la topología y hasta qué capa llega `TCoord`; qué son `TCell`, `TMove` y `TState` por variante y sus restricciones; deshacer con Memento o Command; forma de los eventos de dominio; capacidades opcionales (deshacer, tiempo, azar, niveles); máquina de estados con clases (State) o enum.
+**Paso 3 (`ARQ-02-MOTOR.md`, 17-11):** las 6 preguntas tienen opciones y recomendación; las decide el equipo. Recomendado: Visitor genérico para despachar la figura y `TCoord` hasta el widget del tablero (D-29); estado inmutable, celda vacía = `null`, movimientos *sealed* y `Tile implements Mergeable<Tile>` (D-30); Command + Memento para deshacer (D-31); eventos devueltos por las reglas, que la pantalla recibe como retorno de `submit`, y un `Stream` solo para historial, cronómetro, audio y analítica (D-32); capacidades ISP compuestas por la fábrica en una `GameSession` (D-33); fases con el patrón State (D-34); 14 patrones GoF en el dominio, 3 + 3 + 8 (D-35). Los esbozos de Dart **no están compilados** (sin SDK en la planificación): se validan en el *spike* de TEC-01. La lógica de deshacer y de fases se comprobó con `tools/reference-sim/engine_model.py`.
 
 **Configuración de GitHub pendiente:** invitar colaboradores (G-01), secret scanning + push protection + Dependabot (G-03), `CODEOWNERS` (G-04), `SECURITY.md` (G-05), aprobación de workflows de forks (G-06), `GITHUB-SETUP.md` (G-08), completar `AI_USAGE.md` (A-03, creado en los PR #2), `APPROVED-TOOLS.md` (A-04).
+
+**Sin PR hasta que el usuario lo pida (17-11):** los cambios se suben como commits a una rama `docs/...`; el PR se abre solo cuando el usuario lo indique. El diseño del motor está en la rama `docs/engine-design` (su PR #3 se cerró a pedido del usuario).
 
 **Repos en GitHub (17-11):** los documentos de los Pasos 0 a 2 están en `main` de los dos repos (PR #1, *squash*). Claude tiene acceso de escritura y trabaja siempre con una rama `docs/...` y un PR que sigue la plantilla del repo, con título Conventional Commits con ámbito (p. ej. `docs(planning): …`), porque con *squash* el título del PR es el commit que queda en `main`.
 
@@ -101,6 +103,7 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 | `docs/security/SECURITY-BASELINE.md` | compartido | compartido |
 | `docs/architecture/ARQ-00-SISTEMA.md` | compartido | compartido |
 | `docs/architecture/ARQ-01-APP-GENERAL.md` / `ARQ-01-API-GENERAL.md` | app | API |
+| `docs/architecture/ARQ-02-MOTOR.md` (motor genérico y patrones del dominio) | ✅ | — |
 | `docs/requirements/01-GLOSARIO.md` | compartido | compartido |
 | `docs/requirements/02-RN-COMUNES.md`, `02-RN-TOPOLOGIAS.md`, `02-RN-HEXA-*.md` | ✅ | — |
 | `docs/requirements/02-RN-NIVELES.md`, `02-RN-CUENTA-PROGRESO-RANKING.md` | compartido | compartido |

@@ -6,6 +6,7 @@ Scripts en Python que se usaron para **verificar los ejemplos** de las reglas de
 |---|---|
 | `hexsim.py` | Topología hexagonal (axial *pointy-top*), dibujo ASCII, Hexa Lines (colocar y borrar líneas), Hexa Sort (cascada con desempate horario y metas), Hexa Merge (deslizar y fusionar) y el generador xorshift32 |
 | `trisim.py` | Topología de triángulos: índices de línea, vecinas, giro de 60° y tablero hexágono de lado n |
+| `engine_model.py` | Modelo del historial de deshacer y de las fases propuestos en `ARQ-02-MOTOR.md` (§5, §8), comprobado contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63. Uso: `python3 engine_model.py` |
 
 Uso: `python3 trisim.py` imprime una verificación rápida. `hexsim.py` se usa como módulo (`from hexsim import *`).
 

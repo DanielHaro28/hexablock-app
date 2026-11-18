@@ -11,7 +11,7 @@
 ## 1. Reglas de trabajo para el asistente
 
 1. Lee este archivo y `PENDIENTES.md` antes de responder. El **enunciado** es la fuente de verdad del proyecto.
-2. **No reabras decisiones cerradas** (`PENDIENTES.md` §1.2) salvo que el usuario lo pida.
+2. **No reabras decisiones cerradas** (`docs/DECISIONES.md` de cada repo) salvo que el usuario lo pida.
 3. **Cada vez que una respuesta cambie algo o mencione un documento, actualiza ese documento en el momento y entrégalo** (incluido `PENDIENTES.md`). Pedido explícito del usuario.
 4. Los **documentos compartidos** existen en los dos repos y deben quedar **idénticos**: se actualizan las dos copias.
 5. Las decisiones de **diseño** (genéricos, patrones, capas) **las toma el equipo** (§7.3 del enunciado): el asistente propone opciones con ventajas y desventajas, recomienda y documenta, pero no decide.
@@ -35,7 +35,7 @@
 
 ## 3. Decisiones vigentes (resumen)
 
-El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
+El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, todas; en la API, las que la afectan).
 
 **Stack e infraestructura (ADR-001, rev. 1.7):**
 - **App:** Flutter + Dart 3; pub workspace con paquetes Dart puros; `CustomPainter` (sin Flame); `flutter_bloc` (Cubit); `get_it`; **Drift** (SQLite); `shared_preferences` (solo ajustes); `flutter_secure_storage` (JWT); `dio`; i18n con ARB; `--dart-define=API_BASE_URL`.
@@ -67,8 +67,8 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 | 0 | ADR-001 + SECURITY-BASELINE | ✅ |
 | 1 | Requisitos: glosario, reglas de negocio, RF/RNF, historias, trazabilidad | 📝 Borrador listo; revisión de cada integrante |
 | 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | 📝 Borrador listo; aprobar D-21 a D-23 |
-| **3** | **Motor genérico** (lo decide el equipo) | 📝 Opciones listas en `ARQ-02-MOTOR.md`; DanielHaro28 de acuerdo (17-11); **confirmar D-29 a D-35 con el equipo** |
-| 4 | Arquitectura detallada: casos de uso, puertos, mapa de patrones, AOP, 3 diagramas, `EXTENSIBILITY.md` | ☐ |
+| 3 | Motor genérico (`ARQ-02-MOTOR.md`) | ✅ Decidido el 17-11 (D-29 a D-35); queda D-36 |
+| **4** | **Arquitectura detallada:** casos de uso, puertos, mapa de patrones, AOP, 3 diagramas, `EXTENSIBILITY.md` | ⏭️ **Siguiente** |
 | 5 | Contratos: `openapi.yaml`, JSON Schema de niveles, modelo de datos | ☐ |
 | 6 | Contenido (15 + 10 niveles) y estrategia de pruebas | ☐ |
 | 7 | Plan: Issues por repo, milestones, Definition of Done | ☐ |
@@ -78,13 +78,15 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 
-**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura); y las del Paso 3, D-29 a D-35 (ver abajo).
+**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura), D-36 (protección del Template Method; recomendado `@nonVirtual` de `package:meta`).
 
-**Paso 3 (`ARQ-02-MOTOR.md`, 17-11):** las 6 preguntas tienen opciones y recomendación; las decide el equipo. Recomendado: Visitor genérico para despachar la figura y `TCoord` hasta el widget del tablero (D-29); estado inmutable, celda vacía = `null`, movimientos *sealed* y `Tile implements Mergeable<Tile>` (D-30); Command + Memento para deshacer (D-31); eventos devueltos por las reglas, que la pantalla recibe como retorno de `submit`, y un `Stream` solo para historial, cronómetro, audio y analítica (D-32); capacidades ISP compuestas por la fábrica en una `GameSession` (D-33); fases con el patrón State (D-34); 14 patrones GoF en el dominio, 3 + 3 + 8 (D-35). Los esbozos de Dart **no están compilados** (sin SDK en la planificación): se validan en el *spike* de TEC-01. La lógica de deshacer y de fases se comprobó con `tools/reference-sim/engine_model.py`.
+**Paso 3 (`ARQ-02-MOTOR.md`, decidido el 17-11):** el equipo adoptó todas las recomendaciones: Visitor genérico para despachar la figura y `TCoord` hasta el widget del tablero (D-29); estado inmutable, celda vacía = `null`, movimientos *sealed* y `Tile implements Mergeable<Tile>` (D-30); Command + Memento para deshacer (D-31); eventos devueltos por las reglas, que la pantalla recibe como retorno de `submit`, y un `Stream` solo para historial, cronómetro, audio y analítica (D-32); capacidades ISP compuestas por la fábrica en una `GameSession` (D-33); fases con el patrón State (D-34); 14 patrones GoF en el dominio, 3 + 3 + 8 (D-35). Los esbozos de Dart **no están compilados** (sin SDK en la planificación): se validan en el *spike* de TEC-01. La lógica de deshacer y de fases se comprobó con `tools/reference-sim/engine_model.py`.
 
 **Configuración de GitHub pendiente:** invitar colaboradores (G-01), secret scanning + push protection + Dependabot (G-03), `CODEOWNERS` (G-04), `SECURITY.md` (G-05), aprobación de workflows de forks (G-06), `GITHUB-SETUP.md` (G-08), completar `AI_USAGE.md` (A-03, creado en los PR #2), `APPROVED-TOOLS.md` (A-04).
 
-**Sin PR hasta que el usuario lo pida (17-11):** los cambios se suben como commits a una rama `docs/...`; el PR se abre solo cuando el usuario lo indique. El diseño del motor está en la rama `docs/engine-design` (su PR #3 se cerró a pedido del usuario).
+**Sin PR hasta que el usuario lo pida (17-11):** los cambios se suben como commits a una rama `docs/...`; el PR se abre y se fusiona solo cuando el usuario lo indique.
+
+**Decisiones en archivo propio (17-11):** las decisiones cerradas (D-* y P-*) salieron de `PENDIENTES.md` y están en `docs/DECISIONES.md` de cada repo. Las compartidas tienen el mismo texto en los dos (columna *Repos*: Ambos). `PENDIENTES.md` solo guarda las abiertas.
 
 **Repos en GitHub (17-11):** los documentos de los Pasos 0 a 2 están en `main` de los dos repos (PR #1, *squash*). Claude tiene acceso de escritura y trabaja siempre con una rama `docs/...` y un PR que sigue la plantilla del repo, con título Conventional Commits con ámbito (p. ej. `docs(planning): …`), porque con *squash* el título del PR es el commit que queda en `main`.
 
@@ -108,6 +110,7 @@ El detalle y la fecha de cada una están en `PENDIENTES.md` §1.2.
 | `docs/requirements/02-RN-COMUNES.md`, `02-RN-TOPOLOGIAS.md`, `02-RN-HEXA-*.md` | ✅ | — |
 | `docs/requirements/02-RN-NIVELES.md`, `02-RN-CUENTA-PROGRESO-RANKING.md` | compartido | compartido |
 | `docs/requirements/03-REQUISITOS.md`, `04-HISTORIAS.md`, `05-TRAZABILIDAD.md` | versión app (50 historias) | versión API (9 historias) |
+| `docs/DECISIONES.md` (decisiones cerradas) | ✅ (todas) | ✅ (las que afectan al backend) |
 | `docs/PENDIENTES.md`, `docs/ai/CONTEXTO-CONVERSACION.md`, `docs/ai/PROMPT-NUEVA-CONVERSACION.md` | ✅ (solo aquí) | — |
 | `.github/pull_request_template.md` | ✅ (app) | ✅ (API) |
 | `tools/reference-sim/` (simulador de referencia de los ejemplos) | ✅ | — |

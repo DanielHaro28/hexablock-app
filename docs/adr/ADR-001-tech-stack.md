@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -212,4 +212,4 @@ Este ADR solo fija las herramientas. Cualquier cambio de stack que afecte un con
 
 ## 6. Pendientes
 
-Los pendientes que deja esta decisión están centralizados en **`hexablock-app/docs/PENDIENTES.md`** (secciones 1, 2 y 4).
+Los pendientes que deja esta decisión están centralizados en **`hexablock-app/docs/PENDIENTES.md`** (secciones 1 y 4). Las decisiones ya cerradas están en `docs/DECISIONES.md` de cada repo.

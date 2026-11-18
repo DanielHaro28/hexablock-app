@@ -11,7 +11,7 @@
 
 - Las **reglas de juego** que estaban dentro de los criterios ahora viven en `02-RN-*.md`. Los criterios las **citan** por ID (por ejemplo, "según RN-HS-42") en lugar de repetirlas.
 - Se agregó a cada historia el **RF** que cubre.
-- Se aplicaron las respuestas del profesor, lo que ya define el enunciado y las decisiones del equipo (`PENDIENTES.md` §1–2): sin rotación en Hexa Lines, 1 pila en la bandeja de Hexa Sort, Hexa Merge continúa tras 2048, ranking de Fit por estrellas → tiempo → movimientos, modo invitado y offline.
+- Se aplicaron las respuestas del profesor, lo que ya define el enunciado y las decisiones del equipo (`docs/DECISIONES.md`): sin rotación en Hexa Lines, 1 pila en la bandeja de Hexa Sort, Hexa Merge continúa tras 2048, ranking de Fit por estrellas → tiempo → movimientos, modo invitado y offline.
 - **API-05** pasa de *Should* a **Must** (profesor, P-08). **NAV-04** pasa a **Must** (el patrón State exige el estado de pausa).
 - **Historias nuevas:** NAV-06, NAV-07, NAV-08, API-06, API-07, API-08, TEC-06 a TEC-09 (app) y TEC-10 (api).
 - **Separación por repositorio (11-11):** las historias que tocan app y servidor (API-01 a 03, LVL-01) aparecen en **los dos repos con el mismo ID**, cada una con los criterios de su lado. Las que son solo de servidor (API-04, LVL-02, TEC-05, TEC-10) están en `hexablock-api`. En GitHub se crea **un Issue por repo**, con el mismo ID y la etiqueta `app` o `api`.

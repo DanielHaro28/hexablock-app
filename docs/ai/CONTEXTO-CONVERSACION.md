@@ -60,13 +60,15 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 
 **Motor (D-07, opción A):** la coordenada es un **parámetro genérico**: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>`, `GameEngine<TCoord, TCell, TMove, TState>`. `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` que vive en `hexa_topologies` (no en el motor). La figura elegida se despacha en el composition root con una función genérica que conserva `TCoord`.
 
+**Arquitectura y persistencia (17-11):** app en 4 paquetes Dart puros + Flutter (D-21); backend en módulos con carpetas Clean y un caso de uso por clase, con `infrastructure/` solo para adaptadores (D-22); el contrato vive en `hexablock-api/docs/contracts/` y la app guarda una copia verificada por CI (D-23); la partida en curso se guarda tras cada turno en `saved_games` y se puede continuar aunque la app se cierre (D-37).
+
 ## 4. Estado de la hoja de ruta
 
 | Paso | Contenido | Estado |
 |---|---|---|
 | 0 | ADR-001 + SECURITY-BASELINE | ✅ |
 | 1 | Requisitos: glosario, reglas de negocio, RF/RNF, historias, trazabilidad | 📝 Borrador listo; revisión de cada integrante |
-| 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | 📝 D-21 y D-22 cerradas (17-11); falta D-23 |
+| 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | ✅ D-21 a D-23 cerradas (17-11) |
 | 3 | Motor genérico (`ARQ-02-MOTOR.md`) | ✅ Decidido el 17-11 (D-29 a D-35); queda D-36 |
 | **4** | **Arquitectura detallada:** casos de uso, puertos, mapa de patrones, AOP, 3 diagramas, `EXTENSIBILITY.md` | ⏭️ **Siguiente** |
 | 5 | Contratos: `openapi.yaml`, JSON Schema de niveles, modelo de datos | ☐ |
@@ -78,7 +80,7 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 
-**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura), D-36 (protección del Template Method; recomendada una regla + prueba de arquitectura, sin dependencias, por §3.4), D-37 (guardar la partida en curso: tabla `saved_games`, guardado tras cada turno y al ir a segundo plano).
+**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura), D-36 (protección del Template Method; recomendada una regla + prueba de arquitectura, sin dependencias, por §3.4).
 
 **Paso 3 (`ARQ-02-MOTOR.md`, decidido el 17-11):** el equipo adoptó todas las recomendaciones: Visitor genérico para despachar la figura y `TCoord` hasta el widget del tablero (D-29); estado inmutable, celda vacía = `null`, movimientos *sealed* y `Tile implements Mergeable<Tile>` (D-30); Command + Memento para deshacer (D-31); eventos devueltos por las reglas, que la pantalla recibe como retorno de `submit`, y un `Stream` solo para historial, cronómetro, audio y analítica (D-32); capacidades ISP compuestas por la fábrica en una `GameSession` (D-33); fases con el patrón State (D-34); 14 patrones GoF en el dominio, 3 + 3 + 8 (D-35). Los esbozos de Dart **no están compilados** (sin SDK en la planificación): se validan en el *spike* de TEC-01. La lógica de deshacer y de fases se comprobó con `tools/reference-sim/engine_model.py`.
 

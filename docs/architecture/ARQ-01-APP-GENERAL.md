@@ -169,6 +169,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Cola de sincronización | Repositorio → Drift |
+| `ISavedGameRepository` | Partida en curso guardada por perfil, variante y figura (D-37) | Repositorio → Drift |
 | `IProgressGateway` | Enviar y recibir el progreso del servidor | Gateway → dio |
 | `ILevelGateway` | Descargar niveles | Gateway → dio |
 | `ILeaderboardGateway` | Consultar el ranking | Gateway → dio (+ caché) |
@@ -196,7 +197,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
 | **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
-| **Persistencia** | Drift: tablas `progress`, `profiles`, `downloaded_levels`, `sync_outbox` (definidas en el Paso 5) |
+| **Persistencia** | Drift: tablas `progress`, `profiles`, `downloaded_levels`, `sync_outbox` y `saved_games` (D-37; definidas en el Paso 5) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
 | **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger |
 | **Composition root** | `main.dart` + `get_it`: crea las implementaciones, aplica los decoradores y registra variantes y topologías |

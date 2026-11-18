@@ -76,7 +76,7 @@
 | RF-02 | HF-01, HS-01 | RN-COM-73, RN-HF-72, RN-HS-72 | — | |
 | RF-03 | NAV-03 | RN-COM-110, 112 | — | |
 | RF-04 | NAV-02 | RN-COM-111 | — | |
-| RF-05 | NAV-04 | RN-COM-24, 30 a 32, 52 | — | |
+| RF-05 | NAV-04 | RN-COM-24, 30 a 35, 52 | — | |
 | RF-06 | PRG-01 | RN-COM-31, RN-HF-64, RN-HS-61, RN-HM-51 | — | |
 | RF-07 | PRG-02 | RN-COM-31 | — | |
 | RF-08 | NAV-05 | — | — | |
@@ -108,7 +108,7 @@
 | RF-61 | PRG-04 | RN-COM-73 | — | |
 | RF-62 | API-05 | RN-COM-81, 107 | — | |
 | RF-63 | API-08 | RN-COM-82, 85 | — | |
-| RF-64 | NAV-04 | RN-COM-32, 42 | — | |
+| RF-64 | NAV-04 | RN-COM-32 a 35, 42 | — | |
 | RF-70 | API-01 | SEC-MOB-01 | — | |
 | RF-71 | API-02, API-07 | RN-COM-87, 89, SEC-MOB-04 | — | |
 | RF-72 | API-03, API-08 | RN-COM-83 a 87, 90 | E-COM-2 | |

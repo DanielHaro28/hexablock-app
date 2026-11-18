@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -63,6 +63,7 @@ Restricciones del equipo:
 | Progreso por perfil y `gameId` (y figura, propuesta D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
 | Niveles descargados del servidor (id, `gameId`, orden, versión, JSON) | Drift: tabla `downloaded_levels` |
 | Cambios de progreso pendientes de sincronizar (*outbox*) | Drift: tabla `sync_outbox` |
+| Partida en curso, para continuarla si la app se cierra (D-37) | Drift: tabla `saved_games` |
 | Niveles incluidos en la app | Assets JSON (`assets/levels/<gameId>/*.json`), cargados con el Builder |
 | Idioma, audio y figura de las celdas | `shared_preferences` |
 | JWT | `flutter_secure_storage` |

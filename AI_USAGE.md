@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-17 (IA-13)
+> **Última actualización:** 2026-11-17 (IA-14)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -174,6 +174,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | Comparación de D-21 y D-22 con el enunciado §3.4, §3.5 y §4. D-21 y D-22 cerradas; en D-22, `infrastructure/` queda solo con adaptadores (capa 3) y la capa 4 se nombra aparte. D-36 cambia de recomendación (sin `package:meta`, porque §3.4 prohíbe dependencias externas en la capa 1). D-37 registrada como abierta, con recomendación |
 | Modificaciones del equipo | ⚠️ completar |
 | Lecciones | Revisar una recomendación contra la letra del enunciado puede cambiarla: la de D-36 (del día anterior) contradecía §3.4 |
+
+### IA-14 · Cierre de D-23 y D-37 — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 17-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "Me gusta las 2 recomendaciones cierralas modifica los documentos que tengas que modificar y vamos al paso 4" |
+| Resultado | D-23 cerrada (contrato en `hexablock-api/docs/contracts/` con copia verificada por CI en la app; ARQ-S-05 y ARQ-B-05). D-37 cerrada: reglas RN-COM-33 a 35 nuevas, RN-COM-32 confirmada, RF-64 pasa a Must, criterio nuevo en NAV-04, puerto `ISavedGameRepository`, tabla `saved_games` en el ADR (rev. 1.9) y término "Partida guardada" en el glosario |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | Una pregunta del usuario ("¿qué pasa si cierro la app?") destapó un requisito que faltaba: guardar la partida en curso |
 
 ## 4. Evaluación crítica
 

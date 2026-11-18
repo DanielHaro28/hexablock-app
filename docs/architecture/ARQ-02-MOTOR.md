@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | **Propuesta — la decide el equipo** (enunciado §7.3). Las decisiones abiertas son D-29 a D-35 (`PENDIENTES.md` §1.1) |
-| Fecha | 2026-11-17 |
+| Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` §10: responde las 6 preguntas de partida del Paso 3 |
 | Fija | Tipos genéricos, contratos del motor, ciclo de turno, fases de la partida, eventos, deshacer, capacidades opcionales y **patrones de diseño del dominio** |
@@ -102,6 +102,7 @@ sequenceDiagram
     participant EN as GameEngine
     participant PH as GamePhase
     participant RU as Reglas de la variante
+    participant OB as Otros oyentes
     UI->>CU: toque en la celda c
     CU->>UC: execute(move)
     UC->>EN: submit(move)
@@ -112,7 +113,10 @@ sequenceDiagram
     RU-->>EN: TurnResult(estado nuevo, eventos, resultado)
     EN->>PH: onTurnFinished(resultado)
     PH-->>EN: PlayingPhase, VictoryPhase o GameOverPhase
-    EN-->>CU: eventos en orden (Stream: Observer)
+    EN->>OB: los mismos eventos por el Stream (Observer):<br/>historial y cronómetro, síncronos
+    EN-->>UC: MoveResult (estado, eventos en orden, resultado)
+    UC-->>CU: MoveResult, en la misma llamada
+    EN--)OB: audio y analítica, un instante después
     CU-->>UI: estado de pantalla + animaciones
 ```
 
@@ -307,7 +311,7 @@ final class MoveCommand<TMove, TState> {
 
 final class UndoHistory<TMove, TState> implements IUndoable {
   UndoHistory(this._engine, {this.limit, this.allowsRedo = false}) {
-    _engine.committedTurns.listen(_record); // Observer
+    _engine.committedTurns.listen(_record); // Observer, synchronous stream (D-32)
   }
   final UndoableEngine<TMove, TState> _engine;
   final int? limit; // null = unlimited (Fit); 1 = Hexa Merge
@@ -345,15 +349,36 @@ final class UndoHistory<TMove, TState> implements IUndoable {
 
 | Opción | Cómo | Ventajas | Desventajas |
 |---|---|---|---|
-| **A. Eventos como datos + `Stream` del motor** | Las reglas devuelven los eventos del turno en orden dentro del `TurnResult`; el motor los publica en un `Stream<GameEvent<C>>` (Observer). Jerarquía abierta: una base `GameEvent<C>`, los eventos del motor (`PhaseChanged`, `ScoreChanged`, `MoveRejected`, `StateRestored`) y una familia *sealed* por variante (`LinesCleared`, `StackTransferred`, `GoalCompleted`, `TilesMerged`, `TileSpawned`…) | Las reglas siguen puras (se prueban comparando listas de eventos); el orden de la cascada se conserva (RN-COM-25, RN-HS-45); cada variante hace `switch` exhaustivo sobre sus eventos | Hay que definir una clase por evento |
+| A. Eventos como datos + `Stream` del motor | Las reglas devuelven los eventos del turno en orden dentro del `TurnResult`; el motor los publica en un `Stream<GameEvent<C>>` (Observer). Jerarquía abierta: una base `GameEvent<C>`, los eventos del motor (`PhaseChanged`, `ScoreChanged`, `MoveRejected`, `StateRestored`) y una familia *sealed* por variante (`LinesCleared`, `StackTransferred`, `GoalCompleted`, `TilesMerged`, `TileSpawned`…) | Las reglas siguen puras (se prueban comparando listas de eventos); el orden de la cascada se conserva (RN-COM-25, RN-HS-45); cada variante hace `switch` exhaustivo sobre sus eventos | Hay que definir una clase por evento |
+| **A2. Como A, pero la pantalla los recibe como valor de retorno** | Los mismos eventos que A. `submit` **devuelve** un `MoveResult` con el estado nuevo, los eventos en orden y el resultado; el caso de uso se lo pasa al Cubit en la misma llamada. El `Stream` queda para los oyentes secundarios: historial de deshacer, cronómetro, audio y analítica | Todo lo de A, y además la pantalla no depende del momento en que el `Stream` entrega los eventos: recibe todo antes del siguiente cuadro. Las pruebas comparan lo que devuelve `submit` | Dos caminos que documentar (retorno y `Stream`) |
 | B. Solo estados | La interfaz compara el estado anterior con el nuevo | Nada que definir | Pierde el orden y los pasos intermedios de la cascada: no se puede animar Sort |
 | C. Llamadas a oyentes desde las reglas | Las reglas reciben un `listener` y lo llaman | Inmediato | Reglas con efectos secundarios: más difíciles de probar y de reutilizar |
 | D. Bus de eventos global | Un singleton al que todos publican | Desacopla mucho | Dependencias ocultas; difícil de seguir en una defensa |
 
-**Recomendación: A.** El motor publica los eventos **después** de calcular el turno completo, todos en orden. La interfaz bloquea la entrada mientras anima (es un asunto de la vista: el dominio ya terminó). El audio y la analítica también se suscriben (ARQ-A-07).
+**Recomendación: A2.** El turno se calcula completo, en menos de un milisegundo, y después:
+
+1. **La pantalla** recibe el `MoveResult` como valor de retorno de `submit` → `ApplyMoveUseCase` → `GameCubit`. El retraso que ve el jugador es solo el de las animaciones, y lo controla la vista: su duración, la opción de saltarlas y el bloqueo de toques mientras se reproducen.
+2. **Los oyentes internos del dominio** (`UndoHistory` y `ActiveTimer`) se suscriben a un `StreamController.broadcast(sync: true)`: reciben cada evento antes de que `submit` termine, así que el historial y el cronómetro ya están al día cuando la pantalla se redibuja. Ninguno de ellos llama a `submit`, lo que evita la reentrada que permite un *stream* síncrono.
+3. **Los oyentes externos** (el audio y la analítica, ARQ-A-07) se suscriben al `Stream` normal, que entrega los eventos en un instante posterior. No son urgentes.
+
+El tipo de retorno no se llama igual que los eventos para que no se confundan: `MoveRejected` es un evento (por ejemplo, para el sonido de error); `RejectedMove` es el resultado que devuelve `submit`.
 
 ```dart
 // hexa_engine
+sealed class MoveResult<C extends Coord, TState> { const MoveResult(); }
+
+final class AcceptedMove<C extends Coord, TState> extends MoveResult<C, TState> {
+  const AcceptedMove(this.state, this.events, this.outcome);
+  final TState state;
+  final List<GameEvent<C>> events; // in order: what the screen animates
+  final GameOutcome outcome;
+}
+
+final class RejectedMove<C extends Coord, TState> extends MoveResult<C, TState> {
+  const RejectedMove(this.reason); // RN-COM-21: state unchanged
+  final String reason;
+}
+
 abstract base class GameEvent<C extends Coord> { const GameEvent(); }
 
 final class PhaseChanged<C extends Coord> extends GameEvent<C> {
@@ -502,7 +527,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 | **Strategy** (obligatorio) | `IGameRules` (el motor la usa sin saber cuál es), `IScoringPolicy<TState>`, `IPieceSource<TPiece>` (`WeightedRandomPieceSource`, `FixedPieceSource`, `RandomStackSource`, `RandomTileSource`) e `IProgressModel` (récord o niveles con estrellas) | Todo lo que varía entre variantes se intercambia sin tocar el motor | §3.3 ("patrón central") |
 | **Template Method** | `GameRules<…>` (abstracta): `playTurn` fija el orden validar → aplicar → resolver → después de resolver → evaluar. Los pasos son *hooks*: `resolve` y `afterResolve` no hacen nada por defecto (Fit) y `evaluate`, por defecto, es "derrota si no hay movimientos válidos" (Lines, Sort y Merge) | Ninguna variante puede saltarse ni reordenar pasos (RN-COM-20, 23) | §3.3 (el ejemplo es el mismo) |
 | **State** | `GamePhase` y sus 5 fases (§8) | Ciclo de vida sin `if` repartidos | §3.3 |
-| **Observer** | `GameEngine.events` (`Stream<GameEvent<C>>`); se suscriben `UndoHistory`, `ActiveTimer`, el Cubit, el audio y la analítica | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
+| **Observer** | `GameEngine.events` (`Stream<GameEvent<C>>`); se suscriben `UndoHistory` y `ActiveTimer` (síncronos), y el audio y la analítica. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
 | **Command** | `MoveCommand<TMove, TState>` con `undo` y `redo`; `UndoHistory` es el invocador | Historial de deshacer y rehacer genérico | §3.3 |
 | **Memento** | Los estados inmutables son los mementos; el motor es el originador (`restore`) y `UndoHistory`, el cuidador | Restaurar **todo**, generador incluido, sin lógica inversa (RN-COM-61) | — |
 | **Iterator** | `GridTopology`: `lines`, `ray`, `neighbors` y `ring` devuelven `Iterable` perezosos (`sync*`); `validMoves` también es perezoso | Recorrer por ejes, anillos o vecindad sin exponer el mapa interno. Como es perezoso, "¿hay algún movimiento válido?" se detiene en el primero (fin de Lines, RN-HL-50) | §3.3 |
@@ -597,7 +622,7 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 | D-29 | Despacho de la figura y alcance de `TCoord` | Registro de topologías + Visitor genérico; `TCoord` llega hasta el widget del tablero | 🟡 Propuesta |
 | D-30 | `TCell`, `TMove`, `TState` y restricciones | Estado inmutable, celda vacía = `null` (`TCell extends Object`), movimientos *sealed* por variante, `Tile implements Mergeable<Tile>` en Merge; tabla de §4 | 🟡 Propuesta |
 | D-31 | Deshacer y rehacer | Command + Memento con un `UndoHistory` genérico configurado por la fábrica | 🟡 Propuesta |
-| D-32 | Eventos de dominio | Eventos como datos devueltos por las reglas, publicados en orden por un `Stream` del motor; base `abstract base` y una familia *sealed* por variante | 🟡 Propuesta |
+| D-32 | Eventos de dominio | Eventos como datos devueltos por las reglas. La pantalla los recibe como valor de retorno de `submit` (`MoveResult`); el `Stream` del motor queda para el historial y el cronómetro (síncronos) y para el audio y la analítica; base `abstract base` y una familia *sealed* por variante | 🟡 Propuesta |
 | D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | 🟡 Propuesta |
 | D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | 🟡 Propuesta |
 | D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8), y cómo se protege el Template Method (`package:meta` o regla de revisión) | 🟡 Propuesta |

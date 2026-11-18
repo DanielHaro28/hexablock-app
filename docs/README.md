@@ -8,6 +8,7 @@
 docs/
 ├── README.md                              ← este índice
 ├── PENDIENTES.md                          ← lista única de pendientes del PROYECTO (solo vive aquí)
+├── DECISIONES.md                          ← decisiones cerradas (D-* y P-*); las compartidas también en hexablock-api
 ├── adr/
 │   └── ADR-001-tech-stack.md              [compartido]
 ├── architecture/
@@ -62,6 +63,6 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 5. La regla de la variante en la que vas a trabajar (`02-RN-HEXA-*.md`).
 6. `03-REQUISITOS.md` y `04-HISTORIAS.md`: qué hay que construir.
 7. `SECURITY-BASELINE.md`: antes de tocar autenticación, red o agentes.
-8. `PENDIENTES.md`: qué falta y quién lo hace.
+8. `DECISIONES.md`: qué está decidido y dónde quedó. `PENDIENTES.md`: qué falta y quién lo hace.
 
 Para retomar la planificación con una IA: `ai/PROMPT-NUEVA-CONVERSACION.md`.

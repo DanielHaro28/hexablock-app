@@ -2,14 +2,14 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Propuesta — la decide el equipo** (enunciado §7.3). Las decisiones abiertas son D-29 a D-35 (`PENDIENTES.md` §1.1) |
-| Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). Sigue abierta D-36 (§9.6) |
+| Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` §10: responde las 6 preguntas de partida del Paso 3 |
 | Fija | Tipos genéricos, contratos del motor, ciclo de turno, fases de la partida, eventos, deshacer, capacidades opcionales y **patrones de diseño del dominio** |
 | No fija | Firmas de los casos de uso y puertos (Paso 4), formato de los niveles y del estado guardado (Paso 5) |
 
-**Cómo leer este documento.** Cada pregunta trae opciones con ventajas y desventajas, una **recomendación** y un esbozo de código. El equipo elige una opción por pregunta; al decidirla, se pasa a la sección 1.2 de `PENDIENTES.md` con su fecha y este documento cambia de "propuesta" a "decidido".
+**Cómo leer este documento.** Cada pregunta trae opciones con ventajas y desventajas, la **recomendación** y un esbozo de código. El equipo adoptó la opción recomendada en las 6 preguntas y en el mapa de patrones; las demás opciones quedan como registro de lo que se descartó y por qué, útil para la defensa.
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 
@@ -590,7 +590,7 @@ GameOutcome evaluate(SortState<C> state) =>
 
 `TurnResult` es *sealed*: `PlayedTurn` (estado nuevo, eventos y resultado) o `RejectedTurn` (el mismo estado y el motivo, RN-COM-21). Cada `Step` es un estado más los eventos de ese paso.
 
-Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. Se decide junto con D-35.
+Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. Está abierto en **D-36** (`PENDIENTES.md` §1.1), con la recomendación de usar `@nonVirtual`.
 
 ---
 
@@ -619,10 +619,11 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 
 | ID | Pregunta | Recomendación | Estado |
 |---|---|---|---|
-| D-29 | Despacho de la figura y alcance de `TCoord` | Registro de topologías + Visitor genérico; `TCoord` llega hasta el widget del tablero | 🟡 Propuesta |
-| D-30 | `TCell`, `TMove`, `TState` y restricciones | Estado inmutable, celda vacía = `null` (`TCell extends Object`), movimientos *sealed* por variante, `Tile implements Mergeable<Tile>` en Merge; tabla de §4 | 🟡 Propuesta |
-| D-31 | Deshacer y rehacer | Command + Memento con un `UndoHistory` genérico configurado por la fábrica | 🟡 Propuesta |
-| D-32 | Eventos de dominio | Eventos como datos devueltos por las reglas. La pantalla los recibe como valor de retorno de `submit` (`MoveResult`); el `Stream` del motor queda para el historial y el cronómetro (síncronos) y para el audio y la analítica; base `abstract base` y una familia *sealed* por variante | 🟡 Propuesta |
-| D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | 🟡 Propuesta |
-| D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | 🟡 Propuesta |
-| D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8), y cómo se protege el Template Method (`package:meta` o regla de revisión) | 🟡 Propuesta |
+| D-29 | Despacho de la figura y alcance de `TCoord` | Registro de topologías + Visitor genérico; `TCoord` llega hasta el widget del tablero | ✅ Decidida (17-11) |
+| D-30 | `TCell`, `TMove`, `TState` y restricciones | Estado inmutable, celda vacía = `null` (`TCell extends Object`), movimientos *sealed* por variante, `Tile implements Mergeable<Tile>` en Merge; tabla de §4 | ✅ Decidida (17-11) |
+| D-31 | Deshacer y rehacer | Command + Memento con un `UndoHistory` genérico configurado por la fábrica | ✅ Decidida (17-11) |
+| D-32 | Eventos de dominio | Eventos como datos devueltos por las reglas. La pantalla los recibe como valor de retorno de `submit` (`MoveResult`); el `Stream` del motor queda para el historial y el cronómetro (síncronos) y para el audio y la analítica; base `abstract base` y una familia *sealed* por variante | ✅ Decidida (17-11) |
+| D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | ✅ Decidida (17-11) |
+| D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | ✅ Decidida (17-11) |
+| D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8). Cómo se protege el Template Method pasó a D-36 | ✅ Decidida (17-11) |
+| D-36 | Protección del Template Method | `@nonVirtual` de `package:meta` | 🟡 Abierta |

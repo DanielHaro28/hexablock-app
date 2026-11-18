@@ -1,10 +1,10 @@
 # PENDIENTES — HexaBlock Suite
 
-> Lista única de pendientes del proyecto. **Vive solo en `hexablock-app/docs/PENDIENTES.md`**; el índice de documentación del backend apunta aquí.
+> Lista única de pendientes del proyecto. **Vive solo en `hexablock-app/docs/PENDIENTES.md`**; el índice de documentación del backend apunta aquí. Las decisiones **cerradas** no están aquí: están en `docs/DECISIONES.md` de cada repo.
 >
 > Reúne los que estaban en `ADR-001-tech-stack.md` §6, `SECURITY-BASELINE.md` §9 y `CONTEXTO-CONVERSACION.md` §7; esos documentos ahora apuntan aquí.
 >
-> **Última actualización:** 2026-11-17 (planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; opciones del Paso 3 en `ARQ-02-MOTOR.md`, D-29 a D-35, con el acuerdo de DanielHaro28) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-17 (planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; Paso 3 decidido: D-29 a D-35 cerradas; decisiones cerradas movidas a `DECISIONES.md`) · **Entrega:** lunes 14-12-2026
 >
 > Completar la columna **Responsable** al repartir el trabajo. Al cerrar un ítem: cambiar ☐ por ☑ y anotar la fecha.
 
@@ -26,63 +26,15 @@
 | ☐ D-26 | **Figura global o por variante.** Recomendación: **una sola figura para todo el juego**, elegida en Ajustes | Equipo | Reunión | RN-TOP-32 |
 | ☐ D-27 | **Progreso, récord y ranking separados por figura.** Recomendación: **sí**, porque los tableros no son comparables. **Cuidado con el enunciado §5.2**, que pide "una entrada de progreso por usuario y por variante". Dos formas de guardarlo: **A)** la topología forma parte de la clave (`userId` + `gameId` + `topology`): consultas simples, pero hay varias entradas por usuario y variante, lo que se aparta de la letra del enunciado; **B)** una entrada por `userId` + `gameId`, con una sección por figura dentro del JSON: cumple el enunciado al pie de la letra, a cambio de que la consolidación recorra las secciones. `BEST_ATTEMPT` lleva la columna `topology` en los dos casos, porque el ranking la filtra. Recomendación: **B**. Los documentos describen hoy A como borrador (ARQ-01-API §6) | Equipo | Reunión (afecta el Paso 5) | RN-TOP-33, RN-COM-80, 100; Enunciado §5.2 |
 | ☐ D-28 | **Niveles por figura.** Recomendación: los 15 de Fit y 10 de Sort obligatorios en hexágonos; Fit con niveles de muestra para las otras figuras; los de Sort sin pilas iniciales sirven para cualquier figura (`topology: any`); "No disponible con esta figura" si no hay niveles | Equipo | Paso 6 | RN-TOP-34, RN-COM-75 |
-| ☐ D-29 | **Despacho de la figura y alcance de `TCoord`.** Recomendación: **registro de topologías + Visitor genérico** (`accept` → `visit<C>`), sin `switch`; `TCoord` llega hasta el widget del tablero. Alternativa: `switch` en el *composition root* | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §3 |
-| ☐ D-30 | **`TCell`, `TMove`, `TState` y restricciones.** Recomendación: estado **inmutable**; celda vacía = `null` con `TCell extends Object`; movimientos *sealed* por variante; `TState extends GameState<C, TCell>`; en Merge, `Tile implements Mergeable<Tile>` en vez de `int`. Instanciación por variante en ARQ-02 §4.2 | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §4 |
-| ☐ D-31 | **Deshacer y rehacer.** Recomendación: **Command + Memento** con un `UndoHistory` genérico (sin límite + rehacer en Fit; límite 1 en Merge); las fases bloquean deshacer tras la derrota. Alternativas: Memento puro, Command con inversa, repetición desde la semilla | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §5 |
-| ☐ D-32 | **Eventos de dominio.** Recomendación: las reglas **devuelven** los eventos en orden; la pantalla los recibe como **valor de retorno** de `submit` (`MoveResult`), sin depender del `Stream`. El `Stream` (Observer) queda para el historial y el cronómetro (síncronos) y para el audio y la analítica; base `abstract base` y una familia *sealed* por variante | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §6 |
-| ☐ D-33 | **Capacidades opcionales.** Recomendación: `IUndoable`, `ITimed`, `IRandomSeeded` e `ILevelBased` implementadas por componentes que la fábrica compone en una `GameSession` (Lines sin `IUndoable`); puerto `IMonotonicClock` en el dominio | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §7 |
-| ☐ D-34 | **Fases de la partida.** Recomendación: patrón **State** con una jerarquía *sealed* (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); `Victory(canContinue)` para Merge | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §8 |
-| ☐ D-35 | **Patrones de diseño del dominio.** Recomendación: 14 patrones con un problema real cada uno. Creacionales: Abstract Factory, Builder, Factory Method. Estructurales: Bridge, Composite, Decorator. De comportamiento: Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor. Falta decidir cómo se protege el Template Method: `@nonVirtual` de `package:meta` (dependencia externa) o regla de revisión | Equipo | Reunión del Paso 3. **17-11: DanielHaro28 está de acuerdo con la recomendación; falta confirmarla con el equipo** | ARQ-02 §9 |
+| ☐ D-36 | **Cómo se protege el Template Method** de las reglas (`GameRules.playTurn`, ARQ-02 §9.6), ya que Dart no tiene métodos `final`. **Recomendación: A)** usar `@nonVirtual` de `package:meta`: el analizador avisa si una variante lo sobrescribe; es del equipo de Dart, no agrega código en ejecución y sería la única excepción a "sin dependencias de terceros" en los paquetes de dominio. B) Sin dependencia: regla en la plantilla de PR más una prueba de arquitectura que busque `playTurn` en `hexa_variants` | Equipo | Antes de TEC-01 | ARQ-02 §9.6, D-35 |
 
 ### 1.2 Cerradas
 
-| # | Decisión | Dónde quedó | Fecha |
-|---|---|---|---|
-| ☑ D-01 | Los repos están en la cuenta de **DanielHaro28**, que los creó y los administra | ADR-001 §2.4 | 11-11 |
-| ☑ D-04 | Ranking por nivel de Hexa Sort: **movimientos ↑ → puntaje ↓** (menos pilas colocadas primero; el puntaje desempata) | RN-COM-103, RN-HS-71 | 11-11 |
-| ☑ D-05 | Al iniciar sesión con progreso de invitado, la app **pregunta** "¿importar tu progreso?"; si acepta, se consolida | RN-COM-88 | 11-11 |
-| ☑ D-06 | Al cerrar sesión, el dispositivo **vuelve al perfil invitado** con su propio progreso; el de la cuenta queda guardado localmente | RN-COM-89 | 11-11 |
-| ☑ D-07 | **Coordenada como parámetro genérico (opción A).** `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<TCoord, TCell, TMove, TState>`; `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` en `hexa_topologies`. Como la topología se elige por configuración, el *composition root* la despacha con una función genérica que conserva el tipo (detalle en el Paso 3) | ARQ-01-APP §4.1, §9, §10; TEC-01; glosario | 11-11 |
-| ☑ D-08 | Catálogo de Hexa Lines: **8 familias, 24 piezas**, con los pesos propuestos | RN-HL-23 | 11-11 |
-| ☑ D-09 | Puntaje de Hexa Lines: **celdas + ⌊5 × largo × L × racha⌋**, racha (k+1)/2 con máximo ×3 | RN-HL-60 a 64 | 11-11 |
-| ☑ D-10 | Hexa Fit: colocar/mover/retirar cuentan como movimiento; rotar/deshacer/rehacer no. **Estrellas independientes:** ★ completar + ★ movimientos ≤ `m` + ★ tiempo ≤ `t` | RN-HF-61 a 64, E-HF-1 | 11-11 |
-| ☑ D-11 | Pilas de Hexa Sort: altura 2–6, hasta 3 bloques, color distinto del bloque anterior | RN-HS-21 | 11-11 |
-| ☑ D-12 | Puntaje de Hexa Sort: 1 por ficha transferida + 100 por meta (solo desempata el ranking; ver D-04) | RN-HS-60 | 11-11 |
-| ☑ D-13 | Hexa Merge: **90 % de 2 / 10 % de 4**; celda al azar entre las vacías en orden de lectura | RN-HM-21 | 11-11 |
-| ☑ D-14 | Generador aleatorio **xorshift32 propio** en el dominio | RN-COM-43 | 11-11 |
-| ☑ D-15 | Desempate de la cascada de Hexa Sort: gana la pila **evaluada** (la colocada, en el primer paso) si está empatada; si no, la **primera vecina empatada en sentido horario desde las 12**. Los orígenes también transfieren en ese orden | RN-COM-17, RN-HEX-08, RN-HS-42, RN-HS-43, E-HS-8 | 11-11 |
-| ☑ D-16 | Hexa Sort: al llegar a 10 o más se elimina **solo el bloque de cima, completo** (aunque sean 12); lo de abajo queda en la celda | RN-HS-50 | 11-11 |
-| ☑ D-17 | Hexa Sort: "la pila con más fichas de ese color" = la de **bloque de cima más grande** | RN-HS-40, RN-HS-41 | 11-11 |
-| ☑ D-18 | **Topologías:** solo rejillas regulares. Hexágonos (dominio + app, Must); cuadrados y triángulos (dominio + app 2D, Should); cubos (dominio con pruebas, Should; vista 3D, Could) | RN-COM-18, RN-TOP-01 a 04 | 11-11 |
-| ☑ D-24 | La protección de `main` exige PR y CI en verde, pero **no** la aprobación de otra persona; autorrevisión con la plantilla de PR y revisión de un compañero recomendada | ADR-001 §2.4, SECURITY §7, SEC-AGT-05, 07 | 11-11 |
-| ☑ D-25 | **El jugador elige la figura de las celdas en Ajustes** (solo las disponibles; hexágonos por defecto). La figura se fija al crear la partida y **no se puede cambiar durante ella**: la opción se bloquea mientras haya una partida en curso o en pausa | RN-COM-19, RN-COM-113, RN-TOP-30, 31; RF-09; NAV-08 | 11-11 |
+Están en **`docs/DECISIONES.md` de cada repo** (desde el 17-11): `hexablock-app/docs/DECISIONES.md` tiene todas y `hexablock-api/docs/DECISIONES.md`, las que afectan al backend, con el mismo texto. Al cerrar una decisión de §1.1, se borra de aquí y se agrega allí con su fecha.
 
 ## 2. Preguntas para el profesor
 
-> **Indicación del profesor (11-11):** lo que el enunciado no especifica **lo decide el equipo**. Por eso ya no quedan preguntas abiertas: las que no resolvía el enunciado pasaron a decisiones del equipo (D-15 a D-17, sección 1.2).
-
-### 2.1 Convertidas en decisiones o resueltas por el enunciado
-
-| # | Pregunta | Resultado | Fecha |
-|---|---|---|---|
-| ☑ P-04 | Desempate de la cascada de Hexa Sort | → **D-15** (decisión del equipo) | 11-11 |
-| ☑ P-11 | ¿Mermaid o notación UML de plantilla en el diagrama de clases? | **Resuelta por el enunciado §4.1** ("notación UML de plantilla") → diagrama de clases en **PlantUML** | 11-11 |
-| ☑ P-12 | Hexa Sort: ¿se elimina la pila o el bloque de 10? | → **D-16** (decisión del equipo) | 11-11 |
-| ☑ P-13 | Hexa Sort: ¿"cantidad de ese color" es el bloque de cima o el total? | → **D-17** (decisión del equipo) | 11-11 |
-
-### 2.2 Respondidas por el profesor o por el enunciado
-
-| # | Pregunta | Respuesta | Fuente | Fecha |
-|---|---|---|---|---|
-| ☑ P-01 | ¿Se aceptan repos públicos? | **Sí** | Profesor | 11-11 |
-| ☑ P-02 | ¿Se pueden rotar las piezas en Hexa Lines? | **No**. La tabla 1.5 indica "Colocar pieza" para Lines y "Colocar / retirar / rotar" solo para Fit | Enunciado §1.5 | 11-11 |
-| ☑ P-03 | ¿La bandeja de Hexa Sort ofrece 1 pila o varias? | **1**: "coloca en una celda vacía *la pila* que la bandeja le ofrece" | Enunciado §1.3 | 11-11 |
-| ☑ P-05 | ¿La derrota en Hexa Sort es tablero lleno? | **Sí**: "el tablero se llena sin movimientos válidos". Como el único movimiento es colocar en una celda vacía, tablero lleno = sin movimientos. Se evalúa **después** de resolver la cascada y retirar las metas | Enunciado §1.3 | 11-11 |
-| ☑ P-06 | ¿Se puede seguir jugando tras 2048? | **Sí**. §5.1 exige Hexa Merge "en modo partida sin fin con registro de puntaje máximo". La pantalla de victoria ofrece "Seguir jugando" además de "Nueva partida" | Enunciado §5.1 | 11-11 |
-| ☑ P-07 | Orden del ranking por nivel de Hexa Fit | **Estrellas (desc) → tiempo (asc) → movimientos (asc)**, comparando el **mismo intento** completo (no la mejor estrella de un intento con el mejor tiempo de otro) | Profesor | 11-11 |
-| ☑ P-08 | ¿Jugar sin cuenta y sincronizar después? | **Sí**. Modo invitado con progreso local; un usuario registrado sin conexión sigue jugando y sincroniza al reconectar. API-05 pasa de *Should* a **Must** | Profesor | 11-11 |
-| ☑ P-09 | ¿Basta con endpoints de admin + Swagger para publicar niveles? | **Sí**: §5.2 pide un "endpoint para obtener y actualizar la definición de niveles"; no pide interfaz de administración | Enunciado §5.2 | 11-11 |
-| ☑ P-10 | ¿Historias técnicas como HU o aparte? | El enunciado no exige HU: **decisión del equipo**. Se mantienen como historias habilitadoras (TEC) en el backlog | Enunciado (no lo regula) | 11-11 |
+No quedan preguntas abiertas: el profesor indicó (11-11) que lo que el enunciado no especifica lo decide el equipo. Las respuestas (P-01 a P-13) están en `docs/DECISIONES.md` §2.
 
 ## 3. Documentos de diseño (hoja de ruta)
 
@@ -94,7 +46,7 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 | 0b | `docs/security/SECURITY-BASELINE.md` | Ambos (compartido) | ✅ Hecho | — |
 | 1 | **Requisitos** (`docs/requirements/`): glosario, reglas de negocio (comunes, topologías, 4 variantes, niveles, cuenta/progreso/ranking), RF + RNF, historias, trazabilidad | Ambos (ver `docs/README.md`) | 📝 **Borrador listo — revisión de cada integrante.** Abiertas: D-19, D-20 | |
 | 2 | **Arquitectura general** (`docs/architecture/`): `ARQ-00-SISTEMA.md` (compartido), `ARQ-01-APP-GENERAL.md`, `ARQ-01-API-GENERAL.md` | Ambos | 📝 **Borrador listo — revisión del equipo** (D-21, D-22, D-23, más las propuestas 🟡 sin número de pendiente: ARQ-S-02 a 04, ARQ-A-05 a 08, ARQ-B-04) | |
-| 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07). **Lo decide el equipo** | App | 📝 **Opciones listas en `docs/architecture/ARQ-02-MOTOR.md`**. DanielHaro28 está de acuerdo con las recomendaciones (17-11); falta confirmar D-29 a D-35 con el equipo | |
+| 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07) | App | ✅ **Decidido (17-11)** en `docs/architecture/ARQ-02-MOTOR.md` (D-29 a D-35). Queda abierta D-36 | |
 | 4 | **Arquitectura detallada:** casos de uso genéricos, puertos y adaptadores, mapa de patrones, aspecto AOP, los 3 diagramas (clases en PlantUML; capas y extensibilidad en Mermaid) y `EXTENSIBILITY.md` | Ambos | ☐ Pendiente | |
 | 5 | **Contratos:** `openapi.yaml`, JSON Schema de niveles, modelo de datos local y del servidor (cierra D-19) | Ambos | ☐ Pendiente | |
 | 6 | **Contenido y pruebas:** 15 niveles de Hexa Fit y 10 de Hexa Sort; estrategia de pruebas | App (+ API para pruebas) | ☐ Pendiente | |

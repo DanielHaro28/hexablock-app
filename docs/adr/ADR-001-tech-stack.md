@@ -60,9 +60,9 @@ Restricciones del equipo:
 | Dato | Almacenamiento |
 |---|---|
 | Perfiles locales (invitado y cuentas que iniciaron sesión en el dispositivo, D-05, D-06) | Drift: tabla `profiles` |
-| Progreso por perfil, `gameId` y figura (D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
-| Niveles descargados del servidor (id, `gameId`, orden, versión, JSON) | Drift: tabla `downloaded_levels` |
-| Cambios de progreso pendientes de sincronizar (*outbox*) | Drift: tabla `sync_outbox` |
+| Progreso por perfil, `gameId` y figura (D-27): una fila por resultado de nivel y una por récord, cada una con su marca de pendiente de enviar (D-49) | Drift: tablas `level_results` y `records` |
+| Niveles descargados del servidor (id, `gameId`, figura, orden, versión, JSON) y el cursor de la última descarga por variante y figura (D-48) | Drift: tablas `downloaded_levels` y `level_sync_cursors` |
+| Cambios de progreso pendientes de sincronizar | La marca de pendiente de `level_results` y `records` (D-49); no hay tabla aparte |
 | Partida en curso, para continuarla si la app se cierra (D-37) | Drift: tabla `saved_games` |
 | Niveles incluidos en la app | Assets JSON (`assets/levels/<gameId>/*.json`), cargados con el Builder |
 | Idioma, audio y figura de las celdas | `shared_preferences` |

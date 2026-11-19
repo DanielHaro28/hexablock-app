@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo |
-| Fecha | 2026-11-11 (revisión de coherencia: 12-11; D-27, D-45 y D-50: 19-11) |
+| Fecha | 2026-11-11 (revisión de coherencia: 12-11; D-27, D-45, D-49 y D-50: 19-11) |
 | Repositorio | **Compartido:** `hexablock-app` y `hexablock-api`, en `docs/requirements/`. Las dos copias deben ser **idénticas**: se modifica en un PR de cada repo, con el mismo cambio |
 | Relacionados | `02-RN-NIVELES.md`, `docs/security/SECURITY-BASELINE.md` |
 
@@ -32,7 +32,7 @@ Formato de las reglas y estados (✅ acordada / 🟡 propuesta / ⚠️ decidir)
 | RN-COM-83 | **El progreso solo mejora.** Para combinar dos versiones del mismo progreso (dispositivo y servidor, o dos dispositivos) se aplica la **consolidación**: niveles completados = **unión**; récord = **máximo**; mejor intento de cada nivel = **el mejor de los dos** según el criterio de la variante, tomado completo | Profesor (P-08) | ✅ |
 | RN-COM-84 | La consolidación da el mismo resultado sin importar el orden ni cuántas veces se repita. Por eso, reintentar una sincronización o sincronizar desde varios dispositivos nunca pierde progreso ni lo duplica | Consecuencia de RN-COM-83 | ✅ |
 | RN-COM-85 | Un usuario con cuenta y **sin conexión** sigue jugando normalmente; cada cambio de progreso se guarda en la **cola de sincronización** del dispositivo | Profesor (P-08) | ✅ |
-| RN-COM-86 | Al recuperar la conexión con sesión válida, la app envía por cada combinación de variante y figura con cambios el **progreso completo** de esa combinación; el servidor lo consolida con el suyo y devuelve el resultado, que la app guarda y usa desde ese momento | Diseño (P-08) | 🟡 |
+| RN-COM-86 | Al recuperar la conexión con sesión válida, la app envía, por cada variante con cambios, **solo los resultados que cambiaron** desde la última sincronización confirmada (cada uno en la sección de su figura). El servidor los consolida con los suyos y devuelve el resultado de lo enviado, que la app guarda; después quita la marca de pendiente. Enviar solo una parte es seguro porque la consolidación da lo mismo sin importar el orden ni las repeticiones (RN-COM-84). El progreso completo solo se descarga al iniciar sesión (RN-COM-90) | Diseño (P-08) | ✅ D-49 (19-11) |
 | RN-COM-87 | Si la sesión **expiró** mientras estaba sin conexión, se sigue jugando; antes de sincronizar se pide iniciar sesión otra vez. La cola no se pierde | Diseño | 🟡 |
 | RN-COM-88 | Al **iniciar sesión** en un dispositivo con progreso de invitado: se le pregunta al jugador si quiere **importar** ese progreso a su cuenta. Si acepta, se consolida con el de la cuenta; si no, el progreso de invitado queda intacto en su perfil | Equipo | ✅ D-05 (11-11) |
 | RN-COM-89 | Al **cerrar sesión**, el dispositivo vuelve al perfil **invitado** con su propio progreso. El progreso de la cuenta queda guardado localmente para cuando vuelva a iniciar sesión | Equipo | ✅ D-06 (11-11) |

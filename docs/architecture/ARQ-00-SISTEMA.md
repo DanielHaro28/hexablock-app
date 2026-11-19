@@ -99,16 +99,16 @@ sequenceDiagram
     participant DB as PostgreSQL
     UI->>UC: partida terminada (gameId, figura, resultado)
     UC->>L: guardar progreso local (consolidado)
-    UC->>L: encolar "sincronizar gameId"
+    UC->>L: marcar el resultado como pendiente de enviar
     alt hay conexión y sesión válida
-        UC->>API: PUT progreso completo de gameId y figura (JWT)
+        UC->>API: PUT resultados pendientes de gameId, por figura (JWT)
         API->>DB: leer progreso guardado
         API->>API: consolidar (RN-COM-83)
         API->>DB: guardar resultado + mejores intentos
-        API-->>UC: progreso consolidado
-        UC->>L: guardar resultado y quitar de la cola
+        API-->>UC: resultados consolidados
+        UC->>L: guardar y quitar la marca de pendiente
     else sin conexión o sesión vencida
-        UC-->>UI: sigue jugando y la cola espera (RN-COM-85, 87)
+        UC-->>UI: sigue jugando y lo pendiente espera (RN-COM-85, 87)
     end
 ```
 
@@ -150,8 +150,8 @@ sequenceDiagram
     ADM->>API: POST/PUT nivel (JWT con rol admin)
     API->>API: validar esquema + reglas estructurales
     API-->>ADM: 201 / 200 (o 400 con detalle)
-    APP->>API: GET niveles de gameId
-    API-->>APP: niveles con versión y topología
+    APP->>API: GET niveles de gameId y figura cambiados desde el cursor (páginas de 100)
+    API-->>APP: niveles con versión y topología + cursor siguiente
     APP->>APP: validar todo (incluida la geométrica) y guardar los válidos
 ```
 
@@ -162,5 +162,5 @@ sequenceDiagram
 | ARQ-S-01 | Arquitectura **cliente–servidor offline-first**: el dispositivo es la fuente primaria del progreso; el servidor consolida y calcula el ranking | ✅ (P-08) |
 | ARQ-S-02 | El servidor **no ejecuta reglas de juego**; solo valida la plausibilidad de los resultados (RN-COM-108) | 🟡 |
 | ARQ-S-03 | La consolidación existe **dos veces** (Dart y TypeScript), con **ejemplos de prueba compartidos** (E-COM-2, E-COM-3) para garantizar que dan el mismo resultado | 🟡 |
-| ARQ-S-04 | Sincronización por **snapshot completo por `gameId` y figura** (no por eventos) porque el progreso es chico y la consolidación es repetible. En el servidor, una entrada por `gameId` con una sección por figura (D-27). Si se envía el progreso completo o solo lo que cambió se decide en D-49 | 🟡 |
+| ARQ-S-04 | Sincronización **incremental**: la app envía solo los resultados que cambiaron desde la última sincronización confirmada (ni eventos sueltos ni el progreso completo), porque la consolidación da lo mismo sin importar el orden ni las repeticiones (RN-COM-84). En el servidor, una entrada por `gameId` con una sección por figura (D-27). Los niveles se descargan por cambios, con un cursor del servidor (RN-COM-77) | ✅ D-48, D-49 (19-11) |
 | ARQ-S-05 | El contrato (`openapi.yaml`) y los ejemplos compartidos en formato JSON viven en `hexablock-api/docs/contracts/` (fuente única). La API valida sus respuestas contra ese archivo; la app guarda una **copia** para probar sus mappers y su CI **falla si la copia difiere** de la del repo de la API | ✅ D-23 (17-11) |

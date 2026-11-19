@@ -86,7 +86,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 | `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-60, RN-COM-80, 83 |
 | `SyncProgressUseCase` | `()` → `SyncReport` | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `IProfileRepository` | RF-63, RF-72, RN-COM-86. Cubre también el `SyncLeaderboardUseCase` del enunciado: los mejores intentos viajan en el progreso |
 | `LoadLevelsUseCase` | `GameKey` → `List<LevelSummary>` | `ILevelRepository`, `IProgressRepository` | RF-61, RF-83, RN-COM-73 |
-| `DownloadLevelsUseCase` | `GameKey` → `int` (niveles nuevos) | `ILevelGateway`, `ILevelRepository` | RF-82 |
+| `DownloadLevelsUseCase` | `GameKey` → `int` (niveles nuevos o actualizados) | `ILevelGateway`, `ILevelRepository` (guarda también el cursor, D-48) | RF-80, RF-82, RN-COM-77 |
 | `RegisterUseCase` / `LoginUseCase` | `Credentials` → `Profile` | `IAuthGateway`, `ISessionStore`, `IProfileRepository` | RF-70, RF-71 |
 | `LogoutUseCase` | `()` → `Profile` (vuelve el invitado) | `ISessionStore`, `IProfileRepository` | RN-COM-89 (D-06) |
 | `ImportGuestProgressUseCase` | `()` → `int` (variantes consolidadas) | `IProgressRepository`, `IProfileRepository`, `ISyncOutbox` | RN-COM-88 (D-05) |
@@ -124,7 +124,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift |
 | `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)`, `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
-| `ISyncOutbox` | `enqueue(ProfileId, GameKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → Drift |
+| `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |
 | `IProgressGateway` | `push(GameKey, VariantProgress) → VariantProgress` (consolidado), `pullAll()` | `HttpProgressGateway` → dio |
 | `ILevelGateway` | `fetchPublished(GameKey, {since})` | `HttpLevelGateway` → dio |
 | `ILeaderboardGateway` | `fetch(LeaderboardQuery) → LeaderboardPage` | `HttpLeaderboardGateway` → dio |

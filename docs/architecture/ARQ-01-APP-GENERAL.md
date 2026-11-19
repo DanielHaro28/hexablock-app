@@ -153,8 +153,8 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 | `ApplyMoveUseCase` | Aplica un movimiento con el motor | — |
 | `UndoMoveUseCase` / `RedoMoveUseCase` | Deshace o rehace, si la variante lo permite | — |
 | `PauseGameUseCase` / `ResumeGameUseCase` | Pausa y reanuda | `IClock` |
-| `SaveProgressUseCase` | Guarda el resultado en el perfil activo y lo encola | `IProgressRepository`, `ISyncOutbox` |
-| `SyncProgressUseCase` | Envía la cola y consolida las respuestas | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `ISessionStore` |
+| `SaveProgressUseCase` | Guarda el resultado en el perfil activo y lo marca como pendiente de enviar | `IProgressRepository`, `ISyncOutbox` |
+| `SyncProgressUseCase` | Envía los resultados pendientes y consolida las respuestas (D-49) | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `ISessionStore` |
 | `LoadLevelsUseCase` | Junta los niveles incluidos y los descargados, valida y ordena | `ILevelRepository`, `ILevelGateway` |
 | `RegisterUseCase` / `LoginUseCase` / `LogoutUseCase` | Cuenta y sesión | `IAuthGateway`, `ISessionStore`, `IProfileRepository` |
 | `ImportGuestProgressUseCase` | Consolida el progreso de invitado en la cuenta | `IProgressRepository`, `IProfileRepository` |
@@ -168,7 +168,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 | `IProgressRepository` | Progreso por perfil, `gameId` y figura (D-27) | Repositorio → Drift |
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
-| `ISyncOutbox` | Cola de sincronización | Repositorio → Drift |
+| `ISyncOutbox` | Resultados pendientes de enviar (una marca en cada fila, D-49) | Repositorio → Drift |
 | `ISavedGameRepository` | Partida en curso guardada por perfil, variante y figura (D-37) | Repositorio → Drift |
 | `IProgressGateway` | Enviar y recibir el progreso del servidor | Gateway → dio |
 | `ILevelGateway` | Descargar niveles | Gateway → dio |
@@ -197,7 +197,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
 | **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
-| **Persistencia** | Drift: tablas `progress`, `profiles`, `downloaded_levels`, `sync_outbox` y `saved_games` (D-37; definidas en el Paso 5) |
+| **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en el Paso 5) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
 | **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger |
 | **Composition root** | `main.dart` + `get_it`: crea las implementaciones, aplica los decoradores y registra variantes y topologías |
@@ -241,7 +241,7 @@ sequenceDiagram
 
 ### 6.2 Fin de partida y progreso
 
-Fin de partida → `SaveProgressUseCase` consolida el resultado en el perfil activo (Drift) y encola la sincronización → si hay conexión y sesión, `SyncProgressUseCase` envía el snapshot de esa variante y guarda el resultado consolidado (ver `ARQ-00-SISTEMA.md` §5.1).
+Fin de partida → `SaveProgressUseCase` consolida el resultado en el perfil activo (Drift) y lo marca como pendiente → si hay conexión y sesión, `SyncProgressUseCase` envía los resultados pendientes y guarda lo consolidado (D-49) (ver `ARQ-00-SISTEMA.md` §5.1).
 
 ### 6.3 Arranque
 

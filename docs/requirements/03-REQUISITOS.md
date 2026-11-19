@@ -89,7 +89,7 @@
 | RF-60 | Guarda en el dispositivo, por perfil, por variante y por figura, los niveles completados, el mejor intento por nivel y el récord | RN-COM-80 | §5.1 (9) | Must |
 | RF-61 | Desbloquea los niveles en orden | RN-COM-73 | §5.1 (2) | Must |
 | RF-62 | Permite jugar sin cuenta (modo invitado) con progreso local | RN-COM-81 | Profesor (P-08) | Must |
-| RF-63 | Funciona sin conexión; guarda los cambios pendientes en una cola de sincronización | RN-COM-82, 85 | Profesor (P-08) | Must |
+| RF-63 | Funciona sin conexión; marca los resultados pendientes de sincronizar | RN-COM-82, 85 | Profesor (P-08) | Must |
 | RF-64 | Guarda la partida en curso después de cada turno y al pasar a segundo plano, y permite **continuarla** aunque la app se haya cerrado | RN-COM-32 a 35, 42 | HU NAV-04, D-37 | Must |
 
 ### 1.8 Cuenta, sincronización y ranking (parte de la app)
@@ -98,7 +98,7 @@
 |---|---|---|---|---|
 | RF-70 | Permite registrarse (correo, contraseña y nombre visible único, RN-COM-109) contra la API y guarda el JWT en almacenamiento seguro | SEC-MOB-01 | §5.2 (1) | Must |
 | RF-71 | Permite iniciar y cerrar sesión. Al cerrar sesión borra el token y vuelve al perfil invitado; ante un 401 pide iniciar sesión otra vez | RN-COM-87, 89, SEC-MOB-04 | §5.2 (1) | Must |
-| RF-72 | Sincroniza el progreso por `gameId` y figura al terminar partidas y al recuperar la conexión, aplicando la **misma consolidación** que el servidor; mientras no hay conexión, guarda los cambios en la cola | RN-COM-83 a 87, 90 | §5.2 (2), P-08 | Must |
+| RF-72 | Sincroniza el progreso por `gameId` y figura al terminar partidas y al recuperar la conexión, aplicando la **misma consolidación** que el servidor; mientras no hay conexión, los marca como pendientes; envía solo lo que cambió | RN-COM-83 a 87, 90 | §5.2 (2), P-08 | Must |
 | RF-73 | Ofrece importar el progreso de invitado al iniciar sesión | RN-COM-88 | P-08 | Must |
 | RF-74 | Muestra el ranking por `gameId` y figura y, en Fit y Sort, por nivel, con la posición propia; sin conexión muestra un aviso y el último ranking descargado | RN-COM-100 a 107 | §5.2 (3) | Must |
 | RF-75 | Tiene pantallas de registro, inicio de sesión, estado de la cuenta y ranking | — | Necesario para RF-70 a 74 | Must |
@@ -107,7 +107,7 @@
 
 | ID | La app… | Reglas | Fuente | Prioridad |
 |---|---|---|---|---|
-| RF-80 | Consulta los niveles nuevos de una variante en la API y los combina con los incluidos | RN-COM-70, 72, 74, 75 | §5.2 (4) | Must |
+| RF-80 | Consulta en la API los niveles de una variante y figura cambiados desde la última descarga y los combina con los incluidos | RN-COM-70, 72, 74, 75, 77 | §5.2 (4) | Must |
 | RF-82 | Valida cada nivel, incluido o descargado (esquema + todas las validaciones de su variante, también las geométricas), y descarta los inválidos | RN-COM-71, 76, RN-HF-12, RN-HS-12 | §5.2 (4) | Must |
 | RF-83 | Ofrece un **validador de niveles** (prueba o script en CI) para los niveles incluidos y para revisar un nivel antes de publicarlo por la API | RN-COM-76 | D-19 | Must |
 

@@ -351,7 +351,7 @@ Como jugador registrado, quiero iniciar sesión desde la app, para acceder a mi 
 
 ### API-03 · Sincronizar mi progreso por juego ↔ también en `hexablock-api`
 Como jugador registrado, quiero que mi progreso se sincronice, para no perderlo si cambio de teléfono.
-- Dado que termino una partida con conexión y sesión, entonces la app envía el progreso completo de esa variante y figura y guarda el resultado consolidado que devuelve la API (RN-COM-86).
+- Dado que termino una partida con conexión y sesión, entonces la app envía solo los resultados que cambiaron en esa variante y figura y guarda lo consolidado que devuelve la API (RN-COM-86).
 - Dado que inicio sesión en otro dispositivo, entonces se descarga y consolida el progreso de las 4 variantes (RN-COM-90).
 - La consolidación local da el mismo resultado que la del servidor (RN-COM-83, 84, E-COM-2).
 
@@ -395,11 +395,11 @@ Como jugador registrado, quiero seguir jugando en modo avión, para no depender 
 
 ### LVL-01 · Recibir niveles nuevos sin actualizar la app ↔ también en `hexablock-api`
 Como jugador, quiero que aparezcan niveles nuevos de Hexa Fit y Hexa Sort, para tener más contenido sin descargar otra versión.
-- Dado que abro la selección de niveles con conexión, entonces la app consulta los niveles de esa variante y agrega los nuevos (RN-COM-72).
+- Dado que abro la selección de niveles con conexión, entonces la app pide los niveles de esa variante y figura cambiados desde la última descarga y agrega los nuevos o actualizados (RN-COM-72, 77).
 - Dado que no hay conexión, entonces se usan los incluidos en la app y los descargados antes.
 - Dado que un nivel descargado no pasa la validación completa (incluida la geométrica), entonces se ignora (RN-COM-76, SEC-MOB-06).
 
-**Must** · RF-80, RF-82 · RN-COM-70 a 72, 74 a 76
+**Must** · RF-80, RF-82 · RN-COM-70 a 72, 74 a 77
 
 ---
 

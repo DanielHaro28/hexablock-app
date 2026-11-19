@@ -7,7 +7,7 @@
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
 | Fija | Forma de los casos de uso, manejo de errores, firmas de casos de uso y puertos, adaptadores, aspectos AOP y su orden, *composition root*, mapa completo de patrones y ejemplos de SOLID |
-| No fija | Esquemas de Drift, JSON de niveles y de la partida guardada, `openapi.yaml` (Paso 5) |
+| No fija | Tablas de Drift (`ARQ-04-APP-DATOS.md`), JSON de niveles y `openapi.yaml` (`docs/contracts/`), ambos del Paso 5 |
 | Diagramas | `docs/diagrams/clases.puml` (PlantUML), `capas.mmd` y `extensibilidad.mmd` (Mermaid) |
 
 > Los esbozos de Dart siguen sin compilar (no hay SDK en la planificación); se validan en el *spike* de TEC-01, junto con los de `ARQ-02-MOTOR.md`. El código va en inglés.
@@ -64,11 +64,14 @@ final class Failure<T> extends Result<T> { const Failure(this.error); final AppF
 | Gateway: sin red o tiempo agotado | `NetworkException` | `NetworkFailure` (después de los reintentos) | "Sin conexión; se sincronizará después" |
 | Gateway: 401 | `SessionExpiredException` | `SessionFailure(expired: true)` | Borra el token y pide iniciar sesión (SEC-MOB-04) |
 | Aspecto de sesión: no hay JWT | — | `SessionFailure(expired: false)` | "Inicia sesión para sincronizar" |
-| Gateway: 409 (correo registrado, D-03) | `ConflictException('email-taken')` | `ConflictFailure` | Mensaje del formulario |
-| Gateway: 400 con detalles | `ValidationException` | `ValidationFailure` | Errores por campo |
+| Gateway: 409 (`email-taken`, D-03, o `display-name-taken`, RN-COM-109) | `ConflictException(code)` | `ConflictFailure` | Mensaje del formulario junto al campo |
+| Gateway: 400 con `errors` | `ValidationException` (por `pointer` y `code`) | `ValidationFailure` | Errores por campo |
+| Gateway: 429 | `NetworkException(retryAfter)` | `NetworkFailure` (si se agotan los reintentos) | El aspecto de reintentos espera lo que dice `Retry-After` |
 | Repositorio: Drift falla | `PersistenceException` | `PersistenceFailure` | "No se pudo guardar"; el juego sigue (RNF-35) |
 | Caso de uso: una regla lo impide | `RuleException` | `RuleFailure` | Mensaje de la regla (p. ej., RN-COM-113) |
 | Cualquier otra excepción | (error de programación) | `UnexpectedFailure` | Mensaje genérico; nunca un *stack* |
+
+**Errores de la API (D-51).** La API responde Problem Details (RFC 9457). El gateway lee **solo `status` y `code`** (y `errors` en los 400, `Retry-After` en los 429): con eso elige la excepción de la tabla de arriba. El texto que ve el jugador sale siempre de los archivos de traducción de la app (ARB, es/en) según el `code`; **nunca** se muestran `title` ni `detail`, y la app no abre la URI de `type`. Un `code` que la app no conoce se trata como `UnexpectedFailure`.
 
 Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` dentro de un `Success` (RN-COM-21).
 
@@ -86,7 +89,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 | `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-60, RN-COM-80, 83 |
 | `SyncProgressUseCase` | `()` → `SyncReport` | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `IProfileRepository` | RF-63, RF-72, RN-COM-86. Cubre también el `SyncLeaderboardUseCase` del enunciado: los mejores intentos viajan en el progreso |
 | `LoadLevelsUseCase` | `GameKey` → `List<LevelSummary>` | `ILevelRepository`, `IProgressRepository` | RF-61, RF-83, RN-COM-73 |
-| `DownloadLevelsUseCase` | `GameKey` → `int` (niveles nuevos) | `ILevelGateway`, `ILevelRepository` | RF-82 |
+| `DownloadLevelsUseCase` | `GameKey` → `int` (niveles nuevos o actualizados) | `ILevelGateway`, `ILevelRepository` (guarda también el cursor, D-48) | RF-80, RF-82, RN-COM-77 |
 | `RegisterUseCase` / `LoginUseCase` | `Credentials` → `Profile` | `IAuthGateway`, `ISessionStore`, `IProfileRepository` | RF-70, RF-71 |
 | `LogoutUseCase` | `()` → `Profile` (vuelve el invitado) | `ISessionStore`, `IProfileRepository` | RN-COM-89 (D-06) |
 | `ImportGuestProgressUseCase` | `()` → `int` (variantes consolidadas) | `IProgressRepository`, `IProfileRepository`, `ISyncOutbox` | RN-COM-88 (D-05) |
@@ -124,7 +127,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift |
 | `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)`, `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
-| `ISyncOutbox` | `enqueue(ProfileId, GameKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → Drift |
+| `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |
 | `IProgressGateway` | `push(GameKey, VariantProgress) → VariantProgress` (consolidado), `pullAll()` | `HttpProgressGateway` → dio |
 | `ILevelGateway` | `fetchPublished(GameKey, {since})` | `HttpLevelGateway` → dio |
 | `ILeaderboardGateway` | `fetch(LeaderboardQuery) → LeaderboardPage` | `HttpLeaderboardGateway` → dio |

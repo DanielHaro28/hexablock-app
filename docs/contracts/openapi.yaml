@@ -1,0 +1,457 @@
+openapi: 3.1.0
+info:
+  title: HexaBlock API
+  version: 1.0.0
+  summary: Accounts, progress sync, leaderboards and levels for the HexaBlock Suite.
+  description: |
+    Single source of the contract between `hexablock-app` and `hexablock-api` (D-23).
+    The app keeps a byte-identical copy of this folder and its CI fails if the copy differs.
+
+    Conventions (D-46): every route has the `/v1` prefix except `/health`; JSON in `camelCase`;
+    instants in ISO 8601 / RFC 3339 UTC; durations in milliseconds; HTTP semantics per RFC 9110.
+
+    Errors (D-51): every error is Problem Details (RFC 9457), media type `application/problem+json`,
+    with the extension members `code` and `errors`. `title` and `detail` are fixed per type and never
+    contain submitted values or internal data. 401 responses carry `WWW-Authenticate: Bearer`
+    (RFC 6750) and 429 responses carry `Retry-After` (RFC 6585).
+
+    Pending team decisions reflected here: D-03 (409 on an existing email) and D-52 (password length).
+servers:
+  - url: https://hexablock-api.example
+    description: Production placeholder (reserved example domain) until the real domain exists.
+  - url: http://localhost:3000
+    description: Local development.
+tags:
+  - name: health
+  - name: auth
+  - name: progress
+  - name: leaderboard
+  - name: levels
+security: []
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      operationId: checkHealth
+      summary: API and database availability (used by the Docker healthcheck).
+      responses:
+        '200':
+          description: API and database are available.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthStatus' }
+        '503':
+          description: The database is not reachable.
+          content:
+            application/problem+json:
+              schema: { $ref: './schemas/problem.schema.json' }
+
+  /v1/auth/register:
+    post:
+      tags: [auth]
+      operationId: register
+      summary: Create an account and start a session (API-01, RF-70).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Account created; the session starts at once.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '409':
+          description: |
+            `email-taken` (pending D-03) or `display-name-taken` (RN-COM-109).
+          content:
+            application/problem+json:
+              schema: { $ref: './schemas/problem.schema.json' }
+              examples:
+                displayNameTaken:
+                  externalValue: ./examples/display-name-taken.problem.json
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/auth/login:
+    post:
+      tags: [auth]
+      operationId: login
+      summary: Start a session (API-02). Same answer and same time for an unknown email or a wrong password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Session started.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/InvalidCredentials' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/me/progress:
+    get:
+      tags: [progress]
+      operationId: getMyProgress
+      summary: Progress of every variant and topology of the caller (RN-COM-90). The user comes from the JWT only.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All progress of the user.
+          content:
+            application/json:
+              schema: { $ref: './schemas/progress.schema.json#/$defs/allProgress' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/me/progress/{gameId}:
+    put:
+      tags: [progress]
+      operationId: syncProgress
+      summary: Send results of one variant and get them back consolidated (RN-COM-83 to 86, D-49).
+      description: |
+        The body may hold every result or only the ones that changed since the last confirmed sync.
+        The server consolidates each section with the stored one (union of levels, max high score,
+        best attempt by the variant criterion), stores the result and the best attempts in one
+        transaction, and returns the consolidated value of every level and record that was sent.
+        Repeating the same request is safe (RN-COM-84). Results that are not plausible are rejected
+        with `implausible-result` (RN-COM-108).
+      security:
+        - bearerAuth: []
+      parameters:
+        - { $ref: '#/components/parameters/GameIdPath' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/progress.schema.json#/$defs/progressUpdate' }
+            examples:
+              onlyChangedLevel:
+                externalValue: ./examples/sync.progress-update.json
+      responses:
+        '200':
+          description: Consolidated value of what was sent.
+          content:
+            application/json:
+              schema: { $ref: './schemas/progress.schema.json#/$defs/gameProgress' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/leaderboard/{gameId}:
+    get:
+      tags: [leaderboard]
+      operationId: getLeaderboard
+      summary: Global ranking by variant and topology, and by level in level-based variants (RN-COM-100 to 107).
+      description: |
+        Public. With a valid token the response also includes the caller's own position in `me`.
+        Without `levelId`, Lines and Merge rank by high score and Fit and Sort by completed levels
+        (and total stars in Fit). Results are cached for 30 seconds (D-42).
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - { $ref: '#/components/parameters/GameIdPath' }
+        - name: topology
+          in: query
+          required: true
+          schema: { $ref: './schemas/common.schema.json#/$defs/topology' }
+        - name: levelId
+          in: query
+          required: false
+          schema: { $ref: './schemas/common.schema.json#/$defs/levelId' }
+        - { $ref: '#/components/parameters/Limit' }
+        - { $ref: '#/components/parameters/Offset' }
+      responses:
+        '200':
+          description: One page of the ranking.
+          content:
+            application/json:
+              schema: { $ref: './schemas/leaderboard.schema.json' }
+              examples:
+                fitLevel:
+                  externalValue: ./examples/E-COM-3.fit-level.leaderboard.json
+                sortLevel:
+                  externalValue: ./examples/E-COM-3.sort-level.leaderboard.json
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/levels:
+    get:
+      tags: [levels]
+      operationId: listLevelChanges
+      summary: Levels created or updated after a cursor, in pages of up to 100 (RN-COM-77, D-48).
+      description: |
+        Public. The first call has no cursor and returns the first page. Every response carries
+        `nextCursor`, an opaque value generated by the server; the app stores it and sends it the next
+        time, so it only gets what changed. For Hexa Sort, asking for a topology also returns the
+        levels with topology `any`. Levels are never deleted (RN-COM-73, 74). The reference solution
+        travels with the level because the app validates it (RN-COM-76); it is never shown to the
+        player (RN-HF-13).
+      parameters:
+        - name: gameId
+          in: query
+          required: true
+          schema: { $ref: './schemas/common.schema.json#/$defs/levelGameId' }
+        - name: topology
+          in: query
+          required: true
+          schema: { $ref: './schemas/common.schema.json#/$defs/topology' }
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string, minLength: 1, maxLength: 200, pattern: '^[A-Za-z0-9_-]+$' }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 100 }
+      responses:
+        '200':
+          description: One page of changed levels.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LevelPage' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+    post:
+      tags: [levels]
+      operationId: createLevel
+      summary: Publish a new level (LVL-02). Admin only (SEC-API-05).
+      description: |
+        The level must pass the schema and the structural rules of its variant (RN-COM-71, 76).
+        Run the app's level validator before publishing (geometric rule RN-HF-12 f; pending D-19).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/level.schema.json' }
+            examples:
+              fitHex001:
+                externalValue: ./examples/E-HF-NIVEL.fit-hex-001.level.json
+      responses:
+        '201':
+          description: Level published.
+          headers:
+            Location:
+              description: URI of the new level.
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: './schemas/level.schema.json' }
+        '400': { $ref: '#/components/responses/InvalidLevel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409':
+          description: '`level-exists`: a level with this id already exists; use PUT to update it.'
+          content:
+            application/problem+json:
+              schema: { $ref: './schemas/problem.schema.json' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+  /v1/levels/{id}:
+    put:
+      tags: [levels]
+      operationId: updateLevel
+      summary: Update a published level (LVL-02). Admin only. The version must go up.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { $ref: './schemas/common.schema.json#/$defs/levelId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: './schemas/level.schema.json' }
+      responses:
+        '200':
+          description: Level updated.
+          content:
+            application/json:
+              schema: { $ref: './schemas/level.schema.json' }
+        '400': { $ref: '#/components/responses/InvalidLevel' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: '`stale-version`: the version in the body is not greater than the stored one.'
+          content:
+            application/problem+json:
+              schema: { $ref: './schemas/problem.schema.json' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: HS256 JWT valid for 24 hours (D-44, SEC-API-02). The user id is the `sub` claim.
+
+  parameters:
+    GameIdPath:
+      name: gameId
+      in: path
+      required: true
+      schema: { $ref: './schemas/common.schema.json#/$defs/gameId' }
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema: { type: integer, minimum: 0, maximum: 100000, default: 0 }
+
+  headers:
+    WWWAuthenticate:
+      description: 'Always `Bearer`; adds `error="invalid_token"` when a token was sent but is expired or altered (RFC 6750 §3). No description.'
+      schema: { type: string, pattern: '^Bearer( error="invalid_token")?$' }
+    RetryAfter:
+      description: Seconds to wait before trying again (RFC 6585, RFC 9110).
+      schema: { type: integer, minimum: 1 }
+
+  responses:
+    ValidationFailed:
+      description: '`validation-failed` (with `errors`), or `implausible-result` on progress sync.'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+          examples:
+            validationFailed:
+              externalValue: ./examples/validation-failed.problem.json
+    InvalidLevel:
+      description: '`invalid-level` (rule that failed in `errors`, e.g. `rn-hf-12-d`) or `validation-failed`.'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    InvalidCredentials:
+      description: '`invalid-credentials`: the same answer whether the email exists or not.'
+      headers:
+        WWW-Authenticate: { $ref: '#/components/headers/WWWAuthenticate' }
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    Unauthorized:
+      description: '`unauthorized`: missing, expired or altered token.'
+      headers:
+        WWW-Authenticate: { $ref: '#/components/headers/WWWAuthenticate' }
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    Forbidden:
+      description: '`forbidden`: the token is valid but the role is not enough.'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    NotFound:
+      description: '`not-found`.'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    PayloadTooLarge:
+      description: '`payload-too-large`: the body is over 100 KB (SEC-API-04).'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+    TooManyRequests:
+      description: '`too-many-requests` (SEC-API-04).'
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+          examples:
+            tooManyRequests:
+              externalValue: ./examples/too-many-requests.problem.json
+    InternalError:
+      description: '`internal-error`: generic; the details are only in the server log, under the id in `instance`.'
+      content:
+        application/problem+json:
+          schema: { $ref: './schemas/problem.schema.json' }
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status: { const: ok }
+      required: [status]
+      additionalProperties: false
+    Email:
+      type: string
+      format: email
+      maxLength: 254
+      description: Stored in lower case. Never returned by any endpoint (SEC-API-03).
+    Password:
+      type: string
+      minLength: 15
+      maxLength: 128
+      description: |
+        PENDING D-52 (recommended option A, NIST SP 800-63B rev. 4 for single-factor passwords).
+        No composition rules, never truncated, spaces and Unicode allowed; common or leaked
+        passwords are rejected with `errors[].code = too-common`. Never logged (SEC-WEB-06).
+    RegisterRequest:
+      type: object
+      properties:
+        email: { $ref: '#/components/schemas/Email' }
+        password: { $ref: '#/components/schemas/Password' }
+        displayName: { $ref: './schemas/common.schema.json#/$defs/displayName' }
+      required: [email, password, displayName]
+      additionalProperties: false
+    LoginRequest:
+      type: object
+      properties:
+        email: { $ref: '#/components/schemas/Email' }
+        password: { type: string, minLength: 1, maxLength: 128 }
+      required: [email, password]
+      additionalProperties: false
+    AuthResponse:
+      type: object
+      properties:
+        accessToken: { type: string, minLength: 20 }
+        tokenType: { const: Bearer }
+        expiresIn: { type: integer, const: 86400, description: Seconds (D-44). }
+        displayName: { $ref: './schemas/common.schema.json#/$defs/displayName' }
+      required: [accessToken, tokenType, expiresIn, displayName]
+      additionalProperties: false
+    LevelPage:
+      type: object
+      properties:
+        levels:
+          type: array
+          maxItems: 100
+          items: { $ref: './schemas/level.schema.json' }
+        nextCursor:
+          type: string
+          minLength: 1
+          maxLength: 200
+          pattern: '^[A-Za-z0-9_-]+$'
+          description: Opaque; send it as `cursor` next time, even when `levels` is empty.
+      required: [levels, nextCursor]
+      additionalProperties: false

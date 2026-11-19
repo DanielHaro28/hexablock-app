@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-19 (IA-15)
+> **Última actualización:** 2026-11-19 (IA-18)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -196,6 +196,39 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-38 a D-43 cerradas. `ARQ-03-APP-DETALLE.md` y `ARQ-03-API-DETALLE.md`; `docs/diagrams/` en los dos repos (`capas.mmd` en los dos y `extensibilidad.mmd` en la app, con imágenes generadas y revisadas; `clases.puml` en los dos); `docs/EXTENSIBILITY.md` |
 | Modificaciones del equipo | El usuario pidió Mermaid para todos los diagramas; la IA advirtió que reabría P-11 (notación UML de plantilla) y el usuario eligió PlantUML para el de clases, generado por él (R-04) |
 | Lecciones | La IA no pudo dibujar PlantUML (sin la herramienta ni red para instalarla): los `.puml` quedan sin verificar hasta R-04. El diagrama de extensibilidad necesitó cuatro intentos hasta que Mermaid dejó el motor en el centro. Al aplicar D-39 al backend, la IA precisó su texto: allí la salida uniforme la da el filtro global de NestJS, no un `Result` |
+
+### IA-16 · Paso 5: decisiones de los contratos — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal, en orden: "Ok sube los sube y aprueba los PR que necesites y acuerdate que las deciones van en documentos separados en los repos, y comenzemos el paso 5"; "D19 no entiendo por que nosotros subimos niveles con el endpoint entonces no enitneod eso de verificar / D27La recomendacion / D44 A / D45B / D46 A si sigue convenciones internacionales / D47 recomiendame con el conetxto de todo que tenemos / D48 Que pasaria si son batantes niveles pensando a futuro / D49 Ok me gusta pero lo mismo con lo de arriba que pasa cuando tiene mucho niveles / D50 A" |
+| Resultado | PR del Paso 4 fusionados (app #6, api #4). D-27, D-44, D-45, D-46 y D-50 cerradas en el `DECISIONES.md` de cada repo; regla nueva RN-COM-109 (nombre visible único); rutas con `/v1` en los documentos. D-19 explicada otra vez; D-47 recomendada con el contexto; D-48 y D-49 revisadas pensando en miles de niveles; D-51 nueva (errores según RFC 9457) |
+| Modificaciones del equipo | El usuario condicionó D-46 a que siga convenciones internacionales y pidió revisar D-48 y D-49 pensando en el crecimiento. ⚠️ completar |
+| Lecciones | Al buscar las convenciones de D-46, la IA encontró que el formato de errores de D-39 era propio y no el estándar del IETF (RFC 9457), y lo propuso como D-51 en vez de cambiarlo por su cuenta. La pregunta por muchos niveles cambió dos recomendaciones: la lista completa y el envío del progreso completo funcionan con 25 niveles pero no escalan |
+
+### IA-17 · Paso 5: D-48 y D-49 cerradas; revisión de errores contra estándares — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con búsqueda web |
+| Prompt | Literal: "D46 vamos a hacer una cosa, necesito que D39 siga formatos internacionales de ISO o otros agentes verificados, tambien pensando en seguridad sobre como mostrar los errores quiero que verifiques eso en todo lo que se a hecho, despues de eso dime una recomendacion tomando esto en cuenta. / D47 ok entiendo, pero no entiendo eso de celda q r si las celdas van a tener otras cosas por juego no? / D48 acepto la recomendacion B / D49 Acepto la recomendacion B" |
+| Resultado | D-48 y D-49 cerradas: regla nueva RN-COM-77 (descarga por cambios), RN-COM-86 reescrita (solo lo que cambió), ARQ-S-04, tablas Drift en el ADR y en ARQ-01-APP, `LEVEL.updatedAt` en el modelo del servidor, RF-63, 72, 80 e historias API-03 y LVL-01. Revisión de los 8 lugares que describen errores, contrastada con RFC 9457, 9110, 6750 y 6585, OWASP (ASVS, WSTG, Top 10 2025) y MITRE CWE: 6 cosas ya cumplen y 8 faltan; quedan en D-51 con recomendación |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | La IA verificó cada estándar en su fuente (rfc-editor.org, owasp.org, cwe.mitre.org) antes de citarlo. Aclaró que no existe una norma ISO para el formato de errores HTTP en lugar de inventar una. La revisión encontró una inconsistencia propia: dos estilos de código de error introducidos en pasos distintos |
+
+### IA-18 · Paso 5: contratos y modelos de datos — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con búsqueda web |
+| Prompt | Literal: "D39 y D51 vamos con la B, aunque no es un riesgo de seguridad mandar el https? / D47 mientras se cumpla que se guarden cosas distintas para distintos tipos de juegos y vamos con el paso 5" |
+| Resultado | D-39 (backend), D-47 y D-51 cerradas y aplicadas en todos los documentos. `docs/contracts/` en la API (copia idéntica en la app): `openapi.yaml` 3.1 con 9 operaciones, 5 JSON Schema, 13 ejemplos compartidos (E-HF-NIVEL, E-COM-2, E-COM-3 y otros) y `check_contracts.py`. `ARQ-04-API-DATOS.md` y `ARQ-04-APP-DATOS.md` con sus diagramas `datos.mmd`. D-52 nueva (política de contraseñas, NIST SP 800-63B rev. 4) |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | La IA verificó en el RFC 9457 la respuesta sobre la URI `https` de `type` antes de contestar. El verificador del contrato pasó a la primera, así que se le hicieron 6 pruebas de mutación (consolidado erróneo, `$ref` roto, 429 sin `Retry-After`, ranking desordenado, pila fuera del tablero, `code` distinto de `type`) y las detectó todas. Al escribir el contrato aparecieron dos huecos que no estaban decididos: la política de contraseñas (se registró como D-52 en vez de inventarla) y dos códigos de conflicto de niveles (`level-exists`, `stale-version`). Se cambió la fecha por una secuencia (`change_seq`) para el cursor, porque dos fechas pueden coincidir |
 
 ## 4. Evaluación crítica
 

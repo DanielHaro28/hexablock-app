@@ -1,0 +1,15 @@
+{
+  "gameId": "hexa-fit",
+  "topology": "hex",
+  "levelId": "fit-hex-003",
+  "kind": "fitLevel",
+  "total": 3,
+  "limit": 20,
+  "offset": 0,
+  "entries": [
+    { "rank": 1, "displayName": "Beto", "stars": 3, "timeMs": 70000, "moves": 9 },
+    { "rank": 2, "displayName": "Ana", "stars": 3, "timeMs": 70000, "moves": 12 },
+    { "rank": 3, "displayName": "Caro", "stars": 2, "timeMs": 30000, "moves": 3 }
+  ],
+  "me": { "rank": 2, "displayName": "Ana", "stars": 3, "timeMs": 70000, "moves": 12 }
+}

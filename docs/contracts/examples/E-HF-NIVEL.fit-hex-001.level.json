@@ -1,0 +1,20 @@
+{
+  "id": "fit-hex-001",
+  "gameId": "hexa-fit",
+  "topology": "hex",
+  "order": 1,
+  "version": 1,
+  "name": { "es": "Primer encaje", "en": "First fit" },
+  "variant": {
+    "figure": [[2, -1], [0, 0], [1, 0], [2, 0], [0, 1], [1, 1]],
+    "pieces": [
+      { "id": "A", "color": "teal", "shape": [[0, 0], [1, 0], [1, 1]] },
+      { "id": "B", "color": "orange", "shape": [[0, 0], [1, 0], [0, 1]] }
+    ],
+    "starThresholds": { "moves": 2, "timeMs": 60000 },
+    "solution": {
+      "A": [[2, -1], [2, 0], [1, 1]],
+      "B": [[0, 0], [1, 0], [0, 1]]
+    }
+  }
+}

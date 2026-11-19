@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo |
-| Fecha | 2026-11-11 |
+| Fecha | 2026-11-11 (RN-COM-70, D-47; RN-COM-77, D-48: 19-11) |
 | Repositorio | **Compartido:** `hexablock-app` y `hexablock-api`, en `docs/requirements/`. Las dos copias deben ser **idénticas**: se modifica en un PR de cada repo, con el mismo cambio |
 | Relacionados | `02-RN-CUENTA-PROGRESO-RANKING.md`; en la app, `02-RN-HEXA-FIT.md` y `02-RN-HEXA-SORT.md` |
 
@@ -27,13 +27,14 @@ Formato de las reglas y estados (✅ acordada / 🟡 propuesta / ⚠️ decidir)
 
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
-| RN-COM-70 | Todos los niveles comparten un **esquema común** (`id`, `gameId`, `order`, `version`, `name` en es/en) más una **sección específica** según el `gameId` | Enunciado §5.2 | ✅ |
+| RN-COM-70 | Todos los niveles comparten un **esquema común** (`id`, `gameId`, `topology`, `order`, `version`, `name` en es/en) más una **sección específica** `variant`, cuyo contenido es **distinto según el `gameId`** (Fit: figura, piezas, umbrales y solución; Sort: metas, paleta, semilla, generación y pilas iniciales). Los niveles son archivos **JSON** validados por `level.schema.json`. El `id` es legible, se escribe a mano y nunca cambia: `<variante>-<figura>-<nnn>` (ej. `fit-hex-001`, `sort-any-004`). Una celda se escribe como **lista de enteros** con su dirección según la figura (`[q, r]` en hexágonos, `[x, y]` en cuadrados, `[x, y, z]` en cubos); lo que hay en la celda lo dice la sección `variant` | Enunciado §5.2 | ✅ D-47 (19-11) |
 | RN-COM-71 | Un nivel solo se acepta (al empaquetarlo, al publicarlo en el servidor o al descargarlo) si **cumple el esquema** y las **validaciones de su variante** | SECURITY SEC-API-10, SEC-MOB-06 | ✅ |
 | RN-COM-72 | Los niveles incluidos en la app y los descargados del servidor se juntan en una sola lista por variante, **ordenada por `order`**. Si un nivel con el mismo `id` existe en ambos, gana el de **mayor `version`** | HU LVL-01 | 🟡 |
 | RN-COM-73 | **Desbloqueo:** el nivel de `order` 1 de cada variante está siempre disponible. Completar el nivel N desbloquea el N+1 de esa variante. Un nivel desbloqueado **nunca se vuelve a bloquear** | Enunciado §5.1, HU PRG-04 | ✅ |
 | RN-COM-74 | El progreso de un nivel se guarda por su `id`, no por su `version`: si el servidor actualiza un nivel ya completado, sigue contando como completado | Diseño | 🟡 |
 | RN-COM-75 | El esquema común incluye la **topología** del nivel y su **forma de tablero** (o la figura, en Hexa Fit). Un nivel de Hexa Sort sin pilas iniciales puede declarar la topología **`any`**: se juega con la que eligió el jugador y el tablero por defecto (RN-TOP-34). La app solo ofrece los niveles de la figura elegida | Decisión del equipo (D-25), RN-COM-19 | 🟡 |
 | RN-COM-76 | **Quién valida qué.** El **backend** valida el esquema y todas las reglas **estructurales** (conteos, celdas dentro del tablero, solapamientos, cobertura y coherencia de umbrales). Las reglas **geométricas** que requieren girar formas (RN-HF-12 f) las valida el **dominio de la app**, en CI para los niveles incluidos y al descargar un nivel. Antes de publicar un nivel por la API, el administrador lo pasa por el validador de la app | Equipo | 🟡 D-19 |
+| RN-COM-77 | **Descarga por cambios.** La app pide los niveles de una variante y figura **creados o actualizados después de un cursor** que le dio el servidor en la descarga anterior (la primera vez, sin cursor), en páginas de **hasta 100**; cada respuesta trae el cursor siguiente. El cursor lo genera el servidor, así que no depende del reloj del teléfono. Los niveles **no se borran**: solo se publican o se actualizan subiendo su `version` (RN-COM-73, 74) | Equipo | ✅ D-48 (19-11) |
 
 ## 2. Hexa Fit
 

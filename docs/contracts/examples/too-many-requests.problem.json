@@ -1,0 +1,8 @@
+{
+  "type": "https://hexablock-api.example/problems/too-many-requests",
+  "title": "Too many requests",
+  "status": 429,
+  "detail": "Wait the number of seconds in the Retry-After header and try again.",
+  "instance": "urn:uuid:5d2a9e10-7c3b-4f81-a6e4-0c9b8d7f6e12",
+  "code": "too-many-requests"
+}

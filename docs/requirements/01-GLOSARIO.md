@@ -134,7 +134,7 @@
 | Perfil local | `LocalProfile` | Conjunto de datos de progreso guardados en el dispositivo para una persona: el perfil **invitado** o el de una **cuenta** |
 | Invitado | `Guest` | Jugador sin cuenta. Su progreso solo vive en el dispositivo |
 | Cuenta | `Account` | Usuario registrado (correo + contraseña) cuyo progreso también se guarda en el servidor |
-| Nombre visible | `displayName` | Nombre público que aparece en el ranking. Nunca se muestra el correo |
+| Nombre visible | `displayName` | Nombre público que aparece en el ranking. Nunca se muestra el correo. Es único, sin distinguir mayúsculas (RN-COM-109) |
 | Sincronización | `Sync` | Intercambio de progreso entre el dispositivo y el servidor |
 | Cola de sincronización | `SyncOutbox` | Lista local de cambios de progreso pendientes de enviar al servidor |
 | Consolidación de progreso | `reconcile` | Combinar dos versiones del progreso quedándose con lo mejor de cada una. **No confundir con la fusión de Hexa Merge** |

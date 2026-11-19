@@ -60,9 +60,9 @@ Restricciones del equipo:
 | Dato | Almacenamiento |
 |---|---|
 | Perfiles locales (invitado y cuentas que iniciaron sesión en el dispositivo, D-05, D-06) | Drift: tabla `profiles` |
-| Progreso por perfil y `gameId` (y figura, propuesta D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
-| Niveles descargados del servidor (id, `gameId`, orden, versión, JSON) | Drift: tabla `downloaded_levels` |
-| Cambios de progreso pendientes de sincronizar (*outbox*) | Drift: tabla `sync_outbox` |
+| Progreso por perfil, `gameId` y figura (D-27): una fila por resultado de nivel y una por récord, cada una con su marca de pendiente de enviar (D-49) | Drift: tablas `level_results` y `records` |
+| Niveles descargados del servidor (id, `gameId`, figura, orden, versión, JSON) y el cursor de la última descarga por variante y figura (D-48) | Drift: tablas `downloaded_levels` y `level_sync_cursors` |
+| Cambios de progreso pendientes de sincronizar | La marca de pendiente de `level_results` y `records` (D-49); no hay tabla aparte |
 | Partida en curso, para continuarla si la app se cierra (D-37) | Drift: tabla `saved_games` |
 | Niveles incluidos en la app | Assets JSON (`assets/levels/<gameId>/*.json`), cargados con el Builder |
 | Idioma, audio y figura de las celdas | `shared_preferences` |
@@ -77,10 +77,10 @@ Restricciones del equipo:
 | ORM / migraciones | **Prisma** | Esquema declarativo y migraciones versionadas (`migrate deploy` al arrancar) |
 | Autenticación | `@nestjs/jwt` + Passport; contraseñas con **argon2id** | §5.2 punto 1; SEC-API-02 |
 | Validación | `class-validator` + `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` | Errores 400 con detalle por campo; bloquea la asignación masiva (SEC-API-03) |
-| Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/auth/*`) | SEC-API-04, SEC-API-08 |
+| Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/v1/auth/*`) | SEC-API-04, SEC-API-08 |
 | Autorización | `RolesGuard` con denegación por defecto; `userId` siempre tomado del JWT | SEC-API-01, SEC-API-05 |
 | Documentación | `@nestjs/swagger`, con **`openapi.yaml` como contrato fuente** (*contract-first*) | Swagger público en `/docs` para que el jurado pueda probar la API |
-| Errores | Un *exception filter* global con un formato único `{ code, message, details }` | §5.2 punto 6 |
+| Errores | Un *exception filter* global que responde siempre con **Problem Details (RFC 9457)**: `application/problem+json` con `type`, `title`, `status`, `detail` e `instance`, más los campos propios `code` y `errors` (D-51) | §5.2 punto 6 |
 | Pruebas | Jest (unitarias) + Supertest (endpoints) contra Postgres en un *service container* de CI | §3.6 |
 | Contrato | Respuestas validadas contra `openapi.yaml` (por ejemplo `jest-openapi`); el cliente prueba sus mappers con los ejemplos del mismo archivo | Cubre la recomendación de pruebas de contrato con menos riesgo que Pact. `pact_dart` no recibe cambios desde 2023. Pact queda como mejora opcional |
 | Contenedores | **Docker**: `Dockerfile` multi-stage (imagen `node:*-alpine`) + `docker-compose.yml` (api + postgres) para desarrollo | El mismo artefacto corre en local, en CI y en producción |

@@ -1,0 +1,66 @@
+%% Diagrama de capas Clean de hexablock-app (enunciado §4.2). Fuente editable; la imagen es capas.png
+flowchart TB
+    subgraph L4["Capa 4 · Frameworks e infraestructura"]
+        direction TB
+        UI["Flutter: pantallas, BoardView<br/>TopologyLayout × pintor de contenido"]
+        FW["Drift / SQLite · dio / HTTP<br/>flutter_secure_storage · shared_preferences<br/>AudioFacade · i18n (ARB)"]
+        ROOT["main.dart + get_it (composition root)<br/>registro de TopologyEntry y VariantModule"]
+        subgraph L3["Capa 3 · Adaptadores de interfaz"]
+            direction TB
+            CUB["GameCubit&lt;C, TCell, TMove, TState&gt;<br/>HomeCubit · LevelSelectCubit · SettingsCubit<br/>AccountCubit · LeaderboardCubit"]
+            ADP["Adaptadores de salida<br/>DriftProgressRepository · DriftSavedGameRepository<br/>HttpProgressGateway · HttpAuthGateway · SecureSessionStore<br/>IGameStateCodec por variante · mappers DTO"]
+            subgraph L2["Capa 2 · Casos de uso (hexa_application)"]
+                direction TB
+                UC["UseCase&lt;TIn, TOut&gt;<br/>StartGame · ApplyMove · Undo · Redo · Pause<br/>SaveProgress · SyncProgress · LoadLevels · Login · GetLeaderboard"]
+                ASP["Aspectos AOP (decoradores)<br/>Session → ErrorHandling → Metrics → Logging"]
+                PORT(["Puertos<br/>IProgressRepository · ISavedGameRepository · ISyncOutbox<br/>IProgressGateway · IAuthGateway · ISessionStore<br/>ILevelRepository · IClock · ILogger · IMetrics"])
+                subgraph L1["Capa 1 · Entidades (hexa_engine, hexa_topologies, hexa_variants)"]
+                    direction TB
+                    ENG["GameEngine&lt;C, TCell, TMove, TState&gt; · Board&lt;C, TCell&gt;<br/>GamePhase · UndoHistory · GameEvent"]
+                    TOP["GridTopology&lt;C&gt;: HexTopology · SquareTopology<br/>TriTopology · CubeTopology"]
+                    VAR["VariantFamily: Hexa Lines · Hexa Fit<br/>Hexa Sort · Hexa Merge (reglas, puntuación, piezas)"]
+                    DPORT(["Puertos del dominio<br/>IGameRules · IScoringPolicy · IPieceSource<br/>IMonotonicClock"])
+                end
+            end
+        end
+    end
+
+    UI --> CUB
+    ROOT --> CUB
+    ROOT --> ADP
+    FW --> ADP
+    CUB --> ASP
+    ASP --> UC
+    UC --> PORT
+    ADP -. implementa .-> PORT
+    UC --> ENG
+    ENG --> DPORT
+    VAR -. implementa .-> DPORT
+    TOP -. implementa .-> DPORT
+
+    subgraph LEG["Leyenda"]
+        direction LR
+        K1["Capa 1 · Entidades"]:::c1
+        K2["Capa 2 · Casos de uso"]:::c2
+        K3["Capa 3 · Adaptadores"]:::c3
+        K4["Capa 4 · Frameworks"]:::c4
+        KP(["Puerto (interfaz)"]):::port
+        KA["→ depende de · ⇢ implementa"]:::note
+    end
+
+    classDef c1 fill:#FDE2B5,stroke:#B26A00,color:#3A2300
+    classDef c2 fill:#CDEBD3,stroke:#2E7D32,color:#0F2E13
+    classDef c3 fill:#CFE3F7,stroke:#1565C0,color:#0B2747
+    classDef c4 fill:#E6E0F3,stroke:#5E35B1,color:#221144
+    classDef port fill:#FFFFFF,stroke:#333333,stroke-dasharray:4 3,color:#111111
+    classDef note fill:#FFFFFF,stroke:#FFFFFF,color:#333333
+    class ENG,TOP,VAR c1
+    class UC,ASP c2
+    class CUB,ADP c3
+    class UI,FW,ROOT c4
+    class PORT,DPORT port
+    style L1 fill:#FFF4E0,stroke:#B26A00
+    style L2 fill:#EAF6EC,stroke:#2E7D32
+    style L3 fill:#EAF2FB,stroke:#1565C0
+    style L4 fill:#F4F1FA,stroke:#5E35B1
+    style LEG fill:#FFFFFF,stroke:#999999

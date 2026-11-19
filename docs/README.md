@@ -14,7 +14,10 @@ docs/
 ├── architecture/
 │   ├── ARQ-00-SISTEMA.md                  [compartido] vista del sistema (app + API + EC2)
 │   ├── ARQ-01-APP-GENERAL.md              arquitectura general de este repo
-│   └── ARQ-02-MOTOR.md                    motor genérico: opciones y patrones del dominio (Paso 3)
+│   ├── ARQ-02-MOTOR.md                    motor genérico: opciones y patrones del dominio (Paso 3)
+│   └── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
+├── diagrams/                              clases.puml (PlantUML), capas.mmd y extensibilidad.mmd (Mermaid) + imágenes .png
+├── EXTENSIBILITY.md                       cómo agregar una 5ª variante, una figura o un cambio de regla (§3.1)
 ├── security/
 │   └── SECURITY-BASELINE.md               [compartido]
 ├── requirements/
@@ -37,7 +40,7 @@ docs/
 
 Fuera de `docs/`: `.github/pull_request_template.md` (checklist de autorrevisión) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas).
 
-Se irán agregando con los siguientes pasos: más documentos en `architecture/` (Paso 4), `diagrams/` (`.puml`, `.mmd` y sus imágenes), `EXTENSIBILITY.md`, `contracts/` (Paso 5) y `ops/`.
+Se irán agregando con los siguientes pasos: `contracts/` (Paso 5) y `ops/`.
 
 ## Documentos compartidos con `hexablock-api`
 
@@ -58,7 +61,7 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 
 1. `ADR-001-tech-stack.md`: qué se usa y por qué.
 2. `01-GLOSARIO.md`: el vocabulario.
-3. `ARQ-00-SISTEMA.md` y `ARQ-01-APP-GENERAL.md`: cómo está organizado el sistema y la app. `ARQ-02-MOTOR.md`: cómo es el motor por dentro y qué patrones usa.
+3. `ARQ-00-SISTEMA.md` y `ARQ-01-APP-GENERAL.md`: cómo está organizado el sistema y la app. `ARQ-02-MOTOR.md`: cómo es el motor por dentro y qué patrones usa. `ARQ-03-APP-DETALLE.md` y `EXTENSIBILITY.md`: casos de uso, aspectos y cómo se extiende.
 4. `02-RN-COMUNES.md` y `02-RN-TOPOLOGIAS.md`: cómo funciona cualquier variante.
 5. La regla de la variante en la que vas a trabajar (`02-RN-HEXA-*.md`).
 6. `03-REQUISITOS.md` y `04-HISTORIAS.md`: qué hay que construir.

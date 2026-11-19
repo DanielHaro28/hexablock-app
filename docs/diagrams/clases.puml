@@ -1,0 +1,422 @@
+@startuml clases
+' Diagrama de clases de hexablock-app (enunciado §4.1, D-43).
+' Fuente editable. La imagen (clases.png) se genera con la extensión de PlantUML de VS Code:
+' abrir este archivo → Ctrl+Shift+P → "PlantUML: Export Current Diagram" → png.
+' Colores por capa de la Clean Architecture; estereotipos «...» = patrón de diseño.
+' Los nombres son los previstos en ARQ-02 y ARQ-03; se revisan contra el código real.
+
+set namespaceSeparator none
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #444444
+skinparam ClassBorderColor #555555
+hide empty members
+
+package "Capa 1 · Entidades (dominio)" #FFF4E0 {
+
+  package "hexa_engine" #FDE9C8 {
+    abstract class Coord
+    abstract class GridTopology<C extends Coord> <<Factory Method>> <<Iterator>> {
+      + id: String
+      + cellsOf(spec: ShapeSpec): Set<C>
+      + neighbors(cell: C): List<C>
+      + lines(cells: Set<C>, axis: Axis): Iterable<List<C>>
+      + directions: List<Direction>
+      + rotate(shape: Shape<C>, r: Rotation): Shape<C>
+      + accept<R>(v: TopologyVisitor<R>): R
+    }
+    interface TopologyVisitor<R> <<Visitor>> {
+      + visit<C extends Coord>(t: GridTopology<C>): R
+    }
+    class Board<C extends Coord, TCell extends Object> <<Bridge>> {
+      + cell(c: C): TCell?
+      + withCells(changes: Map<C, TCell?>): Board<C, TCell>
+      + emptyCells: Iterable<C>
+    }
+    abstract class Shape<C extends Coord> <<Composite>> {
+      + cells: Set<C>
+    }
+    class CellShape<C extends Coord>
+    class CompositeShape<C extends Coord>
+    interface GameState<C extends Coord, TCell extends Object> {
+      + board: Board<C, TCell>
+      + score: int
+    }
+    interface IGameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Strategy>> {
+      + initialState(setup: GameSetup<C>): TState
+      + validMoves(s: TState): Iterable<TMove>
+      + playTurn(s: TState, m: TMove): TurnResult<C, TState>
+    }
+    abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Template Method>> {
+      + playTurn(s: TState, m: TMove): TurnResult<C, TState>
+      # isValid(s: TState, m: TMove): bool
+      # apply(s: TState, m: TMove): Step<C, TState>
+      # resolve(s: TState): Step<C, TState>
+      # afterResolve(s: TState): Step<C, TState>
+      # evaluate(s: TState): GameOutcome
+    }
+    class GameEngine<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
+      + state: TState
+      + phase: GamePhase
+      + events: Stream<GameEvent<C>>
+      + submit(m: TMove): MoveResult<C, TState>
+      + pause()
+      + resume()
+      + restore(snapshot: TState)
+    }
+    abstract class GamePhase <<State>> <<sealed>> {
+      + acceptsMoves: bool
+      + allowsUndo: bool
+    }
+    class PlayingPhase
+    class ResolvingPhase
+    class PausedPhase
+    class VictoryPhase {
+      + canContinue: bool
+    }
+    class GameOverPhase
+    abstract class GameOutcome <<sealed>>
+    abstract class MoveResult<C extends Coord, TState> <<sealed>>
+    class AcceptedMove<C extends Coord, TState> {
+      + state: TState
+      + events: List<GameEvent<C>>
+      + outcome: GameOutcome
+    }
+    class RejectedMove<C extends Coord, TState>
+    abstract class GameEvent<C extends Coord>
+    interface IScoringPolicy<TState> <<Strategy>> {
+      + pointsFor(s: TState): int
+    }
+    class BonusMultiplierDecorator<TState> <<Decorator>>
+    interface IPieceSource<TPiece> <<Strategy>> {
+      + next(): (TPiece, IPieceSource<TPiece>)
+    }
+    interface IProgressModel <<Strategy>>
+    interface Mergeable<T extends Mergeable> {
+      + canMergeWith(o: T): bool
+      + mergedWith(o: T): T
+    }
+    interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<Abstract Factory>> {
+      + createRules(): IGameRules<C, TCell, TMove, TState>
+      + createScoring(): IScoringPolicy<TState>
+      + createPieceSource(seed: int): IPieceSource<TPiece>
+      + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
+    }
+    class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
+      + engine: GameEngine<C, TCell, TMove, TState>
+      + undo: IUndoable?
+      + timer: ITimed?
+    }
+    interface IUndoable {
+      + undo()
+      + redo()
+    }
+    interface ITimed {
+      + activeTime: Duration
+    }
+    interface IRandomSeeded {
+      + seed: int
+    }
+    interface ILevelBased
+    class UndoHistory<TMove, TState> <<Command>> <<Memento caretaker>> {
+      + limit: int?
+      + allowsRedo: bool
+    }
+    class MoveCommand<TMove, TState> <<Command>> {
+      + before: TState
+      + after: TState
+      + undo()
+      + redo()
+    }
+    class ActiveTimer
+    interface IMonotonicClock {
+      + nowMillis(): int
+    }
+    class Xorshift32 {
+      + state: int
+      + next(): (int, Xorshift32)
+    }
+  }
+
+  package "hexa_topologies" #FDE9C8 {
+    class HexCoord
+    class SquareCoord
+    class TriCoord
+    class CubeCoord
+    class HexTopology
+    class SquareTopology
+    class TriTopology
+    class CubeTopology
+  }
+
+  package "hexa_variants" #FDE9C8 {
+    class HexaLinesFactory<C extends Coord>
+    class HexaLinesRules<C extends Coord>
+    class LinesState<C extends Coord>
+    class PlacePiece<C extends Coord>
+    enum PieceColor
+    class LinesScoring<C extends Coord>
+    class StreakMultiplier<C extends Coord> <<Decorator>>
+    class WeightedRandomPieceSource<C extends Coord>
+
+    class HexaFitFactory<C extends Coord>
+    class HexaFitRules<C extends Coord>
+    class FitState<C extends Coord>
+    abstract class FitMove<C extends Coord> <<sealed>>
+    class PieceId
+    class FitLevelBuilder<C extends Coord> <<Builder>>
+    class FixedPieceSource<TPiece>
+
+    class HexaSortFactory<C extends Coord>
+    class HexaSortRules<C extends Coord>
+    class SortState<C extends Coord>
+    class PlaceStack<C extends Coord>
+    class ColorStack
+    class SortLevelBuilder<C extends Coord> <<Builder>>
+    class RandomStackSource
+
+    class HexaMergeFactory<C extends Coord>
+    class HexaMergeRules<C extends Coord>
+    class MergeState<C extends Coord>
+    class Slide
+    class Tile
+    class SlideMergeResolver<C extends Coord, T extends Mergeable>
+    class RandomTileSource
+  }
+}
+
+package "Capa 2 · Casos de uso (hexa_application)" #EAF6EC {
+  interface UseCase<TIn, TOut> {
+    + execute(input: TIn): Future<TOut>
+  }
+  class StartGameUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState>
+  class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState>
+  class UndoMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState>
+  class SaveProgressUseCase
+  class SyncProgressUseCase
+  class LoadLevelsUseCase
+  class LoginUseCase
+  class GetLeaderboardUseCase
+  abstract class Result<T> <<sealed>>
+  class Success<T>
+  class Failure<T>
+  abstract class AppFailure <<sealed>>
+  class LoggingAspect<TIn, TOut> <<Decorator>> <<AOP>>
+  class MetricsAspect<TIn, TOut> <<Decorator>> <<AOP>>
+  class ErrorHandlingAspect<TIn, TOut> <<Decorator>> <<AOP>>
+  class SessionAspect<TIn, TOut> <<Proxy>> <<AOP>>
+  class AspectChain {
+    + wrap<TIn, TOut>(u: UseCase<TIn, TOut>): UseCase<TIn, Result<TOut>>
+  }
+  interface RetryPolicy <<Strategy>>
+  interface IProgressRepository
+  interface ISavedGameRepository<TState> {
+    + scheduleSave(key: SavedGameKey, g: SavedGame<TState>)
+    + flush(): Future<void>
+  }
+  interface ISyncOutbox
+  interface IProgressGateway
+  interface IAuthGateway
+  interface ISessionStore
+  interface ILeaderboardGateway
+  interface ILevelRepository
+  interface IGameStateCodec<TState>
+  interface ILogger
+  interface IMetrics
+  interface IClock
+}
+
+package "Capa 3 · Adaptadores" #EAF2FB {
+  class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>>
+  class LeaderboardCubit
+  class DriftProgressRepository <<Adapter>>
+  class DriftSavedGameRepository<TState> <<Adapter>>
+  class DriftSyncOutbox <<Adapter>>
+  class HttpProgressGateway <<Adapter>>
+  class HttpAuthGateway <<Adapter>>
+  class HttpLeaderboardGateway <<Adapter>>
+  class SecureSessionStore <<Adapter>>
+  class LinesStateCodec <<Adapter>>
+}
+
+package "Capa 4 · Frameworks (app)" #F4F1FA {
+  interface VariantModule {
+    + open<C extends Coord>(e: TopologyEntry<C>, o: StartOptions): Widget
+  }
+  class HexaLinesModule
+  class TopologyEntry<C extends Coord> <<Visitor>>
+  interface TopologyLayout<C extends Coord> <<Bridge>>
+  class AudioFacade <<Facade>>
+  class Injection <<Singleton via get_it>>
+}
+
+' ===== Herencia e implementación (dominio) =====
+Coord <|-- HexCoord
+Coord <|-- SquareCoord
+Coord <|-- TriCoord
+Coord <|-- CubeCoord
+GridTopology <|-- HexTopology : «bind» C = HexCoord
+GridTopology <|-- SquareTopology : «bind» C = SquareCoord
+GridTopology <|-- TriTopology : «bind» C = TriCoord
+GridTopology <|-- CubeTopology : «bind» C = CubeCoord
+Shape <|-- CellShape
+Shape <|-- CompositeShape
+CompositeShape o-- "1..*" Shape : partes
+IGameRules <|.. GameRules
+GameRules <|-- HexaLinesRules
+GameRules <|-- HexaFitRules
+GameRules <|-- HexaSortRules
+GameRules <|-- HexaMergeRules
+GamePhase <|-- PlayingPhase
+GamePhase <|-- ResolvingPhase
+GamePhase <|-- PausedPhase
+GamePhase <|-- VictoryPhase
+GamePhase <|-- GameOverPhase
+MoveResult <|-- AcceptedMove
+MoveResult <|-- RejectedMove
+IScoringPolicy <|.. BonusMultiplierDecorator
+IScoringPolicy <|.. LinesScoring
+IScoringPolicy <|.. StreakMultiplier
+IPieceSource <|.. WeightedRandomPieceSource
+IPieceSource <|.. FixedPieceSource
+IPieceSource <|.. RandomStackSource
+IPieceSource <|.. RandomTileSource
+Mergeable <|.. Tile : «bind» T = Tile
+IUndoable <|.. UndoHistory
+ITimed <|.. ActiveTimer
+IRandomSeeded <|.. LinesState
+IRandomSeeded <|.. SortState
+IRandomSeeded <|.. MergeState
+ILevelBased <|.. FitState
+ILevelBased <|.. SortState
+GameState <|.. LinesState : «bind» TCell = PieceColor
+GameState <|.. FitState : «bind» TCell = PieceId
+GameState <|.. SortState : «bind» TCell = ColorStack
+GameState <|.. MergeState : «bind» TCell = Tile
+VariantFamily <|.. HexaLinesFactory : «bind» TCell = PieceColor, TMove = PlacePiece, TState = LinesState
+VariantFamily <|.. HexaFitFactory : «bind» TCell = PieceId, TMove = FitMove, TState = FitState
+VariantFamily <|.. HexaSortFactory : «bind» TCell = ColorStack, TMove = PlaceStack, TState = SortState
+VariantFamily <|.. HexaMergeFactory : «bind» TCell = Tile, TMove = Slide, TState = MergeState
+
+' ===== Asociación, agregación y composición (dominio) =====
+Board --> GridTopology : delega la geometría
+Board ..> Coord
+GameState *-- Board
+GameEngine --> IGameRules : usa (Strategy)
+GameEngine *-- GamePhase : fase actual (State)
+GameEngine ..> MoveResult : devuelve
+GameEngine ..> GameEvent : publica
+GameRules ..> GameOutcome
+GridTopology ..> TopologyVisitor
+StreakMultiplier o-- IScoringPolicy : envuelve
+BonusMultiplierDecorator o-- IScoringPolicy : envuelve
+GameSession *-- GameEngine
+GameSession o-- IUndoable
+GameSession o-- ITimed
+UndoHistory *-- "0..*" MoveCommand
+UndoHistory --> GameEngine : restore (Memento)
+ActiveTimer --> IMonotonicClock
+LinesState *-- Xorshift32
+MergeState *-- Xorshift32
+SortState *-- Xorshift32
+HexaLinesFactory ..> HexaLinesRules : crea
+HexaLinesFactory ..> LinesScoring : crea
+HexaLinesFactory ..> WeightedRandomPieceSource : crea
+HexaLinesFactory ..> GameSession : crea
+HexaLinesRules ..> PlacePiece
+HexaFitFactory ..> HexaFitRules : crea
+HexaFitFactory ..> FitLevelBuilder : usa
+HexaFitRules ..> FitMove
+HexaSortFactory ..> HexaSortRules : crea
+HexaSortFactory ..> SortLevelBuilder : usa
+HexaSortRules ..> PlaceStack
+HexaMergeFactory ..> HexaMergeRules : crea
+HexaMergeRules --> SlideMergeResolver : «bind» T = Tile
+HexaMergeRules ..> Slide
+LinesState ..> PieceColor
+FitState ..> PieceId
+SortState ..> ColorStack
+VariantFamily ..> IProgressModel : define
+
+' ===== Capa 2 =====
+UseCase <|.. StartGameUseCase
+UseCase <|.. ApplyMoveUseCase
+UseCase <|.. UndoMoveUseCase
+UseCase <|.. SaveProgressUseCase
+UseCase <|.. SyncProgressUseCase
+UseCase <|.. LoadLevelsUseCase
+UseCase <|.. LoginUseCase
+UseCase <|.. GetLeaderboardUseCase
+UseCase <|.. LoggingAspect
+UseCase <|.. MetricsAspect
+UseCase <|.. ErrorHandlingAspect
+UseCase <|.. SessionAspect
+LoggingAspect o-- UseCase : envuelve
+MetricsAspect o-- UseCase : envuelve
+ErrorHandlingAspect o-- UseCase : envuelve
+SessionAspect o-- UseCase : protege
+ErrorHandlingAspect --> RetryPolicy
+ErrorHandlingAspect ..> Result : devuelve
+LoggingAspect --> ILogger
+MetricsAspect --> IMetrics
+SessionAspect --> ISessionStore
+AspectChain ..> LoggingAspect : arma
+AspectChain ..> MetricsAspect : arma
+AspectChain ..> ErrorHandlingAspect : arma
+AspectChain ..> SessionAspect : arma
+Result <|-- Success
+Result <|-- Failure
+Failure *-- AppFailure
+IClock --|> IMonotonicClock
+StartGameUseCase --> VariantFamily
+ApplyMoveUseCase --> GameSession
+ApplyMoveUseCase --> ISavedGameRepository
+UndoMoveUseCase --> GameSession
+SaveProgressUseCase --> IProgressRepository
+SaveProgressUseCase --> ISyncOutbox
+SyncProgressUseCase --> IProgressGateway
+SyncProgressUseCase --> IProgressRepository
+LoginUseCase --> IAuthGateway
+LoginUseCase --> ISessionStore
+GetLeaderboardUseCase --> ILeaderboardGateway
+LoadLevelsUseCase --> ILevelRepository
+
+' ===== Capa 3 =====
+IProgressRepository <|.. DriftProgressRepository
+ISavedGameRepository <|.. DriftSavedGameRepository
+ISyncOutbox <|.. DriftSyncOutbox
+IProgressGateway <|.. HttpProgressGateway
+IAuthGateway <|.. HttpAuthGateway
+ILeaderboardGateway <|.. HttpLeaderboardGateway
+ISessionStore <|.. SecureSessionStore
+IGameStateCodec <|.. LinesStateCodec : «bind» TState = LinesState
+DriftSavedGameRepository --> IGameStateCodec
+GameCubit --> UseCase : casos de uso envueltos
+LeaderboardCubit --> UseCase
+
+' ===== Capa 4 =====
+VariantModule <|.. HexaLinesModule
+HexaLinesModule ..> HexaLinesFactory : crea
+HexaLinesModule ..> GameCubit : crea
+HexaLinesModule ..> AspectChain : usa
+TopologyEntry *-- GridTopology
+TopologyEntry *-- TopologyLayout
+Injection ..> VariantModule : registra
+Injection ..> TopologyEntry : registra
+AudioFacade ..> GameEvent : escucha
+
+legend right
+  |= Color |= Capa |
+  |<#FFF4E0> | 1 · Entidades (dominio) |
+  |<#EAF6EC> | 2 · Casos de uso |
+  |<#EAF2FB> | 3 · Adaptadores |
+  |<#F4F1FA> | 4 · Frameworks |
+  «bind» = cómo una variante o figura instancia un parámetro genérico
+  «...» en una clase = patrón de diseño (ARQ-02 §9, ARQ-03 §7)
+  Hexa Fit, Sort y Merge tienen módulo, codec y Cubit como Hexa Lines (omitidos)
+endlegend
+
+@enduml

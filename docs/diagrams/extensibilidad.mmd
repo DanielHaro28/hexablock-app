@@ -1,0 +1,41 @@
+%% Diagrama de extensibilidad de hexablock-app (enunciado §4.3). Acompaña a docs/EXTENSIBILITY.md. Imagen: extensibilidad.png
+%%{init: {"flowchart": {"wrappingWidth": 460}}}%%
+flowchart TB
+    CFG["Configuración: assets/config/&lt;gameId&gt;.json y niveles<br/>tamaño de tablero · catálogo de piezas · pesos · fórmulas de puntaje"]
+
+    HL["Hexa Lines<br/>TCell = PieceColor<br/>TMove = PlacePiece&lt;C&gt;<br/>LinesScoring + StreakMultiplier"]
+    HF["Hexa Fit<br/>TCell = PieceId<br/>TMove = FitMove&lt;C&gt;<br/>FitLevelBuilder · FixedPieceSource"]
+    HS["Hexa Sort<br/>TCell = ColorStack<br/>TMove = PlaceStack&lt;C&gt;<br/>SortLevelBuilder · RandomStackSource"]
+    HM["Hexa Merge<br/>TCell = Tile (Mergeable&lt;Tile&gt;)<br/>TMove = Slide<br/>SlideMergeResolver · RandomTileSource"]
+    H5["5ª variante (p. ej. Hexa Fill)<br/>carpeta nueva en hexa_variants<br/>+ VariantModule en app/config"]
+
+    subgraph CORE["Motor genérico · hexa_engine — no se modifica"]
+        EXT["<b>Puntos de extensión</b> (lo que implementa una variante nueva)<br/>VariantFamily&lt;C, TCell, TMove, TState, TPiece&gt; · Abstract Factory<br/>IGameRules / GameRules&lt;C, TCell, TMove, TState&gt; · Strategy + Template Method<br/>IScoringPolicy&lt;TState&gt; · IPieceSource&lt;TPiece&gt; · IProgressModel<br/>GameState&lt;C, TCell&gt; · GameEvent&lt;C&gt; · IGameStateCodec&lt;TState&gt; (capa 3)"]
+        ENG["GameEngine&lt;C, TCell, TMove, TState&gt;<br/>ciclo de turno · fases · eventos · deshacer · capacidades"]
+        BRD(["Board&lt;C, TCell&gt; ↔ <b>GridTopology&lt;C&gt;</b><br/>punto de extensión de la figura de celda"])
+        EXT --- ENG --- BRD
+    end
+
+    T1["HexTopology<br/>HexCoord"]
+    T2["SquareTopology<br/>SquareCoord"]
+    T3["TriTopology<br/>TriCoord"]
+    T4["CubeTopology<br/>CubeCoord"]
+    T5["Figura nueva<br/>GridTopology + layout<br/>+ TopologyEntry"]
+
+    CFG -. parametriza .-> HL & HF & HS & HM
+    HL & HF & HS & HM & H5 -. implementan .-> EXT
+    BRD -. implementado por .-> T1 & T2 & T3 & T4 & T5
+
+    classDef core fill:#FDE2B5,stroke:#B26A00,color:#3A2300
+    classDef point fill:#FFFFFF,stroke:#B26A00,stroke-width:2px,stroke-dasharray:5 3,color:#3A2300
+    classDef variant fill:#CFE3F7,stroke:#1565C0,color:#0B2747
+    classDef topo fill:#CDEBD3,stroke:#2E7D32,color:#0F2E13
+    classDef future fill:#FFFFFF,stroke:#C62828,stroke-width:2px,stroke-dasharray:6 4,color:#7F0000
+    classDef cfg fill:#F4F1FA,stroke:#5E35B1,color:#221144
+    class ENG core
+    class EXT,BRD point
+    class HL,HF,HS,HM variant
+    class T1,T2,T3,T4 topo
+    class H5,T5 future
+    class CFG cfg
+    style CORE fill:#FFF4E0,stroke:#B26A00

@@ -60,25 +60,29 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 
 **Motor (D-07, opción A):** la coordenada es un **parámetro genérico**: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>`, `GameEngine<TCoord, TCell, TMove, TState>`. `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` que vive en `hexa_topologies` (no en el motor). La figura elegida se despacha en el composition root con una función genérica que conserva `TCoord`.
 
+**Arquitectura y persistencia (17-11):** app en 4 paquetes Dart puros + Flutter (D-21); backend en módulos con carpetas Clean y un caso de uso por clase, con `infrastructure/` solo para adaptadores (D-22); el contrato vive en `hexablock-api/docs/contracts/` y la app guarda una copia verificada por CI (D-23); la partida en curso se guarda tras cada turno en `saved_games` y se puede continuar aunque la app se cierre (D-37).
+
 ## 4. Estado de la hoja de ruta
 
 | Paso | Contenido | Estado |
 |---|---|---|
 | 0 | ADR-001 + SECURITY-BASELINE | ✅ |
 | 1 | Requisitos: glosario, reglas de negocio, RF/RNF, historias, trazabilidad | 📝 Borrador listo; revisión de cada integrante |
-| 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | 📝 Borrador listo; aprobar D-21 a D-23 |
+| 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | ✅ D-21 a D-23 cerradas (17-11) |
 | 3 | Motor genérico (`ARQ-02-MOTOR.md`) | ✅ Decidido el 17-11 (D-29 a D-35); queda D-36 |
-| **4** | **Arquitectura detallada:** casos de uso, puertos, mapa de patrones, AOP, 3 diagramas, `EXTENSIBILITY.md` | ⏭️ **Siguiente** |
-| 5 | Contratos: `openapi.yaml`, JSON Schema de niveles, modelo de datos | ☐ |
+| 4 | Arquitectura detallada (`ARQ-03-APP-DETALLE.md`, `ARQ-03-API-DETALLE.md`, `docs/diagrams/`, `EXTENSIBILITY.md`) | ✅ 19-11 (D-38 a D-43); falta `clases.png` (R-04, DanielHaro28) |
+| **5** | **Contratos:** `openapi.yaml`, JSON Schema de niveles, modelo de datos (cierra D-19 y D-27) | ⏭️ **Siguiente** |
 | 6 | Contenido (15 + 10 niveles) y estrategia de pruebas | ☐ |
 | 7 | Plan: Issues por repo, milestones, Definition of Done | ☐ |
 | 8 | Preparación para Claude Code: `CLAUDE.md`, agentes, permisos | ☐ |
 
 **Revisión de integridad (12-11):** se revisaron todos los documentos de los dos repos contra el enunciado y entre sí. Los IDs citados existen todos, los compartidos son idénticos y los 59 chequeos de ejemplos pasan con el simulador. Se corrigieron desajustes de redacción: estrellas 1–3 en SEC-API-06, D-03 como pendiente en SECURITY §3, argon2id, tabla `profiles` y figura en preferencias en el ADR (rev. 1.7), D-07 ya no figura como abierta en ARQ-01-APP §0, script de CI por identificadores, TEC-08 alineada con RN-TOP-04, PRG-03 y RF-32 con figura, RF-90 a 93, E-COM-3 con un puntaje posible y decisiones abiertas en las trazabilidades. Hallazgo de fondo: **D-27 choca con la letra del enunciado §5.2** ("una entrada de progreso por usuario y por variante"); en `PENDIENTES.md` quedan las dos formas de guardarlo, con recomendación.
 
+**Paso 4 (19-11):** todos los casos de uso implementan `UseCase<TIn, TOut>` con `execute` (D-38). Por dentro hay excepciones tipadas; hacia la pantalla, un `Result`, y en el backend, el filtro global de NestJS (D-39). La app tiene 4 aspectos (registro, métricas, errores con reintentos, sesión) en el orden sesión → errores → métricas → registro, armados con `AspectChain` (D-40, D-41). El backend usa decoradores propios (registro, métricas, caché del ranking) y deja la tubería HTTP a NestJS (D-42). El diagrama de clases es PlantUML y lo genera DanielHaro28; capas y extensibilidad son Mermaid (D-43). El guardado de la partida no espera la escritura (`scheduleSave` + `flush` al pausar).
+
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 
-**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-21 (paquetes de la app), D-22 (estructura del backend), D-23 (contrato y ejemplos compartidos), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura), D-36 (protección del Template Method; recomendado `@nonVirtual` de `package:meta`).
+**Decisiones abiertas para la reunión del equipo** (todas con recomendación en `PENDIENTES.md` §1.1): D-02 (reparto), D-03 (409 al registrarse; recomendado mantenerlo), D-19 (validación de niveles), D-20 (catálogos de otras figuras), D-26 (figura global; recomendado sí), D-27 (progreso y ranking por figura; recomendado sí, con una entrada por usuario y variante y una sección por figura para cumplir §5.2), D-28 (niveles por figura), D-36 (protección del Template Method; recomendada una regla + prueba de arquitectura, sin dependencias, por §3.4).
 
 **Paso 3 (`ARQ-02-MOTOR.md`, decidido el 17-11):** el equipo adoptó todas las recomendaciones: Visitor genérico para despachar la figura y `TCoord` hasta el widget del tablero (D-29); estado inmutable, celda vacía = `null`, movimientos *sealed* y `Tile implements Mergeable<Tile>` (D-30); Command + Memento para deshacer (D-31); eventos devueltos por las reglas, que la pantalla recibe como retorno de `submit`, y un `Stream` solo para historial, cronómetro, audio y analítica (D-32); capacidades ISP compuestas por la fábrica en una `GameSession` (D-33); fases con el patrón State (D-34); 14 patrones GoF en el dominio, 3 + 3 + 8 (D-35). Los esbozos de Dart **no están compilados** (sin SDK en la planificación): se validan en el *spike* de TEC-01. La lógica de deshacer y de fases se comprobó con `tools/reference-sim/engine_model.py`.
 
@@ -106,6 +110,9 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 | `docs/architecture/ARQ-00-SISTEMA.md` | compartido | compartido |
 | `docs/architecture/ARQ-01-APP-GENERAL.md` / `ARQ-01-API-GENERAL.md` | app | API |
 | `docs/architecture/ARQ-02-MOTOR.md` (motor genérico y patrones del dominio) | ✅ | — |
+| `docs/architecture/ARQ-03-APP-DETALLE.md` / `ARQ-03-API-DETALLE.md` (Paso 4) | app | API |
+| `docs/diagrams/` (`clases.puml`, `capas.mmd`, `extensibilidad.mmd` solo en la app, e imágenes) | ✅ | ✅ |
+| `docs/EXTENSIBILITY.md` | ✅ | — |
 | `docs/requirements/01-GLOSARIO.md` | compartido | compartido |
 | `docs/requirements/02-RN-COMUNES.md`, `02-RN-TOPOLOGIAS.md`, `02-RN-HEXA-*.md` | ✅ | — |
 | `docs/requirements/02-RN-NIVELES.md`, `02-RN-CUENTA-PROGRESO-RANKING.md` | compartido | compartido |

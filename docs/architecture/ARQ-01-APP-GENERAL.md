@@ -13,7 +13,7 @@
 
 **No decide** (se deja para los pasos siguientes):
 - **Paso 3, motor genérico (lo decide el equipo):** firmas de los genéricos (`TCell`, `TMove`, `TState`), hasta qué capa llega `TCoord` (la coordenada como parámetro genérico ya está decidida: D-07, ARQ-A-09), máquina de estados, modelo de eventos, cómo se implementa deshacer.
-- **Paso 4, arquitectura detallada:** firmas de los casos de uso, mapa de patrones (patrón → clase → por qué), aspectos AOP concretos, diagramas oficiales y `EXTENSIBILITY.md`.
+- **Paso 4, arquitectura detallada:** firmas de los casos de uso, mapa de patrones (patrón → clase → por qué), aspectos AOP concretos, diagramas oficiales y `EXTENSIBILITY.md`. Hecho en `ARQ-03-APP-DETALLE.md`, `docs/diagrams/` y `docs/EXTENSIBILITY.md` (D-38 a D-43).
 
 **Estados:** ✅ ya decidido (ADR-001 o enunciado) · 🟡 propuesta para que el equipo confirme.
 
@@ -127,7 +127,7 @@ Los cuatro paquetes de dominio y aplicación no tienen dependencias de terceros 
 | **Nueva topología** | Clase en `hexa_topologies/`; su layout en `app/frameworks/ui/`; su anexo en `02-RN-TOPOLOGIAS.md`; su catálogo de piezas | Solo el **registro** en `app/lib/config/` | **Sin cambios** |
 | **Cambio de regla** (por ejemplo, otro puntaje) | Una nueva estrategia de puntuación, o un cambio de configuración | La configuración de la variante | **Sin cambios** |
 
-Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
+El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENSIBILITY.md`.
 
 ## 4. Componentes por capa
 
@@ -145,7 +145,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 
 ### 4.2 Capa 2 — casos de uso y puertos
 
-**Casos de uso genéricos** (los nombres siguen el enunciado §3.4; las firmas se definen en el Paso 4):
+**Casos de uso genéricos** (los nombres siguen el enunciado §3.4; las firmas están en `ARQ-03-APP-DETALLE.md` §3):
 
 | Caso de uso | Qué hace | Puertos que usa |
 |---|---|---|
@@ -169,6 +169,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Cola de sincronización | Repositorio → Drift |
+| `ISavedGameRepository` | Partida en curso guardada por perfil, variante y figura (D-37) | Repositorio → Drift |
 | `IProgressGateway` | Enviar y recibir el progreso del servidor | Gateway → dio |
 | `ILevelGateway` | Descargar niveles | Gateway → dio |
 | `ILeaderboardGateway` | Consultar el ranking | Gateway → dio (+ caché) |
@@ -179,7 +180,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 | `IConnectivity` | Saber si hay red | Plugin de conectividad |
 | `ILogger` | Registro estructurado (lo usan los aspectos, no los casos de uso) | Logger de plataforma |
 
-**Aspectos** (decoradores en `hexa_application/aspects/`): envuelven cualquier caso de uso y solo dependen de puertos (`ILogger`, `IClock`, `ISessionStore`). Como envuelven el caso de uso **genérico**, aplican a las 4 variantes sin cambios (§3.5 del enunciado). Candidatos: logging y trazabilidad (obligatorio, TEC-03), métricas de rendimiento, verificación de sesión y reintentos de red. Se eligen en el Paso 4.
+**Aspectos** (decoradores en `hexa_application/aspects/`): envuelven cualquier caso de uso y solo dependen de puertos (`ILogger`, `IClock`, `ISessionStore`). Como envuelven el caso de uso **genérico**, aplican a las 4 variantes sin cambios (§3.5 del enunciado). Elegidos (D-40, D-41): registro, métricas, errores con reintentos y sesión, en ese orden de adentro hacia afuera; detalle en `ARQ-03-APP-DETALLE.md` §5.
 
 ### 4.3 Capa 3 — adaptadores
 
@@ -196,7 +197,7 @@ Esta tabla es el borrador de `EXTENSIBILITY.md` (Paso 4).
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
 | **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
-| **Persistencia** | Drift: tablas `progress`, `profiles`, `downloaded_levels`, `sync_outbox` (definidas en el Paso 5) |
+| **Persistencia** | Drift: tablas `progress`, `profiles`, `downloaded_levels`, `sync_outbox` y `saved_games` (D-37; definidas en el Paso 5) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
 | **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger |
 | **Composition root** | `main.dart` + `get_it`: crea las implementaciones, aplica los decoradores y registra variantes y topologías |
@@ -256,7 +257,7 @@ Fin de partida → `SaveProgressUseCase` consolida el resultado en el perfil act
 | **Error de persistencia** | Repositorio (capa 3) | Se traduce a un error de aplicación; las escrituras son transaccionales (RNF-35) |
 | **Error inesperado** | Cualquier capa | Lo captura un aspecto o el cubit; nunca se muestra un stack al jugador |
 
-El dominio **no lanza excepciones de infraestructura** porque no la conoce. La forma concreta de devolver errores (excepciones tipadas o un tipo resultado) se decide en el Paso 4.
+El dominio **no lanza excepciones de infraestructura** porque no la conoce. Por dentro se usan excepciones tipadas y hacia la pantalla un `Result` (D-39, `ARQ-03-APP-DETALLE.md` §2).
 
 ## 8. Controles automáticos en CI
 
@@ -277,13 +278,13 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. La f
 | ID | Decisión | Estado |
 |---|---|---|
 | ARQ-A-01 | Cuatro capas Clean según el enunciado §3.4 | ✅ |
-| ARQ-A-02 | Pub workspace con **4 paquetes Dart puros** (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter | 🟡 D-21 |
-| ARQ-A-03 | Los casos de uso (capa 2) van en un paquete propio, sin Flutter, para que no puedan ver las variantes y se prueben sin emulador | 🟡 D-21 |
-| ARQ-A-04 | Las variantes en **un solo paquete** con una carpeta por variante (no un paquete por variante): menos configuración, y la regla que importa (el motor no ve las variantes) se cumple igual | 🟡 D-21 |
-| ARQ-A-05 | Los aspectos AOP son decoradores en la capa 2 que dependen solo de puertos; se conectan en el composition root | 🟡 |
-| ARQ-A-06 | El tablero se dibuja combinando **layout de topología × pintor de contenido de la variante** | 🟡 |
-| ARQ-A-07 | El audio reacciona a los eventos de dominio desde la capa 4 (Observer + Facade); no hay puerto de audio en los casos de uso | 🟡 |
-| ARQ-A-08 | Un solo `GameCubit` genérico para las 4 variantes | 🟡 |
+| ARQ-A-02 | Pub workspace con **4 paquetes Dart puros** (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter | ✅ D-21 (17-11) |
+| ARQ-A-03 | Los casos de uso (capa 2) van en un paquete propio, sin Flutter, para que no puedan ver las variantes y se prueben sin emulador | ✅ D-21 (17-11) |
+| ARQ-A-04 | Las variantes en **un solo paquete** con una carpeta por variante (no un paquete por variante): menos configuración, y la regla que importa (el motor no ve las variantes) se cumple igual | ✅ D-21 (17-11) |
+| ARQ-A-05 | Los aspectos AOP son decoradores en la capa 2 que dependen solo de puertos; se conectan en el composition root | ✅ Paso 4 (19-11) |
+| ARQ-A-06 | El tablero se dibuja combinando **layout de topología × pintor de contenido de la variante** | ✅ Paso 4 (19-11) |
+| ARQ-A-07 | El audio reacciona a los eventos de dominio desde la capa 4 (Observer + Facade); no hay puerto de audio en los casos de uso | ✅ Paso 4 (19-11) |
+| ARQ-A-08 | Un solo `GameCubit` genérico para las 4 variantes | ✅ Paso 4 (19-11) |
 | ARQ-A-09 | **La coordenada es un parámetro genérico** (`TCoord extends Coord`) del tablero, la topología, las reglas y el motor. `HexBoard<TCell>` = `typedef` de `Board<HexCoord, TCell>`, en `hexa_topologies`. El *composition root* elige la topología leída de la configuración y la despacha con una **función genérica** que conserva el tipo `TCoord` al crear la partida | ✅ D-07 (11-11) |
 
 ## 10. Preguntas para el Paso 3 (motor genérico)

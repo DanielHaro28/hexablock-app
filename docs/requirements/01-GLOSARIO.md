@@ -73,6 +73,7 @@
 | Victoria | `Victory` | Condición de éxito de la variante |
 | Derrota | `Defeat` | Condición de fracaso de la variante. En Hexa Lines, a la derrota se le llama **fin de partida**, porque no hay victoria posible |
 | Pausa | `Pause` | Estado en que la partida no acepta movimientos y el cronómetro está detenido |
+| Partida guardada | `SavedGame` | Copia en el dispositivo de la partida en curso, que se actualiza tras cada turno y permite **continuarla** aunque la app se cierre (RN-COM-33 a 35) |
 | Tiempo activo | `activeTime` | Tiempo de juego sin contar pausas ni la app en segundo plano |
 | Deshacer / rehacer | `undo` / `redo` | Volver al estado anterior a un movimiento / volver a aplicar un movimiento deshecho |
 | Historial | `History` | Lista de movimientos que se pueden deshacer y rehacer |

@@ -75,8 +75,9 @@ Como jugador, quiero pausar la partida, para retomarla después sin perder el es
 - Dado que estoy jugando, cuando toco pausa, entonces el tablero deja de aceptar movimientos y veo continuar, reiniciar y salir al menú.
 - Dado que la variante mide tiempo (Hexa Fit), entonces el cronómetro se detiene durante la pausa.
 - Dado que la app pasa a segundo plano, entonces la partida se pausa sola.
+- Dado que cierro la app (o Android la cierra) a mitad de partida, cuando vuelvo a abrir esa variante, entonces veo **Continuar** y la partida sigue en pausa desde el último movimiento, sin contar el tiempo que estuvo cerrada (RN-COM-33, 34).
 
-**Must** · RF-05 · RN-COM-24, 30 a 32, 52
+**Must** · RF-05, RF-64 · RN-COM-24, 30 a 35, 52
 
 ### NAV-05 · Consultar cómo se juega
 Como jugador nuevo, quiero ver las reglas de cada variante, para entender el objetivo antes de jugar.

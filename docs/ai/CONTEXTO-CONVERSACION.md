@@ -71,7 +71,7 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 | 2 | Arquitectura general (`ARQ-00`, `ARQ-01` app y API) | ✅ D-21 a D-23 cerradas (17-11) |
 | 3 | Motor genérico (`ARQ-02-MOTOR.md`) | ✅ Decidido el 17-11 (D-29 a D-35); queda D-36 |
 | 4 | Arquitectura detallada (`ARQ-03-APP-DETALLE.md`, `ARQ-03-API-DETALLE.md`, `docs/diagrams/`, `EXTENSIBILITY.md`) | ✅ 19-11 (D-38 a D-43); falta `clases.png` (R-04, DanielHaro28) |
-| **5** | **Contratos:** `openapi.yaml`, JSON Schema de niveles y de progreso, modelo de datos local y del servidor | 🟡 **En curso (19-11):** propuestas D-19, D-27 y D-44 a D-50 en `PENDIENTES.md` |
+| **5** | **Contratos:** `openapi.yaml`, JSON Schema de niveles y de progreso, modelo de datos local y del servidor | 🟡 **En curso (19-11):** cerradas D-27, D-44, D-45, D-46 y D-50; abiertas D-19, D-47, D-48, D-49 y D-51 |
 | 6 | Contenido (15 + 10 niveles) y estrategia de pruebas | ☐ |
 | 7 | Plan: Issues por repo, milestones, Definition of Done | ☐ |
 | 8 | Preparación para Claude Code: `CLAUDE.md`, agentes, permisos | ☐ |
@@ -80,7 +80,7 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 
 **Paso 4 (19-11):** todos los casos de uso implementan `UseCase<TIn, TOut>` con `execute` (D-38). Por dentro hay excepciones tipadas; hacia la pantalla, un `Result`, y en el backend, el filtro global de NestJS (D-39). La app tiene 4 aspectos (registro, métricas, errores con reintentos, sesión) en el orden sesión → errores → métricas → registro, armados con `AspectChain` (D-40, D-41). El backend usa decoradores propios (registro, métricas, caché del ranking) y deja la tubería HTTP a NestJS (D-42). El diagrama de clases es PlantUML y lo genera DanielHaro28; capas y extensibilidad son Mermaid (D-43). El guardado de la partida no espera la escritura (`scheduleSave` + `flush` al pausar).
 
-**Paso 5 (19-11, en curso):** el Paso 4 se fusionó (app #6, api #4). Antes de escribir `openapi.yaml`, los JSON Schema y los modelos de datos se cierran: D-19 (quién valida los niveles), D-27 (progreso por figura), D-44 (duración del JWT), D-45 (forma del progreso), D-46 (convenciones de la API), D-47 (identidad y formato de niveles), D-48 (descarga de niveles), D-49 (base local) y D-50 (nombre visible).
+**Paso 5 (19-11, en curso):** el Paso 4 se fusionó (app #6, api #4). Cerradas: D-27 (una entrada de progreso por usuario y `gameId`, con una sección por figura), D-44 (un JWT de 24 h), D-45 (dos formas de progreso: récord o niveles), D-46 (`/v1`, ISO 8601, RFC 9110, `camelCase`, `limit` + `offset`) y D-50 (nombre visible único, RN-COM-109). Abiertas: D-19 (quién revisa los niveles), D-47 (identidad y formato de niveles), D-48 y D-49 (revisadas pensando en miles de niveles: descarga por cursor del servidor y sincronización de solo lo que cambió) y D-51 (errores según RFC 9457).
 
 **Orden de implementación sugerido:** motor con celda de prueba → Hexa Merge → Hexa Lines → Hexa Sort → Hexa Fit (todo con hexágonos); backend en paralelo; después, cuadrados y triángulos (TEC-07), cubos en el dominio (TEC-08) y vista 3D (TEC-09).
 

@@ -165,7 +165,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 
 | Puerto | Responsabilidad | Implementación (capa 3 → 4) |
 |---|---|---|
-| `IProgressRepository` | Progreso por perfil y por `gameId` (y figura, propuesta D-27) | Repositorio → Drift |
+| `IProgressRepository` | Progreso por perfil, `gameId` y figura (D-27) | Repositorio → Drift |
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Cola de sincronización | Repositorio → Drift |

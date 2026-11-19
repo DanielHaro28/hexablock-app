@@ -70,6 +70,16 @@
 | D-42 | **AOP en el backend:** clases decoradoras sobre `UseCase<I, O>` (registro con redacción, métricas y caché del ranking), igual que en la app. Lo propio de HTTP queda en los mecanismos de NestJS: guards (JWT y roles), filtro global de errores, `ValidationPipe`, throttler y el registro de accesos HTTP de SEC-WEB-06 | ARQ-03-API §4; ARQ-01-API §5 (ARQ-B-04) | API | 19-11 |
 | D-43 | **Diagramas:** el de clases en **PlantUML** (notación UML de plantilla, §4.1; se mantiene P-11), un archivo por repo; las imágenes las genera DanielHaro28 con la extensión de PlantUML de VS Code, sin robot de CI. Capas y extensibilidad en **Mermaid**, con imágenes generadas y comprobadas al escribirlos. Todo en `docs/diagrams/` | docs/diagrams/, ADR-001 §2.5 | Ambos | 19-11 |
 
+### Contratos (Paso 5)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-27 | **Progreso, récord y ranking separados por figura (opción B).** En el servidor, **una entrada de progreso por usuario y `gameId`** (cumple el enunciado §5.2 al pie de la letra) con **una sección por figura** dentro del JSON. La sincronización es `PUT /v1/me/progress/{gameId}` con las secciones que cambiaron, y el servidor consolida sección por sección. `BEST_ATTEMPT` lleva la columna `topology`, porque el ranking la filtra | RN-TOP-33, RN-COM-80, 100; ARQ-01-API §6 y ARQ-B-03 | Ambos | 19-11 |
+| D-44 | **Sesión: un solo JWT válido 24 h (opción A).** Al vencer, la app pide iniciar sesión antes de sincronizar y se sigue jugando sin conexión (RN-COM-87). El token de renovación (refresh) queda para después: sería un endpoint nuevo y no rompe el contrato | SEC-API-02 | Ambos | 19-11 |
+| D-45 | **Forma del progreso: dos formas según el modelo de progreso (opción B, `IProgressModel`).** Récord para Lines y Merge (`kind: "highScore"`, con el mejor puntaje y su fecha) y niveles para Fit y Sort (`kind: "levels"`, un mapa `levelId` → mejor intento; un nivel está completado si aparece en el mapa). Una consolidación por forma; una 5.ª variante reutiliza una de las dos | RN-COM-80, ARQ-B-03; esquema en `docs/contracts/` (Paso 5) | Ambos | 19-11 |
+| D-46 | **Convenciones de la API (opción A).** Se apoyan en estándares: fechas ISO 8601 / RFC 3339 en UTC; códigos de estado, `ETag` y `304` según HTTP (RFC 9110). Y en convenciones muy usadas, aunque no son norma: versión mayor en la ruta (`/v1`, como Google AIP-185; `/health` queda sin versión) y nombres en `camelCase` (Google JSON Style Guide). Duraciones en milisegundos, usuarios con UUID, paginación con `limit` (1–100, 20 por defecto) y `offset`. El formato de errores sigue siendo el de D-39 hasta que se cierre D-51 | ARQ-03-API §3; `openapi.yaml` (Paso 5) | Ambos | 19-11 |
+| D-50 | **Nombre visible único (opción A):** sin distinguir mayúsculas, de 3 a 20 caracteres (letras, números, espacio, `_`, `-` y `.`). Si ya existe, `409` con el código `DISPLAY_NAME_TAKEN` | RN-COM-109, glosario, RF-70, API-01 | Ambos | 19-11 |
+
 ### Partida y persistencia local
 
 | ID | Decisión | Dónde quedó | Repos | Fecha |

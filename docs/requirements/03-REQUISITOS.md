@@ -96,7 +96,7 @@
 
 | ID | La app… | Reglas | Fuente | Prioridad |
 |---|---|---|---|---|
-| RF-70 | Permite registrarse (correo, contraseña y nombre visible) contra la API y guarda el JWT en almacenamiento seguro | SEC-MOB-01 | §5.2 (1) | Must |
+| RF-70 | Permite registrarse (correo, contraseña y nombre visible único, RN-COM-109) contra la API y guarda el JWT en almacenamiento seguro | SEC-MOB-01 | §5.2 (1) | Must |
 | RF-71 | Permite iniciar y cerrar sesión. Al cerrar sesión borra el token y vuelve al perfil invitado; ante un 401 pide iniciar sesión otra vez | RN-COM-87, 89, SEC-MOB-04 | §5.2 (1) | Must |
 | RF-72 | Sincroniza el progreso por `gameId` y figura al terminar partidas y al recuperar la conexión, aplicando la **misma consolidación** que el servidor; mientras no hay conexión, guarda los cambios en la cola | RN-COM-83 a 87, 90 | §5.2 (2), P-08 | Must |
 | RF-73 | Ofrece importar el progreso de invitado al iniciar sesión | RN-COM-88 | P-08 | Must |

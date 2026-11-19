@@ -60,7 +60,7 @@ Restricciones del equipo:
 | Dato | Almacenamiento |
 |---|---|
 | Perfiles locales (invitado y cuentas que iniciaron sesión en el dispositivo, D-05, D-06) | Drift: tabla `profiles` |
-| Progreso por perfil y `gameId` (y figura, propuesta D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
+| Progreso por perfil, `gameId` y figura (D-27): niveles completados, estrellas, récord | Drift: tabla `progress` |
 | Niveles descargados del servidor (id, `gameId`, orden, versión, JSON) | Drift: tabla `downloaded_levels` |
 | Cambios de progreso pendientes de sincronizar (*outbox*) | Drift: tabla `sync_outbox` |
 | Partida en curso, para continuarla si la app se cierra (D-37) | Drift: tabla `saved_games` |
@@ -77,7 +77,7 @@ Restricciones del equipo:
 | ORM / migraciones | **Prisma** | Esquema declarativo y migraciones versionadas (`migrate deploy` al arrancar) |
 | Autenticación | `@nestjs/jwt` + Passport; contraseñas con **argon2id** | §5.2 punto 1; SEC-API-02 |
 | Validación | `class-validator` + `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` | Errores 400 con detalle por campo; bloquea la asignación masiva (SEC-API-03) |
-| Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/auth/*`) | SEC-API-04, SEC-API-08 |
+| Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/v1/auth/*`) | SEC-API-04, SEC-API-08 |
 | Autorización | `RolesGuard` con denegación por defecto; `userId` siempre tomado del JWT | SEC-API-01, SEC-API-05 |
 | Documentación | `@nestjs/swagger`, con **`openapi.yaml` como contrato fuente** (*contract-first*) | Swagger público en `/docs` para que el jurado pueda probar la API |
 | Errores | Un *exception filter* global con un formato único `{ code, message, details }` | §5.2 punto 6 |

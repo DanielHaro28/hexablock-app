@@ -81,7 +81,7 @@ flowchart TB
 | Autenticación | `Authorization: Bearer <JWT>` en los endpoints protegidos |
 | Identidad | El usuario **siempre** sale del JWT, nunca de la URL ni del cuerpo (SEC-API-01) |
 | Errores | Formato único `{ code, message, details }` (RF-91) |
-| Variante y figura | `gameId` obligatorio en todo lo que es por variante; la **topología** (figura de celda) también, en progreso y ranking (D-25, propuesta D-27) |
+| Variante y figura | `gameId` obligatorio en todo lo que es por variante; la **topología** (figura de celda) también, en progreso y ranking (D-25). En el servidor, una entrada de progreso por usuario y `gameId`, con una sección por figura (D-27) |
 | Reintentos | Solo desde la app, en la sincronización (la operación es repetible sin efectos: RN-COM-84) |
 | Sin conexión | La app sigue funcionando; la cola se envía al recuperar la red |
 
@@ -162,5 +162,5 @@ sequenceDiagram
 | ARQ-S-01 | Arquitectura **cliente–servidor offline-first**: el dispositivo es la fuente primaria del progreso; el servidor consolida y calcula el ranking | ✅ (P-08) |
 | ARQ-S-02 | El servidor **no ejecuta reglas de juego**; solo valida la plausibilidad de los resultados (RN-COM-108) | 🟡 |
 | ARQ-S-03 | La consolidación existe **dos veces** (Dart y TypeScript), con **ejemplos de prueba compartidos** (E-COM-2, E-COM-3) para garantizar que dan el mismo resultado | 🟡 |
-| ARQ-S-04 | Sincronización por **snapshot completo por `gameId` y figura** (no por eventos) porque el progreso es chico y la consolidación es repetible. Cómo se guarda la figura en el servidor depende de D-27 | 🟡 |
+| ARQ-S-04 | Sincronización por **snapshot completo por `gameId` y figura** (no por eventos) porque el progreso es chico y la consolidación es repetible. En el servidor, una entrada por `gameId` con una sección por figura (D-27). Si se envía el progreso completo o solo lo que cambió se decide en D-49 | 🟡 |
 | ARQ-S-05 | El contrato (`openapi.yaml`) y los ejemplos compartidos en formato JSON viven en `hexablock-api/docs/contracts/` (fuente única). La API valida sus respuestas contra ese archivo; la app guarda una **copia** para probar sus mappers y su CI **falla si la copia difiere** de la del repo de la API | ✅ D-23 (17-11) |

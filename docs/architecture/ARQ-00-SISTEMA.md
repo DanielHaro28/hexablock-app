@@ -70,7 +70,7 @@ flowchart TB
 | **Niveles publicados** | **La API** (fuente); la app guarda copias | La app trae niveles incluidos y descarga los nuevos (RN-COM-72) |
 | **Validación de niveles** | API: estructural; app: estructural y **geométrica** | Validar que una pieza es una rotación de su forma requiere las topologías, que viven solo en la app (propuesta D-19) |
 | **Identidad y sesión** | **La API** emite el JWT; la app lo guarda en almacenamiento seguro | SEC-API-02, SEC-MOB-01 |
-| **Contrato** entre app y API | **`openapi.yaml`**, fuente única | Se define en el Paso 5 (D-23) |
+| **Contrato** entre app y API | **`openapi.yaml`** y JSON Schema, fuente única en `hexablock-api/docs/contracts/` | Paso 5 (D-23); la app guarda una copia idéntica |
 
 ## 4. Comunicación
 
@@ -80,7 +80,7 @@ flowchart TB
 | Versión | Prefijo `/api/v1` (SEC-API-09) |
 | Autenticación | `Authorization: Bearer <JWT>` en los endpoints protegidos |
 | Identidad | El usuario **siempre** sale del JWT, nunca de la URL ni del cuerpo (SEC-API-01) |
-| Errores | Formato único `{ code, message, details }` (RF-91) |
+| Errores | Problem Details (RFC 9457) con los campos propios `code` y `errors` (RF-91, D-51) |
 | Variante y figura | `gameId` obligatorio en todo lo que es por variante; la **topología** (figura de celda) también, en progreso y ranking (D-25). En el servidor, una entrada de progreso por usuario y `gameId`, con una sección por figura (D-27) |
 | Reintentos | Solo desde la app, en la sincronización (la operación es repetible sin efectos: RN-COM-84) |
 | Sin conexión | La app sigue funcionando; la cola se envía al recuperar la red |

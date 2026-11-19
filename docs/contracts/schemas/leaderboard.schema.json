@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexablock-api.example/contracts/schemas/leaderboard.schema.json",
+  "title": "Leaderboard page",
+  "description": "Response of GET /v1/leaderboard/{gameId} (RN-COM-100 to 107). Entries show the display name and the rank, never the email or internal ids (RN-COM-106, SEC-API-03). Ranks are unique because ties go to whoever achieved the result first (RN-COM-105).",
+  "type": "object",
+  "properties": {
+    "gameId": { "$ref": "common.schema.json#/$defs/gameId" },
+    "topology": { "$ref": "common.schema.json#/$defs/topology" },
+    "levelId": { "oneOf": [{ "$ref": "common.schema.json#/$defs/levelId" }, { "type": "null" }] },
+    "kind": {
+      "description": "highScore: Lines and Merge (RN-COM-101). fitLevel: RN-COM-102. sortLevel: RN-COM-103. levelsGlobal: Fit and Sort without levelId (RN-COM-104).",
+      "enum": ["highScore", "fitLevel", "sortLevel", "levelsGlobal"]
+    },
+    "total": { "type": "integer", "minimum": 0 },
+    "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "offset": { "type": "integer", "minimum": 0 },
+    "entries": { "type": "array", "items": { "$ref": "#/$defs/entry" }, "maxItems": 100 },
+    "me": {
+      "description": "Position of the caller when a valid token was sent, even outside the page; null otherwise (RN-COM-106).",
+      "oneOf": [{ "$ref": "#/$defs/entry" }, { "type": "null" }]
+    }
+  },
+  "required": ["gameId", "topology", "levelId", "kind", "total", "limit", "offset", "entries", "me"],
+  "additionalProperties": false,
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "properties": {
+        "rank": { "type": "integer", "minimum": 1 },
+        "displayName": { "$ref": "common.schema.json#/$defs/displayName" },
+        "score": { "type": "integer", "minimum": 0 },
+        "stars": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "timeMs": { "type": "integer", "minimum": 0 },
+        "moves": { "type": "integer", "minimum": 0 },
+        "completedLevels": { "type": "integer", "minimum": 0 },
+        "totalStars": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["rank", "displayName"],
+      "additionalProperties": false
+    }
+  }
+}

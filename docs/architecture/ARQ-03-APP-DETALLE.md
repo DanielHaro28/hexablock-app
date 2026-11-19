@@ -7,7 +7,7 @@
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
 | Fija | Forma de los casos de uso, manejo de errores, firmas de casos de uso y puertos, adaptadores, aspectos AOP y su orden, *composition root*, mapa completo de patrones y ejemplos de SOLID |
-| No fija | Esquemas de Drift, JSON de niveles y de la partida guardada, `openapi.yaml` (Paso 5) |
+| No fija | Tablas de Drift (`ARQ-04-APP-DATOS.md`), JSON de niveles y `openapi.yaml` (`docs/contracts/`), ambos del Paso 5 |
 | Diagramas | `docs/diagrams/clases.puml` (PlantUML), `capas.mmd` y `extensibilidad.mmd` (Mermaid) |
 
 > Los esbozos de Dart siguen sin compilar (no hay SDK en la planificación); se validan en el *spike* de TEC-01, junto con los de `ARQ-02-MOTOR.md`. El código va en inglés.
@@ -64,11 +64,14 @@ final class Failure<T> extends Result<T> { const Failure(this.error); final AppF
 | Gateway: sin red o tiempo agotado | `NetworkException` | `NetworkFailure` (después de los reintentos) | "Sin conexión; se sincronizará después" |
 | Gateway: 401 | `SessionExpiredException` | `SessionFailure(expired: true)` | Borra el token y pide iniciar sesión (SEC-MOB-04) |
 | Aspecto de sesión: no hay JWT | — | `SessionFailure(expired: false)` | "Inicia sesión para sincronizar" |
-| Gateway: 409 (correo registrado, D-03) | `ConflictException('email-taken')` | `ConflictFailure` | Mensaje del formulario |
-| Gateway: 400 con detalles | `ValidationException` | `ValidationFailure` | Errores por campo |
+| Gateway: 409 (`email-taken`, D-03, o `display-name-taken`, RN-COM-109) | `ConflictException(code)` | `ConflictFailure` | Mensaje del formulario junto al campo |
+| Gateway: 400 con `errors` | `ValidationException` (por `pointer` y `code`) | `ValidationFailure` | Errores por campo |
+| Gateway: 429 | `NetworkException(retryAfter)` | `NetworkFailure` (si se agotan los reintentos) | El aspecto de reintentos espera lo que dice `Retry-After` |
 | Repositorio: Drift falla | `PersistenceException` | `PersistenceFailure` | "No se pudo guardar"; el juego sigue (RNF-35) |
 | Caso de uso: una regla lo impide | `RuleException` | `RuleFailure` | Mensaje de la regla (p. ej., RN-COM-113) |
 | Cualquier otra excepción | (error de programación) | `UnexpectedFailure` | Mensaje genérico; nunca un *stack* |
+
+**Errores de la API (D-51).** La API responde Problem Details (RFC 9457). El gateway lee **solo `status` y `code`** (y `errors` en los 400, `Retry-After` en los 429): con eso elige la excepción de la tabla de arriba. El texto que ve el jugador sale siempre de los archivos de traducción de la app (ARB, es/en) según el `code`; **nunca** se muestran `title` ni `detail`, y la app no abre la URI de `type`. Un `code` que la app no conoce se trata como `UnexpectedFailure`.
 
 Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` dentro de un `Success` (RN-COM-21).
 

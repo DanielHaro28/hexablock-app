@@ -1,0 +1,8 @@
+{
+  "type": "https://hexablock-api.example/problems/display-name-taken",
+  "title": "Display name already taken",
+  "status": 409,
+  "detail": "Choose a different display name.",
+  "instance": "urn:uuid:7f1c0e2a-4b9d-4c35-9e7a-2d1f0b6c8a11",
+  "code": "display-name-taken"
+}

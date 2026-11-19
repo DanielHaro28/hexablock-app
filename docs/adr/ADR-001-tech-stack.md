@@ -80,7 +80,7 @@ Restricciones del equipo:
 | Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/v1/auth/*`) | SEC-API-04, SEC-API-08 |
 | Autorización | `RolesGuard` con denegación por defecto; `userId` siempre tomado del JWT | SEC-API-01, SEC-API-05 |
 | Documentación | `@nestjs/swagger`, con **`openapi.yaml` como contrato fuente** (*contract-first*) | Swagger público en `/docs` para que el jurado pueda probar la API |
-| Errores | Un *exception filter* global con un formato único `{ code, message, details }` | §5.2 punto 6 |
+| Errores | Un *exception filter* global que responde siempre con **Problem Details (RFC 9457)**: `application/problem+json` con `type`, `title`, `status`, `detail` e `instance`, más los campos propios `code` y `errors` (D-51) | §5.2 punto 6 |
 | Pruebas | Jest (unitarias) + Supertest (endpoints) contra Postgres en un *service container* de CI | §3.6 |
 | Contrato | Respuestas validadas contra `openapi.yaml` (por ejemplo `jest-openapi`); el cliente prueba sus mappers con los ejemplos del mismo archivo | Cubre la recomendación de pruebas de contrato con menos riesgo que Pact. `pact_dart` no recibe cambios desde 2023. Pact queda como mejora opcional |
 | Contenedores | **Docker**: `Dockerfile` multi-stage (imagen `node:*-alpine`) + `docker-compose.yml` (api + postgres) para desarrollo | El mismo artefacto corre en local, en CI y en producción |

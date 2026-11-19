@@ -197,7 +197,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
 | **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
-| **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en el Paso 5) |
+| **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en `ARQ-04-APP-DATOS.md`) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
 | **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger |
 | **Composition root** | `main.dart` + `get_it`: crea las implementaciones, aplica los decoradores y registra variantes y topologías |

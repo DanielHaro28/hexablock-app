@@ -1,0 +1,12 @@
+{
+  "type": "https://hexablock-api.example/problems/validation-failed",
+  "title": "Invalid request",
+  "status": 400,
+  "detail": "One or more fields are invalid.",
+  "instance": "urn:uuid:0b6f3c1e-9a2d-4e7b-8c55-3f1a2d9e4b70",
+  "code": "validation-failed",
+  "errors": [
+    { "pointer": "/displayName", "code": "too-short" },
+    { "pointer": "/password", "code": "too-short" }
+  ]
+}

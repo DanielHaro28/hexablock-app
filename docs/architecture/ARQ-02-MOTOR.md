@@ -7,7 +7,7 @@
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` §10: responde las 6 preguntas de partida del Paso 3 |
 | Fija | Tipos genéricos, contratos del motor, ciclo de turno, fases de la partida, eventos, deshacer, capacidades opcionales y **patrones de diseño del dominio** |
-| No fija | Firmas de los casos de uso y puertos (Paso 4), formato de los niveles y del estado guardado (Paso 5) |
+| No fija | Firmas de los casos de uso y puertos (Paso 4), formato de los niveles (`docs/contracts/`, Paso 5) y del estado guardado (lo define el codec de cada variante, `ARQ-04-APP-DATOS.md` §8) |
 
 **Cómo leer este documento.** Cada pregunta trae opciones con ventajas y desventajas, la **recomendación** y un esbozo de código. El equipo adoptó la opción recomendada en las 6 preguntas y en el mapa de patrones; las demás opciones quedan como registro de lo que se descartó y por qué, útil para la defensa.
 

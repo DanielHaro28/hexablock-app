@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexablock-api.example/contracts/schemas/progress.schema.json",
+  "title": "Progress",
+  "description": "Progress of one user in one variant (D-27, D-45, D-49). One entry per user and gameId with one section per topology. Each section has one of two shapes, chosen by the progress model of the variant: 'highScore' (Hexa Lines, Hexa Merge) or 'levels' (Hexa Fit, Hexa Sort). In a sync request a section may hold only the results that changed (RN-COM-86); merging is safe because consolidation is order-independent and idempotent (RN-COM-84).",
+  "$ref": "#/$defs/gameProgress",
+  "$defs": {
+    "highScoreSection": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "highScore" },
+        "best": {
+          "type": "object",
+          "properties": {
+            "score": { "type": "integer", "minimum": 0 },
+            "achievedAt": { "$ref": "common.schema.json#/$defs/dateTime" }
+          },
+          "required": ["score", "achievedAt"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["kind", "best"],
+      "additionalProperties": false
+    },
+    "fitAttempt": {
+      "description": "Best attempt of a Hexa Fit level, compared by stars desc, time asc, moves asc (RN-COM-102), then earliest achievedAt (RN-COM-105).",
+      "type": "object",
+      "properties": {
+        "stars": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "timeMs": { "type": "integer", "minimum": 0 },
+        "moves": { "type": "integer", "minimum": 0 },
+        "achievedAt": { "$ref": "common.schema.json#/$defs/dateTime" }
+      },
+      "required": ["stars", "timeMs", "moves", "achievedAt"],
+      "additionalProperties": false
+    },
+    "sortAttempt": {
+      "description": "Best attempt of a Hexa Sort level, compared by moves asc, score desc (RN-HS-71), then earliest achievedAt (RN-COM-105).",
+      "type": "object",
+      "properties": {
+        "moves": { "type": "integer", "minimum": 1 },
+        "score": { "type": "integer", "minimum": 0 },
+        "achievedAt": { "$ref": "common.schema.json#/$defs/dateTime" }
+      },
+      "required": ["moves", "score", "achievedAt"],
+      "additionalProperties": false
+    },
+    "fitSection": {
+      "description": "A level is completed if it appears in 'levels'. In a sync request the map may hold only the levels that changed.",
+      "type": "object",
+      "properties": {
+        "kind": { "const": "levels" },
+        "levels": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/levelId", "pattern": "^fit-" },
+          "additionalProperties": { "$ref": "#/$defs/fitAttempt" },
+          "maxProperties": 1000
+        }
+      },
+      "required": ["kind", "levels"],
+      "additionalProperties": false
+    },
+    "sortSection": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "levels" },
+        "levels": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/levelId", "pattern": "^sort-" },
+          "additionalProperties": { "$ref": "#/$defs/sortAttempt" },
+          "maxProperties": 1000
+        }
+      },
+      "required": ["kind", "levels"],
+      "additionalProperties": false
+    },
+    "sections": {
+      "description": "Topology -> section. Used as the body of PUT /v1/me/progress/{gameId}; the server also checks that the shape matches the gameId of the path.",
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/topology" },
+      "additionalProperties": {
+        "oneOf": [
+          { "$ref": "#/$defs/highScoreSection" },
+          { "$ref": "#/$defs/fitSection" },
+          { "$ref": "#/$defs/sortSection" }
+        ]
+      },
+      "minProperties": 1
+    },
+    "progressUpdate": {
+      "description": "Body of PUT /v1/me/progress/{gameId}.",
+      "type": "object",
+      "properties": { "sections": { "$ref": "#/$defs/sections" } },
+      "required": ["sections"],
+      "additionalProperties": false
+    },
+    "gameProgress": {
+      "type": "object",
+      "properties": {
+        "gameId": { "$ref": "common.schema.json#/$defs/gameId" },
+        "sections": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/topology" }
+        }
+      },
+      "required": ["gameId", "sections"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "gameId": { "enum": ["hexa-lines", "hexa-merge"] } } },
+          "then": { "properties": { "sections": { "additionalProperties": { "$ref": "#/$defs/highScoreSection" } } } }
+        },
+        {
+          "if": { "properties": { "gameId": { "const": "hexa-fit" } } },
+          "then": { "properties": { "sections": { "additionalProperties": { "$ref": "#/$defs/fitSection" } } } }
+        },
+        {
+          "if": { "properties": { "gameId": { "const": "hexa-sort" } } },
+          "then": { "properties": { "sections": { "additionalProperties": { "$ref": "#/$defs/sortSection" } } } }
+        }
+      ]
+    },
+    "allProgress": {
+      "description": "Response of GET /v1/me/progress: every variant and topology the user has (RN-COM-90).",
+      "type": "object",
+      "properties": {
+        "games": { "type": "array", "items": { "$ref": "#/$defs/gameProgress" }, "maxItems": 20 }
+      },
+      "required": ["games"],
+      "additionalProperties": false
+    }
+  }
+}

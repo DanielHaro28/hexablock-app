@@ -15,8 +15,10 @@ docs/
 │   ├── ARQ-00-SISTEMA.md                  [compartido] vista del sistema (app + API + EC2)
 │   ├── ARQ-01-APP-GENERAL.md              arquitectura general de este repo
 │   ├── ARQ-02-MOTOR.md                    motor genérico: opciones y patrones del dominio (Paso 3)
-│   └── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
-├── diagrams/                              clases.puml (PlantUML), capas.mmd y extensibilidad.mmd (Mermaid) + imágenes .png
+│   ├── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
+│   └── ARQ-04-APP-DATOS.md                tablas Drift, sincronización, niveles disponibles y migraciones (Paso 5)
+├── contracts/                             COPIA idéntica de hexablock-api/docs/contracts/ (D-23); no se edita aquí
+├── diagrams/                              clases.puml (PlantUML), capas.mmd, extensibilidad.mmd y datos.mmd (Mermaid) + imágenes .png
 ├── EXTENSIBILITY.md                       cómo agregar una 5ª variante, una figura o un cambio de regla (§3.1)
 ├── security/
 │   └── SECURITY-BASELINE.md               [compartido]
@@ -40,7 +42,7 @@ docs/
 
 Fuera de `docs/`: `.github/pull_request_template.md` (checklist de autorrevisión) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas).
 
-Se irán agregando con los siguientes pasos: `contracts/` (Paso 5) y `ops/`.
+Se irá agregando con los siguientes pasos: `ops/`.
 
 ## Documentos compartidos con `hexablock-api`
 

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexablock-api.example/contracts/schemas/problem.schema.json",
+  "title": "Problem Details",
+  "description": "Error response (RFC 9457, D-51), media type application/problem+json. 'title' and 'detail' are fixed per type, in English, and never contain submitted values or internal data (CWE-209). The app reads 'status' and 'code' only and shows its own translated text.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "description": "Absolute URI fixed per problem type: <PROBLEM_BASE_URI><code>. Clients must not dereference it automatically (RFC 9457 §3.1.1).",
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[^/]+/problems/[a-z][a-z0-9-]*$"
+    },
+    "title": { "type": "string", "maxLength": 80 },
+    "status": { "type": "integer", "minimum": 400, "maximum": 599 },
+    "detail": { "type": "string", "maxLength": 200 },
+    "instance": {
+      "description": "urn:uuid:<correlation id>, the same id written to the server log (ASVS 7.4.1).",
+      "type": "string",
+      "pattern": "^urn:uuid:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "code": {
+      "description": "Stable identifier read by the app; equals the last segment of 'type'.",
+      "type": "string",
+      "enum": [
+        "validation-failed", "invalid-level", "implausible-result", "invalid-credentials",
+        "unauthorized", "forbidden", "not-found", "email-taken", "display-name-taken",
+        "level-exists", "stale-version", "payload-too-large", "too-many-requests",
+        "internal-error", "service-unavailable"
+      ]
+    },
+    "errors": {
+      "description": "Only in 400 responses. Points at the field (JSON Pointer, RFC 6901) and says which rule failed; never repeats the submitted value.",
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "properties": {
+          "pointer": { "type": "string", "pattern": "^(/[^/]*)*$", "maxLength": 200 },
+          "code": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 40 }
+        },
+        "required": ["pointer", "code"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["type", "title", "status", "instance", "code"],
+  "additionalProperties": false
+}

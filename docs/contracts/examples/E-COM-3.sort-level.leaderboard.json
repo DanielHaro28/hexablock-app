@@ -1,0 +1,15 @@
+{
+  "gameId": "hexa-sort",
+  "topology": "hex",
+  "levelId": "sort-hex-002",
+  "kind": "sortLevel",
+  "total": 3,
+  "limit": 20,
+  "offset": 0,
+  "entries": [
+    { "rank": 1, "displayName": "Caro", "moves": 10, "score": 112 },
+    { "rank": 2, "displayName": "Beto", "moves": 12, "score": 450 },
+    { "rank": 3, "displayName": "Ana", "moves": 12, "score": 300 }
+  ],
+  "me": null
+}

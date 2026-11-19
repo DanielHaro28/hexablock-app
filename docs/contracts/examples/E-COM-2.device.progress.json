@@ -1,0 +1,13 @@
+{
+  "gameId": "hexa-fit",
+  "sections": {
+    "hex": {
+      "kind": "levels",
+      "levels": {
+        "fit-hex-001": { "stars": 2, "timeMs": 30000, "moves": 4, "achievedAt": "2026-11-10T14:00:00Z" },
+        "fit-hex-002": { "stars": 3, "timeMs": 100000, "moves": 9, "achievedAt": "2026-11-10T14:05:00Z" },
+        "fit-hex-003": { "stars": 1, "timeMs": 180000, "moves": 15, "achievedAt": "2026-11-10T14:12:00Z" }
+      }
+    }
+  }
+}

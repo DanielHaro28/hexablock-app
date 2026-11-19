@@ -1,0 +1,7 @@
+{
+  "gameId": "hexa-lines",
+  "sections": {
+    "hex": { "kind": "highScore", "best": { "score": 1240, "achievedAt": "2026-11-12T18:30:00Z" } },
+    "square": { "kind": "highScore", "best": { "score": 860, "achievedAt": "2026-11-13T09:15:00Z" } }
+  }
+}

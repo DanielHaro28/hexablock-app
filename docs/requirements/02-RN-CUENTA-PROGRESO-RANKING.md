@@ -61,7 +61,7 @@ Aplicar la consolidación otra vez con el resultado no cambia nada.
 | RN-COM-106 | El ranking muestra el **nombre visible** y la posición, **nunca el correo**. Con sesión iniciada, el jugador ve su propia posición aunque no esté en el top | HU API-04, SEC-API-03 | ✅ |
 | RN-COM-107 | Los invitados no aparecen en el ranking global. Si un invitado crea una cuenta e importa su progreso (RN-COM-88), sus resultados pasan a contar desde ese momento | Diseño | 🟡 |
 | RN-COM-108 | El servidor rechaza resultados **no plausibles** (puntaje negativo o por encima del tope de la variante, estrellas fuera de 1–3, nivel inexistente, `gameId` desconocido) | SECURITY SEC-API-06 | ✅ |
-| RN-COM-109 | El **nombre visible** es **único** sin distinguir mayúsculas, tiene de **3 a 20 caracteres** (letras, números, espacio, `_`, `-` y `.`) y no empieza ni termina con espacio. Si otra cuenta ya lo usa, el registro se rechaza con **409** y el código `DISPLAY_NAME_TAKEN` | Equipo | ✅ D-50 (19-11) |
+| RN-COM-109 | El **nombre visible** es **único** sin distinguir mayúsculas, tiene de **3 a 20 caracteres** (letras, números, espacio, `_`, `-` y `.`) y no empieza ni termina con espacio. Si otra cuenta ya lo usa, el registro se rechaza con **409** y el código `display-name-taken` (D-51) | Equipo | ✅ D-50 (19-11) |
 
 **Ejemplo E-COM-3 (orden del ranking por nivel).**
 

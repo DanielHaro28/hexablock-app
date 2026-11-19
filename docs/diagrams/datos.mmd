@@ -1,0 +1,56 @@
+erDiagram
+    profiles ||--o{ level_results : "tiene"
+    profiles ||--o{ records : "tiene"
+    profiles ||--o{ saved_games : "tiene (1 por variante y figura)"
+    downloaded_levels ||..o{ level_results : "level_id (lógica, sin FK)"
+    profiles {
+        text id PK "guest o el sub del JWT"
+        text kind "guest o account"
+        text display_name "null en invitado"
+        bool is_active "un solo perfil activo"
+        int created_at "ms UTC"
+    }
+    level_results {
+        text profile_id PK,FK
+        text game_id PK "hexa-fit o hexa-sort"
+        text topology PK
+        text level_id PK "fit-hex-001 (D-47)"
+        int stars "solo Fit"
+        int time_ms "solo Fit"
+        int moves
+        int score "solo Sort"
+        int achieved_at "ms UTC"
+        bool pending "falta enviar (D-49)"
+        int revision "sube en cada cambio local"
+    }
+    records {
+        text profile_id PK,FK
+        text game_id PK "hexa-lines o hexa-merge"
+        text topology PK
+        int score
+        int achieved_at "ms UTC"
+        bool pending
+        int revision
+    }
+    saved_games {
+        text profile_id PK,FK
+        text game_id PK
+        text topology PK
+        text state_json "estado + generador + deshacer (D-37)"
+        int codec_version
+        int saved_at "ms UTC"
+    }
+    downloaded_levels {
+        text id PK
+        text game_id
+        text topology "hex, square, tri, cube o any"
+        int order
+        int version
+        text json "nivel validado completo"
+        int downloaded_at "ms UTC"
+    }
+    level_sync_cursors {
+        text game_id PK
+        text topology PK
+        text cursor "nextCursor de la API (D-48)"
+    }

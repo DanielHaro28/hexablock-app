@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexablock-api.example/contracts/schemas/common.schema.json",
+  "title": "Common definitions",
+  "description": "Shared types for HexaBlock contracts (RN-COM-70, D-45, D-46, D-47).",
+  "$defs": {
+    "gameId": {
+      "description": "Closed list of variants (SEC-API-06). Adding a variant adds a value here (EXTENSIBILITY.md).",
+      "type": "string",
+      "enum": ["hexa-lines", "hexa-fit", "hexa-sort", "hexa-merge"]
+    },
+    "levelGameId": {
+      "description": "Variants that are played by levels.",
+      "type": "string",
+      "enum": ["hexa-fit", "hexa-sort"]
+    },
+    "topology": {
+      "description": "Cell shape (RN-TOP-30). Progress, records and rankings are split by topology (D-27).",
+      "type": "string",
+      "enum": ["hex", "square", "tri", "cube"]
+    },
+    "levelTopology": {
+      "description": "Topology of a level. 'any' is only valid for Hexa Sort levels without initial stacks (RN-COM-75).",
+      "type": "string",
+      "enum": ["hex", "square", "tri", "cube", "any"]
+    },
+    "cell": {
+      "description": "Address of one cell (D-47): [q, r] for hex, [x, y] for square and tri, [x, y, z] for cube. What the cell holds is described by the variant section. The validator checks that the length matches the topology.",
+      "type": "array",
+      "items": { "type": "integer", "minimum": -64, "maximum": 64 },
+      "minItems": 2,
+      "maxItems": 3
+    },
+    "cellList": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/cell" },
+      "uniqueItems": true
+    },
+    "levelId": {
+      "description": "Readable, hand-written and never changed (D-47): <variant>-<topology>-<nnn>.",
+      "type": "string",
+      "pattern": "^(fit|sort)-(hex|square|tri|cube|any)-[0-9]{3,4}$"
+    },
+    "localizedText": {
+      "type": "object",
+      "properties": {
+        "es": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "en": { "type": "string", "minLength": 1, "maxLength": 40 }
+      },
+      "required": ["es", "en"],
+      "additionalProperties": false
+    },
+    "color": {
+      "description": "Color token. The app maps each token to an accessible color for the theme.",
+      "type": "string",
+      "enum": ["red", "orange", "yellow", "green", "teal", "blue", "purple", "pink"]
+    },
+    "dateTime": {
+      "description": "ISO 8601 / RFC 3339 instant in UTC (D-46).",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "displayName": {
+      "description": "Public name shown in the ranking (RN-COM-109). Unique, case-insensitive; 3 to 20 characters; letters (including accented Latin letters), digits, space, '_', '-' and '.'; no leading or trailing space.",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 20,
+      "pattern": "^[A-Za-z0-9À-ÖØ-öø-ÿ_.-][A-Za-z0-9À-ÖØ-öø-ÿ_. -]*[A-Za-z0-9À-ÖØ-öø-ÿ_.-]$"
+    }
+  }
+}

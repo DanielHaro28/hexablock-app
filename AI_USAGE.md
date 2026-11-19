@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-19 (IA-15)
+> **Última actualización:** 2026-11-19 (IA-16)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -196,6 +196,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-38 a D-43 cerradas. `ARQ-03-APP-DETALLE.md` y `ARQ-03-API-DETALLE.md`; `docs/diagrams/` en los dos repos (`capas.mmd` en los dos y `extensibilidad.mmd` en la app, con imágenes generadas y revisadas; `clases.puml` en los dos); `docs/EXTENSIBILITY.md` |
 | Modificaciones del equipo | El usuario pidió Mermaid para todos los diagramas; la IA advirtió que reabría P-11 (notación UML de plantilla) y el usuario eligió PlantUML para el de clases, generado por él (R-04) |
 | Lecciones | La IA no pudo dibujar PlantUML (sin la herramienta ni red para instalarla): los `.puml` quedan sin verificar hasta R-04. El diagrama de extensibilidad necesitó cuatro intentos hasta que Mermaid dejó el motor en el centro. Al aplicar D-39 al backend, la IA precisó su texto: allí la salida uniforme la da el filtro global de NestJS, no un `Result` |
+
+### IA-16 · Paso 5: propuestas para los contratos
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "Ok sube los sube y aprueba los PR que necesites y acuerdate que las deciones van en documentos separados en los repos, y comenzemos el paso 5" |
+| Resultado | PR del Paso 4 fusionados (app #6, api #4). Opciones con pros, contras y recomendación para D-19 y D-27 (revisadas) y para D-44 a D-50 (nuevas), registradas en `PENDIENTES.md`. Los contratos se escriben cuando el equipo las cierre |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | La IA revisó el enunciado §5.2 antes de proponer: la letra "una entrada de progreso por usuario y por variante" condiciona D-27 y, por arrastre, la ruta de sincronización |
 
 ## 4. Evaluación crítica
 

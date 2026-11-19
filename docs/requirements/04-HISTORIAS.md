@@ -337,9 +337,10 @@ Como jugador, quiero que el siguiente nivel se desbloquee al completar el actual
 Como jugador, quiero crear una cuenta desde la app, para guardar mi progreso en el servidor.
 - Dado que completo correo, contraseña y nombre visible válidos, cuando me registro, entonces quedo con la sesión iniciada y el JWT se guarda en almacenamiento seguro (SEC-MOB-01).
 - Dado que el correo o el nombre visible ya existen (409) o los datos son inválidos (400), entonces veo el mensaje junto al campo correspondiente, en mi idioma (RN-COM-109).
+- Dado que escribo una contraseña de menos de 15 caracteres, entonces la app me avisa antes de enviarla; si el servidor la rechaza por común (`too-common`), veo ese aviso junto al campo (SEC-API-02, D-52).
 - Dado que no hay conexión, entonces veo un aviso y sigo jugando como invitado.
 
-**Must** · RF-70, RF-75 · SEC-MOB-01
+**Must** · RF-70, RF-75 · SEC-MOB-01, SEC-API-02
 
 ### API-02 · Iniciar sesión ↔ también en `hexablock-api`
 Como jugador registrado, quiero iniciar sesión desde la app, para acceder a mi progreso.

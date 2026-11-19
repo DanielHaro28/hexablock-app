@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-19 (IA-19)
+> **Última actualización:** 2026-11-19 (IA-20)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -240,6 +240,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-19 y D-52 en el `DECISIONES.md` de cada repo. RN-COM-76 pasa a acordada; la política de contraseñas queda en SEC-API-02, en la historia API-01 de los dos repos y en `openapi.yaml` (sin la marca de pendiente). Se corrigió `05-TRAZABILIDAD.md` de los dos repos, que todavía listaba como abiertas decisiones ya cerradas |
 | Modificaciones del equipo | ⚠️ completar |
 | Lecciones | Al buscar cada cita de las dos decisiones, la IA encontró una lista de decisiones abiertas desactualizada. Ninguna revisión anterior la había detectado, porque el verificador de IDs solo confirma que un ID existe, no si su estado es el correcto |
+
+### IA-20 · Paso 6: herramientas de niveles y propuestas
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "vamos al paso 6" |
+| Resultado | `tools/reference-sim/levelkit.py`: resolvedor de Hexa Fit (cuenta soluciones; confirma las 2 de E-HF-NIVEL) y jugador automático de Hexa Sort (voraz y búsqueda en haz) con el xorshift32 comprobado contra E-COM-1. Medición de la dificultad de Sort en 9 combinaciones con 20 semillas cada una. Propuestas D-53 a D-60 en `PENDIENTES.md`, y D-28 precisada |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | Al programar la generación de pilas, la IA encontró que RN-HS-21 (cerrada en D-11) no dice cómo se evita repetir el color del bloque anterior. Las dos formas posibles dan pilas distintas con la misma semilla, lo que rompería el determinismo entre la app y las pruebas. Se propuso como D-60 en vez de elegir en silencio. También se señaló que el enunciado pide niveles "diseñados manualmente", lo que descarta generarlos al azar (D-53) |
 
 ## 4. Evaluación crítica
 

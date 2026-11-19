@@ -4,7 +4,7 @@ Single source of the contract between `hexablock-app` and `hexablock-api` (D-23)
 
 | File | What it defines | Rules |
 |---|---|---|
-| `openapi.yaml` | Every route, parameter, body, response and error (OpenAPI 3.1). Swagger in `/docs` is generated from it (TEC-05) | D-44, D-46, D-48, D-51, D-52 (pending) |
+| `openapi.yaml` | Every route, parameter, body, response and error (OpenAPI 3.1). Swagger in `/docs` is generated from it (TEC-05) | D-44, D-46, D-48, D-51, D-52 |
 | `schemas/common.schema.json` | Shared types: `gameId`, topology, cell, level id, colors, instants, display name | D-46, D-47, RN-COM-109 |
 | `schemas/level.schema.json` | A level: common part + `variant` section that changes with `gameId` (Fit, Sort) | RN-COM-70 to 77, RN-HF-11, RN-HS-11, D-47 |
 | `schemas/progress.schema.json` | Progress per user and `gameId`, one section per topology, two shapes (`highScore`, `levels`) | D-27, D-45, D-49, RN-COM-80 to 90 |

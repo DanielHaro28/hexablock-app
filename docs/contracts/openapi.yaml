@@ -15,7 +15,7 @@ info:
     contain submitted values or internal data. 401 responses carry `WWW-Authenticate: Bearer`
     (RFC 6750) and 429 responses carry `Retry-After` (RFC 6585).
 
-    Pending team decisions reflected here: D-03 (409 on an existing email) and D-52 (password length).
+    Pending team decision reflected here: D-03 (409 on an existing email).
 servers:
   - url: https://hexablock-api.example
     description: Production placeholder (reserved example domain) until the real domain exists.
@@ -235,7 +235,7 @@ paths:
       summary: Publish a new level (LVL-02). Admin only (SEC-API-05).
       description: |
         The level must pass the schema and the structural rules of its variant (RN-COM-71, 76).
-        Run the app's level validator before publishing (geometric rule RN-HF-12 f; pending D-19).
+        The geometric rule RN-HF-12 f is checked by the app's level validator, which must be run before publishing (D-19).
       security:
         - bearerAuth: []
       requestBody:
@@ -413,7 +413,7 @@ components:
       minLength: 15
       maxLength: 128
       description: |
-        PENDING D-52 (recommended option A, NIST SP 800-63B rev. 4 for single-factor passwords).
+        15 to 128 characters (D-52, NIST SP 800-63B rev. 4 for single-factor passwords).
         No composition rules, never truncated, spaces and Unicode allowed; common or leaked
         passwords are rejected with `errors[].code = too-common`. Never logged (SEC-WEB-06).
     RegisterRequest:

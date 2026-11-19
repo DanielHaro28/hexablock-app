@@ -68,7 +68,7 @@ flowchart TB
 | **Consolidación** del progreso | **Ambos**, con la misma regla y los mismos ejemplos de prueba | La app consolida al recibir la respuesta; el servidor, al recibir el progreso (RN-COM-83, 84) |
 | **Ranking** | **Solo la API** | Necesita los datos de todos los jugadores |
 | **Niveles publicados** | **La API** (fuente); la app guarda copias | La app trae niveles incluidos y descarga los nuevos (RN-COM-72) |
-| **Validación de niveles** | API: estructural; app: estructural y **geométrica** | Validar que una pieza es una rotación de su forma requiere las topologías, que viven solo en la app (propuesta D-19) |
+| **Validación de niveles** | API: estructural; app: estructural y **geométrica** | Validar que una pieza es una rotación de su forma requiere las topologías, que viven solo en la app (D-19, 19-11) |
 | **Identidad y sesión** | **La API** emite el JWT; la app lo guarda en almacenamiento seguro | SEC-API-02, SEC-MOB-01 |
 | **Contrato** entre app y API | **`openapi.yaml`** y JSON Schema, fuente única en `hexablock-api/docs/contracts/` | Paso 5 (D-23); la app guarda una copia idéntica |
 

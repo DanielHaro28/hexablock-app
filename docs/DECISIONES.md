@@ -86,6 +86,16 @@
 | D-52 | **Contraseñas (opción A, NIST SP 800-63B rev. 4):** de 15 a 128 caracteres, porque la contraseña es el único factor; sin reglas de composición ni cambio obligatorio; espacios y Unicode permitidos; nunca se truncan; se rechazan las de una lista pública de contraseñas comunes incluida en el backend. Errores `too-short`, `too-long` y `too-common`, sin repetir la contraseña | SEC-API-02, API-01, `openapi.yaml` (`Password`) | Ambos | 19-11 |
 | D-50 | **Nombre visible único (opción A):** sin distinguir mayúsculas, de 3 a 20 caracteres (letras, números, espacio, `_`, `-` y `.`). Si ya existe, `409` con el código `display-name-taken` (escritura ajustada por D-51) | RN-COM-109, glosario, RF-70, API-01 | Ambos | 19-11 |
 
+### Contenido y pruebas (Paso 6)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-54 | **Curva de dificultad y umbrales de Hexa Fit.** Niveles 1–3: 2 a 3 piezas y 6 a 10 celdas; 4–7: 3 a 4 piezas y 10 a 16 celdas; 8–11: 4 a 5 piezas y 16 a 24 celdas; 12–15: 5 a 7 piezas y 24 a 36 celdas, con 4 soluciones o menos. `levelkit.py` mide cada nivel y el esfuerzo de búsqueda debe crecer de un tramo al siguiente. Umbrales: `m` = piezas + 1, `t` = 20 s por pieza; se ajustan después de jugarlos | RN-HF-12, 62, 63; `tools/reference-sim/levelkit.py` | App | 20-11 |
+| D-55 | **Curva de dificultad de Hexa Sort** (medida con `levelkit.py`). Niveles 1–2: 1 a 2 metas, 3 colores; 3–4: 3 metas, 3 a 4 colores; 5–6: 5 metas, 4 a 5 colores; 7–8: 8 metas, 5 colores y 2 o 3 pilas iniciales; 9–10: 10 a 12 metas, 6 colores y pilas iniciales. Cada semilla elegida debe poder ganarla el jugador voraz; la dificultad se mide por sus movimientos | RN-HS-11, 12, 21; `levelkit.py` | App | 20-11 |
+| D-57 | **Base de datos de las pruebas de integración en memoria.** App: Drift con `NativeDatabase.memory()`. API: PostgreSQL real como *service container* de GitHub Actions con los datos en `tmpfs` (RAM), el mismo motor que producción. Costo: los repos son públicos y los *runners* estándar no gastan minutos; el contenedor suma unos segundos por ejecución | Estrategia de pruebas de cada repo; ARQ-04-API | Ambos | 20-11 |
+| D-58 | **Cobertura mínima que hace fallar el CI:** dominio ≥ 90 %, casos de uso ≥ 80 %, total ≥ 70 %, en los dos repos. La interfaz cuenta en el total pero no tiene umbral propio | Estrategia de pruebas; CI | Ambos | 20-11 |
+| D-59 | **Pruebas del código generado por IA (opción C):** la IA escribe el código y sus pruebas, y el equipo las revisa y ajusta antes de aprobar el PR; en `AI_USAGE.md` queda qué ajustó cada integrante. Puede cambiar a B (primero las pruebas del equipo) si en la práctica la revisión no alcanza. Riesgo aceptado: el enunciado §7.3 dice "preferiblemente" el equipo, así que C se permite, pero deja menos evidencia propia | Estrategia de pruebas; plantilla de PR; AI_USAGE | Ambos | 20-11 |
+
 ### Partida y persistencia local
 
 | ID | Decisión | Dónde quedó | Repos | Fecha |

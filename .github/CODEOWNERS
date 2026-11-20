@@ -15,3 +15,11 @@
 /app/lib/frameworks/network/      @DanielHaro28
 /docs/contracts/                  @DanielHaro28 @DavidCR20
 /.github/                         @DanielHaro28
+
+# Agent configuration (SEC-AGT-05): changes ask for a review
+/CLAUDE.md                         @DanielHaro28
+/.claude/                         @DanielHaro28
+/.mcp.json                        @DanielHaro28
+/docs/ai/                         @DanielHaro28
+/docs/security/                   @DanielHaro28
+/docs/adr/                        @DanielHaro28

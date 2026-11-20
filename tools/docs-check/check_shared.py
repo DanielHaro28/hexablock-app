@@ -14,6 +14,7 @@ SHARED = [
     "docs/requirements/01-GLOSARIO.md",
     "docs/requirements/02-RN-NIVELES.md",
     "docs/requirements/02-RN-CUENTA-PROGRESO-RANKING.md",
+    "docs/ai/APPROVED-TOOLS.md",
 ]
 CONTRACT_DIR = "docs/contracts"
 

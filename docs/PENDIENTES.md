@@ -5,7 +5,7 @@
 > - Las decisiones **cerradas** están en `docs/DECISIONES.md` de cada repo. Al cerrar una, se pasa allí con su fecha y se borra de aquí.
 > - Las **tareas** no están aquí: son Issues de los dos repos, en el tablero [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (D-69). El plan y la hoja de ruta están en `docs/plan/PLAN-ENTREGA.md`.
 >
-> **Última actualización:** 2026-11-20 (D-77 cerrada y D-78 abierta; ARQ-S-02 y ARQ-S-03 confirmadas; D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-20 (paso 8: D-79 a D-86 cerradas y D-88 abierta; D-77 cerrada y D-78 abierta; ARQ-S-02 y ARQ-S-03 confirmadas; D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
 
 ---
 
@@ -16,6 +16,7 @@
 | ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración). SECURITY §3 y API-01 ya describen la opción A como propuesta | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos | Equipo | Al implementar cada topología | RN-TOP-21 a 23 |
 | ☐ D-78 | **Reparto de la API y el frontend** entre @dicpc y @DavidCR20 (D-77): backend NestJS, las 4 variantes (HL, HF, HS, HM), casos de uso y progreso de la app (TEC-03, PRG, API-05, 06, 08, LVL-01) e interfaz. Son 55 Issues y 265,5 h con milestone, ≈ 137 h por persona. Lo conversa @DanielHaro28 con ellos; después se asignan los Issues "por definir" y se actualizan `PLAN-ENTREGA.md` y `CODEOWNERS` | @DanielHaro28 con el equipo | Antes de M1 (24-11) | D-77 |
+| ☐ D-88 | **Skills de terceros.** **A)** Solo las oficiales de Flutter y Dart (`flutter/agent-plugins`, `dart-lang/skills`), y únicamente las que no choquen con las decisiones: se revisan una por una y se copian a `.claude/skills/` en una versión fija, con un PR. **B)** Que cada uno instale el plugin oficial `dart-flutter` (se actualiza solo, sin revisión, y repite el MCP de D-86). **C)** Ninguna de terceros. En ninguna opción entran skills de autores desconocidos. **Recomendación: A**, al empezar T-03 | @DanielHaro28 | T-03 | Paso 8 (D-84, D-86) |
 
 ## 2. Preguntas para el profesor
 

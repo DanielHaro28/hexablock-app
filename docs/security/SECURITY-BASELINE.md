@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 20-11: solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
+| Revisión | 20-11: §6.1 y §6.2 apuntan a la configuración real de Claude Code (D-80, D-81), solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
 | Aplica a | `hexablock-app`, `hexablock-api`, infraestructura AWS y flujo de desarrollo con agentes de IA |
 | Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Tareas de configuración: Issues de los dos repos (D-69) |
 | Repositorio | **Compartido:** `docs/security/` en ambos repos; las dos copias deben ser idénticas |
@@ -111,50 +111,26 @@ El producto no incluye agentes, pero **el equipo desarrolla con agentes** (solo 
 | SEC-AGT-09 | Información sensible en prompts (§7.3 del enunciado) | Pegar `.env`, tokens o datos de usuarios en un chat con IA | Prohibido. Solo datos de prueba ficticios en prompts y fixtures | Must |
 | — | ASI07 Comunicación insegura entre agentes | No aplica: no hay agentes comunicándose entre sí fuera de la herramienta | — | Won't |
 
-### 6.1 Permisos base para Claude Code (`.claude/settings.json`)
+### 6.1 Permisos y guardas de Claude Code (`.claude/settings.json`)
 
-> Verificar la sintaxis exacta con la documentación de Claude Code de la versión que use el equipo. **Importante:** las reglas sobre comandos son coincidencias de prefijo y pueden eludirse; el control real es que **los secretos de producción no existan en las máquinas de desarrollo** (SEC-AGT-03).
+La configuración real está en `.claude/settings.json` de cada repo (D-80, D-81); este documento no la copia para que no queden dos versiones. Resumen:
 
-```json
-{
-  "permissions": {
-    "deny": [
-      "Read(./.env)",
-      "Read(./.env.*)",
-      "Read(~/.ssh/**)",
-      "Read(~/.aws/**)",
-      "Bash(rm -rf:*)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(npx prisma migrate reset:*)",
-      "Bash(docker system prune:*)",
-      "Bash(ssh:*)",
-      "Bash(aws:*)"
-    ],
-    "ask": [
-      "Bash(git push:*)",
-      "Bash(npm install:*)",
-      "Bash(flutter pub add:*)",
-      "Bash(dart pub add:*)"
-    ]
-  }
-}
-```
+| Qué | Cómo | Control |
+|---|---|---|
+| Lectura de secretos | Reglas `deny` para `.env` y sus variantes locales, `*.jks`, `*.keystore`, `*.p12`, `*.pem`, `key.properties`, `~/.ssh` y `~/.aws` | SEC-AGT-03, SEC-MOB-07 |
+| Comandos destructivos | `deny` para `rm -rf`, `git push --force`, `git reset --hard`, `git clean -f`, `ssh`, `scp`, `aws`, `docker system prune` y, en la API, `prisma migrate reset` | SEC-AGT-02 |
+| Acciones que se confirman | `ask` para `git push`, crear o integrar PR, instalar o actualizar paquetes, migraciones y editar `CLAUDE.md`, `.claude/`, `.mcp.json` o `.github/workflows/` | SEC-AGT-02, 04, 05 |
+| Comandos seguros y repetitivos | `allow` para análisis, formato, pruebas y comandos de lectura de git, para que la autorrevisión no se vuelva "aprobar sin leer" | SEC-AGT-07 |
+| Modo sin confirmaciones | Apagado para todos: `"disableBypassPermissionsMode": "disable"` | SEC-AGT-02 |
+| Guardas que no dependen del modelo | Hooks en Node (`.claude/hooks/`): bloquean la edición de secretos y de la copia del contrato en la app, los *commits* y *pushes* en `main`, los *force push* y `--no-verify`; formatean cada archivo editado | SEC-AGT-02, D-23 |
 
+> **Límite conocido:** las reglas sobre comandos comparan el texto y se pueden eludir (por ejemplo, `git -C . push`), y el *sandbox* de Claude Code no funciona en Windows nativo. Por eso el control principal sigue siendo que **los secretos de producción no existan en las máquinas de desarrollo** (SEC-AGT-03) y que `main` esté protegida en GitHub.
+
+Las instrucciones para el agente (qué no leer, contenido externo no confiable, dependencias nuevas) están en `CLAUDE.md` y en `.claude/rules/`; las herramientas permitidas, en `docs/ai/APPROVED-TOOLS.md`.
 
 ### 6.2 `CODEOWNERS`
 
-```
-# Configuración de agentes y CI: GitHub pide revisión automáticamente (no bloquea el merge)
-/CLAUDE.md              @integrante1 @integrante2 @integrante3
-/.claude/               @integrante1 @integrante2 @integrante3
-/.github/workflows/     @integrante1 @integrante2 @integrante3
-/docs/security/         @integrante1 @integrante2 @integrante3
-/docs/adr/              @integrante1 @integrante2 @integrante3
-```
-
-Reemplazar `@integrante1..3` por los usuarios reales de GitHub. Los repos están en una cuenta personal, que no tiene *teams*, así que se listan los 3 usuarios. Como la protección de `main` **no** exige aprobaciones (decisión del equipo, 11-11), `CODEOWNERS` solo sirve para que GitHub pida revisión y avise; no bloquea el merge.
+`.github/CODEOWNERS` de cada repo pide revisión automática para `CLAUDE.md`, `.claude/`, `.mcp.json`, `.github/`, `docs/security/` y `docs/adr/`. Los repos están en una cuenta personal, sin *teams*, así que se listan usuarios; cuando todos acepten la invitación (G-01) se agregan los tres. Como la protección de `main` **no** exige aprobaciones (D-24), `CODEOWNERS` pide revisión y avisa, pero no bloquea el merge.
 
 ---
 

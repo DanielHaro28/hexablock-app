@@ -44,11 +44,10 @@ docs/
 │   ├── 04-HISTORIAS.md                    historias de la app
 │   └── 05-TRAZABILIDAD.md                 enunciado → RF → HU → RN → pruebas (app)
 └── ai/
-    ├── CONTEXTO-CONVERSACION.md           foto del estado del proyecto para retomar con una IA
-    └── PROMPT-NUEVA-CONVERSACION.md       prompt listo para continuar en una conversación nueva
+    └── APPROVED-TOOLS.md                  [compartido] herramientas de IA y servidores MCP aprobados (D-86)
 ```
 
-Fuera de `docs/`: `SECURITY.md` (cómo reportar una vulnerabilidad, D-74), `.github/pull_request_template.md` (checklist de autorrevisión), `.github/workflows/docs-check.yml` (revisión automática de los documentos de los dos repos), `tools/docs-check/` (los scripts de esa revisión, D-72) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas y herramientas de niveles).
+Fuera de `docs/`: `CLAUDE.md`, `.claude/` y `.mcp.json` (configuración de Claude Code, paso 8), `SECURITY.md` (cómo reportar una vulnerabilidad, D-74), `.github/pull_request_template.md` (checklist de autorrevisión), `.github/workflows/docs-check.yml` (revisión automática de los documentos de los dos repos), `tools/docs-check/` (los scripts de esa revisión, D-72) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas y herramientas de niveles).
 
 ## Reglas de los documentos
 
@@ -71,6 +70,7 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 | `requirements/01-GLOSARIO.md` | Mismo vocabulario en ambos repos |
 | `requirements/02-RN-NIVELES.md` | La app y el backend validan niveles |
 | `requirements/02-RN-CUENTA-PROGRESO-RANKING.md` | La app y el backend consolidan el progreso con la misma regla |
+| `ai/APPROVED-TOOLS.md` | Las mismas herramientas de IA en los dos repos (SEC-AGT-04) |
 
 **Regla:** un cambio en un documento compartido se hace con un PR en cada repo, con el mismo contenido, y se enlazan entre sí. El CI de documentos comprueba que las dos copias queden iguales; para eso, los dos PR usan el mismo nombre de rama (D-72).
 
@@ -85,4 +85,4 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 7. `SECURITY-BASELINE.md`: antes de tocar autenticación, red o agentes.
 8. `DECISIONES.md`: qué está decidido y dónde quedó. `PENDIENTES.md`: qué falta y quién lo hace.
 
-Para retomar la planificación con una IA: `ai/PROMPT-NUEVA-CONVERSACION.md`.
+Para trabajar con Claude Code: `CLAUDE.md` en la raíz del repo y la carpeta `.claude/` (reglas por carpeta, permisos, hooks, subagentes y skills, D-79 a D-84). Reemplazan a la antigua carpeta `docs/ai/` de contexto y prompt (D-70).

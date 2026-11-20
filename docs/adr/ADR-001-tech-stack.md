@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) y su configuración en los repos (D-79 a D-86) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -143,10 +143,10 @@ El enunciado §4.1 exige que el diagrama de clases muestre los genéricos **en "
 
 - **Herramienta principal: Claude Code**. Cada integrante trabaja en sus propios issues y ramas, y **commitea desde su propia cuenta** (§9).
 - **Solo se usa Claude Code** (D-87): no hay reglas ni configuración para otras herramientas de agente. Si el equipo quisiera sumar otra, se decide y se agrega a `docs/ai/APPROVED-TOOLS.md` (SEC-AGT-04).
-- Los subagentes se definen en `.claude/agents/`, empezando por un `architecture-reviewer` de solo lectura.
+- **Configuración de Claude Code** en cada repo (paso 8, D-79 a D-86): `CLAUDE.md` corto en español y reglas por carpeta en `.claude/rules/`; permisos en `.claude/settings.json`; hooks en Node en `.claude/hooks/`; dos subagentes de solo lectura (`architecture-reviewer` y `security-reviewer`) en `.claude/agents/`; skills que se activan a mano en `.claude/skills/`. En la app, el servidor MCP de Dart y Flutter en `.mcp.json`. Herramientas aprobadas en `docs/ai/APPROVED-TOOLS.md`.
 - **`AI_USAGE.md` se mantiene desde el día 1** en los dos repos, con la herramienta, el modelo y la versión de cada uso (§7.2).
 - Las decisiones de diseño (genéricos, patrones, capas) las toma el equipo. La IA implementa y revisa (§7.3).
-- Permisos base de los agentes en `.claude/settings.json` (lectura de `.env*`, `~/.ssh` y `~/.aws` denegada; comandos destructivos denegados). **Ninguna máquina de desarrollo guarda credenciales de producción**: el despliegue lo hace solo el CI (SEC-AGT-02, SEC-AGT-03).
+- **Ninguna máquina de desarrollo guarda credenciales de producción**: el despliegue lo hace solo el CI (SEC-AGT-02, SEC-AGT-03). Los permisos y hooks de `.claude/` son una barrera más, no la principal (SECURITY §6.1).
 
 ### 2.7 Seguridad
 

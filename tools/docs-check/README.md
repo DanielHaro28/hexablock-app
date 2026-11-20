@@ -15,7 +15,7 @@ python3 -I hexablock-app/tools/docs-check/check_examples.py hexablock-app/tools/
 |---|---|
 | `check_ids.py` | Every ID cited in the docs (`RN-*`, `RF-*`, `D-*`, `SEC-*`, `E-*`, tasks…) is defined somewhere |
 | `check_tables.py` | Every Markdown table row has as many cells as its header |
-| `check_shared.py` | The six shared documents and `docs/contracts/` are byte-identical in both repos (D-23) |
+| `check_shared.py` | The shared documents and `docs/contracts/` are byte-identical in both repos (D-23) |
 | `check_binaries.py` | No tracked file is larger than 1 MB, except the design PDF (D-73) |
 | `check_examples.py` | Every rule example `E-*` still holds in the reference simulator (`tools/reference-sim/`) |
 

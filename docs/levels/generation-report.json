@@ -1,0 +1,275 @@
+{
+  "masterSeed": 2026,
+  "levels": [
+    {
+      "id": "fit-hex-001",
+      "solutions": 2,
+      "nodes": 7,
+      "reference_ok": true,
+      "cells": 6,
+      "pieces": 2
+    },
+    {
+      "id": "fit-hex-002",
+      "solutions": 2,
+      "nodes": 8,
+      "reference_ok": true,
+      "cells": 8,
+      "pieces": 2
+    },
+    {
+      "id": "fit-hex-003",
+      "solutions": 2,
+      "nodes": 18,
+      "reference_ok": true,
+      "cells": 10,
+      "pieces": 3
+    },
+    {
+      "id": "fit-hex-004",
+      "solutions": 4,
+      "nodes": 23,
+      "reference_ok": true,
+      "cells": 11,
+      "pieces": 3
+    },
+    {
+      "id": "fit-hex-005",
+      "solutions": 1,
+      "nodes": 28,
+      "reference_ok": true,
+      "cells": 13,
+      "pieces": 3
+    },
+    {
+      "id": "fit-hex-006",
+      "solutions": 8,
+      "nodes": 98,
+      "reference_ok": true,
+      "cells": 14,
+      "pieces": 4
+    },
+    {
+      "id": "fit-hex-007",
+      "solutions": 4,
+      "nodes": 127,
+      "reference_ok": true,
+      "cells": 16,
+      "pieces": 4
+    },
+    {
+      "id": "fit-hex-008",
+      "solutions": 1,
+      "nodes": 142,
+      "reference_ok": true,
+      "cells": 18,
+      "pieces": 4
+    },
+    {
+      "id": "fit-hex-009",
+      "solutions": 2,
+      "nodes": 247,
+      "reference_ok": true,
+      "cells": 20,
+      "pieces": 5
+    },
+    {
+      "id": "fit-hex-010",
+      "solutions": 1,
+      "nodes": 323,
+      "reference_ok": true,
+      "cells": 22,
+      "pieces": 5
+    },
+    {
+      "id": "fit-hex-011",
+      "solutions": 6,
+      "nodes": 396,
+      "reference_ok": true,
+      "cells": 24,
+      "pieces": 5
+    },
+    {
+      "id": "fit-hex-012",
+      "solutions": 3,
+      "nodes": 849,
+      "reference_ok": true,
+      "cells": 26,
+      "pieces": 6
+    },
+    {
+      "id": "fit-hex-013",
+      "solutions": 2,
+      "nodes": 1156,
+      "reference_ok": true,
+      "cells": 29,
+      "pieces": 6
+    },
+    {
+      "id": "fit-hex-014",
+      "solutions": 2,
+      "nodes": 3460,
+      "reference_ok": true,
+      "cells": 32,
+      "pieces": 7
+    },
+    {
+      "id": "fit-hex-015",
+      "solutions": 1,
+      "nodes": 4983,
+      "reference_ok": true,
+      "cells": 35,
+      "pieces": 7
+    },
+    {
+      "id": "sort-any-001",
+      "greedy": {
+        "won": true,
+        "moves": 6,
+        "score": 111
+      },
+      "beam30": {
+        "won": true,
+        "moves": 6,
+        "score": 111
+      },
+      "tier_median": 6.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-any-002",
+      "greedy": {
+        "won": true,
+        "moves": 9,
+        "score": 224
+      },
+      "beam30": {
+        "won": true,
+        "moves": 7,
+        "score": 218
+      },
+      "tier_median": 9.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-any-003",
+      "greedy": {
+        "won": true,
+        "moves": 11,
+        "score": 326
+      },
+      "beam30": {
+        "won": true,
+        "moves": 11,
+        "score": 326
+      },
+      "tier_median": 11.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-any-004",
+      "greedy": {
+        "won": true,
+        "moves": 14,
+        "score": 334
+      },
+      "beam30": {
+        "won": true,
+        "moves": 11,
+        "score": 332
+      },
+      "tier_median": 14.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-any-005",
+      "greedy": {
+        "won": true,
+        "moves": 19,
+        "score": 542
+      },
+      "beam30": {
+        "won": true,
+        "moves": 18,
+        "score": 549
+      },
+      "tier_median": 19.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-any-006",
+      "greedy": {
+        "won": true,
+        "moves": 22,
+        "score": 546
+      },
+      "beam30": {
+        "won": true,
+        "moves": 19,
+        "score": 540
+      },
+      "tier_median": 22,
+      "seeds_won": "59/60"
+    },
+    {
+      "id": "sort-hex-007",
+      "greedy": {
+        "won": true,
+        "moves": 30,
+        "score": 873
+      },
+      "beam30": {
+        "won": true,
+        "moves": 20,
+        "score": 855
+      },
+      "tier_median": 30,
+      "seeds_won": "59/60"
+    },
+    {
+      "id": "sort-hex-008",
+      "greedy": {
+        "won": true,
+        "moves": 31,
+        "score": 882
+      },
+      "beam30": {
+        "won": true,
+        "moves": 23,
+        "score": 873
+      },
+      "tier_median": 29.0,
+      "seeds_won": "60/60"
+    },
+    {
+      "id": "sort-hex-009",
+      "greedy": {
+        "won": true,
+        "moves": 37,
+        "score": 1082
+      },
+      "beam30": {
+        "won": true,
+        "moves": 30,
+        "score": 1076
+      },
+      "tier_median": 37,
+      "seeds_won": "47/60"
+    },
+    {
+      "id": "sort-hex-010",
+      "greedy": {
+        "won": true,
+        "moves": 42,
+        "score": 1307
+      },
+      "beam30": {
+        "won": true,
+        "moves": 38,
+        "score": 1312
+      },
+      "tier_median": 42.0,
+      "seeds_won": "40/60"
+    }
+  ]
+}

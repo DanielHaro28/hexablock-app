@@ -3,7 +3,12 @@
     "hex": {
       "kind": "levels",
       "levels": {
-        "fit-hex-003": { "stars": 1, "timeMs": 180000, "moves": 15, "achievedAt": "2026-11-10T14:12:00Z" }
+        "fit-hex-003": {
+          "stars": 1,
+          "timeMs": 180000,
+          "moves": 15,
+          "achievedAt": "2026-11-10T14:12:00Z"
+        }
       }
     }
   }

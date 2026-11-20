@@ -1,0 +1,26 @@
+{
+  "id": "sort-any-004",
+  "gameId": "hexa-sort",
+  "topology": "any",
+  "order": 4,
+  "version": 1,
+  "name": {
+    "es": "Arcoíris",
+    "en": "Rainbow"
+  },
+  "variant": {
+    "goals": 3,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow"
+    ],
+    "seed": 3889750705,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    }
+  }
+}

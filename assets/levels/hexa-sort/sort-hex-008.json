@@ -1,0 +1,62 @@
+{
+  "id": "sort-hex-008",
+  "gameId": "hexa-sort",
+  "topology": "hex",
+  "order": 8,
+  "version": 1,
+  "name": {
+    "es": "Encrucijada",
+    "en": "Crossroads"
+  },
+  "variant": {
+    "goals": 8,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple"
+    ],
+    "seed": 3827470542,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    },
+    "initialStacks": [
+      {
+        "cell": [
+          1,
+          -2
+        ],
+        "stack": [
+          "yellow",
+          "yellow"
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          1
+        ],
+        "stack": [
+          "yellow",
+          "red",
+          "blue",
+          "blue"
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          2
+        ],
+        "stack": [
+          "blue",
+          "green",
+          "yellow"
+        ]
+      }
+    ]
+  }
+}

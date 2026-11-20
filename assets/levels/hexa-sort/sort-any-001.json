@@ -1,0 +1,25 @@
+{
+  "id": "sort-any-001",
+  "gameId": "hexa-sort",
+  "topology": "any",
+  "order": 1,
+  "version": 1,
+  "name": {
+    "es": "Primer orden",
+    "en": "First sort"
+  },
+  "variant": {
+    "goals": 1,
+    "palette": [
+      "red",
+      "green",
+      "blue"
+    ],
+    "seed": 2256373056,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    }
+  }
+}

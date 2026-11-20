@@ -1,0 +1,52 @@
+{
+  "id": "sort-hex-007",
+  "gameId": "hexa-sort",
+  "topology": "hex",
+  "order": 7,
+  "version": 1,
+  "name": {
+    "es": "Obstáculos",
+    "en": "Obstacles"
+  },
+  "variant": {
+    "goals": 8,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple"
+    ],
+    "seed": 449309538,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    },
+    "initialStacks": [
+      {
+        "cell": [
+          2,
+          -2
+        ],
+        "stack": [
+          "green",
+          "green",
+          "yellow",
+          "yellow"
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          -1
+        ],
+        "stack": [
+          "blue",
+          "blue",
+          "blue"
+        ]
+      }
+    ]
+  }
+}

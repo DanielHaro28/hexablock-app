@@ -190,7 +190,7 @@ x = copy.deepcopy(fit); x["variant"]["figure"] = [[0, 0], [1, 0], [2, 0], [0, 1]
 x["variant"]["solution"]["A"] = [[0, 0], [1, 0], [2, 0]]; x["variant"]["solution"]["B"] = [[0, 1], [1, 1], [2, -1]]
 r = check_fit_hex(x)
 if "f" not in r: fail("E-HF-NIVEL with A as a straight line must fail (f)")
-for name in ("sort-hex-002.level.json", "sort-any-001.level.json"):
+for name in ("sort-hex-007.level.json", "sort-any-001.level.json"):
     if check_sort(examples[name]): fail(f"{name} breaks RN-HS-12 {check_sort(examples[name])}")
 print("level rules: checked")
 

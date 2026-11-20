@@ -1,0 +1,26 @@
+{
+  "id": "sort-any-005",
+  "gameId": "hexa-sort",
+  "topology": "any",
+  "order": 5,
+  "version": 1,
+  "name": {
+    "es": "Cascada",
+    "en": "Cascade"
+  },
+  "variant": {
+    "goals": 5,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow"
+    ],
+    "seed": 2105698393,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    }
+  }
+}

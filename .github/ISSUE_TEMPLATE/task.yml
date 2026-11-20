@@ -2,6 +2,7 @@ name: Task
 description: Setup, documentation or delivery work that is not a user story
 title: "XX-00 · "
 labels: ["type:task"]
+projects: ["DanielHaro28/1"]
 body:
   - type: input
     id: ref

@@ -2,6 +2,7 @@ name: User story
 description: A story from docs/requirements/04-HISTORIAS.md
 title: "XX-00 · "
 labels: ["type:story"]
+projects: ["DanielHaro28/1"]
 body:
   - type: markdown
     attributes:

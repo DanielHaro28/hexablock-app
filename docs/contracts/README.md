@@ -10,7 +10,7 @@ Single source of the contract between `hexablock-app` and `hexablock-api` (D-23)
 | `schemas/progress.schema.json` | Progress per user and `gameId`, one section per topology, two shapes (`highScore`, `levels`) | D-27, D-45, D-49, RN-COM-80 to 90 |
 | `schemas/leaderboard.schema.json` | One page of a ranking | RN-COM-100 to 107 |
 | `schemas/problem.schema.json` | Error responses (Problem Details, RFC 9457) | D-51 |
-| `examples/` | Shared examples. Both repos test their mappers and use cases with them | E-HF-NIVEL, E-COM-2, E-COM-3; `sort-any-001` and `sort-hex-007` are copies of the real levels in `hexablock-app/assets/levels/` |
+| `examples/` | Shared examples. Both repos test their mappers and use cases with them | E-HF-NIVEL, E-COM-2, E-COM-3; `sort-any-001` and `sort-hex-007` are copies of the real levels in `hexablock-app/app/assets/levels/` |
 | `check_contracts.py` | Checks all of the above (see below) | — |
 
 ## Checking the contract

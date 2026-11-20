@@ -1,4 +1,4 @@
-"""Checks the bundled levels (assets/levels) and writes their catalog for team review.
+"""Checks the bundled levels (app/assets/levels) and writes their catalog for team review.
 
 Usage:  python3 -I tools/reference-sim/levelcheck.py            (from the repo root)
 Needs:  jsonschema >= 4.18 (same as docs/contracts/check_contracts.py)
@@ -24,7 +24,7 @@ from jsonschema import Draft202012Validator  # noqa: E402
 from referencing import Registry, Resource  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-LEVELS = ROOT / "assets/levels"
+LEVELS = ROOT / "app/assets/levels"
 CONTRACTS = ROOT / "docs/contracts"
 FIT_MAX_SOLUTIONS = [99, 99, 99, 40, 30, 20, 12, 10, 8, 6, 6, 4, 4, 4, 4]
 errors = []

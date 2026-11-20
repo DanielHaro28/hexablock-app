@@ -2,12 +2,12 @@
 
 It proposes candidate levels that follow the approved curves (D-54 for Hexa Fit, D-55 for
 Hexa Sort) and the split per topology (D-28). The team picks, plays, adjusts and names them;
-only the final JSON files go into the APK (assets/levels/). Output is reproducible: the same
+only the final JSON files go into the APK (app/assets/levels/). Output is reproducible: the same
 master seed always gives the same candidates.
 
 Usage:
-  python3 -I tools/reference-sim/levelgen.py <out-dir>          # writes 15 Fit + 10 Sort files
-  python3 -I tools/reference-sim/levelgen.py <out-dir> --seed N  # another set of candidates
+  python3 -I tools/reference-sim/levelgen.py app/assets/levels  # writes 15 Fit + 10 Sort files
+  python3 -I tools/reference-sim/levelgen.py app/assets/levels --seed N  # another set of candidates
 
 Hexa Fit: the figure is built by gluing pieces together, so a solution is known from the start;
 levelkit.fit_solve counts every solution and measures the search effort, and the candidate is

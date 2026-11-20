@@ -18,6 +18,8 @@ docs/
 │   ├── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
 │   └── ARQ-04-APP-DATOS.md                tablas Drift, sincronización, niveles disponibles y migraciones (Paso 5)
 ├── contracts/                             COPIA idéntica de hexablock-api/docs/contracts/ (D-23); no se edita aquí
+├── design/
+│   └── REVISION-DISENO.md                 revisión del diseño inicial contra las reglas: DIS-01 a DIS-16 (Paso 7)
 ├── levels/                                CATALOGO.md e informe del generador de los niveles de assets/levels/ (Paso 6)
 ├── testing/
 │   └── ESTRATEGIA-PRUEBAS.md              pirámide, dobles, cobertura, pruebas del código de IA y CI (Paso 6)

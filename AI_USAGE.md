@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-22)
+> **Última actualización:** 2026-11-20 (IA-23)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -273,6 +273,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-28, D-36, D-53, D-56 y D-60 cerradas. `levelgen.py` (generador como herramienta de autor) y `levelcheck.py` (verificador). 25 niveles candidatos en `assets/levels/` con catálogo en `docs/levels/`. Estrategia de pruebas en los dos repos. E-COM-2, E-COM-3, E-HF-1, E-HF-4 y E-HF-NIVEL corregidos. D-61 y P-14 nuevas; R-05 para que el equipo revise los niveles |
 | Modificaciones del equipo | Los niveles son **candidatos**: el equipo debe jugarlos, ajustarlos y aprobarlos (R-05), y el profesor debe confirmar que cuentan como "diseñados manualmente" (P-14). ⚠️ completar con lo que ajuste cada integrante |
 | Lecciones | (1) Comparar los ejemplos con niveles reales mostró que dos ejemplos ya "verificados" eran imposibles: el script solo comprobaba el orden de los intentos, no que las estrellas fueran coherentes con los umbrales. Se agregó esa comprobación. (2) El verificador de niveles pasó a la primera, así que se probó con 5 roturas a propósito, y las detectó todas. (3) El catálogo y el informe del generador se sacaron de `assets/` porque todo lo que está ahí entra al APK. (4) Al revisar la sincronización apareció un hueco del Paso 5: la API debe conocer los niveles incluidos para revisar la plausibilidad (D-61) |
+
+### IA-23 · Paso 7: revisión del diseño inicial y propuestas del plan — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "P14 Si / R05 lo hacemos cuando tengamos el juego implementado en la apk / D61 Hagamos eso / Sigamos al siguiente paso sabiendo que somos 3 personas en el desarrollo, tambien uno de lo integrante ya hizo un diseño inicial." (con el PDF del diseño adjunto) |
+| Resultado | P-14 respondida, R-05 aplazada y D-61 cerrada (copia de los niveles en el *seed* de la API). Revisión de las 59 pantallas del diseño contra las reglas (`docs/design/REVISION-DISENO.md`): qué cumple y 16 diferencias con propuesta. Propuestas D-62 a D-66 para el plan |
+| Modificaciones del equipo | ⚠️ completar (quien diseñó decide qué ajustes acepta, D-66) |
+| Lecciones | La IA leyó el texto de todas las páginas y miró las más representativas antes de opinar. Separó lo que el diseño hace bien de lo que contradice reglas ya decididas, y dejó cada cambio como propuesta para quien diseñó, sin cambiar el diseño ni las reglas por su cuenta. Encontró también un hueco en las reglas (RN-HL-71 no dice si salir guarda el récord, mientras que Merge sí lo dice) |
 
 ## 4. Evaluación crítica
 

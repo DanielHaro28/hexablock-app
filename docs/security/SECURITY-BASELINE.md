@@ -122,6 +122,7 @@ La configuración real está en `.claude/settings.json` de cada repo (D-80, D-81
 | Acciones que se confirman | `ask` para `git push`, crear o integrar PR, instalar o actualizar paquetes, migraciones y editar `CLAUDE.md`, `.claude/`, `.mcp.json` o `.github/workflows/` | SEC-AGT-02, 04, 05 |
 | Comandos seguros y repetitivos | `allow` para análisis, formato, pruebas y comandos de lectura de git, para que la autorrevisión no se vuelva "aprobar sin leer" | SEC-AGT-07 |
 | Modo sin confirmaciones | Apagado para todos: `"disableBypassPermissionsMode": "disable"` | SEC-AGT-02 |
+| Las dos terminales | En Windows, Claude Code usa Git Bash (con Git for Windows) o PowerShell: cada regla de `Bash(...)` tiene su gemela `PowerShell(...)` y el hook de git revisa las dos | SEC-AGT-02 |
 | Guardas que no dependen del modelo | Hooks en Node (`.claude/hooks/`): bloquean la edición de secretos y de la copia del contrato en la app, los *commits* y *pushes* en `main`, los *force push* y `--no-verify`; formatean cada archivo editado | SEC-AGT-02, D-23 |
 
 > **Límite conocido:** las reglas sobre comandos comparan el texto y se pueden eludir (por ejemplo, `git -C . push`), y el *sandbox* de Claude Code no funciona en Windows nativo. Por eso el control principal sigue siendo que **los secretos de producción no existan en las máquinas de desarrollo** (SEC-AGT-03) y que `main` esté protegida en GitHub.

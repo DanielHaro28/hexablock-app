@@ -114,7 +114,7 @@ En ningún caso se modifica `GameEngine`, `Board` ni un caso de uso.
 | `packages/hexa_topologies/lib/src/<figura>/<figura>_topology.dart` | `XTopology extends GridTopology<XCoord>`: vecinas en orden canónico, ejes, direcciones, giros básicos, normalización y `cellsOf` (RN-COM-10 a 17) |
 | `docs/requirements/02-RN-TOPOLOGIAS.md` (anexo nuevo) | Reglas y ejemplos verificados de la figura |
 | `app/lib/frameworks/ui/layouts/<figura>_layout.dart` | `XLayout implements TopologyLayout<XCoord>`: dónde se dibuja cada celda y qué celda se tocó |
-| Catálogos y niveles por figura | Según D-20 y D-28 |
+| Catálogos y niveles por figura | Catálogos según D-20 (abierta); niveles según D-28: 3 de muestra de Fit por figura nueva; los de Sort con `any` ya sirven |
 
 | Modificar | Cambio |
 |---|---|

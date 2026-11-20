@@ -47,7 +47,7 @@ Juego **por niveles**. Cada celda puede tener una **pila de fichas de colores**.
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
 | RN-HS-20 | La bandeja ofrece **una pila a la vez**. Al colocarla, se genera la siguiente | Enunciado §1.3 (P-03) | ✅ |
-| RN-HS-21 | **Generación de una pila** (con el generador del nivel): altura `h` = `altMin` + `siguiente() mod (altMax − altMin + 1)`; número de bloques `n` = 1 + `siguiente() mod min(bloquesMax, h)`; cada bloque empieza con 1 ficha y las `h − n` restantes se reparten de a una con `siguiente() mod n`; el color de cada bloque se elige de la paleta (`siguiente() mod tamaño`), **distinto del bloque anterior**. Valores sugeridos: `altMin` = 2, `altMax` = 6, `bloquesMax` = 3 | Equipo | ✅ D-11 (11-11) |
+| RN-HS-21 | **Generación de una pila** (con el generador del nivel), en este orden: (1) altura `h` = `altMin` + `siguiente() mod (altMax − altMin + 1)`; (2) número de bloques `n` = 1 + `siguiente() mod min(bloquesMax, h)`; (3) cada bloque empieza con 1 ficha y las `h − n` restantes se reparten de a una: cada una va al bloque `siguiente() mod n`; (4) el color de cada bloque, **de abajo hacia arriba**: el primero es `paleta[siguiente() mod tamaño]`; cada uno de los siguientes se elige **entre los colores de la paleta menos el del bloque anterior**, en el orden de la paleta, con `siguiente() mod (tamaño − 1)`. Cada pila gasta siempre 2 + (`h` − `n`) + `n` números. Valores sugeridos: `altMin` = 2, `altMax` = 6, `bloquesMax` = 3. Ejemplo: E-HS-GEN | Equipo | ✅ D-11 (11-11); precisión D-60 (20-11) |
 | RN-HS-22 | Como `altMax` < 10, una pila recién generada nunca cumple una meta por sí sola | Consecuencia de RN-HS-21 | ✅ |
 
 ## 5. Movimiento y validación
@@ -181,3 +181,11 @@ Las dos vecinas tienen R×2 y la colocada R×1, así que gana una vecina. En ord
 **E-HS-7 — Victoria y derrota.**
 - Nivel con 1 meta: el turno de E-HS-4 termina con 1 meta → **victoria**.
 - Nivel con 3 metas, 18 celdas ocupadas y la pila de la bandeja sin coincidencias con las vecinas de la única celda vacía: colocarla llena el tablero sin metas nuevas → **derrota**.
+
+**E-HS-GEN — Generación de una pila (RN-HS-21, D-60).** Semilla 3, paleta `[red, green, blue]`, `altMin` = 2, `altMax` = 6, `bloquesMax` = 3. Los seis primeros números del generador son 811107, 201886211, 3025432647, 1909268553, 1833517003 y 482289907.
+- Altura: 2 + 811107 mod 5 = 2 + 2 = **4**.
+- Bloques: 1 + 201886211 mod 3 = 1 + 2 = **3**.
+- Reparto de la 1 ficha que sobra: 3025432647 mod 3 = 0 → al bloque 0. Tamaños **[2, 1, 1]**.
+- Colores: 1909268553 mod 3 = 0 → `red`; entre `[green, blue]`, 1833517003 mod 2 = 1 → `blue`; entre `[red, green]`, 482289907 mod 2 = 1 → `green`.
+- Pila, de abajo hacia arriba: **red, red, blue, green**. Se gastaron 6 números (2 + 1 + 3).
+- _Si se sorteara de nuevo al repetir el color (la opción descartada en D-60), el tercer bloque saldría `green` dos veces, gastaría 5 números de color en vez de 3 y todas las pilas siguientes cambiarían._

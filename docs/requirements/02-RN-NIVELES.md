@@ -18,7 +18,7 @@ Formato de las reglas y estados (✅ acordada / 🟡 propuesta / ⚠️ decidir)
 | Regla | Resumen |
 |---|---|
 | RN-COM-19 | La topología de una partida la elige el jugador (entre las disponibles) y la forma del tablero sale de la configuración |
-| RN-TOP-34 | Niveles por figura: los de Hexa Fit pertenecen a una topología; los de Hexa Sort sin pilas iniciales sirven para cualquiera (propuesta D-28) |
+| RN-TOP-34 | Niveles por figura: los de Hexa Fit pertenecen a una topología; los de Hexa Sort sin pilas iniciales sirven para cualquiera (D-28) |
 | RN-HF-62 | Estrellas de Hexa Fit: ★ por completar + ★ si movimientos ≤ `m` + ★ si tiempo ≤ `t` |
 | RN-HF-63 | Coherencia de umbrales: `m` ≥ número de piezas y `t` > 0 |
 | RN-HS-21 | Generación de pilas de Hexa Sort: altura `altMin`–`altMax` (2–6), hasta `bloquesMax` (3) bloques |

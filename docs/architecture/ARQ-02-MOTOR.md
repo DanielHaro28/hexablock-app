@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). Sigue abierta D-36 (§9.6) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` §10: responde las 6 preguntas de partida del Paso 3 |
@@ -590,7 +590,7 @@ GameOutcome evaluate(SortState<C> state) =>
 
 `TurnResult` es *sealed*: `PlayedTurn` (estado nuevo, eventos y resultado) o `RejectedTurn` (el mismo estado y el motivo, RN-COM-21). Cada `Step` es un estado más los eventos de ese paso.
 
-Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. Está abierto en **D-36** (`PENDIENTES.md` §1.1). La recomendación es la **regla + prueba de arquitectura**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa.
+Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La prueba (`packages/hexa_variants/test/architecture/template_method_test.dart`) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
 
 ---
 
@@ -626,4 +626,4 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 | D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | ✅ Decidida (17-11) |
 | D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | ✅ Decidida (17-11) |
 | D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8). Cómo se protege el Template Method pasó a D-36 | ✅ Decidida (17-11) |
-| D-36 | Protección del Template Method | Regla en la plantilla de PR + prueba de arquitectura en CI (sin dependencias, por el enunciado §3.4) | 🟡 Abierta |
+| D-36 | Protección del Template Method | Regla en la plantilla de PR + prueba de arquitectura en CI (sin dependencias, por el enunciado §3.4) | ✅ Decidida (20-11) |

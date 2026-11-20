@@ -60,8 +60,8 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
   - Pull request linked to issue → En Curso.
   - Item closed o Pull request merged → Hecho.
   - Status Hecho → cierra el Issue.
-  - Auto-add to project solo para `hexablock-app`: el plan gratuito permite un solo filtro de auto-add.
-  - Para que los Issues nuevos de `hexablock-api` entren al tablero, las plantillas de Issue de los dos repos traen `projects: ["DanielHaro28/1"]`. Un Issue que se abra sin plantilla se agrega a mano.
+  - Auto-add: un workflow por repo (Auto-add to project para `hexablock-app` y Auto-add from hexablock-api), con el filtro `is:issue is:open`. La cuenta tiene GitHub Pro, que permite hasta 5.
+  - Además, las plantillas de Issue de los dos repos traen `projects: ["DanielHaro28/1"]`.
 
 ## 5. Issues
 

@@ -19,6 +19,7 @@
 | ID | Decisión | Dónde quedó | Repos | Fecha |
 |---|---|---|---|---|
 | D-01 | Los repos están en la cuenta de **DanielHaro28**, que los creó y los administra | ADR-001 §2.4 | Ambos | 11-11 |
+| D-03 | **Registro con un correo ya usado: 409 `email-taken`** (riesgo aceptado). Permite saber si un correo está registrado; se acepta por usabilidad y se mitiga con el límite de 5 intentos por minuto por IP (SEC-API-04) y un login con mensaje genérico y en tiempo constante. La alternativa de OWASP (mensaje genérico + verificación por correo) exige enviar correos y queda fuera del alcance | SECURITY §3; API-01; ARQ-03-API §2 | Ambos | 20-11 |
 | D-24 | La protección de `main` exige PR y CI en verde, pero **no** la aprobación de otra persona; autorrevisión con la plantilla de PR y revisión de un compañero recomendada | ADR-001 §2.4, SECURITY §7, SEC-AGT-05, 07 | Ambos | 11-11 |
 
 ### Cuenta, progreso y ranking

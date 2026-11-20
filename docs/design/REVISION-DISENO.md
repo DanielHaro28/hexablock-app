@@ -51,7 +51,7 @@
 | DIS-10 | — | No hay pantalla para **importar el progreso de invitado** al iniciar sesión | API-06, RN-COM-88 | Agregar un diálogo después del login: "Tienes progreso como invitado. ¿Lo pasamos a tu cuenta?" |
 | DIS-11 | 4–5 | La tarjeta de cada juego no ofrece **Continuar** una partida guardada | RN-COM-34 (D-37): al volver se ofrece Continuar, en pausa | Cuando hay partida guardada, la tarjeta muestra "Continuar" (y "Nueva partida" en un menú) |
 | DIS-12 | — | No hay aviso de **sesión vencida** | RN-COM-87, D-44: al vencer el JWT, la app pide iniciar sesión antes de sincronizar, sin cortar el juego | Un aviso discreto: "Tu sesión venció. Inicia sesión para sincronizar"; el juego sigue |
-| DIS-13 | 12 | Registro sin estados de **correo o nombre ya usados** | 409 `email-taken` (D-03, abierta) y `display-name-taken` (RN-COM-109) | Agregar el mensaje junto al campo: "Ese nombre ya lo usa otra persona" |
+| DIS-13 | 12 | Registro sin estados de **correo o nombre ya usados** | 409 `email-taken` (D-03) y `display-name-taken` (RN-COM-109) | Agregar el mensaje junto al campo: "Ese nombre ya lo usa otra persona" |
 | DIS-14 | 26 | La nota de la bandeja dice "Lines y Fit: 3 piezas" | En Fit se ven **todas** las piezas del nivel (RN-HF-20), hasta 7 | Corregir la nota: "Fit: todas las piezas del nivel, con desplazamiento" (la página 31 ya lo dibuja así) |
 | DIS-15 | 23–43 | Botón "?" (Cómo jugar) en todas las partidas | NAV-05 es *Could* | Subir NAV-05 a *Should*, porque ya está diseñado; si no llega, se oculta el botón |
 | DIS-16 | 31 | Deshacer con el número "5" | Deshacer **sin límite** en Fit (RN-HF-80) | Confirmar con quien diseñó: si el número cuenta los pasos que se pueden deshacer, está bien; si es un límite, contradice la regla |

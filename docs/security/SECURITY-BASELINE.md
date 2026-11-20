@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 20-11: §6.1 y §6.2 apuntan a la configuración real de Claude Code (D-80, D-81), solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
+| Revisión | 20-11: enumeración de correos aceptada como riesgo (D-03), §6.1 y §6.2 apuntan a la configuración real de Claude Code (D-80, D-81), solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
 | Aplica a | `hexablock-app`, `hexablock-api`, infraestructura AWS y flujo de desarrollo con agentes de IA |
 | Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Tareas de configuración: Issues de los dos repos (D-69) |
 | Repositorio | **Compartido:** `docs/security/` en ambos repos; las dos copias deben ser idénticas |
@@ -58,7 +58,7 @@ Este documento fija los **controles mínimos de seguridad** del proyecto y los c
 | SEC-API-09 | **API9 Inventario deficiente** | `openapi.yaml` es la fuente única; versión de API en la ruta (`/api/v1`); no hay endpoints "ocultos" fuera del contrato | Must | CI: las respuestas se validan contra `openapi.yaml` |
 | SEC-API-10 | **API10 Consumo inseguro de APIs** | No consumimos APIs de terceros. Las definiciones de nivel subidas por admin se validan con **JSON Schema** antes de guardarse (incluida la regla área de piezas = área de figura en Hexa Fit) | Must | Unit: nivel inválido → 400 con detalle |
 
-**Enumeración de correos (pendiente de D-03):** la propuesta es que `POST /v1/auth/register` responda **409** si el correo ya existe (historia API-01). Esto permite enumerar correos; la recomendación es aceptarlo por usabilidad, mitigado con el rate limiting de SEC-API-04 y un login genérico y en tiempo constante. Las alternativas y su estado están en `PENDIENTES.md` (D-03).
+**Enumeración de correos (D-03, riesgo aceptado):** `POST /v1/auth/register` responde **409** `email-taken` si el correo ya existe (historia API-01). Esto permite enumerar correos; se acepta por usabilidad, mitigado con el rate limiting de SEC-API-04 y un login genérico y en tiempo constante. La alternativa de OWASP (mensaje genérico y verificación por correo) exige enviar correos y queda fuera del alcance.
 
 ---
 

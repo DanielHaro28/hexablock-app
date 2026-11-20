@@ -4,7 +4,7 @@
 >
 > Reúne los que estaban en `ADR-001-tech-stack.md` §6, `SECURITY-BASELINE.md` §9 y `CONTEXTO-CONVERSACION.md` §7; esos documentos ahora apuntan aquí.
 >
-> **Última actualización:** 2026-11-19 (Paso 4 fusionado: PR app #6 y api #4; Paso 7 hecho: 86 Issues y plan de entrega; desde ahora las tareas abiertas también están como Issues; planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; Paso 3 decidido; decisiones cerradas en `DECISIONES.md`; D-21 a D-23 y D-37 a D-43 cerradas; D-36 revisada; Paso 4 listo) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-20 (revisión de documentos y seguridad: D-67 a D-75 abiertas) · **Entrega:** lunes 14-12-2026
 >
 > Completar la columna **Responsable** al repartir el trabajo. Al cerrar un ítem: cambiar ☐ por ☑ y anotar la fecha.
 
@@ -16,9 +16,18 @@
 
 | # | Pendiente | Responsable | Fecha límite | Origen |
 |---|---|---|---|---|
-| ☐ D-02 | **Repartir variantes y áreas** entre los 3 integrantes. Propuesta a discutir: motor + Hexa Merge · Hexa Lines + Hexa Sort · Hexa Fit + backend | Equipo | 12-11 | CONTEXTO §5 |
+| ☐ D-02 | **Repartir variantes y áreas** entre los 3 integrantes. _20-11: propuesta de cerrarla como cubierta por D-62 y los responsables de cada Issue._ Propuesta a discutir: motor + Hexa Merge · Hexa Lines + Hexa Sort · Hexa Fit + backend | Equipo | 12-11 | CONTEXTO §5 |
 | ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración). SECURITY §3 y API-01 ya describen la opción A como propuesta | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos | Equipo | Al implementar cada topología | RN-TOP-21 a 23 |
+| ☐ D-67 | **Registro único de decisiones.** Hoy las decisiones están en `DECISIONES.md` y además en las tablas "Decisiones de este documento" de ARQ-01-APP, ARQ-01-API, ARQ-02 y ARQ-03 (con IDs propios `ARQ-A-*`), en `CONTEXTO-CONVERSACION.md` §3 y en textos de estado de este archivo. **A)** `DECISIONES.md` es el único registro: las tablas de los ARQ se cambian por una línea con los IDs, y las `ARQ-A-*` que no tienen D-* pasan a `DECISIONES.md` con su ID de siempre. **B)** Dejarlo como está. **Recomendación: A** | Equipo | 23-11 | Revisión de documentos (20-11) |
+| ☐ D-68 | **Formato de `ARQ-02-MOTOR.md`** (629 líneas escritas como preguntas con opciones) y §10 de `ARQ-01-APP-GENERAL.md` (preguntas ya respondidas). **A)** Reescribir ARQ-02 como el diseño final, con las alternativas descartadas en una línea por decisión. **B)** Agregar al principio un resumen de una página del diseño final, pasar las opciones a un anexo y borrar ARQ-01 §10. **Recomendación: B** (menos trabajo y conserva los argumentos para la defensa) | Equipo | 23-11 | Revisión de documentos (20-11) |
+| ☐ D-69 | **Tareas en un solo lugar.** Las tareas G-*, W-*, A-*, R-* y T-* están en las secciones 4 y 5 de este archivo y también como Issues. **A)** Las tareas viven solo en los Issues; aquí quedan las decisiones abiertas y las preguntas al profesor, y la hoja de ruta (§3) pasa a `PLAN-ENTREGA.md`. **B)** Mantener las dos listas. **Recomendación: A** | Equipo | 23-11 | Revisión de documentos (20-11) |
+| ☐ D-70 | **`docs/ai/`** (`CONTEXTO-CONVERSACION.md` y `PROMPT-NUEVA-CONVERSACION.md`) sirve para retomar en un chat con zips y repite el índice, las decisiones y este archivo. **A)** En el Paso 8 se reemplaza por un `CLAUDE.md` en cada repo (reglas de trabajo y mapa de documentos) y se borra `docs/ai/`. **B)** Mantener los dos. **Recomendación: A** | Equipo | Paso 8 (T-01) | Revisión de documentos (20-11) |
+| ☐ D-71 | **Contenido "para el README".** El enunciado §6.1 pide en el README los patrones, SOLID, AOP y el motor genérico, que hoy están en ARQ-02 §9 y ARQ-03 §5, §7 y §8. **A)** El README tiene el texto final, con enlaces al código, y los ARQ guardan solo la justificación y enlazan al README. **B)** El README resume y enlaza a los ARQ. **Recomendación: A** (el enunciado pide las secciones en el README), al escribirlo en T-07 | Equipo | T-07 | Enunciado §6.1 |
+| ☐ D-72 | **Herramientas de revisión de documentos.** Los scripts que comprueban IDs, ejemplos, tablas y documentos compartidos, y el que genera `DECISIONES.md`, están solo en la sesión de la IA y se pierden al cerrarla. **A)** Pasarlos a `tools/docs-check/` en la app y correrlos en el CI de los dos repos; `DECISIONES.md` se edita a mano. **B)** No versionarlos. **Recomendación: A** | Equipo | M0 | Revisión de documentos (20-11) |
+| ☐ D-73 | **Archivos binarios grandes.** El PDF del diseño pesa 10,5 MB y ya está en el historial (borrarlo no achica el repo). **A)** Dejarlo y no subir más binarios de más de 1 MB: las versiones nuevas del diseño van como enlace o como PNG de las pantallas que cambian. **B)** Git LFS (obliga a reescribir el historial). **Recomendación: A** | Equipo | 23-11 | Revisión de documentos (20-11) |
+| ☐ D-74 | **Cómo se reportan vulnerabilidades (`SECURITY.md`, G-05).** SECURITY-BASELINE §7 dice "correo del equipo". **A)** *Private vulnerability reporting* de GitHub, sin publicar correos. **B)** Un correo del equipo en el `SECURITY.md`. **Recomendación: A** | Equipo | M0 (G-05) | Revisión de seguridad (20-11) |
+| ☐ D-75 | **Keystore de firma del APK.** ADR-001 §2.4 dice que va en GitHub Secrets, pero SECURITY-BASELINE no tiene un control. **A)** Nuevo SEC-MOB-07: el keystore nunca está en el repo; va en base64 en un secreto del environment `release`, restringido a tags `v*`; el CI genera `key.properties` y lo borra; el dueño guarda una copia fuera de línea. **B)** Dejarlo solo en el ADR. **Recomendación: A** | Equipo | Antes de T-06 | Revisión de seguridad (20-11) |
 
 ### 1.2 Cerradas
 
@@ -38,7 +47,7 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 
 | Paso | Documento | Repo | Estado | Responsable |
 |---|---|---|---|---|
-| 0 | `docs/adr/ADR-001-tech-stack.md` | Ambos (compartido) | ✅ Hecho (rev. 1.6) | — |
+| 0 | `docs/adr/ADR-001-tech-stack.md` | Ambos (compartido) | ✅ Hecho (rev. 1.9) | — |
 | 0b | `docs/security/SECURITY-BASELINE.md` | Ambos (compartido) | ✅ Hecho | — |
 | 1 | **Requisitos** (`docs/requirements/`): glosario, reglas de negocio (comunes, topologías, 4 variantes, niveles, cuenta/progreso/ranking), RF + RNF, historias, trazabilidad | Ambos (ver `docs/README.md`) | 📝 **Borrador listo — revisión de cada integrante.** Abiertas: D-19, D-20 | |
 | 2 | **Arquitectura general** (`docs/architecture/`): `ARQ-00-SISTEMA.md` (compartido), `ARQ-01-APP-GENERAL.md`, `ARQ-01-API-GENERAL.md` | Ambos | ✅ **Decisiones cerradas** (D-21 a D-23, 17-11). Las propuestas 🟡 sin número (ARQ-S-02 a 04, ARQ-A-05 a 08, ARQ-B-04) se confirman o ajustan en el Paso 4 | |

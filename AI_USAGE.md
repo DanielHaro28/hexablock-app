@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-26)
+> **Última actualización:** 2026-11-20 (IA-27)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -317,6 +317,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | Tablero [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) completado: columna Backlog por defecto, 46 Issues de M2, M3 y sin milestone en Backlog, campo Estimación (h) con las horas de los 86 Issues (403 h), vistas Tablero y Tabla, proyecto vinculado a los dos repos, @dicpc y @DavidCR20 con escritura. Las plantillas de Issue agregan los Issues nuevos al proyecto (`projects:`) |
 | Modificaciones del equipo | El dueño ya había creado el proyecto, las columnas, los workflows y agregado los 86 Issues; la IA revisó eso antes de tocar nada y preguntó por la diferencia con D-65 (faltaba Backlog). ⚠️ completar |
 | Lecciones | (1) El dueño inició sesión en GitHub él mismo; la IA no escribió credenciales. (2) Las horas no se cargaron a mano celda por celda: se usó el mismo pedido que hace la página al editar una celda y se comprobó al final que los 86 valores y los 46 estados coincidían con `issues_created.json`. (3) La IA afirmó primero que el plan solo permitía un filtro de auto-add y lo suplió con `projects:` en las plantillas; al revisar la documentación de GitHub vio que la cuenta Pro permite 5, y agregó el workflow de `hexablock-api` |
+
+### IA-27 · Revisión de organización y seguridad de los documentos — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` y búsquedas en los dos repos |
+| Prompt | Literal: "Ok vamos a revisar todos los documentos de los Repos y vamos a ordenar sus contenidos, ponemos donde va cada cosa, que documento esta de adicional cuando podria ir en otro, tambien revisemos en cuanto a seguridad que documentos deberian estar en el repo y cuales no y sus contenidos en cuanto a seguridad." |
+| Resultado | Inventario de los dos repos contra lo que el enunciado fija (§3.1, §4, §6.1, §7.2, §8). Búsqueda de secretos, correos, IP, identificadores de AWS y datos personales: no se encontró nada; los metadatos del PDF del diseño están limpios. Nueve decisiones abiertas (D-67 a D-75) con recomendación. Arreglos que no necesitan decisión: `.gitignore` con patrones de secretos en los dos repos, saldo de créditos de AWS quitado de `CONTEXTO-CONVERSACION.md`, fechas y revisiones viejas en `PENDIENTES.md` |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | La IA buscó en los repos con patrones (correos, IP, claves, `arn:aws`, nombres) en vez de leer todo a ojo, y comprobó con el enunciado qué ubicaciones son obligatorias antes de proponer mover algo. Encontró que sus propios scripts de verificación no están en ningún repo (D-72) |
 
 ## 4. Evaluación crítica
 

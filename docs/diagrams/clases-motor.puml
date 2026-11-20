@@ -1,0 +1,233 @@
+@startuml clases-motor
+' Diagrama de clases de DETALLE: motor genérico (capa 1: hexa_engine y hexa_topologies).
+' Parte de clases.puml (D-76). Las variantes que instancian este motor están en
+' clases-variantes.puml; quién lo usa desde afuera, en clases-aplicacion.puml.
+' Imagen: abrir este archivo → Ctrl+Shift+P → "PlantUML: Export Current Diagram" → png.
+' Los nombres son los previstos en ARQ-02; se revisan contra el código real.
+
+set namespaceSeparator none
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #333333
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #FFFFFF
+skinparam PackageBorderColor #999999
+skinparam nodesep 30
+skinparam ranksep 40
+
+package "Capa 1 · Entidades · hexa_engine" {
+
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<interface>> <<Abstract Factory>> {
+    + createRules(): IGameRules<C, TCell, TMove, TState>
+    + createScoring(): IScoringPolicy<TState>
+    + createPieceSource(seed: int): IPieceSource<TPiece>
+    + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
+  }
+  class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
+    + engine: GameEngine<C, TCell, TMove, TState>
+    + undo: IUndoable?
+    + timer: ITimed?
+  }
+
+  class GameEngine<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
+    + state: TState
+    + phase: GamePhase
+    + events: Stream<GameEvent<C>>
+    + submit(m: TMove): MoveResult<C, TState>
+    + pause(): void
+    + resume(): void
+    + restore(snapshot: TState): void
+  }
+  interface IGameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Strategy>> {
+    + initialState(setup: GameSetup<C>): TState
+    + validMoves(s: TState): Iterable<TMove>
+    + playTurn(s: TState, m: TMove): TurnResult<C, TState>
+  }
+  abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Template Method>> {
+    + playTurn(s: TState, m: TMove): TurnResult<C, TState>
+    # isValid(s: TState, m: TMove): bool
+    # apply(s: TState, m: TMove): Step<C, TState>
+    # resolve(s: TState): Step<C, TState>
+    # afterResolve(s: TState): Step<C, TState>
+    # evaluate(s: TState): GameOutcome
+  }
+  interface GameState<C extends Coord, TCell extends Object> <<interface>> {
+    + board: Board<C, TCell>
+    + score: int
+  }
+
+  abstract class GamePhase <<State>> <<sealed>> {
+    + acceptsMoves: bool
+    + allowsUndo: bool
+  }
+  class PlayingPhase
+  class ResolvingPhase
+  class PausedPhase
+  class VictoryPhase {
+    + canContinue: bool
+  }
+  class GameOverPhase
+
+  abstract class MoveResult<C extends Coord, TState> <<sealed>>
+  class AcceptedMove<C extends Coord, TState> {
+    + state: TState
+    + events: List<GameEvent<C>>
+    + outcome: GameOutcome
+  }
+  class RejectedMove<C extends Coord, TState> {
+    + reason: String
+  }
+  abstract class GameEvent<C extends Coord> <<abstract base>>
+  abstract class GameOutcome <<sealed>>
+
+  interface IUndoable <<interface>> {
+    + canUndo: bool
+    + undo(): void
+    + redo(): void
+  }
+  interface ITimed <<interface>> {
+    + activeTime: Duration
+  }
+  interface IRandomSeeded <<interface>> {
+    + seed: int
+  }
+  interface ILevelBased <<interface>> {
+    + levelId: String
+  }
+  class UndoHistory<TMove, TState> <<Command>> <<Memento caretaker>> {
+    - done: List<MoveCommand>
+    - undone: List<MoveCommand>
+    + limit: int?
+    + allowsRedo: bool
+  }
+  class MoveCommand<TMove, TState> <<Command>> {
+    + move: TMove
+    + before: TState
+    + after: TState
+    + undo(e: Restorable<TState>): void
+    + redo(e: Restorable<TState>): void
+  }
+  class ActiveTimer {
+    + activeTime: Duration
+  }
+  interface IMonotonicClock <<interface>> {
+    + nowMillis(): int
+  }
+
+  interface IScoringPolicy<TState> <<interface>> <<Strategy>> {
+    + pointsFor(s: TState): int
+  }
+  interface IPieceSource<TPiece> <<interface>> <<Strategy>> {
+    + next(): (TPiece, IPieceSource<TPiece>)
+  }
+  interface Mergeable<T extends Mergeable> <<interface>> {
+    + canMergeWith(o: T): bool
+    + mergedWith(o: T): T
+  }
+  class Xorshift32 {
+    + state: int
+    + next(): (int, Xorshift32)
+  }
+
+  class Board<C extends Coord, TCell extends Object> <<Bridge>> {
+    + cell(c: C): TCell?
+    + withCells(changes: Map<C, TCell?>): Board<C, TCell>
+    + emptyCells: Iterable<C>
+  }
+  abstract class Shape<C extends Coord> <<Composite>> {
+    + cells: Set<C>
+  }
+  class CellShape<C extends Coord>
+  class CompositeShape<C extends Coord> {
+    + parts: List<Shape<C>>
+  }
+
+  abstract class Coord
+  abstract class GridTopology<C extends Coord> <<Factory Method>> <<Iterator>> {
+    + id: String
+    + cellsOf(spec: ShapeSpec): Set<C>
+    + neighbors(c: C): List<C>
+    + lines(cells: Set<C>, axis: Axis): Iterable<List<C>>
+    + rotate(shape: Shape<C>, r: Rotation): Shape<C>
+    + accept<R>(v: TopologyVisitor<R>): R
+  }
+  interface TopologyVisitor<R> <<interface>> <<Visitor>> {
+    + visit<C extends Coord>(t: GridTopology<C>): R
+  }
+}
+
+package "Capa 1 · Entidades · hexa_topologies" {
+  class HexCoord {
+    + q: int
+    + r: int
+  }
+  class HexTopology
+  class SquareTopology
+  class TriTopology
+  class CubeTopology
+}
+
+' ===== Fábrica y sesión =====
+VariantFamily ..> GameSession : crea
+VariantFamily ..> IGameRules : crea
+VariantFamily ..> IScoringPolicy : crea
+VariantFamily ..> IPieceSource : crea
+GameSession *-- GameEngine
+GameSession o-- IUndoable
+GameSession o-- ITimed
+
+' ===== Motor =====
+GameEngine --> IGameRules : usa (Strategy)
+GameEngine *-- GamePhase : fase actual (State)
+GameEngine ..> MoveResult : devuelve
+GameEngine ..> GameEvent : publica
+GameRules ..|> IGameRules
+GameRules ..> GameOutcome
+IGameRules ..> GameState
+GameState *-- Board
+
+PlayingPhase --|> GamePhase
+ResolvingPhase --|> GamePhase
+PausedPhase --|> GamePhase
+VictoryPhase --|> GamePhase
+GameOverPhase --|> GamePhase
+AcceptedMove --|> MoveResult
+RejectedMove --|> MoveResult
+
+' ===== Capacidades opcionales =====
+UndoHistory ..|> IUndoable
+UndoHistory *-- "0..*" MoveCommand
+UndoHistory --> GameEngine : restore (Memento)
+ActiveTimer ..|> ITimed
+ActiveTimer --> IMonotonicClock
+
+' ===== Tablero y figuras =====
+Board --> GridTopology : delega la geometría
+CellShape --|> Shape
+CompositeShape --|> Shape
+CompositeShape o-- "1..*" Shape : partes
+GridTopology ..> TopologyVisitor : accept
+GridTopology ..> Shape
+HexCoord --|> Coord
+HexTopology --|> GridTopology : «bind» C = HexCoord
+SquareTopology --|> GridTopology : «bind» C = SquareCoord
+TriTopology --|> GridTopology : «bind» C = TriCoord
+CubeTopology --|> GridTopology : «bind» C = CubeCoord
+
+legend right
+  **Cómo leerlo**
+  ..|> implementa una interfaz · --|> hereda
+  --> usa (dependencia que se guarda) · ..> crea o usa de paso
+  *-- composición · o-- agregación
+  «bind» = instancia un parámetro genérico
+  «...» en una clase = patrón de diseño (ARQ-02 §9)
+  Square, Tri y Cube tienen su coordenada (SquareCoord, TriCoord, CubeCoord) como HexCoord
+  Este paquete no depende de nada externo (enunciado §3.4)
+endlegend
+
+@enduml

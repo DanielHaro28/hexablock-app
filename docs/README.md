@@ -26,7 +26,7 @@ docs/
 ├── levels/                                CATALOGO.md e informe del generador de los niveles de app/assets/levels/ (Paso 6)
 ├── testing/
 │   └── ESTRATEGIA-PRUEBAS.md              pirámide, dobles, cobertura, pruebas del código de IA y CI (Paso 6)
-├── diagrams/                              clases.puml (PlantUML), capas.mmd, extensibilidad.mmd y datos.mmd (Mermaid) + imágenes .png
+├── diagrams/                              clases.puml (general) + clases-motor, clases-variantes y clases-aplicacion (PlantUML, D-76); capas.mmd, extensibilidad.mmd y datos.mmd (Mermaid) + imágenes .png
 ├── EXTENSIBILITY.md                       cómo agregar una 5ª variante, una figura o un cambio de regla (§3.1)
 ├── security/
 │   └── SECURITY-BASELINE.md               [compartido]

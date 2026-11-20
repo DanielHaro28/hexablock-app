@@ -702,7 +702,7 @@
  "app:R-04": {
   "number": 23,
   "note": "existía",
-  "title": "R-04 · Generar clases.png desde clases.puml en los dos repos",
+  "title": "R-04 · Generar las imágenes de los diagramas de clases en los dos repos",
   "milestone": "M3",
   "assignees": [
    "DanielHaro28"

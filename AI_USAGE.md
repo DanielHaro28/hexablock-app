@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-33)
+> **Última actualización:** 2026-11-20 (IA-34)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -393,6 +393,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | En los dos repos: `CLAUDE.md`, `.claude/rules/`, `.claude/settings.json`, hooks en Node (`protect-files`, `guard-git`, `format-file`), subagentes `architecture-reviewer` y `security-reviewer`, y skills (`/implement-story`, `/ai-usage`, `/paired-change`; en la app también `/rule-change` y `/new-variant`). En la app, `.mcp.json` con el servidor MCP de Dart y Flutter. `docs/ai/APPROVED-TOOLS.md` (compartido, A-04). SECURITY §6.1 y §6.2 y ADR-001 §2.6 apuntan a la configuración real. Se borraron `CONTEXTO-CONVERSACION.md` y `PROMPT-NUEVA-CONVERSACION.md` (D-70). D-88 (skills de terceros) queda abierta |
 | Modificaciones del equipo | El usuario aceptó las recomendaciones y pidió la explicación de cada pieza; eligió el MCP de Dart y Flutter después de ver los candidatos. ⚠️ completar |
 | Lecciones | (1) La IA revisó la documentación actual antes de escribir: descubrió que el *sandbox* no funciona en Windows nativo y que las reglas sobre comandos se pueden eludir, y lo dejó escrito en SECURITY §6.1. (2) Recomendó primero "ningún MCP" sin haber mirado los candidatos; al revisarlos cambió la recomendación y lo dijo. (3) Los hooks se probaron con entradas simuladas (rutas de Windows, `.env.example`, `push` a `main`) antes de subirlos; dentro de Claude Code los prueba el equipo al instalarlo. (4) Al revisar la instalación en Windows vio que Claude Code puede usar PowerShell en lugar de Bash, y agregó las reglas gemelas `PowerShell(...)` y el mismo hook de git |
+
+### IA-34 · Cierre de D-88 (skills de terceros) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "D88 A" |
+| Resultado | D-88 cerrada: solo skills oficiales de Flutter y Dart, revisadas una por una y copiadas en una versión fija. `docs/ai/APPROVED-TOOLS.md` (compartido) explica el procedimiento; T-03 tiene la tarea de revisarlas |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
 
 ## 4. Evaluación crítica
 

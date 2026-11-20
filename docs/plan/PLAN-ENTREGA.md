@@ -204,6 +204,6 @@ Los pasos de diseño antes de escribir código (antes en `PENDIENTES.md` §3, D-
 | 6 | Contenido y pruebas: 25 niveles, generador, estrategia de pruebas | App (+ API) | ✅ D-53 a D-61 (20-11); revisión de los niveles en el APK (R-05) |
 | 7 | Plan: Issues, milestones, Definition of Done, tablero | Ambos | ✅ D-62 a D-66 (20-11); tablero creado (T-02) |
 | 7b | Revisión de organización y seguridad de los documentos | Ambos | ✅ D-67 a D-75 (20-11) |
-| 8 | Claude Code: `CLAUDE.md`, `.claude/` (reglas, permisos, hooks, subagentes, skills) y `.mcp.json` | Ambos | ✅ D-79 a D-87 (20-11); D-88 abierta |
+| 8 | Claude Code: `CLAUDE.md`, `.claude/` (reglas, permisos, hooks, subagentes, skills) y `.mcp.json` | Ambos | ✅ D-79 a D-88 (20-11) |
 
 **Topologías adicionales** (TEC-07 a TEC-09): después de tener las 4 variantes jugables con hexágonos.

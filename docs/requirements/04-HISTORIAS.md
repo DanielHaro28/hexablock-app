@@ -83,7 +83,7 @@ Como jugador, quiero pausar la partida, para retomarla después sin perder el es
 Como jugador nuevo, quiero ver las reglas de cada variante, para entender el objetivo antes de jugar.
 - Dado que estoy en la tarjeta de una variante o en pausa, cuando toco "Cómo jugar", entonces veo un resumen de reglas, victoria y derrota en mi idioma.
 
-**Could** · RF-08
+**Should** · RF-08 _(subida de Could por D-66: el diseño ya la incluye en todas las partidas)_
 
 ### NAV-06 · Acceder a mi cuenta desde la app _(nueva)_
 Como jugador, quiero registrarme o iniciar sesión desde la app, para guardar mi progreso en el servidor.

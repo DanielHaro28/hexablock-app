@@ -176,4 +176,4 @@ Cada ejemplo de las reglas de negocio debe tener al menos una prueba automatizad
 | Cada variante tiene sus reglas con ejemplos | ✅ (Lines 4, Fit 5, Sort 8, Merge 7) |
 | Cada topología tiene ejemplos | ✅ (hexágonos 1, triángulos 2, cuadrados 1, cubos 1) |
 | Cada ejemplo tiene una prueba | ⏳ Pendiente (se completa durante la implementación) |
-| Decisiones abiertas que afectan reglas | ⚠️ D-20 (catálogos de piezas de cuadrados, triángulos y cubos) y D-26 (figura global) |
+| Decisiones abiertas que afectan reglas | ⚠️ D-20 (catálogos de piezas de cuadrados, triángulos y cubos) |

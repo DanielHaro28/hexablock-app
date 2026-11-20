@@ -90,6 +90,7 @@
 
 | ID | Decisión | Dónde quedó | Repos | Fecha |
 |---|---|---|---|---|
+| D-26 | **Una sola figura para todo el juego** (las 4 variantes), elegida en Ajustes; la clasificación muestra la de esa figura. Mientras solo exista hexágonos, la opción queda oculta (DIS-07) | RN-TOP-32, RF-09, NAV-08; DIS-04, DIS-07 | App | 20-11 |
 | D-28 | **Niveles por figura:** los 15 de Fit en hexágonos; de los 10 de Sort, los 6 primeros sin pilas iniciales con `topology: any` (sirven para todas las figuras) y los 4 últimos en hexágonos, con pilas iniciales como obstáculos. Fit suma 3 niveles de muestra por figura cuando cada figura esté implementada. Sin niveles para la figura elegida, la tarjeta dice "No disponible con esta figura" | RN-TOP-34, RN-COM-75; D-55 | Ambos | 20-11 |
 | D-61 | **Niveles incluidos también en la API (opción A).** La fuente es `hexablock-app/assets/levels/`. La API guarda una copia en `prisma/seed/levels/`, la publica con el *seed* al desplegar (validada con las reglas estructurales) y su CI falla si la copia difiere de la app. Así la revisión de plausibilidad y el ranking por nivel conocen los 25 niveles | ARQ-04-API §3, §5; ESTRATEGIA-PRUEBAS (API) §9 | Ambos | 20-11 |
 | D-53 | **Diseño de niveles (opción D).** Ahora, un **generador como herramienta de autor** (`tools/`, fuera de la app) propone niveles que cumplen D-54 y D-55; el equipo los elige, juega, ajusta y nombra, y al APK entran archivos JSON fijos. Al final, si sobra tiempo después de los *Must*, un modo extra con generador dentro del juego (*Could*). Antes de usar los niveles generados se pregunta al profesor si cuentan como "diseñados manualmente" (P-14); si dice que no, se diseñan a mano y el generador queda como ayuda para verificar | `tools/reference-sim/`; P-14 | App | 20-11 |
@@ -100,6 +101,13 @@
 | D-58 | **Cobertura mínima que hace fallar el CI:** dominio ≥ 90 %, casos de uso ≥ 80 %, total ≥ 70 %, en los dos repos. La interfaz cuenta en el total pero no tiene umbral propio | Estrategia de pruebas; CI | Ambos | 20-11 |
 | D-59 | **Pruebas del código generado por IA (opción C):** la IA escribe el código y sus pruebas, y el equipo las revisa y ajusta antes de aprobar el PR; en `AI_USAGE.md` queda qué ajustó cada integrante. Puede cambiar a B (primero las pruebas del equipo) si en la práctica la revisión no alcanza. Riesgo aceptado: el enunciado §7.3 dice "preferiblemente" el equipo, así que C se permite, pero deja menos evidencia propia | Estrategia de pruebas; plantilla de PR; AI_USAGE | Ambos | 20-11 |
 | D-60 | **Precisión de RN-HS-21 (opción A):** el color de cada bloque después del primero se elige entre los colores de la paleta **menos el anterior**, con `siguiente() mod (tamaño − 1)`; orden fijo (altura, bloques, reparto, colores, de abajo hacia arriba). Cada pila gasta siempre la misma cantidad de números. Ejemplo E-HS-GEN. Precisa D-11, no la reabre | RN-HS-21, E-HS-GEN | App | 20-11 |
+
+### Plan (Paso 7)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-64 | **Definition of Done** (Scrum Guide 2020: descripción formal del estado del incremento cuando cumple las medidas de calidad; es binaria y la crea el equipo). Una historia está hecha cuando: (1) cumple sus criterios de aceptación; (2) tiene pruebas con la convención del enunciado §3.6 y los ejemplos `E-*` que le tocan, revisadas por una persona (D-59); (3) el CI está en verde: formato, análisis, pruebas, cobertura (D-58), arquitectura (D-36) y contrato (D-23); (4) el PR usa la plantilla y lo revisó alguien de otra área; (5) los textos están en es y en, sin textos fijos; (6) si es una pantalla, sigue el diseño acordado (D-66); (7) documentos, trazabilidad y `AI_USAGE.md` al día (enunciado §7); (8) está fusionada en `main` y funciona en el APK de desarrollo o, en la API, desplegada en EC2. No hay "casi hecho": si falta un punto, la historia sigue abierta | Plantillas de Issue y de PR; ESTRATEGIA-PRUEBAS | Ambos | 20-11 |
+| D-66 | **Ajustes al diseño inicial aceptados** (DIS-01 a DIS-16, `docs/design/REVISION-DISENO.md`). El diseño de @dicpc es una propuesta visual que se adapta a lo definido. Cambios en reglas: RN-HL-71 (salir también guarda el récord, como en Merge) y NAV-05 / RF-08 pasa a *Should*. El PDF queda en `docs/design/` | REVISION-DISENO; RN-HL-71; RF-08 | Ambos | 20-11 |
 
 ### Partida y persistencia local
 

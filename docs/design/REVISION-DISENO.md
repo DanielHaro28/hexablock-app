@@ -2,10 +2,10 @@
 
 | Campo | Valor |
 |---|---|
-| Diseño revisado | "HexaBlock Suite — Diseño", 59 pantallas en PDF, hecho por un integrante del equipo (recibido el 20-11) |
+| Diseño revisado | "HexaBlock Suite — Diseño", 59 pantallas, hecho por **@dicpc** (recibido el 20-11). Es una **propuesta visual** para ir viendo el juego; se ajusta a lo definido. Archivo: `HexaBlock-Suite-Diseno-v1.pdf` en esta carpeta |
 | Fecha | 2026-11-20 |
 | Contra qué | Reglas (`docs/requirements/02-RN-*.md`), historias (`04-HISTORIAS.md`), decisiones (`docs/DECISIONES.md`) |
-| Estado | **Propuestas para el equipo** (D-66). Las cambia quien hizo el diseño; nada de esto lo decide la revisión |
+| Estado | **Las 16 propuestas fueron aceptadas** (D-66, 20-11). Quien diseñó decide cómo se ven al aplicarlas; las reglas ya se ajustaron (RN-HL-71, NAV-05) |
 
 ## 1. Pantallas del diseño y sus historias
 
@@ -42,10 +42,10 @@
 | DIS-01 | 12 | Contraseña "Mínimo 8 caracteres" | **De 15 a 128** (D-52, NIST) | Cambiar el texto a "Mínimo 15 caracteres; puede ser una frase". Agregar los estados de error `too-short` y `too-common` |
 | DIS-02 | 44, 46–48 | La victoria de **Fit** muestra PUNTAJE y RÉCORD | Fit **no tiene puntaje**: su progreso es estrellas, tiempo y movimientos (RN-HF-60 a 64, RN-COM-80) | Quitar puntaje y récord de Fit. Mostrar estrellas, tiempo, movimientos y el **mejor intento** del nivel |
 | DIS-03 | 31–33, 41, 44 | "3 estrellas: 12 mov. o menos" y "Termina en 12 mov. o menos para la tercera" | **Estrellas independientes** (RN-HF-62): ★ por completar, ★ por movimientos ≤ `m`, ★ por tiempo ≤ `t`. La victoria dice cuál faltó (RN-HF-64) | En la partida mostrar los dos umbrales (por ejemplo "★ ≤ 5 mov. · ★ ≤ 1:20"). En la victoria, marcar cuál estrella se ganó y cuál faltó: "Te faltó la de tiempo: termina en 1:20 o menos" |
-| DIS-04 | 55–59 | Clasificación **sin figura** | El ranking se separa **por figura** (D-27) | Usar la figura elegida en Ajustes (D-26) y mostrarla junto al título ("Clasificación · Hexágonos") |
+| DIS-04 | 55–59 | Clasificación **sin figura** | El ranking se separa **por figura** (D-27) | Usar la figura elegida en Ajustes (D-26, decidida el 20-11) y mostrarla junto al título ("Clasificación · Hexágonos") |
 | DIS-05 | 56 | Fit y Sort solo tienen ranking **por nivel** | También hay ranking **global** de la variante: niveles completados y estrellas (RN-COM-104) | Agregar "Todos los niveles" como primera opción del selector de nivel |
 | DIS-06 | 56 | Ranking de Fit por nivel con estrellas y movimientos | El orden es estrellas → **tiempo** → movimientos (RN-COM-102) | Agregar el tiempo en cada fila ("3★ · 0:50 · 9 mov.") |
-| DIS-07 | 7–10 | Ajustes sin **figura de las celdas** | RF-09 y NAV-08 (*Should*); D-26 recomienda una sola figura para todo el juego, en Ajustes | Diseñar la sección "Figura de las celdas" y mostrarla cuando exista una segunda figura (TEC-07); hasta entonces queda oculta |
+| DIS-07 | 7–10 | Ajustes sin **figura de las celdas** | RF-09 y NAV-08 (*Should*); D-26: una sola figura para todo el juego, elegida en Ajustes | Diseñar la sección "Figura de las celdas" y mostrarla cuando exista una segunda figura (TEC-07); hasta entonces queda oculta |
 | DIS-08 | 43 | "¿Salir de la partida? Tu puntaje de 3 420 no se guardará como récord" | Merge **guarda** el récord al salir si lo superó (RN-HM-70); Lines dice "al terminar" (RN-HL-71) sin aclarar si salir cuenta | Igualar Lines a Merge: salir termina la partida y guarda el récord si lo superó (precisa RN-HL-71). El texto pasa a "La partida termina aquí. Tu puntaje (3 420) no supera tu récord (12 850)" o "…¡será tu nuevo récord!" |
 | DIS-09 | 34–37 | Sort muestra PUNTAJE y RÉCORD arriba | El mejor intento de Sort se compara primero por **movimientos** y el puntaje solo desempata (RN-HS-71) | Marcadores de Sort: MOVIMIENTOS y PUNTAJE; el récord del nivel en la selección de niveles y en la victoria |
 | DIS-10 | — | No hay pantalla para **importar el progreso de invitado** al iniciar sesión | API-06, RN-COM-88 | Agregar un diálogo después del login: "Tienes progreso como invitado. ¿Lo pasamos a tu cuenta?" |

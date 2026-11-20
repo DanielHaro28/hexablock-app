@@ -32,7 +32,7 @@
 | RF-06 | Muestra una pantalla de victoria con la puntuación obtenida y las opciones de siguiente nivel o nueva partida (y "seguir jugando" en Hexa Merge) | RN-COM-31, RN-HF-64, RN-HS-61, RN-HM-51 | §5.1 (7) | Must |
 | RF-07 | Muestra una pantalla de derrota / fin de partida con la puntuación, el récord y la opción de reintentar | RN-COM-31 | §5.1 (7) | Must |
 | RF-09 | Permite elegir en Ajustes la **figura de las celdas** entre las disponibles; la figura queda fija durante cada partida (la opción se bloquea mientras haya una en curso o en pausa) | RN-COM-113, RN-TOP-30 a 34 | Decisión del equipo (D-25) | Should |
-| RF-08 | Muestra las reglas de cada variante ("Cómo jugar") en el idioma elegido | — | No exigido | Could |
+| RF-08 | Muestra las reglas de cada variante ("Cómo jugar") en el idioma elegido | — | No exigido | Should (D-66) |
 
 ### 1.2 Motor común
 

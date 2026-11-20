@@ -1,6 +1,6 @@
 # Simulador de referencia
 
-Scripts en Python que se usaron para **verificar los ejemplos** de las reglas de negocio (`docs/requirements/02-RN-*.md`) antes de escribirlos. No son parte de la app ni se ejecutan en CI: sirven como referencia independiente al implementar las pruebas en Dart.
+Scripts en Python que se usaron para **verificar los ejemplos** de las reglas de negocio (`docs/requirements/02-RN-*.md`) antes de escribirlos. No son parte de la app: sirven como referencia independiente al implementar las pruebas en Dart. `levelcheck.py` y la verificación de los ejemplos (`tools/docs-check/check_examples.py`) corren en el CI de documentos (D-72).
 
 | Archivo | Qué cubre |
 |---|---|

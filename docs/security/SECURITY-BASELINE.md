@@ -4,9 +4,9 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
+| Revisión | 20-11: keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
 | Aplica a | `hexablock-app`, `hexablock-api`, infraestructura AWS y flujo de desarrollo con agentes de IA |
-| Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Pendientes de configuración: `hexablock-app/docs/PENDIENTES.md` |
+| Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Tareas de configuración: Issues de los dos repos (D-69) |
 | Repositorio | **Compartido:** `docs/security/` en ambos repos; las dos copias deben ser idénticas |
 
 ---
@@ -89,6 +89,7 @@ Solo se listan los puntos no cubiertos ya en la sección 3.
 | SEC-MOB-04 | AUTH | Al recibir 401, la app borra el token y pide iniciar sesión; el cierre de sesión borra el token del almacenamiento seguro | Must | Widget/Unit: 401 → navegación a login y token eliminado |
 | SEC-MOB-05 | CODE | Build de release con `--obfuscate --split-debug-info`; sin logs de depuración con datos de usuario en release | Should | Workflow de release usa los flags |
 | SEC-MOB-06 | RESILIENCE | Validar en el cliente los niveles descargados (mismo JSON Schema que el backend) antes de usarlos | Should | Unit: nivel inválido descargado → se ignora y se conserva el nivel local |
+| SEC-MOB-07 | CODE | **Keystore de firma del APK** (D-75): nunca está en el repo (`*.jks`, `*.keystore` y `key.properties` en `.gitignore`). Va en base64 en un secreto del environment `release` de `hexablock-app`, restringido a tags `v*`; el workflow de release genera `key.properties` en el runner y lo borra al terminar. El dueño guarda una copia fuera de línea: sin ella no se puede publicar una actualización con la misma firma | Must | Revisión del workflow de release por CODEOWNERS; *secret scanning* sin alertas |
 | — | NETWORK | *Certificate pinning* | **Won't** | Caddy rota certificados automáticamente; fijarlos rompería la app sin aportar valor en este alcance |
 
 ---
@@ -169,8 +170,9 @@ Reemplazar `@integrante1..3` por los usuarios reales de GitHub. Los repos están
 | Dependabot alerts + security updates + version updates | Activado (`.github/dependabot.yml`) |
 | Workflows desde forks | Requieren aprobación para colaboradores externos |
 | Environment `production` (solo `hexablock-api`) | Secretos de deploy (`EC2_HOST`, `EC2_SSH_KEY`); restringido a la rama `main`. Disponible en repos públicos y, gracias al Pro del dueño, también en privados |
+| Environment `release` (solo `hexablock-app`) | Keystore del APK en base64 y sus contraseñas (SEC-MOB-07); restringido a tags `v*` |
 | Colaboradores | Los 2 integrantes que no son dueños entran con permiso de **escritura** (no admin). Solo el dueño cambia la configuración |
-| `SECURITY.md` en la raíz | Cómo reportar una vulnerabilidad (correo del equipo) |
+| `SECURITY.md` en la raíz | Cómo reportar una vulnerabilidad: *Private vulnerability reporting* de GitHub activado, sin publicar correos (D-74) |
 
 ---
 
@@ -196,4 +198,4 @@ Nombradas con la convención del enunciado. Todas son **Must**:
 
 ## 9. Checklist antes de la defensa
 
-Centralizado en **`hexablock-app/docs/PENDIENTES.md`**, sección 5 (ítems F-01 a F-06). La configuración inicial de GitHub, agentes y AWS que exige este documento está en la sección 4.
+Es la lista de verificación de la tarea T-07 (ítems F-01 a F-10). La configuración inicial de GitHub, agentes y AWS que exige este documento está en los Issues G-*, A-* y W-* (D-69).

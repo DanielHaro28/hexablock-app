@@ -7,14 +7,14 @@
 ```
 docs/
 ├── README.md                              ← este índice
-├── PENDIENTES.md                          ← lista única de pendientes del PROYECTO (solo vive aquí)
+├── PENDIENTES.md                          ← decisiones abiertas y preguntas al profesor del PROYECTO (solo vive aquí); las tareas son Issues (D-69)
 ├── DECISIONES.md                          ← decisiones cerradas (D-* y P-*); las compartidas también en hexablock-api
 ├── adr/
 │   └── ADR-001-tech-stack.md              [compartido]
 ├── architecture/
 │   ├── ARQ-00-SISTEMA.md                  [compartido] vista del sistema (app + API + EC2)
 │   ├── ARQ-01-APP-GENERAL.md              arquitectura general de este repo
-│   ├── ARQ-02-MOTOR.md                    motor genérico: opciones y patrones del dominio (Paso 3)
+│   ├── ARQ-02-MOTOR.md                    motor genérico: diseño final, patrones del dominio y, en el anexo, las opciones descartadas (Paso 3)
 │   ├── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
 │   └── ARQ-04-APP-DATOS.md                tablas Drift, sincronización, niveles disponibles y migraciones (Paso 5)
 ├── contracts/                             COPIA idéntica de hexablock-api/docs/contracts/ (D-23); no se edita aquí
@@ -22,7 +22,7 @@ docs/
 │   ├── HexaBlock-Suite-Diseno-v1.pdf      diseño inicial de @dicpc (59 pantallas, propuesta visual)
 │   └── REVISION-DISENO.md                 revisión del diseño contra las reglas: DIS-01 a DIS-16, aceptadas (Paso 7)
 ├── plan/
-│   └── PLAN-ENTREGA.md                    equipo, milestones M0 a M3, horas y los 86 Issues (Paso 7)
+│   └── PLAN-ENTREGA.md                    equipo, milestones, tablero, Issues y hoja de ruta de la planificación (Paso 7)
 ├── levels/                                CATALOGO.md e informe del generador de los niveles de app/assets/levels/ (Paso 6)
 ├── testing/
 │   └── ESTRATEGIA-PRUEBAS.md              pirámide, dobles, cobertura, pruebas del código de IA y CI (Paso 6)
@@ -48,7 +48,14 @@ docs/
     └── PROMPT-NUEVA-CONVERSACION.md       prompt listo para continuar en una conversación nueva
 ```
 
-Fuera de `docs/`: `.github/pull_request_template.md` (checklist de autorrevisión) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas).
+Fuera de `docs/`: `SECURITY.md` (cómo reportar una vulnerabilidad, D-74), `.github/pull_request_template.md` (checklist de autorrevisión), `.github/workflows/docs-check.yml` (revisión automática de los documentos de los dos repos), `tools/docs-check/` (los scripts de esa revisión, D-72) y `tools/reference-sim/` (simulador que verificó los ejemplos de las reglas y herramientas de niveles).
+
+## Reglas de los documentos
+
+- **Decisiones:** `DECISIONES.md` es el único registro y se edita a mano (D-67, D-72). Los demás documentos citan los IDs.
+- **Tareas:** son Issues de los dos repos, en el [tablero](https://github.com/users/DanielHaro28/projects/1) (D-69). `PENDIENTES.md` solo tiene decisiones abiertas y preguntas.
+- **Binarios:** ningún archivo de más de 1 MB, salvo el PDF del diseño; las versiones nuevas del diseño van como enlace o como PNG de las pantallas que cambian (D-73). Lo comprueba el CI.
+- **Seguridad:** nada que no pueda ser público. Ni secretos, ni correos, ni datos de cuentas (AWS, facturación), ni el keystore (SEC-MOB-07): los secretos van en los environments de GitHub.
 
 Se irá agregando con los siguientes pasos: `ops/`.
 
@@ -65,7 +72,7 @@ Los marcados **[compartido]** existen en los dos repos y deben ser **idénticos*
 | `requirements/02-RN-NIVELES.md` | La app y el backend validan niveles |
 | `requirements/02-RN-CUENTA-PROGRESO-RANKING.md` | La app y el backend consolidan el progreso con la misma regla |
 
-**Regla:** un cambio en un documento compartido se hace con un PR en cada repo, con el mismo contenido, y se enlazan entre sí. El revisor comprueba que las dos copias queden iguales.
+**Regla:** un cambio en un documento compartido se hace con un PR en cada repo, con el mismo contenido, y se enlazan entre sí. El CI de documentos comprueba que las dos copias queden iguales; para eso, los dos PR usan el mismo nombre de rama (D-72).
 
 ## Orden de lectura sugerido (para integrantes nuevos o para una IA)
 

@@ -157,10 +157,12 @@ sequenceDiagram
 
 ## 6. Decisiones de esta vista
 
-| ID | Decisión | Estado |
-|---|---|---|
-| ARQ-S-01 | Arquitectura **cliente–servidor offline-first**: el dispositivo es la fuente primaria del progreso; el servidor consolida y calcula el ranking | ✅ (P-08) |
-| ARQ-S-02 | El servidor **no ejecuta reglas de juego**; solo valida la plausibilidad de los resultados (RN-COM-108) | 🟡 |
-| ARQ-S-03 | La consolidación existe **dos veces** (Dart y TypeScript), con **ejemplos de prueba compartidos** (E-COM-2, E-COM-3) para garantizar que dan el mismo resultado | 🟡 |
-| ARQ-S-04 | Sincronización **incremental**: la app envía solo los resultados que cambiaron desde la última sincronización confirmada (ni eventos sueltos ni el progreso completo), porque la consolidación da lo mismo sin importar el orden ni las repeticiones (RN-COM-84). En el servidor, una entrada por `gameId` con una sección por figura (D-27). Los niveles se descargan por cambios, con un cursor del servidor (RN-COM-77) | ✅ D-48, D-49 (19-11) |
-| ARQ-S-05 | El contrato (`openapi.yaml`) y los ejemplos compartidos en formato JSON viven en `hexablock-api/docs/contracts/` (fuente única). La API valida sus respuestas contra ese archivo; la app guarda una **copia** para probar sus mappers y su CI **falla si la copia difiere** de la del repo de la API | ✅ D-23 (17-11) |
+Las decisiones están en `docs/DECISIONES.md` de cada repo (D-67). Los IDs propios de esta vista se conservan:
+
+| ID | Dónde está ahora |
+|---|---|
+| ARQ-S-01 | P-08 (offline-first: el dispositivo es la fuente primaria del progreso) |
+| ARQ-S-02 | Por confirmar en `hexablock-app/docs/PENDIENTES.md` §1 (el servidor no ejecuta reglas de juego) |
+| ARQ-S-03 | Por confirmar en `hexablock-app/docs/PENDIENTES.md` §1 (consolidación en Dart y TypeScript con ejemplos compartidos) |
+| ARQ-S-04 | D-48 y D-49 (sincronización incremental y descarga de niveles por cursor) |
+| ARQ-S-05 | D-23 (contrato con fuente única en `hexablock-api`) |

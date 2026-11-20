@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// PreToolUse hook for Bash (D-81). Blocks git commands that skip the team's
+// PreToolUse hook for Bash and PowerShell (D-81). Blocks git commands that skip the team's
 // workflow: commits on main, pushes to main, force pushes and --no-verify.
 // Exit code 2 blocks the command and sends stderr to Claude as the reason.
 // This is a guard rail, not a security boundary: main is also protected by

@@ -25,7 +25,31 @@
       "Bash(python3 -I tools/docs-check/*)",
       "Bash(python3 -I tools/reference-sim/*)",
       "Bash(python -I tools/docs-check/*)",
-      "Bash(python -I tools/reference-sim/*)"
+      "Bash(python -I tools/reference-sim/*)",
+      "PowerShell(git status *)",
+      "PowerShell(git diff *)",
+      "PowerShell(git log *)",
+      "PowerShell(git show *)",
+      "PowerShell(git add *)",
+      "PowerShell(git commit *)",
+      "PowerShell(git switch *)",
+      "PowerShell(git branch *)",
+      "PowerShell(git fetch *)",
+      "PowerShell(git pull *)",
+      "PowerShell(gh issue view *)",
+      "PowerShell(gh pr view *)",
+      "PowerShell(gh pr checks *)",
+      "PowerShell(flutter test *)",
+      "PowerShell(flutter analyze *)",
+      "PowerShell(flutter pub get)",
+      "PowerShell(dart analyze *)",
+      "PowerShell(dart format *)",
+      "PowerShell(dart test *)",
+      "PowerShell(dart pub get)",
+      "PowerShell(python3 -I tools/docs-check/*)",
+      "PowerShell(python3 -I tools/reference-sim/*)",
+      "PowerShell(python -I tools/docs-check/*)",
+      "PowerShell(python -I tools/reference-sim/*)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -38,7 +62,15 @@
       "Bash(flutter pub add *)",
       "Bash(dart pub add *)",
       "Bash(flutter pub upgrade *)",
-      "Bash(dart pub upgrade *)"
+      "Bash(dart pub upgrade *)",
+      "PowerShell(git push *)",
+      "PowerShell(gh pr create *)",
+      "PowerShell(gh pr merge *)",
+      "PowerShell(flutter pub add *)",
+      "PowerShell(dart pub add *)",
+      "PowerShell(flutter pub upgrade *)",
+      "PowerShell(dart pub upgrade *)",
+      "PowerShell(Remove-Item *)"
     ],
     "deny": [
       "Read(**/.env)",
@@ -62,7 +94,17 @@
       "Bash(ssh *)",
       "Bash(scp *)",
       "Bash(aws *)",
-      "Bash(docker system prune *)"
+      "Bash(docker system prune *)",
+      "PowerShell(rm -rf *)",
+      "PowerShell(git push --force *)",
+      "PowerShell(git push -f *)",
+      "PowerShell(git push --force-with-lease *)",
+      "PowerShell(git reset --hard *)",
+      "PowerShell(git clean -f*)",
+      "PowerShell(ssh *)",
+      "PowerShell(scp *)",
+      "PowerShell(aws *)",
+      "PowerShell(docker system prune *)"
     ],
     "disableBypassPermissionsMode": "disable"
   },
@@ -81,7 +123,7 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|PowerShell",
         "hooks": [
           {
             "type": "command",

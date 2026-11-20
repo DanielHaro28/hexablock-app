@@ -2,6 +2,7 @@ name: Bug
 description: Something does not work as the rules or the contract say
 title: "Bug: "
 labels: ["type:bug"]
+projects: ["DanielHaro28/1"]
 body:
   - type: textarea
     id: what

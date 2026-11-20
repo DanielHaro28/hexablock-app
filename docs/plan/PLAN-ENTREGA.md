@@ -45,7 +45,23 @@ Está en `docs/DECISIONES.md` (D-64) y como casillas en cada Issue de historia y
 
 ## 4. Tablero (D-65)
 
-El tablero de GitHub Projects lo crea el dueño desde la web (T-02), porque la API de Projects no está disponible en la sesión de planificación: Project de usuario **HexaBlock Suite**; vistas Tablero (Backlog → Por hacer → En curso → En revisión → Hecho), Tabla y Roadmap; campo numérico **Estimación (h)**; automatizaciones para agregar los Issues de los dos repos y pasar a Hecho al cerrar.
+El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-02), porque la API de Projects no está disponible en la sesión de planificación. Estado al 20-11:
+
+- **Proyecto:** [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (Project de usuario n.º 1, privado), vinculado a `hexablock-app` y `hexablock-api`. @dicpc y @DavidCR20 tienen permiso de escritura.
+- **Columnas (campo Status):** Backlog → Por Hacer → En Curso → En revision → Hecho. Backlog es el valor por defecto.
+- **Contenido:** los 86 Issues. Los de M0 y M1 (40) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
+- **Campo numérico Estimación (h):** tiene las horas de la sección 5 en los 86 Issues, 403 h en total.
+- **Vistas:**
+  - **Tablero:** las columnas.
+  - **Tabla:** agrupada por milestone, con la suma de Estimación (h) por grupo.
+  - No hay vista Roadmap, porque los Issues no tienen campos de fecha. Las fechas están en los milestones.
+- **Workflows:**
+  - Item added to project → Backlog.
+  - Pull request linked to issue → En Curso.
+  - Item closed o Pull request merged → Hecho.
+  - Status Hecho → cierra el Issue.
+  - Auto-add to project solo para `hexablock-app`: el plan gratuito permite un solo filtro de auto-add.
+  - Para que los Issues nuevos de `hexablock-api` entren al tablero, las plantillas de Issue de los dos repos traen `projects: ["DanielHaro28/1"]`. Un Issue que se abra sin plantilla se agrega a mano.
 
 ## 5. Issues
 

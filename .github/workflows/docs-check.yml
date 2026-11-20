@@ -1,0 +1,56 @@
+name: docs-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: hexablock-app
+          persist-credentials: false
+
+      # The other repo is public: clone the branch with the same name if it
+      # exists (paired PRs that change shared documents), otherwise main.
+      - name: Clone hexablock-api
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          url=https://github.com/DanielHaro28/hexablock-api.git
+          if [ -n "$HEAD_REF" ] && git ls-remote --exit-code --heads "$url" "$HEAD_REF" >/dev/null; then
+            git clone --depth 1 --branch "$HEAD_REF" "$url" hexablock-api
+          else
+            git clone --depth 1 "$url" hexablock-api
+          fi
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - run: pip install -r hexablock-app/tools/docs-check/requirements.txt
+
+      - name: IDs
+        run: python3 -I hexablock-app/tools/docs-check/check_ids.py hexablock-app hexablock-api
+      - name: Tables
+        run: python3 -I hexablock-app/tools/docs-check/check_tables.py hexablock-app hexablock-api
+      - name: Shared documents and contract copy
+        run: python3 -I hexablock-app/tools/docs-check/check_shared.py hexablock-app hexablock-api
+      - name: Large files
+        run: python3 -I hexablock-app/tools/docs-check/check_binaries.py hexablock-app
+      - name: Rule examples
+        run: python3 -I hexablock-app/tools/docs-check/check_examples.py hexablock-app/tools/reference-sim
+      - name: Contract
+        run: python3 -I hexablock-app/docs/contracts/check_contracts.py
+      - name: Levels and catalog
+        working-directory: hexablock-app
+        run: |
+          python3 -I tools/reference-sim/levelcheck.py
+          git diff --exit-code -- docs/levels

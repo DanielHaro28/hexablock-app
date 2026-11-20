@@ -1,0 +1,903 @@
+{
+ "app:NAV-01": {
+  "number": 24,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-01 · Seleccionar un juego desde el inicio",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:NAV-02": {
+  "number": 25,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-02 · Controlar el audio",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:NAV-03": {
+  "number": 26,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-03 · Cambiar el idioma",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:NAV-04": {
+  "number": 27,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-04 · Pausar una partida",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:NAV-05": {
+  "number": 28,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-05 · Consultar cómo se juega",
+  "milestone": "M3",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:NAV-06": {
+  "number": 29,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-06 · Acceder a mi cuenta desde la app",
+  "milestone": "M3",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:NAV-07": {
+  "number": 30,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-07 · Ver el ranking en la app",
+  "milestone": "M3",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:NAV-08": {
+  "number": 31,
+  "note": "falta asignar: dicpc",
+  "title": "NAV-08 · Elegir la figura de las celdas",
+  "milestone": "M3",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HL-01": {
+  "number": 32,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-01 · Empezar una partida sin fin",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HL-02": {
+  "number": 33,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-02 · Colocar una pieza",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 8
+ },
+ "app:HL-03": {
+  "number": 34,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-03 · Eliminar líneas completas",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:HL-04": {
+  "number": 35,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-04 · Recibir una nueva bandeja",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HL-05": {
+  "number": 36,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-05 · Terminar cuando nada cabe",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HL-06": {
+  "number": 37,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HL-06 · Ver mi puntaje y mi récord",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HF-01": {
+  "number": 38,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-01 · Elegir un nivel",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:HF-02": {
+  "number": 39,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-02 · Colocar una pieza dentro de la figura",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 8
+ },
+ "app:HF-03": {
+  "number": 40,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-03 · Rotar una pieza",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HF-04": {
+  "number": 41,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-04 · Retirar o mover una pieza",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HF-05": {
+  "number": 42,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-05 · Deshacer y rehacer sin límite",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HF-06": {
+  "number": 43,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HF-06 · Completar el nivel y ganar estrellas",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 5
+ },
+ "app:HS-01": {
+  "number": 44,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HS-01 · Elegir un nivel",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HS-02": {
+  "number": 45,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HS-02 · Colocar una pila",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 5
+ },
+ "app:HS-03": {
+  "number": 46,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HS-03 · Transferir fichas en cascada",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 10
+ },
+ "app:HS-04": {
+  "number": 47,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HS-04 · Completar un bloque de 10",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HS-05": {
+  "number": 48,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "HS-05 · Ganar o perder el nivel",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:HM-01": {
+  "number": 49,
+  "note": "falta asignar: dicpc",
+  "title": "HM-01 · Deslizar en seis direcciones",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:HM-02": {
+  "number": 50,
+  "note": "falta asignar: dicpc",
+  "title": "HM-02 · Fusionar fichas iguales",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 5
+ },
+ "app:HM-03": {
+  "number": 51,
+  "note": "falta asignar: dicpc",
+  "title": "HM-03 · Aparición reproducible de fichas nuevas",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HM-04": {
+  "number": 52,
+  "note": "falta asignar: dicpc",
+  "title": "HM-04 · Deshacer un movimiento",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:HM-05": {
+  "number": 53,
+  "note": "falta asignar: dicpc",
+  "title": "HM-05 · Ganar, perder y guardar el récord",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:PRG-01": {
+  "number": 54,
+  "note": "falta asignar: dicpc",
+  "title": "PRG-01 · Ver la pantalla de victoria",
+  "milestone": "M2",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:PRG-02": {
+  "number": 55,
+  "note": "falta asignar: dicpc",
+  "title": "PRG-02 · Ver la pantalla de derrota",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:PRG-03": {
+  "number": 56,
+  "note": "falta asignar: DavidCR20",
+  "title": "PRG-03 · Guardar el progreso en el dispositivo",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 8
+ },
+ "app:PRG-04": {
+  "number": 57,
+  "note": "falta asignar: DavidCR20",
+  "title": "PRG-04 · Desbloquear niveles en orden",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 3
+ },
+ "app:API-01": {
+  "number": 58,
+  "note": "falta asignar: dicpc",
+  "title": "API-01 · Registrarme",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 5
+ },
+ "app:API-02": {
+  "number": 59,
+  "note": "falta asignar: dicpc",
+  "title": "API-02 · Iniciar sesión",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28",
+   "dicpc"
+  ],
+  "hours": 4
+ },
+ "app:API-03": {
+  "number": 10,
+  "note": "existía",
+  "title": "API-03 · Sincronizar mi progreso por juego",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 8
+ },
+ "app:API-05": {
+  "number": 60,
+  "note": "falta asignar: DavidCR20",
+  "title": "API-05 · Jugar como invitado",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 4
+ },
+ "app:API-06": {
+  "number": 61,
+  "note": "falta asignar: DavidCR20",
+  "title": "API-06 · Importar mi progreso de invitado",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 4
+ },
+ "app:API-07": {
+  "number": 11,
+  "note": "existía",
+  "title": "API-07 · Cerrar sesión",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 2
+ },
+ "app:API-08": {
+  "number": 62,
+  "note": "falta asignar: DavidCR20",
+  "title": "API-08 · Seguir jugando sin conexión",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 5
+ },
+ "app:LVL-01": {
+  "number": 63,
+  "note": "falta asignar: DavidCR20",
+  "title": "LVL-01 · Recibir niveles nuevos sin actualizar la app",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 5
+ },
+ "app:TEC-01": {
+  "number": 64,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-01 · Motor genérico compartido",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 16
+ },
+ "app:TEC-02": {
+  "number": 65,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-02 · Agregar una quinta variante sin tocar el motor",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 6
+ },
+ "app:TEC-03": {
+  "number": 66,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-03 · Aspecto transversal sobre los casos de uso",
+  "milestone": "M2",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 10
+ },
+ "app:TEC-04": {
+  "number": 12,
+  "note": "existía",
+  "title": "TEC-04 · Integración continua y release de la app",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 8
+ },
+ "app:TEC-06": {
+  "number": 67,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-06 · Topología intercambiable",
+  "milestone": "M1",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 8
+ },
+ "app:TEC-07": {
+  "number": 68,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-07 · Cuadrados y triángulos jugables",
+  "milestone": null,
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 16
+ },
+ "app:TEC-08": {
+  "number": 69,
+  "note": "falta asignar: DavidCR20",
+  "title": "TEC-08 · Cubos en el dominio",
+  "milestone": null,
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 10
+ },
+ "app:TEC-09": {
+  "number": 70,
+  "note": "falta asignar: dicpc",
+  "title": "TEC-09 · Vista 3D",
+  "milestone": null,
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 16
+ },
+ "app:T-01": {
+  "number": 13,
+  "note": "existía",
+  "title": "T-01 · Paso 8: CLAUDE.md, agentes y reglas de Claude Code en los dos repos",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 4
+ },
+ "app:T-02": {
+  "number": 14,
+  "note": "existía",
+  "title": "T-02 · Crear el tablero de GitHub Projects",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "app:T-03": {
+  "number": 71,
+  "note": "falta asignar: DavidCR20",
+  "title": "T-03 · Esqueleto del workspace Flutter (pub workspace, 4 paquetes y la app)",
+  "milestone": "M0",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 3
+ },
+ "app:T-05": {
+  "number": 72,
+  "note": "falta asignar: dicpc",
+  "title": "T-05 · Aplicar los ajustes al diseño DIS-01 a DIS-16",
+  "milestone": "M1",
+  "assignees": [
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:T-06": {
+  "number": 15,
+  "note": "existía",
+  "title": "T-06 · Release: APK firmado en GitHub Releases",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 3
+ },
+ "app:T-07": {
+  "number": 73,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "T-07 · Entrega: README final y ensayo de la defensa",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28",
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 6
+ },
+ "app:G-03": {
+  "number": 16,
+  "note": "existía",
+  "title": "G-03 · Secret scanning, push protection y Dependabot en los dos repos",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "app:G-05": {
+  "number": 17,
+  "note": "existía",
+  "title": "G-05 · SECURITY.md en la raíz de los dos repos",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "app:G-06": {
+  "number": 18,
+  "note": "existía",
+  "title": "G-06 · Exigir aprobación para workflows de forks",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "app:G-07": {
+  "number": 19,
+  "note": "existía",
+  "title": "G-07 · commitlint + lefthook en los dos repos",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 2
+ },
+ "app:G-10": {
+  "number": 20,
+  "note": "existía",
+  "title": "G-10 · Exigir que el CI pase en el ruleset de los dos repos",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "app:A-02": {
+  "number": 74,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "A-02 · Ninguna máquina de desarrollo con la clave SSH de EC2 ni credenciales de AWS de escritura",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28",
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 0.5
+ },
+ "app:A-03": {
+  "number": 75,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "A-03 · Completar los campos ⚠️ de AI_USAGE.md",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28",
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "app:A-04": {
+  "number": 21,
+  "note": "existía",
+  "title": "A-04 · docs/ai/APPROVED-TOOLS.md",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "app:R-01": {
+  "number": 22,
+  "note": "existía",
+  "title": "R-01 · Versiones exactas de Flutter, Dart, Node, NestJS, Prisma y PostgreSQL en los README",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "app:R-02": {
+  "number": 76,
+  "note": "falta asignar: DavidCR20",
+  "title": "R-02 · Citar las fuentes de los algoritmos (xorshift32, coordenadas hexagonales)",
+  "milestone": "M3",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 1
+ },
+ "app:R-03": {
+  "number": 77,
+  "note": "falta asignar: DavidCR20",
+  "title": "R-03 · Reemplazar el .gitignore de la app por la plantilla de app de Flutter (sin *.lock)",
+  "milestone": "M0",
+  "assignees": [
+   "DavidCR20"
+  ],
+  "hours": 0.5
+ },
+ "app:R-04": {
+  "number": 23,
+  "note": "existía",
+  "title": "R-04 · Generar clases.png desde clases.puml en los dos repos",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 2
+ },
+ "app:R-05": {
+  "number": 78,
+  "note": "falta asignar: DavidCR20, dicpc",
+  "title": "R-05 · Jugar y aprobar los 25 niveles en el APK",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28",
+   "DavidCR20",
+   "dicpc"
+  ],
+  "hours": 3
+ },
+ "api:API-01": {
+  "number": 8,
+  "note": "existía",
+  "title": "API-01 · Registrarme",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 6
+ },
+ "api:API-02": {
+  "number": 9,
+  "note": "existía",
+  "title": "API-02 · Iniciar sesión",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 5
+ },
+ "api:API-03": {
+  "number": 10,
+  "note": "existía",
+  "title": "API-03 · Sincronizar mi progreso por juego",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 10
+ },
+ "api:API-04": {
+  "number": 11,
+  "note": "existía",
+  "title": "API-04 · Consultar el ranking",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 8
+ },
+ "api:LVL-01": {
+  "number": 12,
+  "note": "existía",
+  "title": "LVL-01 · Entregar niveles publicados",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 6
+ },
+ "api:LVL-02": {
+  "number": 13,
+  "note": "existía",
+  "title": "LVL-02 · Publicar o actualizar un nivel",
+  "milestone": "M2",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 6
+ },
+ "api:TEC-04": {
+  "number": 14,
+  "note": "existía",
+  "title": "TEC-04 · Integración continua del backend",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 6
+ },
+ "api:TEC-05": {
+  "number": 15,
+  "note": "existía",
+  "title": "TEC-05 · API documentada y con errores consistentes",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 5
+ },
+ "api:TEC-10": {
+  "number": 16,
+  "note": "existía",
+  "title": "TEC-10 · Despliegue continuo en AWS",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 12
+ },
+ "api:T-04": {
+  "number": 17,
+  "note": "existía",
+  "title": "T-04 · Esqueleto NestJS + Prisma + Docker",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 3
+ },
+ "api:G-08": {
+  "number": 18,
+  "note": "existía",
+  "title": "G-08 · docs/ops/GITHUB-SETUP.md con la configuración aplicada",
+  "milestone": "M3",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 2
+ },
+ "api:W-01": {
+  "number": 19,
+  "note": "existía",
+  "title": "W-01 · Budget de AWS con alertas al 50 % y 80 %",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "api:W-02": {
+  "number": 20,
+  "note": "existía",
+  "title": "W-02 · Subdominio en DuckDNS",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "api:W-03": {
+  "number": 21,
+  "note": "existía",
+  "title": "W-03 · Lanzar EC2 t3.small en us-east-1",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "api:W-04": {
+  "number": 22,
+  "note": "existía",
+  "title": "W-04 · Endurecer la instancia EC2",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 2
+ },
+ "api:W-05": {
+  "number": 23,
+  "note": "existía",
+  "title": "W-05 · docs/ops/DEPLOY.md con el checklist de despliegue",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 1
+ },
+ "api:W-06": {
+  "number": 24,
+  "note": "existía",
+  "title": "W-06 · Environment production con los secretos EC2_HOST y EC2_SSH_KEY",
+  "milestone": "M1",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ },
+ "app:G-01": {
+  "number": 83,
+  "title": "G-01 · Aceptar las invitaciones a los repos y asignar los Issues pendientes",
+  "milestone": "M0",
+  "assignees": [
+   "DanielHaro28"
+  ],
+  "hours": 0.5
+ }
+}

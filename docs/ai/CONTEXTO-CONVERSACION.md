@@ -33,34 +33,9 @@
 | **Hexa Sort** | Colocar pilas de colores; transferencia en cascada; bloque de 10 = meta | Radio 2 (19) | Metas / tablero lleno | ≥ 10 niveles | No |
 | **Hexa Merge** | 2048 deslizando en las direcciones de la topología; ficha nueva con semilla | Radio 2 (19) | Ficha objetivo (se puede seguir) / sin movimientos | Récord | 1 movimiento |
 
-## 3. Decisiones vigentes (resumen)
+## 3. Decisiones vigentes
 
-El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, todas; en la API, las que la afectan).
-
-**Stack e infraestructura (ADR-001, rev. 1.7):**
-- **App:** Flutter + Dart 3; pub workspace con paquetes Dart puros; `CustomPainter` (sin Flame); `flutter_bloc` (Cubit); `get_it`; **Drift** (SQLite); `shared_preferences` (solo ajustes); `flutter_secure_storage` (JWT); `dio`; i18n con ARB; `--dart-define=API_BASE_URL`.
-- **Backend (impuesto por la cátedra):** NestJS + TypeScript, PostgreSQL, Prisma, JWT + argon2id (ADR rev. 1.7), `class-validator` con whitelist, `helmet`, `@nestjs/throttler`, Swagger con `openapi.yaml` como contrato, Jest + Supertest, Docker.
-- **Despliegue:** AWS EC2 `t3.small` en `us-east-1` con Docker Compose (Caddy + API + Postgres), HTTPS con Let's Encrypt sobre DuckDNS, imágenes en GHCR, deploy por SSH desde Actions. Hay que crear el budget de AWS antes de lanzar la instancia (W-01).
-- **GitHub:** repos **públicos** `hexablock-app` y `hexablock-api` en la cuenta de **DanielHaro28** (D-01). Ruleset `protect-main` en ambos: PR obligatorio **sin aprobaciones obligatorias** (D-24), solo *squash*, historial lineal, sin *force push* ni borrado, sin bypass. Plantilla de PR con checklist de autorrevisión. Status checks: se activan cuando exista el CI (G-10).
-- **Diagramas:** clases en **PlantUML** (lo exige la notación de plantilla de §4.1); capas, extensibilidad y apoyo en **Mermaid**.
-- **IA:** Claude Code como herramienta principal; Cline permitido individualmente. Cada integrante commitea desde su cuenta. `AI_USAGE.md` desde el día 1.
-
-**Seguridad (`SECURITY-BASELINE.md`):** controles por ID con prioridad y verificación, alineados con OWASP API Top 10 (2023), Top 10:2025, MASVS y Agentic Top 10 (2026), con 13 pruebas de seguridad ya nombradas. Claves: `userId` siempre del JWT, `role` nunca aceptado del cliente, rate limiting en `/auth`, ranking sin correos, plausibilidad de puntajes, errores sin stack, logging con redacción, secret scanning y Dependabot, permisos de agentes en `.claude/settings.json`, **sin credenciales de producción en las máquinas de desarrollo**.
-
-**Reglas de juego (todas cerradas):**
-- **Lines:** catálogo de 8 familias / 24 piezas con pesos (D-08); puntaje = celdas + ⌊5 × largo × L × racha⌋, racha (k+1)/2 con máximo ×3 (D-09).
-- **Fit:** colocar/mover/retirar cuentan como movimiento, rotar/deshacer/rehacer no; **estrellas independientes**: ★ completar + ★ movimientos ≤ `m` + ★ tiempo ≤ `t` (D-10). Mejor intento: estrellas ↓ → tiempo ↑ → movimientos ↑ (profesor).
-- **Sort:** pilas de altura 2–6 con hasta 3 bloques (D-11); puntaje 1 por ficha + 100 por meta, pero el ranking por nivel es **movimientos ↑ → puntaje ↓** (D-04, D-12); cascada determinista con cola; desempate a favor de la pila evaluada y luego **sentido horario desde las 12** (D-15); al llegar a 10 se elimina **solo el bloque de cima, completo** (D-16); "más fichas de ese color" = bloque de cima más grande (D-17).
-- **Merge:** 90 % de 2 / 10 % de 4 (D-13); una fusión por ficha; deshacer restaura también el generador.
-- **Común:** generador **xorshift32** propio (D-14); modo invitado + offline-first con **consolidación monótona** (unión / máximo / mejor intento completo); al iniciar sesión se pregunta si importar el progreso de invitado (D-05); al cerrar sesión se vuelve al perfil invitado (D-06).
-
-**Topologías (D-18, D-25):**
-- Solo **rejillas regulares**: hexágonos (Must), cuadrados y triángulos (Should, jugables), cubos 3D (Should en dominio, Could en vista 3D). Anexos verificados en `02-RN-TOPOLOGIAS.md`.
-- **El jugador elige la figura en Ajustes** (solo las disponibles; hexágonos por defecto). Se fija al crear la partida y **no cambia durante ella**; la opción se bloquea mientras haya una partida en curso o en pausa (D-25).
-
-**Motor (D-07, opción A):** la coordenada es un **parámetro genérico**: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>`, `GameEngine<TCoord, TCell, TMove, TState>`. `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` que vive en `hexa_topologies` (no en el motor). La figura elegida se despacha en el composition root con una función genérica que conserva `TCoord`.
-
-**Arquitectura y persistencia (17-11):** app en 4 paquetes Dart puros + Flutter (D-21); backend en módulos con carpetas Clean y un caso de uso por clase, con `infrastructure/` solo para adaptadores (D-22); el contrato vive en `hexablock-api/docs/contracts/` y la app guarda una copia verificada por CI (D-23); la partida en curso se guarda tras cada turno en `saved_games` y se puede continuar aunque la app se cierre (D-37).
+Están en `docs/DECISIONES.md` de cada repo, que es el único registro (D-67). Las abiertas, en `docs/PENDIENTES.md` §1. Este archivo se reemplaza por `CLAUDE.md` en el Paso 8 (D-70).
 
 ## 4. Estado de la hoja de ruta
 
@@ -74,7 +49,8 @@ El detalle y la fecha de cada una están en `docs/DECISIONES.md` (en la app, tod
 | **5** | **Contratos:** `openapi.yaml`, JSON Schema de niveles y de progreso, modelo de datos local y del servidor | ✅ **Hecho (19-11):** contratos en `hexablock-api/docs/contracts/` y modelos de datos ARQ-04; D-19 y D-52 cerradas el mismo día |
 | 6 | Contenido (15 + 10 niveles) y estrategia de pruebas | ✅ **Hecho (20-11):** 25 niveles candidatos, `levelgen.py`, `levelcheck.py`, estrategia de pruebas en los dos repos; quedan P-14, R-05 y D-61 |
 | 7 | Plan: Issues, milestones, Definition of Done | ✅ **Hecho (20-11):** 86 Issues con milestones, responsables y estimación; `docs/plan/PLAN-ENTREGA.md`; tablero de GitHub Projects creado (T-02); falta G-01 (aceptar invitaciones) |
-| 8 | Preparación para Claude Code: `CLAUDE.md`, agentes, permisos | ☐ |
+| 7b | Revisión de organización y seguridad de los documentos | ✅ 20-11 (D-67 a D-75) |
+| 8 | Preparación para Claude Code: `CLAUDE.md` (reemplaza este archivo, D-70), agentes, permisos | ☐ |
 
 **Revisión de integridad (12-11):** se revisaron todos los documentos de los dos repos contra el enunciado y entre sí. Los IDs citados existen todos, los compartidos son idénticos y los 59 chequeos de ejemplos pasan con el simulador. Se corrigieron desajustes de redacción: estrellas 1–3 en SEC-API-06, D-03 como pendiente en SECURITY §3, argon2id, tabla `profiles` y figura en preferencias en el ADR (rev. 1.7), D-07 ya no figura como abierta en ARQ-01-APP §0, script de CI por identificadores, TEC-08 alineada con RN-TOP-04, PRG-03 y RF-32 con figura, RF-90 a 93, E-COM-3 con un puntaje posible y decisiones abiertas en las trazabilidades. Hallazgo de fondo: **D-27 choca con la letra del enunciado §5.2** ("una entrada de progreso por usuario y por variante"); en `PENDIENTES.md` quedan las dos formas de guardarlo, con recomendación.
 

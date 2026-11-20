@@ -5,15 +5,31 @@
 | Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
-| Parte de | `ARQ-01-APP-GENERAL.md` §10: responde las 6 preguntas de partida del Paso 3 |
+| Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
 | Fija | Tipos genéricos, contratos del motor, ciclo de turno, fases de la partida, eventos, deshacer, capacidades opcionales y **patrones de diseño del dominio** |
 | No fija | Firmas de los casos de uso y puertos (Paso 4), formato de los niveles (`docs/contracts/`, Paso 5) y del estado guardado (lo define el codec de cada variante, `ARQ-04-APP-DATOS.md` §8) |
 
-**Cómo leer este documento.** Cada pregunta trae opciones con ventajas y desventajas, la **recomendación** y un esbozo de código. El equipo adoptó la opción recomendada en las 6 preguntas y en el mapa de patrones; las demás opciones quedan como registro de lo que se descartó y por qué, útil para la defensa.
+**Cómo leer este documento.** Empieza con el diseño final en una página. Las secciones 3 a 8 explican cada decisión con un esbozo de código; las opciones que se compararon, con sus ventajas y desventajas, están en el Anexo A como registro de lo que se descartó y por qué, útil para la defensa (D-68).
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 
 ---
+
+## Diseño final en una página
+
+Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el detalle y el código; las opciones que se descartaron están en el Anexo A (D-68).
+
+| Tema | Diseño | § | Decisión |
+|---|---|---|---|
+| Coordenada | Parámetro genérico: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<…>`; `HexBoard<TCell>` es un `typedef` | §3 | D-07 |
+| Figura de la celda | Registro de topologías + **Visitor** genérico, sin `switch` ni casts; `TCoord` llega hasta el widget del tablero | §3 | D-29 |
+| Tipos por variante | Estado inmutable; celda vacía = `null` (`TCell extends Object`); movimientos *sealed* por variante; `Tile implements Mergeable<Tile>` en Merge | §4 | D-30 |
+| Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada) | §5 | D-31 |
+| Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica | §6 | D-32 |
+| Capacidades opcionales | Interfaces segregadas (`IUndoable`, `ITimed`, `IRandomSeeded`, `ILevelBased`) que la fábrica compone en una `GameSession`; `IMonotonicClock` en el dominio | §7 | D-33 |
+| Fases | Patrón **State** con 5 fases *sealed*; `Victory(canContinue)` para Merge | §8 | D-34 |
+| Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
+| Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
 
 ## 1. Qué tiene que cumplir el motor
 
@@ -122,19 +138,15 @@ sequenceDiagram
 
 ---
 
-## 3. Pregunta 1 — Despacho de la figura y alcance de `TCoord` (D-29)
+## 3. Despacho de la figura y alcance de `TCoord` (D-29)
 
 La figura la elige el jugador en Ajustes (D-25), así que se conoce **en tiempo de ejecución**, pero el tipo `TCoord` tiene que existir **en compilación** para que el tablero sea seguro (D-07). Hace falta un punto que convierta "el id `hex` que leí de Ajustes" en "`GameEngine<HexCoord, …>`", sin casts y sin condicionales fuera del *composition root*.
 
 ### 3.1 Cómo se despacha
 
-| Opción | Cómo | Ventajas | Desventajas |
-|---|---|---|---|
-| **A. Registro de topologías + Visitor genérico** | Cada topología se registra con su id. `GridTopology<C>` tiene un método `accept(visitor)` que llama a `visitor.visit<C>(this)`: como Dart **reifica** los genéricos, el visitante recibe el `C` real | Sin `switch` en ningún lado; agregar una figura = crear la clase y registrarla (OCP). Cero casts. Es un patrón GoF (Visitor) que se puede mostrar en la defensa | Un concepto más que explicar (doble despacho con método genérico) |
-| B. `switch` en el *composition root* | `switch (id) { 'hex' => open<HexCoord>(HexTopology()), 'square' => … }` | El más simple de leer | Agregar una figura modifica el `switch` (aunque esté en el *root*, que sí puede conocer lo concreto) |
-| C. Borrar el tipo (`Board<Coord, TCell>` y casts) | Todo trabaja con `Coord` y las topologías castean | Sin genéricos que propagar | Contradice D-07: errores en ejecución en vez de en compilación |
+Opciones consideradas: Anexo A.3.1.
 
-**Recomendación: A.** El registro no pierde nada: una `GridTopology<HexCoord>` se guarda como `GridTopology<Coord>` (los genéricos de Dart son covariantes) y `accept` recupera el tipo real.
+**Elegida: A.** El registro no pierde nada: una `GridTopology<HexCoord>` se guarda como `GridTopology<Coord>` (los genéricos de Dart son covariantes) y `accept` recupera el tipo real.
 
 ```dart
 // hexa_engine
@@ -195,20 +207,17 @@ final class HexaLinesModule implements VariantModule {
 
 ### 3.2 Hasta qué capa llega `TCoord`
 
-| Opción | Hasta dónde | Ventajas | Desventajas |
-|---|---|---|---|
-| **A. Hasta el widget del tablero** | Dominio, casos de uso (`ApplyMoveUseCase<C, …>`), `GameCubit<C, …>` y el widget del tablero (`BoardView<C, TCell>` = layout de la topología × pintor de la variante, ARQ-A-06). El resto de la pantalla (marcador, botones) no es genérico | Seguridad de tipos completa: el toque se convierte en `C` en el layout y nunca hay un índice suelto | Los widgets del tablero son genéricos (en Flutter no es un problema) |
-| B. Hasta el Cubit | El Cubit expone celdas por índice y posición; los widgets no son genéricos | Widgets más simples | Hace falta un mapeo índice ↔ `C` y el layout (que es por topología) igual necesita `C` |
+Opciones consideradas: Anexo A.3.2.
 
-**Recomendación: A.** El layout es por topología, así que ya conoce `C`; ocultarlo en el Cubit solo agrega una traducción.
+**Elegida: A.** El layout es por topología, así que ya conoce `C`; ocultarlo en el Cubit solo agrega una traducción.
 
 ---
 
-## 4. Pregunta 2 — `TCell`, `TMove`, `TState` por variante y restricciones de tipo (D-30)
+## 4. `TCell`, `TMove`, `TState` por variante y restricciones de tipo (D-30)
 
 ### 4.1 Tres decisiones de base
 
-| Tema | Opciones | Recomendación |
+| Tema | Opciones | Elegida |
 |---|---|---|
 | **Estado inmutable o mutable** | **A. Inmutable**: `playTurn` devuelve un estado nuevo; el tablero cambia con `withCells` (copia de un mapa de ≤ 64 celdas) · B. Mutable con copias explícitas al deshacer | **A.** Deshacer, rehacer, guardar y las pruebas salen gratis (un estado anterior *es* el memento); las reglas son funciones puras y deterministas (RN-COM-41). El costo de copiar 61 celdas por turno es despreciable |
 | **Celda vacía** | **A. `TCell?`**: el tablero guarda solo celdas ocupadas y `cell(c)` devuelve `null` si está vacía · B. Un valor centinela por variante (`TCell.empty`) · C. Un tipo `Option<TCell>` | **A.** Es lo idiomático en Dart con *null safety*, y obliga a la restricción `TCell extends Object` (ver 4.3) |
@@ -275,16 +284,11 @@ extension type const PieceId(int value) {}
 
 ---
 
-## 5. Pregunta 3 — Deshacer y rehacer (D-31)
+## 5. Deshacer y rehacer (D-31)
 
-| Opción | Cómo | Ventajas | Desventajas |
-|---|---|---|---|
-| A. Memento puro | Una pila de estados anteriores | Lo más simple con estado inmutable | No aparece el patrón Command que sugiere el enunciado §3.3 |
-| B. Command con operación inversa | Cada movimiento sabe deshacerse | Usa poca memoria | La inversa de Merge (deslizar + fusionar + ficha nueva + generador) es difícil y propensa a errores; cada variante nueva tiene que escribir su inversa |
-| **C. Command + Memento** | Cada turno aplicado queda como un objeto `MoveCommand` con el movimiento y los estados de antes y después; `undo()` y `redo()` los restauran. El historial es el invocador que guarda los comandos | Genérico para cualquier variante: ninguna escribe lógica inversa. Restaura todo, generador incluido (RN-COM-61, RN-HM-80). Cumple el Command del enunciado, y GoF mismo propone combinarlo con Memento para deshacer | Guarda dos estados por turno (unos pocos KB en Fit; en Merge el límite es 1) |
-| D. Repetición desde la semilla | Deshacer = repetir desde el inicio los movimientos menos el último (RN-COM-41) | Mínima memoria; útil también para reproducir partidas | Cuesta O(n) por cada deshacer |
+Opciones consideradas: Anexo A.5.
 
-**Recomendación: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`.
+**Elegida: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`.
 
 La capacidad la da un único `UndoHistory` configurado por la fábrica de cada variante: sin límite y con rehacer para Fit, límite 1 sin rehacer para Merge, y nada para Lines y Sort. Las reglas que impiden deshacer (RN-COM-63) las decide la **fase**: `GameOverPhase` y `VictoryPhase` no permiten deshacer; en Merge, al seguir jugando se vuelve a `PlayingPhase`, que sí lo permite.
 
@@ -345,17 +349,11 @@ final class UndoHistory<TMove, TState> implements IUndoable {
 
 ---
 
-## 6. Pregunta 4 — Eventos de dominio (D-32)
+## 6. Eventos de dominio (D-32)
 
-| Opción | Cómo | Ventajas | Desventajas |
-|---|---|---|---|
-| A. Eventos como datos + `Stream` del motor | Las reglas devuelven los eventos del turno en orden dentro del `TurnResult`; el motor los publica en un `Stream<GameEvent<C>>` (Observer). Jerarquía abierta: una base `GameEvent<C>`, los eventos del motor (`PhaseChanged`, `ScoreChanged`, `MoveRejected`, `StateRestored`) y una familia *sealed* por variante (`LinesCleared`, `StackTransferred`, `GoalCompleted`, `TilesMerged`, `TileSpawned`…) | Las reglas siguen puras (se prueban comparando listas de eventos); el orden de la cascada se conserva (RN-COM-25, RN-HS-45); cada variante hace `switch` exhaustivo sobre sus eventos | Hay que definir una clase por evento |
-| **A2. Como A, pero la pantalla los recibe como valor de retorno** | Los mismos eventos que A. `submit` **devuelve** un `MoveResult` con el estado nuevo, los eventos en orden y el resultado; el caso de uso se lo pasa al Cubit en la misma llamada. El `Stream` queda para los oyentes secundarios: historial de deshacer, cronómetro, audio y analítica | Todo lo de A, y además la pantalla no depende del momento en que el `Stream` entrega los eventos: recibe todo antes del siguiente cuadro. Las pruebas comparan lo que devuelve `submit` | Dos caminos que documentar (retorno y `Stream`) |
-| B. Solo estados | La interfaz compara el estado anterior con el nuevo | Nada que definir | Pierde el orden y los pasos intermedios de la cascada: no se puede animar Sort |
-| C. Llamadas a oyentes desde las reglas | Las reglas reciben un `listener` y lo llaman | Inmediato | Reglas con efectos secundarios: más difíciles de probar y de reutilizar |
-| D. Bus de eventos global | Un singleton al que todos publican | Desacopla mucho | Dependencias ocultas; difícil de seguir en una defensa |
+Opciones consideradas: Anexo A.6.
 
-**Recomendación: A2.** El turno se calcula completo, en menos de un milisegundo, y después:
+**Elegida: A2.** El turno se calcula completo, en menos de un milisegundo, y después:
 
 1. **La pantalla** recibe el `MoveResult` como valor de retorno de `submit` → `ApplyMoveUseCase` → `GameCubit`. El retraso que ve el jugador es solo el de las animaciones, y lo controla la vista: su duración, la opción de saltarlas y el bloqueo de toques mientras se reproducen.
 2. **Los oyentes internos del dominio** (`UndoHistory` y `ActiveTimer`) se suscriben a un `StreamController.broadcast(sync: true)`: reciben cada evento antes de que `submit` termine, así que el historial y el cronómetro ya están al día cuando la pantalla se redibuja. Ninguno de ellos llama a `submit`, lo que evita la reentrada que permite un *stream* síncrono.
@@ -400,18 +398,13 @@ Una base *sealed* común no sirve: Dart solo permite extender una clase *sealed*
 
 ---
 
-## 7. Pregunta 5 — Capacidades opcionales (D-33)
+## 7. Capacidades opcionales (D-33)
 
 El enunciado §3.2 (ISP) pide separar `IUndoable`, `ITimed` e `IRandomSeeded`, y que Hexa Lines no implemente `IUndoable`.
 
-| Opción | Cómo | Ventajas | Desventajas |
-|---|---|---|---|
-| **A. Interfaces segregadas implementadas por componentes que compone la fábrica** | `IUndoable` → `UndoHistory`; `ITimed` → `ActiveTimer`; `IRandomSeeded` → los estados que usan azar; `ILevelBased` → los estados de Fit y Sort. La fábrica de cada variante arma una `GameSession` con el motor y **solo** las capacidades que tiene (las demás quedan en `null`) | ISP literal: Lines no tiene ningún objeto `IUndoable`. El motor queda chico. La interfaz muestra el botón de deshacer si `session.undo != null`, sin preguntar por la variante | Una sesión con campos opcionales |
-| B. Decoradores del motor | `UndoableEngine(TimedEngine(engine))` | Patrón visible | Al apilar decoradores, el de afuera oculta las interfaces de los de adentro: hacen falta casts o la misma sesión de A |
-| C. Interfaces implementadas por las reglas | `HexaFitRules implements IUndoable, ITimed` | Directo | Las reglas dejan de ser puras: guardarían historial y reloj |
-| D. Banderas en la configuración | Un motor con todas las capacidades y `if (config.undo)` | Una sola clase | Va contra ISP y SRP, que es justo lo que se evalúa |
+Opciones consideradas: Anexo A.7.
 
-**Recomendación: A.** El tiempo activo necesita un reloj: se propone un puerto mínimo **en el dominio**, `IMonotonicClock` (milisegundos monótonos), porque las estrellas de Fit dependen del tiempo (RN-HF-62). El `IClock` de la capa 2 (ARQ-01-APP §4.2) lo extiende, y la misma implementación de la capa 4 sirve para los dos. `ActiveTimer` escucha `PhaseChanged`: corre en juego y resolviendo, y se detiene en pausa, victoria y derrota (RN-COM-52).
+**Elegida: A.** El tiempo activo necesita un reloj: se propone un puerto mínimo **en el dominio**, `IMonotonicClock` (milisegundos monótonos), porque las estrellas de Fit dependen del tiempo (RN-HF-62). El `IClock` de la capa 2 (ARQ-01-APP §4.2) lo extiende, y la misma implementación de la capa 4 sirve para los dos. `ActiveTimer` escucha `PhaseChanged`: corre en juego y resolviendo, y se detiene en pausa, victoria y derrota (RN-COM-52).
 
 ```dart
 // hexa_engine
@@ -437,17 +430,13 @@ final class GameSession<C extends Coord, TCell extends Object, TMove,
 
 ---
 
-## 8. Pregunta 6 — Fases de la partida (D-34)
+## 8. Fases de la partida (D-34)
 
 Para no confundir el `TState` (los **datos** de la partida) con el patrón State, se propone llamar **fase** a la etapa del ciclo de vida. Las clases equivalen a las del enunciado §3.3: `PlayingPhase` = `PlayingState`, y así con las demás. `MenuState` no es una fase de la partida (RN-COM-30): el menú es navegación.
 
-| Opción | Cómo | Ventajas | Desventajas |
-|---|---|---|---|
-| **A. Patrón State con una jerarquía *sealed*** | Cada fase es una clase que decide qué acepta y a qué fase pasa (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); el motor delega en la fase actual | Es el patrón que pide el enunciado; las transiciones inválidas no existen porque cada fase solo expone las suyas; la interfaz hace `switch` exhaustivo para elegir la pantalla | Cinco clases pequeñas |
-| B. `enum` + tabla de transiciones | `Map<(Phase, Trigger), Phase>` | Compacto | La lógica de cada fase queda repartida en `if` dentro del motor |
-| C. `enum` + `switch` en el motor | Un `switch` por operación | El más directo | Crece con cada operación; no muestra el patrón |
+Opciones consideradas: Anexo A.8.
 
-**Recomendación: A.** `VictoryPhase` lleva `canContinue`, que viene del resultado de la evaluación. Solo Merge devuelve `Victory(canContinue: true)`, y solo la primera vez (RN-HM-51), así que el motor no sabe qué variante permite seguir.
+**Elegida: A.** `VictoryPhase` lleva `canContinue`, que viene del resultado de la evaluación. Solo Merge devuelve `Victory(canContinue: true)`, y solo la primera vez (RN-HM-51), así que el motor no sabe qué variante permite seguir.
 
 ```dart
 // hexa_engine
@@ -535,6 +524,8 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 ### 9.4 Patrones fuera del dominio (para el mapa completo del README)
 
+> El texto final de esta sección va en el README, con enlaces al código; aquí queda la justificación (D-71, T-07).
+
 | Patrón | Capa | Dónde |
 |---|---|---|
 | Decorator (AOP) | 2 | Aspectos sobre los casos de uso genéricos: logging (TEC-03), métricas, sesión (ARQ-A-05) |
@@ -617,13 +608,59 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 
 ## 12. Decisiones de este documento
 
-| ID | Pregunta | Recomendación | Estado |
+D-29 a D-36, en `docs/DECISIONES.md` (D-67).
+
+## Anexo A — Opciones consideradas (D-68)
+
+Las tablas que se usaron para decidir. La opción elegida está en negrita.
+
+### A.3.1 Cómo se despacha (§3.1)
+
+| Opción | Cómo | Ventajas | Desventajas |
 |---|---|---|---|
-| D-29 | Despacho de la figura y alcance de `TCoord` | Registro de topologías + Visitor genérico; `TCoord` llega hasta el widget del tablero | ✅ Decidida (17-11) |
-| D-30 | `TCell`, `TMove`, `TState` y restricciones | Estado inmutable, celda vacía = `null` (`TCell extends Object`), movimientos *sealed* por variante, `Tile implements Mergeable<Tile>` en Merge; tabla de §4 | ✅ Decidida (17-11) |
-| D-31 | Deshacer y rehacer | Command + Memento con un `UndoHistory` genérico configurado por la fábrica | ✅ Decidida (17-11) |
-| D-32 | Eventos de dominio | Eventos como datos devueltos por las reglas. La pantalla los recibe como valor de retorno de `submit` (`MoveResult`); el `Stream` del motor queda para el historial y el cronómetro (síncronos) y para el audio y la analítica; base `abstract base` y una familia *sealed* por variante | ✅ Decidida (17-11) |
-| D-33 | Capacidades opcionales | Interfaces segregadas implementadas por componentes que compone la fábrica en una `GameSession`; `IMonotonicClock` en el dominio | ✅ Decidida (17-11) |
-| D-34 | Fases de la partida | Patrón State con una jerarquía *sealed* de 5 fases; `Victory(canContinue)` para Merge | ✅ Decidida (17-11) |
-| D-35 | Patrones de diseño del dominio | Los 14 de §9 (3 + 3 + 8). Cómo se protege el Template Method pasó a D-36 | ✅ Decidida (17-11) |
-| D-36 | Protección del Template Method | Regla en la plantilla de PR + prueba de arquitectura en CI (sin dependencias, por el enunciado §3.4) | ✅ Decidida (20-11) |
+| **A. Registro de topologías + Visitor genérico** | Cada topología se registra con su id. `GridTopology<C>` tiene un método `accept(visitor)` que llama a `visitor.visit<C>(this)`: como Dart **reifica** los genéricos, el visitante recibe el `C` real | Sin `switch` en ningún lado; agregar una figura = crear la clase y registrarla (OCP). Cero casts. Es un patrón GoF (Visitor) que se puede mostrar en la defensa | Un concepto más que explicar (doble despacho con método genérico) |
+| B. `switch` en el *composition root* | `switch (id) { 'hex' => open<HexCoord>(HexTopology()), 'square' => … }` | El más simple de leer | Agregar una figura modifica el `switch` (aunque esté en el *root*, que sí puede conocer lo concreto) |
+| C. Borrar el tipo (`Board<Coord, TCell>` y casts) | Todo trabaja con `Coord` y las topologías castean | Sin genéricos que propagar | Contradice D-07: errores en ejecución en vez de en compilación |
+
+### A.3.2 Hasta qué capa llega `TCoord` (§3.2)
+
+| Opción | Hasta dónde | Ventajas | Desventajas |
+|---|---|---|---|
+| **A. Hasta el widget del tablero** | Dominio, casos de uso (`ApplyMoveUseCase<C, …>`), `GameCubit<C, …>` y el widget del tablero (`BoardView<C, TCell>` = layout de la topología × pintor de la variante, ARQ-A-06). El resto de la pantalla (marcador, botones) no es genérico | Seguridad de tipos completa: el toque se convierte en `C` en el layout y nunca hay un índice suelto | Los widgets del tablero son genéricos (en Flutter no es un problema) |
+| B. Hasta el Cubit | El Cubit expone celdas por índice y posición; los widgets no son genéricos | Widgets más simples | Hace falta un mapeo índice ↔ `C` y el layout (que es por topología) igual necesita `C` |
+
+### A.5 Deshacer y rehacer (§5, D-31)
+
+| Opción | Cómo | Ventajas | Desventajas |
+|---|---|---|---|
+| A. Memento puro | Una pila de estados anteriores | Lo más simple con estado inmutable | No aparece el patrón Command que sugiere el enunciado §3.3 |
+| B. Command con operación inversa | Cada movimiento sabe deshacerse | Usa poca memoria | La inversa de Merge (deslizar + fusionar + ficha nueva + generador) es difícil y propensa a errores; cada variante nueva tiene que escribir su inversa |
+| **C. Command + Memento** | Cada turno aplicado queda como un objeto `MoveCommand` con el movimiento y los estados de antes y después; `undo()` y `redo()` los restauran. El historial es el invocador que guarda los comandos | Genérico para cualquier variante: ninguna escribe lógica inversa. Restaura todo, generador incluido (RN-COM-61, RN-HM-80). Cumple el Command del enunciado, y GoF mismo propone combinarlo con Memento para deshacer | Guarda dos estados por turno (unos pocos KB en Fit; en Merge el límite es 1) |
+| D. Repetición desde la semilla | Deshacer = repetir desde el inicio los movimientos menos el último (RN-COM-41) | Mínima memoria; útil también para reproducir partidas | Cuesta O(n) por cada deshacer |
+
+### A.6 Eventos de dominio (§6, D-32)
+
+| Opción | Cómo | Ventajas | Desventajas |
+|---|---|---|---|
+| A. Eventos como datos + `Stream` del motor | Las reglas devuelven los eventos del turno en orden dentro del `TurnResult`; el motor los publica en un `Stream<GameEvent<C>>` (Observer). Jerarquía abierta: una base `GameEvent<C>`, los eventos del motor (`PhaseChanged`, `ScoreChanged`, `MoveRejected`, `StateRestored`) y una familia *sealed* por variante (`LinesCleared`, `StackTransferred`, `GoalCompleted`, `TilesMerged`, `TileSpawned`…) | Las reglas siguen puras (se prueban comparando listas de eventos); el orden de la cascada se conserva (RN-COM-25, RN-HS-45); cada variante hace `switch` exhaustivo sobre sus eventos | Hay que definir una clase por evento |
+| **A2. Como A, pero la pantalla los recibe como valor de retorno** | Los mismos eventos que A. `submit` **devuelve** un `MoveResult` con el estado nuevo, los eventos en orden y el resultado; el caso de uso se lo pasa al Cubit en la misma llamada. El `Stream` queda para los oyentes secundarios: historial de deshacer, cronómetro, audio y analítica | Todo lo de A, y además la pantalla no depende del momento en que el `Stream` entrega los eventos: recibe todo antes del siguiente cuadro. Las pruebas comparan lo que devuelve `submit` | Dos caminos que documentar (retorno y `Stream`) |
+| B. Solo estados | La interfaz compara el estado anterior con el nuevo | Nada que definir | Pierde el orden y los pasos intermedios de la cascada: no se puede animar Sort |
+| C. Llamadas a oyentes desde las reglas | Las reglas reciben un `listener` y lo llaman | Inmediato | Reglas con efectos secundarios: más difíciles de probar y de reutilizar |
+| D. Bus de eventos global | Un singleton al que todos publican | Desacopla mucho | Dependencias ocultas; difícil de seguir en una defensa |
+
+### A.7 Capacidades opcionales (§7, D-33)
+
+| Opción | Cómo | Ventajas | Desventajas |
+|---|---|---|---|
+| **A. Interfaces segregadas implementadas por componentes que compone la fábrica** | `IUndoable` → `UndoHistory`; `ITimed` → `ActiveTimer`; `IRandomSeeded` → los estados que usan azar; `ILevelBased` → los estados de Fit y Sort. La fábrica de cada variante arma una `GameSession` con el motor y **solo** las capacidades que tiene (las demás quedan en `null`) | ISP literal: Lines no tiene ningún objeto `IUndoable`. El motor queda chico. La interfaz muestra el botón de deshacer si `session.undo != null`, sin preguntar por la variante | Una sesión con campos opcionales |
+| B. Decoradores del motor | `UndoableEngine(TimedEngine(engine))` | Patrón visible | Al apilar decoradores, el de afuera oculta las interfaces de los de adentro: hacen falta casts o la misma sesión de A |
+| C. Interfaces implementadas por las reglas | `HexaFitRules implements IUndoable, ITimed` | Directo | Las reglas dejan de ser puras: guardarían historial y reloj |
+| D. Banderas en la configuración | Un motor con todas las capacidades y `if (config.undo)` | Una sola clase | Va contra ISP y SRP, que es justo lo que se evalúa |
+
+### A.8 Fases de la partida (§8, D-34)
+
+| Opción | Cómo | Ventajas | Desventajas |
+|---|---|---|---|
+| **A. Patrón State con una jerarquía *sealed*** | Cada fase es una clase que decide qué acepta y a qué fase pasa (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); el motor delega en la fase actual | Es el patrón que pide el enunciado; las transiciones inválidas no existen porque cada fase solo expone las suyas; la interfaz hace `switch` exhaustivo para elegir la pantalla | Cinco clases pequeñas |
+| B. `enum` + tabla de transiciones | `Map<(Phase, Trigger), Phase>` | Compacto | La lógica de cada fase queda repartida en `if` dentro del motor |
+| C. `enum` + `switch` en el motor | Un `switch` por operación | El más directo | Crece con cada operación; no muestra el patrón |

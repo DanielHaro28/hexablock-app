@@ -275,25 +275,18 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. Por 
 
 ## 9. Decisiones de este documento
 
-| ID | Decisión | Estado |
-|---|---|---|
-| ARQ-A-01 | Cuatro capas Clean según el enunciado §3.4 | ✅ |
-| ARQ-A-02 | Pub workspace con **4 paquetes Dart puros** (`hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`) + la app Flutter | ✅ D-21 (17-11) |
-| ARQ-A-03 | Los casos de uso (capa 2) van en un paquete propio, sin Flutter, para que no puedan ver las variantes y se prueben sin emulador | ✅ D-21 (17-11) |
-| ARQ-A-04 | Las variantes en **un solo paquete** con una carpeta por variante (no un paquete por variante): menos configuración, y la regla que importa (el motor no ve las variantes) se cumple igual | ✅ D-21 (17-11) |
-| ARQ-A-05 | Los aspectos AOP son decoradores en la capa 2 que dependen solo de puertos; se conectan en el composition root | ✅ Paso 4 (19-11) |
-| ARQ-A-06 | El tablero se dibuja combinando **layout de topología × pintor de contenido de la variante** | ✅ Paso 4 (19-11) |
-| ARQ-A-07 | El audio reacciona a los eventos de dominio desde la capa 4 (Observer + Facade); no hay puerto de audio en los casos de uso | ✅ Paso 4 (19-11) |
-| ARQ-A-08 | Un solo `GameCubit` genérico para las 4 variantes | ✅ Paso 4 (19-11) |
-| ARQ-A-09 | **La coordenada es un parámetro genérico** (`TCoord extends Coord`) del tablero, la topología, las reglas y el motor. `HexBoard<TCell>` = `typedef` de `Board<HexCoord, TCell>`, en `hexa_topologies`. El *composition root* elige la topología leída de la configuración y la despacha con una **función genérica** que conserva el tipo `TCoord` al crear la partida | ✅ D-07 (11-11) |
+Las decisiones están en `docs/DECISIONES.md` (D-67). Los IDs propios de este documento se conservan:
 
-## 10. Preguntas para el Paso 3 (motor genérico)
+| ID | Dónde está ahora |
+|---|---|
+| ARQ-A-01 | `DECISIONES.md` (cuatro capas) |
+| ARQ-A-02 | D-21 |
+| ARQ-A-03 | D-21 |
+| ARQ-A-04 | D-21 |
+| ARQ-A-05 | `DECISIONES.md` (Paso 4) |
+| ARQ-A-06 | `DECISIONES.md` (Paso 4) |
+| ARQ-A-07 | `DECISIONES.md` (Paso 4) |
+| ARQ-A-08 | `DECISIONES.md` (Paso 4) |
+| ARQ-A-09 | D-07 |
 
-Las decide el equipo. Este documento solo fija **dónde** viven las piezas, no **cómo** son por dentro. **Las opciones y recomendaciones de las 6 preguntas están en `ARQ-02-MOTOR.md`** (decisiones D-29 a D-35):
-
-1. ~~**D-07:** coordenada genérica o abstracta~~ → **decidida: opción A** (ARQ-A-09). Queda para el Paso 3: cómo se despacha la topología en el *composition root* y hasta qué capa llega `TCoord` (¿los casos de uso y el cubit también son genéricos en `TCoord`, o se ocultan detrás de una interfaz?).
-2. ¿Qué son `TCell`, `TMove` y `TState` en cada variante? ¿Qué restricciones de tipo llevan y por qué? (por ejemplo, `TCell extends Mergeable<TCell>` en Merge)
-3. ¿Deshacer se implementa guardando estados completos (Memento) o con movimientos reversibles (Command)? Hexa Fit necesita deshacer ilimitado; Merge necesita restaurar el generador.
-4. ¿Cómo son los eventos de dominio: una jerarquía *sealed* común o un tipo por variante?
-5. ¿Cómo se modelan las capacidades opcionales (deshacer, tiempo, azar, niveles): interfaces separadas o configuración? (El enunciado §3.2, ISP, pone como ejemplo `IUndoable`, `ITimed` e `IRandomSeeded`, con Hexa Lines sin `IUndoable`.)
-6. ¿La máquina de estados de la partida (RN-COM-30, 31) es una clase por estado (State) o un enum con transiciones? (El enunciado §3.3 nombra `MenuState`, `PlayingState`, `ResolvingState`, `PausedState`, `GameOverState` y `VictoryState`; RN-COM-30 no incluye el menú porque no es un estado de la partida.)
+Las preguntas del Paso 3 que estaban aquí se respondieron en `ARQ-02-MOTOR.md` (D-29 a D-36).

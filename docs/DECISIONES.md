@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-19
+> **Última actualización:** 2026-11-20
 
 ---
 
@@ -57,12 +57,38 @@
 |---|---|---|---|---|
 | D-21 | **Paquetes de la app:** pub workspace con **4 paquetes Dart puros** y la app Flutter. Capa 1: `hexa_engine`, `hexa_topologies` y `hexa_variants` (una carpeta por variante). Capa 2: `hexa_application` (casos de uso genéricos, puertos y aspectos). Capas 3 y 4: la app (`lib/adapters/` = capa 3; `lib/frameworks/`, `lib/config/` y `main.dart` = capa 4). Los paquetes de las capas 1 y 2 no tienen dependencias de terceros (enunciado §3.4) y su `pubspec` impide importar capas externas | ARQ-01-APP §3, ARQ-A-02 a 04 | App | 17-11 |
 | D-22 | **Estructura del backend:** módulos por área (`auth`, `users`, `progress`, `leaderboard`, `levels`, `health`) con `domain/` (capa 1), `application/` (capa 2: casos de uso y puertos), `presentation/` e `infrastructure/` (capa 3: controladores y DTOs; adaptadores que implementan los puertos, como repositorios Prisma, argon2 y JWT). `main.ts`, `src/prisma/` y la configuración de NestJS son capa 4. **Un caso de uso por clase.** Cómo se guarda el progreso (JSON) queda para D-27 | ARQ-01-API §2 a §4, ARQ-B-01, 02 | API | 17-11 |
+| ARQ-A-01 | **Cuatro capas** de la Clean Architecture, como pide el enunciado §3.4 | ARQ-01-APP §2 | App | 17-11 |
+| ARQ-B-06 | **La API no tiene estado:** toda la información vive en PostgreSQL | ARQ-01-API §2 | API | 17-11 |
 | D-23 | **Contrato entre app y API:** `openapi.yaml` y los ejemplos compartidos (E-COM-2, E-COM-3, E-HF-NIVEL) viven en `hexablock-api/docs/contracts/`, la fuente única. La API valida sus respuestas contra ese archivo; la app guarda una **copia** para probar sus mappers y su CI **falla si la copia difiere** de la del repo de la API (es la herramienta "equivalente a Pact" del enunciado §3.6) | ARQ-00 §6 (ARQ-S-05), ARQ-01-API §9 (ARQ-B-05) | Ambos | 17-11 |
+
+### Partida y persistencia local
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-37 | **Partida guardada:** tabla Drift `saved_games`, una por perfil, variante y figura. Se guarda **después de cada turno válido** y al pasar la app a segundo plano (estado completo, generador, historial de deshacer y tiempo activo). Al volver se ofrece **Continuar** y la partida sigue **en pausa**; el tiempo con la app cerrada no cuenta. Se borra al terminar la partida o al empezar otra de la misma variante y figura | RN-COM-32 a 35, RF-64, NAV-04, ARQ-01-APP §4.2, ADR-001 §2.1 | App | 17-11 |
+
+### Motor genérico (Paso 3)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-07 | **Coordenada como parámetro genérico (opción A).** `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<TCoord, TCell, TMove, TState>`; `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` en `hexa_topologies` | ARQ-01-APP §4.1, §9; ARQ-02 §3; TEC-01; glosario | App | 11-11 |
+| D-29 | **Despacho de la figura:** registro de topologías + **Visitor** genérico (`accept` → `visit<C>`), sin `switch` ni casts; en la app, cada figura se registra junto con su layout. `TCoord` llega hasta el widget del tablero | ARQ-02 §3 | App | 17-11 |
+| D-30 | **Tipos genéricos:** estado **inmutable**; celda vacía = `null` con `TCell extends Object`; movimientos *sealed* por variante; `TState extends GameState<C, TCell>`; en Hexa Merge, `Tile implements Mergeable<Tile>` en vez de `int`. Instanciación por variante en ARQ-02 §4.2 | ARQ-02 §4 | App | 17-11 |
+| D-31 | **Deshacer y rehacer:** **Command + Memento** con un `UndoHistory` genérico que configura la fábrica de cada variante (sin límite + rehacer en Fit; límite 1 sin rehacer en Merge; nada en Lines y Sort); la fase decide si se puede deshacer | ARQ-02 §5 | App | 17-11 |
+| D-32 | **Eventos de dominio:** las reglas **devuelven** los eventos en orden; la pantalla los recibe como **valor de retorno** de `submit` (`MoveResult`). El `Stream` del motor (Observer) queda para el historial y el cronómetro (síncronos) y para el audio y la analítica. Base `abstract base` y una familia *sealed* por variante | ARQ-02 §6 | App | 17-11 |
+| D-33 | **Capacidades opcionales:** `IUndoable`, `ITimed`, `IRandomSeeded` e `ILevelBased`, implementadas por componentes que la fábrica compone en una `GameSession` (Lines no tiene `IUndoable`); puerto `IMonotonicClock` en el dominio | ARQ-02 §7 | App | 17-11 |
+| D-34 | **Fases de la partida:** patrón **State** con una jerarquía *sealed* (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); `Victory(canContinue)` para que Hexa Merge siga tras la victoria | ARQ-02 §8 | App | 17-11 |
+| D-35 | **Patrones de diseño del dominio (14).** Creacionales: Abstract Factory, Builder, Factory Method. Estructurales: Bridge, Composite, Decorator. De comportamiento: Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor. Cómo se protege el Template Method sigue abierto en D-36 | ARQ-02 §9 | App | 17-11 |
+| D-36 | **Protección del Template Method (opción B):** regla en la plantilla de PR y una prueba de arquitectura en CI que falla si alguna clase de `hexa_variants` declara `playTurn`. Sin `package:meta`, porque el enunciado §3.4 no permite dependencias externas en la capa 1; la composición queda descartada porque el §3.3 pide una clase abstracta | ARQ-02 §9.6; plantilla de PR | App | 20-11 |
 
 ### Arquitectura detallada (Paso 4)
 
 | ID | Decisión | Dónde quedó | Repos | Fecha |
 |---|---|---|---|---|
+| ARQ-A-05 | Los **aspectos AOP** son decoradores en la capa 2 que dependen solo de puertos; se conectan en el *composition root* | ARQ-01-APP §4.2, ARQ-03-APP §5 | App | 19-11 |
+| ARQ-A-06 | El tablero se dibuja combinando el **layout de la topología** con el **pintor de contenido de la variante** | ARQ-01-APP §4.4 | App | 19-11 |
+| ARQ-A-07 | El **audio** reacciona a los eventos de dominio desde la capa 4 (Observer + Facade); no hay puerto de audio en los casos de uso | ARQ-01-APP §4.4 | App | 19-11 |
+| ARQ-A-08 | **Un solo `GameCubit` genérico** para las 4 variantes | ARQ-01-APP §4.4 | App | 19-11 |
 | D-38 | **Forma de los casos de uso:** una interfaz única `UseCase<TIn, TOut>` con un solo método `execute` (en Dart `Future<TOut> execute(TIn input)`; en TypeScript `execute(input: I): Promise<O>`). La entrada es un solo objeto o *record*. Así un mismo aspecto envuelve cualquier caso de uso (enunciado §3.5) | ARQ-03-APP §1, ARQ-03-API §1 | Ambos | 19-11 |
 | D-39 | **Errores:** por dentro, **excepciones tipadas** (los adaptadores traducen los errores técnicos a excepciones de la aplicación y el caso de uso no las maneja); hacia afuera, una salida uniforme: en la app, un **`Result` *sealed*** (éxito o fallo tipado) que entrega el aspecto de errores a la pantalla; en el backend, el **filtro global de errores** de NestJS convierte cada error tipado en **Problem Details (RFC 9457)**, como se ajustó en D-51 (RF-91). Sin librerías externas (D-21). Las excepciones no tipadas son errores de programación | ARQ-03-APP §2, ARQ-03-API §2 | Ambos | 19-11 (backend ajustado por D-51) |
 | D-40 | **Aspectos de la app (4):** registro (logging) con el tablero antes y después de cada movimiento solo en modo desarrollo y con redacción de contraseñas, tokens y correos; métricas de tiempo (`ApplyMove`, `StartGame`; RNF-31); errores centralizados en todos los casos de uso, con reintentos solo en los que usan red; sesión (comprobación local del JWT, sin red) solo en los casos de uso que necesitan cuenta. Jugar, guardar el progreso y guardar la partida nunca pasan por el aspecto de sesión. La caché del ranking es opcional | ARQ-03-APP §5; SEC-WEB-06, SEC-MOB-04, 05 | App | 19-11 |
@@ -112,25 +138,20 @@
 | D-65 | **Organización en GitHub.** Un Issue por historia (en los dos repos para las compartidas, enlazados) y por tarea de configuración; etiquetas `type:`, `area:`, `variant:` y `priority:`; los milestones de D-63 en los dos repos; plantillas de Issue (historia, tarea, *bug*) con la Definition of Done (D-64); un tablero de GitHub Projects con los dos repos (Backlog → Por hacer → En curso → En revisión → Hecho) y un campo de horas. Los Issues, etiquetas y milestones se crean con `gh`; el tablero lo crea el dueño desde la web | Issues, `.github/ISSUE_TEMPLATE/`, `docs/plan/PLAN-ENTREGA.md` | Ambos | 20-11 |
 | D-66 | **Ajustes al diseño inicial aceptados** (DIS-01 a DIS-16, `docs/design/REVISION-DISENO.md`). El diseño de @dicpc es una propuesta visual que se adapta a lo definido. Cambios en reglas: RN-HL-71 (salir también guarda el récord, como en Merge) y NAV-05 / RF-08 pasa a *Should*. El PDF queda en `docs/design/` | REVISION-DISENO; RN-HL-71; RF-08 | Ambos | 20-11 |
 
-### Partida y persistencia local
+### Documentos y seguridad (revisión del 20-11)
 
 | ID | Decisión | Dónde quedó | Repos | Fecha |
 |---|---|---|---|---|
-| D-37 | **Partida guardada:** tabla Drift `saved_games`, una por perfil, variante y figura. Se guarda **después de cada turno válido** y al pasar la app a segundo plano (estado completo, generador, historial de deshacer y tiempo activo). Al volver se ofrece **Continuar** y la partida sigue **en pausa**; el tiempo con la app cerrada no cuenta. Se borra al terminar la partida o al empezar otra de la misma variante y figura | RN-COM-32 a 35, RF-64, NAV-04, ARQ-01-APP §4.2, ADR-001 §2.1 | App | 17-11 |
-
-### Motor genérico (Paso 3)
-
-| ID | Decisión | Dónde quedó | Repos | Fecha |
-|---|---|---|---|---|
-| D-07 | **Coordenada como parámetro genérico (opción A).** `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<TCoord, TCell, TMove, TState>`; `HexBoard<TCell>` es un `typedef` de `Board<HexCoord, TCell>` en `hexa_topologies` | ARQ-01-APP §4.1, §9; ARQ-02 §3; TEC-01; glosario | App | 11-11 |
-| D-29 | **Despacho de la figura:** registro de topologías + **Visitor** genérico (`accept` → `visit<C>`), sin `switch` ni casts; en la app, cada figura se registra junto con su layout. `TCoord` llega hasta el widget del tablero | ARQ-02 §3 | App | 17-11 |
-| D-30 | **Tipos genéricos:** estado **inmutable**; celda vacía = `null` con `TCell extends Object`; movimientos *sealed* por variante; `TState extends GameState<C, TCell>`; en Hexa Merge, `Tile implements Mergeable<Tile>` en vez de `int`. Instanciación por variante en ARQ-02 §4.2 | ARQ-02 §4 | App | 17-11 |
-| D-31 | **Deshacer y rehacer:** **Command + Memento** con un `UndoHistory` genérico que configura la fábrica de cada variante (sin límite + rehacer en Fit; límite 1 sin rehacer en Merge; nada en Lines y Sort); la fase decide si se puede deshacer | ARQ-02 §5 | App | 17-11 |
-| D-32 | **Eventos de dominio:** las reglas **devuelven** los eventos en orden; la pantalla los recibe como **valor de retorno** de `submit` (`MoveResult`). El `Stream` del motor (Observer) queda para el historial y el cronómetro (síncronos) y para el audio y la analítica. Base `abstract base` y una familia *sealed* por variante | ARQ-02 §6 | App | 17-11 |
-| D-33 | **Capacidades opcionales:** `IUndoable`, `ITimed`, `IRandomSeeded` e `ILevelBased`, implementadas por componentes que la fábrica compone en una `GameSession` (Lines no tiene `IUndoable`); puerto `IMonotonicClock` en el dominio | ARQ-02 §7 | App | 17-11 |
-| D-34 | **Fases de la partida:** patrón **State** con una jerarquía *sealed* (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); `Victory(canContinue)` para que Hexa Merge siga tras la victoria | ARQ-02 §8 | App | 17-11 |
-| D-35 | **Patrones de diseño del dominio (14).** Creacionales: Abstract Factory, Builder, Factory Method. Estructurales: Bridge, Composite, Decorator. De comportamiento: Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor. Cómo se protege el Template Method sigue abierto en D-36 | ARQ-02 §9 | App | 17-11 |
-| D-36 | **Protección del Template Method (opción B):** regla en la plantilla de PR y una prueba de arquitectura en CI que falla si alguna clase de `hexa_variants` declara `playTurn`. Sin `package:meta`, porque el enunciado §3.4 no permite dependencias externas en la capa 1; la composición queda descartada porque el §3.3 pide una clase abstracta | ARQ-02 §9.6; plantilla de PR | App | 20-11 |
+| D-02 | **Reparto de variantes y áreas:** queda cubierto por D-62 y por el responsable de cada Issue (Hexa Merge, @DanielHaro28; el resto, en `PLAN-ENTREGA.md` §5) | D-62; `PLAN-ENTREGA.md` | Ambos | 20-11 |
+| D-67 | **Registro único de decisiones:** este archivo. Los ARQ ya no tienen tablas "Decisiones de este documento": citan los IDs. Las decisiones con ID propio de los ARQ (`ARQ-A-*`, `ARQ-B-*`, `ARQ-S-*`) que no tenían una D-* están aquí con su ID de siempre | ARQ-00 §6, ARQ-01-APP §9, ARQ-01-API §9, ARQ-02 §12, ARQ-03-APP §10 | Ambos | 20-11 |
+| D-68 | **`ARQ-02-MOTOR.md`:** empieza con el diseño final en una página; las preguntas con sus opciones pasan a un anexo. Se borra ARQ-01-APP §10 (preguntas ya respondidas) | ARQ-02; ARQ-01-APP | App | 20-11 |
+| D-69 | **Tareas en un solo lugar:** las tareas (G-*, W-*, A-*, R-*, T-*) viven solo en los Issues. `PENDIENTES.md` tiene las decisiones abiertas y las preguntas al profesor; la hoja de ruta de los pasos está en `PLAN-ENTREGA.md` | `PENDIENTES.md`; `PLAN-ENTREGA.md` §6 | Ambos | 20-11 |
+| D-70 | **`docs/ai/` se reemplaza por `CLAUDE.md`** en cada repo (reglas de trabajo y mapa de documentos) en el Paso 8, y se borra | T-01 (Paso 8) | Ambos | 20-11 |
+| D-71 | **README:** tiene el texto final de patrones, SOLID, AOP y motor genérico (enunciado §6.1), con enlaces al código; los ARQ guardan la justificación y enlazan al README. Se escribe en T-07 | T-07; ARQ-02 §9, ARQ-03-APP §5, §7, §8 | Ambos | 20-11 |
+| D-72 | **Revisión automática de documentos:** los scripts están en `hexablock-app/tools/docs-check/` y corren en el CI de los dos repos (IDs, tablas, ejemplos, documentos compartidos y copia del contrato). `DECISIONES.md` se edita a mano | `tools/docs-check/`; `.github/workflows/docs-check.yml` | Ambos | 20-11 |
+| D-73 | **Binarios:** el PDF del diseño se queda. No se suben archivos binarios de más de 1 MB; las versiones nuevas del diseño van como enlace o como PNG de las pantallas que cambian. Las imágenes de los diagramas se regeneran solo cuando cambia su fuente | `docs/README.md`; `tools/docs-check/` | Ambos | 20-11 |
+| D-74 | **Reporte de vulnerabilidades:** *Private vulnerability reporting* de GitHub, sin publicar correos; `SECURITY.md` en la raíz de cada repo explica cómo usarlo | `SECURITY.md`; SECURITY §7 | Ambos | 20-11 |
+| D-75 | **Keystore de firma del APK (SEC-MOB-07):** nunca está en el repo; va en base64 en un secreto del environment `release`, restringido a tags `v*`; el CI genera `key.properties` y lo borra al terminar; el dueño guarda una copia fuera de línea | SECURITY §5 (SEC-MOB-07); ADR-001 §2.4 | Ambos | 20-11 |
 
 ## 2. Respuestas del profesor y del enunciado
 

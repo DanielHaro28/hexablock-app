@@ -249,6 +249,8 @@ Como `ApplyMoveUseCase` es genérico, sus aspectos aplican a las 4 variantes sin
 
 ## 7. Mapa completo de patrones de la app (para el README)
 
+> El texto final de esta sección va en el README, con enlaces al código; aquí queda la justificación (D-71, T-07).
+
 Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con su ubicación prevista en el código:
 
 | Patrón | Categoría | Capa | Dónde (ruta prevista) |
@@ -276,6 +278,8 @@ Total: 4 creacionales, 6 estructurales y 8 de comportamiento. RNF-09 pide al men
 
 ## 8. SOLID, con un ejemplo real cada uno (RNF-08)
 
+> El texto final de esta sección va en el README, con enlaces al código; aquí queda la justificación (D-71, T-07).
+
 | Principio | Ejemplo | Por qué lo cumple |
 |---|---|---|
 | **S**, responsabilidad única | `HexaLinesRules` solo valida y aplica; la puntuación está en `LinesScoring`, las piezas en `WeightedRandomPieceSource` y el guardado en `DriftSavedGameRepository` | Cambiar la fórmula de puntaje no toca las reglas ni la persistencia |
@@ -296,10 +300,4 @@ Cuando el código exista, los nombres del diagrama de clases se revisan contra l
 
 ## 10. Decisiones de este documento
 
-| ID | Decisión | Sección |
-|---|---|---|
-| D-38 | `UseCase<TIn, TOut>` con `execute` | §1 |
-| D-39 | Excepciones tipadas por dentro, `Result` hacia la pantalla | §2 |
-| D-40 | Aspectos: registro, métricas, errores y reintentos, sesión | §5.1 |
-| D-41 | Orden sesión → errores → métricas → registro, con `AspectChain` | §5.2 |
-| D-43 | Clases en PlantUML; capas y extensibilidad en Mermaid | §9 |
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67).

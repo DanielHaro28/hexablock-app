@@ -21,7 +21,7 @@ Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ay
 
 | Milestone | Fechas | Issues | Horas | Meta |
 |---|---|---|---|---|
-| M0 · Preparación | 20 al 23-11 | 15 | 32.5 | Repos listos, CI, AWS, Claude Code configurado |
+| M0 · Preparación | 20 al 23-11 | 16 | 33 | Repos listos, CI, AWS, Claude Code configurado |
 | M1 · Base jugable | 24 al 30-11 | 25 | 120.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
 | M2 · Las otras tres variantes | 1 al 7-12 | 23 | 128 | Merge, Fit y Sort jugables con sus 25 niveles; progreso local; API completa |
 | M3 · Conectado y entregable | 8 al 12-12 | 20 | 80 | Conectado (sincronización, ranking, invitado), extensibilidad, documentación y APK firmado |
@@ -35,7 +35,7 @@ El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 |---|---|---|
 | @dicpc | 113 h | 16 h |
 | @DavidCR20 | 120 h | 26 h |
-| @DanielHaro28 | 128 h | 0 h |
+| @DanielHaro28 | 128.5 h | 0 h |
 
 Es una estimación con Claude Code escribiendo la mayor parte del código (D-62). Se anota el tiempo real en el campo **Estimación (h)** del tablero y se recalcula al cerrar M1.
 
@@ -49,8 +49,8 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
 
 - **Proyecto:** [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (Project de usuario n.º 1, privado), vinculado a `hexablock-app` y `hexablock-api`. @dicpc y @DavidCR20 tienen permiso de escritura.
 - **Columnas (campo Status):** Backlog → Por Hacer → En Curso → En revision → Hecho. Backlog es el valor por defecto.
-- **Contenido:** los 86 Issues. Los de M0 y M1 (40) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
-- **Campo numérico Estimación (h):** tiene las horas de la sección 5 en los 86 Issues, 403 h en total.
+- **Contenido:** los 87 Issues (86 del 20-11 y G-01, que se agregó al pasar las tareas a Issues, D-69). Los de M0 y M1 (41) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
+- **Campo numérico Estimación (h):** tiene las horas de la sección 5 en todos los Issues, 403.5 h en total.
 - **Vistas:**
   - **Tablero:** las columnas.
   - **Tabla:** agrupada por milestone, con la suma de Estimación (h) por grupo.
@@ -65,7 +65,7 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
 
 ## 5. Issues
 
-Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos para las compartidas, enlazadas entre sí). Las tareas `G-*`, `W-*`, `A-*` y `R-*` vienen de `docs/PENDIENTES.md`; las `T-*` se definen aquí:
+Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos para las compartidas, enlazadas entre sí). Las tareas `G-*`, `W-*`, `A-*` y `R-*` vinieron de `docs/PENDIENTES.md` y ahora solo viven como Issues (D-69); las `T-*` se definen aquí:
 
 | ID | Tarea |
 |---|---|
@@ -95,7 +95,8 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #22](https://github.com/DanielHaro28/hexablock-app/issues/22) | R-01 · Versiones exactas de Flutter, Dart, Node, NestJS, Prisma y PostgreSQL en los README | @DanielHaro28 | 1 |
 | [app #71](https://github.com/DanielHaro28/hexablock-app/issues/71) | T-03 · Esqueleto del workspace Flutter (pub workspace, 4 paquetes y la app) | @DavidCR20 | 3 |
 | [app #74](https://github.com/DanielHaro28/hexablock-app/issues/74) | A-02 · Ninguna máquina de desarrollo con la clave SSH de EC2 ni credenciales de AWS de escritura | @DanielHaro28, @DavidCR20, @dicpc | 0.5 |
-| [app #77](https://github.com/DanielHaro28/hexablock-app/issues/77) | R-03 · Quitar *.lock del .gitignore antes del primer commit de código | @DavidCR20 | 0.5 |
+| [app #77](https://github.com/DanielHaro28/hexablock-app/issues/77) | R-03 · Reemplazar el .gitignore de la app por la plantilla de app de Flutter (sin *.lock) | @DavidCR20 | 0.5 |
+| [app #83](https://github.com/DanielHaro28/hexablock-app/issues/83) | G-01 · Aceptar las invitaciones a los repos y asignar los Issues pendientes | @DanielHaro28 | 0.5 |
 
 ### M1 · Base jugable
 
@@ -188,4 +189,23 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #69](https://github.com/DanielHaro28/hexablock-app/issues/69) | TEC-08 · Cubos en el dominio | @DavidCR20 | 10 |
 | [app #70](https://github.com/DanielHaro28/hexablock-app/issues/70) | TEC-09 · Vista 3D | @dicpc | 16 |
 
-**Asignación pendiente:** @DavidCR20, @dicpc todavía no podían ser asignados el 20-11 (invitación sin aceptar). Sus Issues ya dicen quién es el responsable en el texto; cuando acepten, se asignan en bloque desde la sesión de planificación o a mano en cada Issue (G-01).
+**Asignación pendiente:** @DavidCR20, @dicpc todavía no podían ser asignados el 20-11 (invitación sin aceptar). Sus Issues ya dicen quién es el responsable en el texto; cuando acepten, se asignan en bloque con `python3 -I tools/planning/assign_pending.py` (G-01, app #83).
+
+## 6. Hoja de ruta de la planificación
+
+Los pasos de diseño antes de escribir código (antes en `PENDIENTES.md` §3, D-69).
+
+| Paso | Qué | Repo | Estado |
+|---|---|---|---|
+| 0 | `ADR-001-tech-stack.md` y `SECURITY-BASELINE.md` | Ambos (compartidos) | ✅ ADR rev. 1.9; SECURITY revisado el 20-11 |
+| 1 | Requisitos: glosario, reglas de negocio, RF y RNF, historias, trazabilidad (`docs/requirements/`) | Ambos | ✅ Hecho; cada integrante los revisa al tomar sus Issues |
+| 2 | Arquitectura general: ARQ-00 (compartido), ARQ-01-APP, ARQ-01-API | Ambos | ✅ D-21 a D-23 (17-11); ARQ-S-02 y ARQ-S-03 por confirmar (`PENDIENTES.md`) |
+| 3 | Motor genérico: `ARQ-02-MOTOR.md` | App | ✅ D-29 a D-36 |
+| 4 | Arquitectura detallada: ARQ-03, diagramas, `EXTENSIBILITY.md` | Ambos | ✅ D-38 a D-43 (19-11); falta `clases.png` (R-04) |
+| 5 | Contratos y modelos de datos: `docs/contracts/`, ARQ-04 | Ambos | ✅ D-44 a D-52 (19-11) |
+| 6 | Contenido y pruebas: 25 niveles, generador, estrategia de pruebas | App (+ API) | ✅ D-53 a D-61 (20-11); revisión de los niveles en el APK (R-05) |
+| 7 | Plan: Issues, milestones, Definition of Done, tablero | Ambos | ✅ D-62 a D-66 (20-11); tablero creado (T-02) |
+| 7b | Revisión de organización y seguridad de los documentos | Ambos | ✅ D-67 a D-75 (20-11) |
+| 8 | Claude Code: `CLAUDE.md` (reemplaza `docs/ai/`, D-70), `.claude/settings.json`, agentes | Ambos | ☐ T-01 (M0) |
+
+**Topologías adicionales** (TEC-07 a TEC-09): después de tener las 4 variantes jugables con hexágonos.

@@ -162,7 +162,7 @@ Las decisiones están en `docs/DECISIONES.md` de cada repo (D-67). Los IDs propi
 | ID | Dónde está ahora |
 |---|---|
 | ARQ-S-01 | P-08 (offline-first: el dispositivo es la fuente primaria del progreso) |
-| ARQ-S-02 | Por confirmar en `hexablock-app/docs/PENDIENTES.md` §1 (el servidor no ejecuta reglas de juego) |
-| ARQ-S-03 | Por confirmar en `hexablock-app/docs/PENDIENTES.md` §1 (consolidación en Dart y TypeScript con ejemplos compartidos) |
+| ARQ-S-02 | `DECISIONES.md` (el servidor no ejecuta reglas de juego; confirmada el 20-11) |
+| ARQ-S-03 | `DECISIONES.md` (consolidación en Dart y TypeScript con ejemplos compartidos; confirmada el 20-11) |
 | ARQ-S-04 | D-48 y D-49 (sincronización incremental y descarga de niveles por cursor) |
 | ARQ-S-05 | D-23 (contrato con fuente única en `hexablock-api`) |

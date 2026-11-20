@@ -199,7 +199,7 @@ Los pasos de diseño antes de escribir código (antes en `PENDIENTES.md` §3, D-
 |---|---|---|---|
 | 0 | `ADR-001-tech-stack.md` y `SECURITY-BASELINE.md` | Ambos (compartidos) | ✅ ADR rev. 1.9; SECURITY revisado el 20-11 |
 | 1 | Requisitos: glosario, reglas de negocio, RF y RNF, historias, trazabilidad (`docs/requirements/`) | Ambos | ✅ Hecho; cada integrante los revisa al tomar sus Issues |
-| 2 | Arquitectura general: ARQ-00 (compartido), ARQ-01-APP, ARQ-01-API | Ambos | ✅ D-21 a D-23 (17-11); ARQ-S-02 y ARQ-S-03 por confirmar (`PENDIENTES.md`) |
+| 2 | Arquitectura general: ARQ-00 (compartido), ARQ-01-APP, ARQ-01-API | Ambos | ✅ D-21 a D-23 (17-11); ARQ-S-02 y ARQ-S-03 confirmadas (20-11) |
 | 3 | Motor genérico: `ARQ-02-MOTOR.md` | App | ✅ D-29 a D-36 |
 | 4 | Arquitectura detallada: ARQ-03, diagramas, `EXTENSIBILITY.md` | Ambos | ✅ D-38 a D-43 (19-11); falta `clases.png` (R-04) |
 | 5 | Contratos y modelos de datos: `docs/contracts/`, ARQ-04 | Ambos | ✅ D-44 a D-52 (19-11) |

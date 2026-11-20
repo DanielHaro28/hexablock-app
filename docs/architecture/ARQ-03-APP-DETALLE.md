@@ -8,7 +8,7 @@
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
 | Fija | Forma de los casos de uso, manejo de errores, firmas de casos de uso y puertos, adaptadores, aspectos AOP y su orden, *composition root*, mapa completo de patrones y ejemplos de SOLID |
 | No fija | Tablas de Drift (`ARQ-04-APP-DATOS.md`), JSON de niveles y `openapi.yaml` (`docs/contracts/`), ambos del Paso 5 |
-| Diagramas | `docs/diagrams/clases.puml` (PlantUML), `capas.mmd` y `extensibilidad.mmd` (Mermaid) |
+| Diagramas | `docs/diagrams/clases*.puml` (PlantUML: general y tres de detalle, D-76), `capas.mmd` y `extensibilidad.mmd` (Mermaid) |
 
 > Los esbozos de Dart siguen sin compilar (no hay SDK en la planificación); se validan en el *spike* de TEC-01, junto con los de `ARQ-02-MOTOR.md`. El código va en inglés.
 
@@ -292,11 +292,14 @@ Total: 4 creacionales, 6 estructurales y 8 de comportamiento. RNF-09 pide al men
 
 | Diagrama | Fuente editable | Imagen para el README | Cómo se genera |
 |---|---|---|---|
-| Clases (notación UML de plantilla, §4.1) | `docs/diagrams/clases.puml` | `docs/diagrams/clases.png` | DanielHaro28, con la extensión de PlantUML de VS Code (exportar a PNG en alta resolución) |
+| Clases, general (notación UML de plantilla, §4.1) | `docs/diagrams/clases.puml` | `docs/diagrams/clases.png` | DanielHaro28, con la extensión de PlantUML de VS Code (exportar a PNG) |
+| Clases, detalle del motor | `docs/diagrams/clases-motor.puml` | `docs/diagrams/clases-motor.png` | Igual |
+| Clases, detalle de las variantes | `docs/diagrams/clases-variantes.puml` | `docs/diagrams/clases-variantes.png` | Igual |
+| Clases, detalle de aplicación y adaptadores | `docs/diagrams/clases-aplicacion.puml` | `docs/diagrams/clases-aplicacion.png` | Igual |
 | Capas Clean (§4.2) | `docs/diagrams/capas.mmd` | `docs/diagrams/capas.png` | Generada con Mermaid al escribirlo |
 | Extensibilidad (§4.3) | `docs/diagrams/extensibilidad.mmd` | `docs/diagrams/extensibilidad.png` | Generada con Mermaid al escribirlo |
 
-Cuando el código exista, los nombres del diagrama de clases se revisan contra las clases reales.
+El general muestra las 4 capas y las interfaces por las que se comunican; los de detalle repiten esas interfaces solo con su nombre (marcadas «motor») para que se pueda seguir de uno a otro (D-76). Cuando el código exista, los nombres se revisan contra las clases reales.
 
 ## 10. Decisiones de este documento
 

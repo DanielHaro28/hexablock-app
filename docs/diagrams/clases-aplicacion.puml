@@ -1,0 +1,244 @@
+@startuml clases-aplicacion
+' Diagrama de clases de DETALLE: casos de uso, puertos y aspectos AOP (capa 2),
+' adaptadores y presentadores (capa 3) y composition root (capa 4).
+' Parte de clases.puml (D-76). Las clases marcadas «motor» están completas en
+' clases-motor.puml; aquí solo aparece su nombre para mostrar la conexión.
+' Imagen: abrir este archivo → Ctrl+Shift+P → "PlantUML: Export Current Diagram" → png.
+' Los nombres son los previstos en ARQ-03; se revisan contra el código real.
+
+set namespaceSeparator none
+hide circle
+hide <<motor>> members
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #333333
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #FFFFFF
+skinparam PackageBorderColor #999999
+skinparam nodesep 30
+skinparam ranksep 45
+
+package "Capa 4 · Frameworks (app/lib/frameworks, config)" {
+  interface VariantModule <<interface>> {
+    + open<C extends Coord>(e: TopologyEntry<C>, o: StartOptions): Widget
+  }
+  class HexaLinesModule {
+    + open<C extends Coord>(e: TopologyEntry<C>, o: StartOptions): Widget
+  }
+  class Injection <<Singleton via get_it>> {
+    + registerAll(): void
+  }
+  class AudioFacade <<Facade>> {
+    + onEvent(e: GameEvent): void
+  }
+}
+
+package "Capa 3 · Adaptadores (app/lib/adapters)" {
+  class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
+    - applyMove: UseCase<TMove, Result<MoveResult>>
+    - undo: UseCase<void, Result<TState>>
+    + onMove(m: TMove): void
+    + onUndo(): void
+  }
+  class DriftSavedGameRepository<TState> <<Adapter>> {
+    - db: AppDatabase
+    - codec: IGameStateCodec<TState>
+    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
+    + flush(): Future<void>
+  }
+  class LinesStateCodec <<Adapter>> {
+    + encode(s: LinesState): Map<String, Object?>
+    + decode(json: Map<String, Object?>): LinesState
+  }
+  class DriftProgressRepository <<Adapter>> {
+    - db: AppDatabase
+    + load(p: ProfileId, k: GameKey): Future<VariantProgress?>
+    + save(p: ProfileId, k: GameKey, v: VariantProgress): Future<void>
+  }
+  class DriftSyncOutbox <<Adapter>> {
+    - db: AppDatabase
+    + pending(p: ProfileId): Future<List<ResultKey>>
+  }
+  class HttpProgressGateway <<Adapter>> {
+    - http: Dio
+    + push(k: GameKey, v: VariantProgress): Future<VariantProgress>
+  }
+  class HttpAuthGateway <<Adapter>> {
+    - http: Dio
+    + login(c: Credentials): Future<AuthToken>
+  }
+  class SecureSessionStore <<Adapter>> {
+    - storage: FlutterSecureStorage
+    + read(): Future<Session?>
+    + write(s: Session): Future<void>
+  }
+}
+
+package "Capa 2 · Casos de uso (hexa_application)" {
+  interface UseCase<TIn, TOut> <<interface>> {
+    + execute(input: TIn): Future<TOut>
+  }
+  abstract class Result<T> <<sealed>> {
+    + isSuccess: bool
+  }
+  class AspectChain {
+    + wrap<TIn, TOut>(u: UseCase<TIn, TOut>): UseCase<TIn, Result<TOut>>
+  }
+  class SessionAspect<TIn, TOut> <<Proxy>> <<AOP>> {
+    - inner: UseCase<TIn, TOut>
+    - session: ISessionStore
+  }
+  class ErrorHandlingAspect<TIn, TOut> <<Decorator>> <<AOP>> {
+    - inner: UseCase<TIn, TOut>
+    - retry: RetryPolicy
+  }
+  class MetricsAspect<TIn, TOut> <<Decorator>> <<AOP>> {
+    - inner: UseCase<TIn, TOut>
+    - metrics: IMetrics
+  }
+  class LoggingAspect<TIn, TOut> <<Decorator>> <<AOP>> {
+    - inner: UseCase<TIn, TOut>
+    - logger: ILogger
+  }
+  interface RetryPolicy <<interface>> <<Strategy>> {
+    + shouldRetry(e: Object, attempt: int): bool
+  }
+
+  class StartGameUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
+    + execute(o: StartOptions): Future<GameSession>
+  }
+  class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
+    + execute(m: TMove): Future<MoveResult>
+  }
+  class UndoMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
+    + execute(): Future<TState>
+  }
+  class SaveProgressUseCase {
+    + execute(r: GameResult): Future<VariantProgress>
+  }
+  class SyncProgressUseCase {
+    + execute(): Future<SyncReport>
+  }
+  class LoginUseCase {
+    + execute(c: Credentials): Future<Profile>
+  }
+
+  interface ISavedGameRepository<TState> <<interface>> {
+    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
+    + flush(): Future<void>
+    + load(k: SavedGameKey): Future<SavedGame<TState>?>
+  }
+  interface IGameStateCodec<TState> <<interface>> {
+    + encode(s: TState): Map<String, Object?>
+    + decode(json: Map<String, Object?>): TState
+  }
+  interface IProgressRepository <<interface>> {
+    + load(p: ProfileId, k: GameKey): Future<VariantProgress?>
+    + save(p: ProfileId, k: GameKey, v: VariantProgress): Future<void>
+  }
+  interface ISyncOutbox <<interface>> {
+    + markPending(p: ProfileId, k: GameKey, r: ResultKey): Future<void>
+    + pending(p: ProfileId): Future<List<ResultKey>>
+  }
+  interface IProgressGateway <<interface>> {
+    + push(k: GameKey, v: VariantProgress): Future<VariantProgress>
+  }
+  interface IAuthGateway <<interface>> {
+    + login(c: Credentials): Future<AuthToken>
+  }
+  interface ISessionStore <<interface>> {
+    + read(): Future<Session?>
+    + write(s: Session): Future<void>
+  }
+  interface ILogger <<interface>> {
+    + log(e: LogEntry): void
+  }
+  interface IMetrics <<interface>> {
+    + record(name: String, elapsed: Duration): void
+  }
+}
+
+package "Capa 1 · hexa_engine (detalle en clases-motor)" {
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<motor>>
+  class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
+  abstract class GameEvent<C extends Coord> <<motor>>
+}
+
+' ===== Capa 4 =====
+HexaLinesModule ..|> VariantModule
+Injection ..> VariantModule : registra
+HexaLinesModule ..> GameCubit : crea
+HexaLinesModule ..> AspectChain : usa
+HexaLinesModule ..> StartGameUseCase : crea
+AudioFacade ..> GameEvent : escucha
+
+' ===== Capa 3 → capa 2 =====
+GameCubit --> UseCase : casos de uso envueltos
+DriftSavedGameRepository ..|> ISavedGameRepository
+DriftSavedGameRepository --> IGameStateCodec
+LinesStateCodec ..|> IGameStateCodec : «bind» TState = LinesState
+DriftProgressRepository ..|> IProgressRepository
+DriftSyncOutbox ..|> ISyncOutbox
+HttpProgressGateway ..|> IProgressGateway
+HttpAuthGateway ..|> IAuthGateway
+SecureSessionStore ..|> ISessionStore
+
+' ===== Aspectos (AOP con decoradores, D-40 y D-41) =====
+SessionAspect ..|> UseCase
+ErrorHandlingAspect ..|> UseCase
+MetricsAspect ..|> UseCase
+LoggingAspect ..|> UseCase
+SessionAspect o-- UseCase : protege
+ErrorHandlingAspect o-- UseCase : envuelve
+MetricsAspect o-- UseCase : envuelve
+LoggingAspect o-- UseCase : envuelve
+AspectChain ..> SessionAspect : arma
+AspectChain ..> ErrorHandlingAspect : arma
+AspectChain ..> MetricsAspect : arma
+AspectChain ..> LoggingAspect : arma
+ErrorHandlingAspect --> RetryPolicy
+ErrorHandlingAspect ..> Result : devuelve
+SessionAspect --> ISessionStore
+MetricsAspect --> IMetrics
+LoggingAspect --> ILogger
+
+' ===== Casos de uso → puertos =====
+StartGameUseCase ..|> UseCase
+ApplyMoveUseCase ..|> UseCase
+UndoMoveUseCase ..|> UseCase
+SaveProgressUseCase ..|> UseCase
+SyncProgressUseCase ..|> UseCase
+LoginUseCase ..|> UseCase
+StartGameUseCase --> ISavedGameRepository
+ApplyMoveUseCase --> ISavedGameRepository
+UndoMoveUseCase --> ISavedGameRepository
+SaveProgressUseCase --> IProgressRepository
+SaveProgressUseCase --> ISyncOutbox
+SyncProgressUseCase --> IProgressGateway
+SyncProgressUseCase --> IProgressRepository
+SyncProgressUseCase --> ISyncOutbox
+LoginUseCase --> IAuthGateway
+LoginUseCase --> ISessionStore
+
+' ===== Capa 2 → capa 1 =====
+StartGameUseCase --> VariantFamily : crea la sesión
+ApplyMoveUseCase --> GameSession : usa
+UndoMoveUseCase --> GameSession : usa
+
+legend right
+  **Cómo leerlo**
+  «motor» = clase de hexa_engine, completa en clases-motor.puml
+  ..|> implementa una interfaz · --> usa · ..> crea o usa de paso
+  o-- agregación (el aspecto envuelve otro caso de uso)
+  «bind» = instancia un parámetro genérico · «...» = patrón de diseño (ARQ-03 §7)
+  Orden de los aspectos: sesión → errores → métricas → registro (D-41)
+  Los otros casos de uso (niveles, ranking, registro, invitado, ajustes) siguen
+  el mismo camino: UseCase → puerto de la capa 2 → adaptador de la capa 3 (ARQ-03 §3, §4)
+  Fit, Sort y Merge tienen su módulo y su codec como Hexa Lines
+endlegend
+
+@enduml

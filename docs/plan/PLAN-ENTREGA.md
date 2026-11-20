@@ -164,7 +164,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #10](https://github.com/DanielHaro28/hexablock-app/issues/10) | API-03 · Sincronizar mi progreso por juego | @DanielHaro28 | 8 |
 | [app #11](https://github.com/DanielHaro28/hexablock-app/issues/11) | API-07 · Cerrar sesión | @DanielHaro28 | 2 |
 | [app #15](https://github.com/DanielHaro28/hexablock-app/issues/15) | T-06 · Release: APK firmado en GitHub Releases | @DanielHaro28 | 3 |
-| [app #23](https://github.com/DanielHaro28/hexablock-app/issues/23) | R-04 · Generar clases.png desde clases.puml en los dos repos | @DanielHaro28 | 2 |
+| [app #23](https://github.com/DanielHaro28/hexablock-app/issues/23) | R-04 · Generar las imágenes de los diagramas de clases en los dos repos | @DanielHaro28 | 2 |
 | [app #28](https://github.com/DanielHaro28/hexablock-app/issues/28) | NAV-05 · Consultar cómo se juega | @dicpc | 4 |
 | [app #29](https://github.com/DanielHaro28/hexablock-app/issues/29) | NAV-06 · Acceder a mi cuenta desde la app | @dicpc | 4 |
 | [app #30](https://github.com/DanielHaro28/hexablock-app/issues/30) | NAV-07 · Ver el ranking en la app | @dicpc | 6 |
@@ -201,7 +201,7 @@ Los pasos de diseño antes de escribir código (antes en `PENDIENTES.md` §3, D-
 | 1 | Requisitos: glosario, reglas de negocio, RF y RNF, historias, trazabilidad (`docs/requirements/`) | Ambos | ✅ Hecho; cada integrante los revisa al tomar sus Issues |
 | 2 | Arquitectura general: ARQ-00 (compartido), ARQ-01-APP, ARQ-01-API | Ambos | ✅ D-21 a D-23 (17-11); ARQ-S-02 y ARQ-S-03 confirmadas (20-11) |
 | 3 | Motor genérico: `ARQ-02-MOTOR.md` | App | ✅ D-29 a D-36 |
-| 4 | Arquitectura detallada: ARQ-03, diagramas, `EXTENSIBILITY.md` | Ambos | ✅ D-38 a D-43 (19-11); falta `clases.png` (R-04) |
+| 4 | Arquitectura detallada: ARQ-03, diagramas, `EXTENSIBILITY.md` | Ambos | ✅ D-38 a D-43 (19-11); faltan las imágenes de los diagramas de clases (R-04, D-76) |
 | 5 | Contratos y modelos de datos: `docs/contracts/`, ARQ-04 | Ambos | ✅ D-44 a D-52 (19-11) |
 | 6 | Contenido y pruebas: 25 niveles, generador, estrategia de pruebas | App (+ API) | ✅ D-53 a D-61 (20-11); revisión de los niveles en el APK (R-05) |
 | 7 | Plan: Issues, milestones, Definition of Done, tablero | Ambos | ✅ D-62 a D-66 (20-11); tablero creado (T-02) |

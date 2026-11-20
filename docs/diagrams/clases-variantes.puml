@@ -1,0 +1,209 @@
+@startuml clases-variantes
+' Diagrama de clases de DETALLE: las 4 variantes (capa 1: hexa_variants) y cómo
+' cada una instancia los tipos genéricos del motor (ARQ-02 §4.2).
+' Parte de clases.puml (D-76). Las clases marcadas «motor» están completas en
+' clases-motor.puml; aquí solo aparece su nombre para mostrar la conexión.
+' Imagen: abrir este archivo → Ctrl+Shift+P → "PlantUML: Export Current Diagram" → png.
+' Los nombres son los previstos en ARQ-02; se revisan contra el código real.
+
+set namespaceSeparator none
+hide circle
+hide <<motor>> members
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam ArrowColor #333333
+skinparam ClassBorderColor #333333
+skinparam ClassBackgroundColor #FFFFFF
+skinparam PackageBorderColor #999999
+skinparam nodesep 30
+skinparam ranksep 45
+
+package "Capa 1 · hexa_engine (detalle en clases-motor)" {
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<motor>>
+  abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
+  interface GameState<C extends Coord, TCell extends Object> <<motor>>
+  interface IPieceSource<TPiece> <<motor>>
+  interface IScoringPolicy<TState> <<motor>>
+  interface Mergeable<T extends Mergeable> <<motor>>
+  interface IRandomSeeded <<motor>>
+  interface ILevelBased <<motor>>
+}
+
+package "Capa 1 · hexa_variants · hexa_lines" {
+  class HexaLinesFactory<C extends Coord> {
+    + createRules(): HexaLinesRules<C>
+    + createSession(o: StartOptions): GameSession
+  }
+  class HexaLinesRules<C extends Coord> {
+    # apply(s: LinesState<C>, m: PlacePiece<C>): Step
+    # resolve(s: LinesState<C>): Step
+    # afterResolve(s: LinesState<C>): Step
+  }
+  class LinesState<C extends Coord> {
+    + tray: List<LinesPiece<C>>
+    + streak: int
+    + seed: int
+  }
+  class PlacePiece<C extends Coord> {
+    + trayIndex: int
+    + anchor: C
+  }
+  enum PieceColor
+  class LinesScoring<C extends Coord> {
+    + pointsFor(s: LinesState<C>): int
+  }
+  class StreakMultiplier<C extends Coord> <<Decorator>> {
+    - inner: IScoringPolicy
+    + pointsFor(s: LinesState<C>): int
+  }
+  class WeightedRandomPieceSource<C extends Coord> {
+    + next(): (LinesPiece<C>, IPieceSource)
+  }
+}
+
+package "Capa 1 · hexa_variants · hexa_fit" {
+  class HexaFitFactory<C extends Coord> {
+    + createRules(): HexaFitRules<C>
+  }
+  class HexaFitRules<C extends Coord> {
+    # apply(s: FitState<C>, m: FitMove<C>): Step
+    # evaluate(s: FitState<C>): GameOutcome
+  }
+  class FitState<C extends Coord> {
+    + placed: Map<PieceId, C>
+    + moves: int
+    + levelId: String
+  }
+  abstract class FitMove<C extends Coord> <<sealed>>
+  class PieceId <<extension type>>
+  class FitLevelBuilder<C extends Coord> <<Builder>> {
+    + shape(cells: Set<C>): FitLevelBuilder<C>
+    + piece(p: FitPiece<C>): FitLevelBuilder<C>
+    + build(): FitState<C>
+  }
+  class FixedPieceSource<TPiece>
+}
+
+package "Capa 1 · hexa_variants · hexa_sort" {
+  class HexaSortFactory<C extends Coord> {
+    + createRules(): HexaSortRules<C>
+  }
+  class HexaSortRules<C extends Coord> {
+    # apply(s: SortState<C>, m: PlaceStack<C>): Step
+    # resolve(s: SortState<C>): Step
+  }
+  class SortState<C extends Coord> {
+    + goals: int
+    + moves: int
+    + seed: int
+  }
+  class PlaceStack<C extends Coord> {
+    + cell: C
+  }
+  class ColorStack {
+    + colors: List<Color>
+    + topBlock: int
+  }
+  class SortLevelBuilder<C extends Coord> <<Builder>> {
+    + build(): SortState<C>
+  }
+  class RandomStackSource
+}
+
+package "Capa 1 · hexa_variants · hexa_merge" {
+  class HexaMergeFactory<C extends Coord> {
+    + createRules(): HexaMergeRules<C>
+  }
+  class HexaMergeRules<C extends Coord> {
+    # apply(s: MergeState<C>, m: Slide): Step
+    # resolve(s: MergeState<C>): Step
+  }
+  class MergeState<C extends Coord> {
+    + target: Tile
+    + seed: int
+  }
+  class Slide {
+    + direction: Direction
+  }
+  class Tile {
+    + value: int
+    + canMergeWith(o: Tile): bool
+    + mergedWith(o: Tile): Tile
+  }
+  class SlideMergeResolver<C extends Coord, T extends Mergeable> {
+    + slide(b: Board<C, T>, d: Direction): Board<C, T>
+  }
+  class RandomTileSource
+}
+
+' ===== Hexa Lines =====
+HexaLinesFactory ..|> VariantFamily : «bind» TCell = PieceColor, TMove = PlacePiece, TState = LinesState
+HexaLinesRules --|> GameRules : «bind» PieceColor, PlacePiece, LinesState
+LinesState ..|> GameState : «bind» TCell = PieceColor
+LinesState ..|> IRandomSeeded
+HexaLinesFactory ..> HexaLinesRules : crea
+HexaLinesFactory ..> LinesScoring : crea
+HexaLinesFactory ..> StreakMultiplier : crea
+HexaLinesFactory ..> WeightedRandomPieceSource : crea
+HexaLinesRules ..> PlacePiece
+LinesState ..> PieceColor
+LinesScoring ..|> IScoringPolicy
+StreakMultiplier ..|> IScoringPolicy
+StreakMultiplier o-- LinesScoring : envuelve
+WeightedRandomPieceSource ..|> IPieceSource
+
+' ===== Hexa Fit =====
+HexaFitFactory ..|> VariantFamily : «bind» TCell = PieceId, TMove = FitMove, TState = FitState
+HexaFitRules --|> GameRules : «bind» PieceId, FitMove, FitState
+FitState ..|> GameState : «bind» TCell = PieceId
+FitState ..|> ILevelBased
+HexaFitFactory ..> HexaFitRules : crea
+HexaFitFactory ..> FitLevelBuilder : usa
+HexaFitFactory ..> FixedPieceSource : crea
+HexaFitRules ..> FitMove
+FitState ..> PieceId
+FixedPieceSource ..|> IPieceSource
+
+' ===== Hexa Sort =====
+HexaSortFactory ..|> VariantFamily : «bind» TCell = ColorStack, TMove = PlaceStack, TState = SortState
+HexaSortRules --|> GameRules : «bind» ColorStack, PlaceStack, SortState
+SortState ..|> GameState : «bind» TCell = ColorStack
+SortState ..|> IRandomSeeded
+SortState ..|> ILevelBased
+HexaSortFactory ..> HexaSortRules : crea
+HexaSortFactory ..> SortLevelBuilder : usa
+HexaSortFactory ..> RandomStackSource : crea
+HexaSortRules ..> PlaceStack
+SortState ..> ColorStack
+RandomStackSource ..|> IPieceSource
+
+' ===== Hexa Merge =====
+HexaMergeFactory ..|> VariantFamily : «bind» TCell = Tile, TMove = Slide, TState = MergeState
+HexaMergeRules --|> GameRules : «bind» Tile, Slide, MergeState
+MergeState ..|> GameState : «bind» TCell = Tile
+MergeState ..|> IRandomSeeded
+Tile ..|> Mergeable : «bind» T = Tile
+HexaMergeFactory ..> HexaMergeRules : crea
+HexaMergeFactory ..> RandomTileSource : crea
+HexaMergeRules --> SlideMergeResolver : «bind» T = Tile
+HexaMergeRules ..> Slide
+MergeState ..> Tile
+RandomTileSource ..|> IPieceSource
+
+legend right
+  **Cómo leerlo**
+  «motor» = clase de hexa_engine, completa en clases-motor.puml
+  ..|> implementa una interfaz · --|> hereda
+  --> usa (dependencia que se guarda) · ..> crea o usa de paso
+  o-- agregación
+  «bind» = cómo la variante instancia los parámetros genéricos (ARQ-02 §4.2)
+  «...» en una clase = patrón de diseño (ARQ-02 §9)
+  Las 4 variantes son genéricas en C: la figura de la celda la elige el jugador
+  FitMove tiene 4 casos: PlaceFitPiece, MoveFitPiece, RemoveFitPiece, RotateFitPiece
+endlegend
+
+@enduml

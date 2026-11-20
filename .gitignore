@@ -128,3 +128,6 @@ app.*.symbols
 key.properties
 .claude/settings.local.json
 CLAUDE.local.md
+
+# PlantUML export folder of the VS Code extension (D-76)
+out/

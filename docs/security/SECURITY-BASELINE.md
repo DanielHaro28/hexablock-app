@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 20-11: keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
+| Revisión | 20-11: solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
 | Aplica a | `hexablock-app`, `hexablock-api`, infraestructura AWS y flujo de desarrollo con agentes de IA |
 | Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Tareas de configuración: Issues de los dos repos (D-69) |
 | Repositorio | **Compartido:** `docs/security/` en ambos repos; las dos copias deben ser idénticas |
@@ -20,7 +20,7 @@ Este documento fija los **controles mínimos de seguridad** del proyecto y los c
 | OWASP API Security Top 10 | 2023 (vigente) | Backend NestJS — **marco principal** |
 | OWASP Top 10 | 2025 (final enero 2026) | Backend, CI/CD, infraestructura |
 | OWASP MASVS | Versión vigente | App Flutter |
-| OWASP Top 10 for Agentic Applications | 2026 (publicado 09-12-2025) | **Nuestro flujo de desarrollo** con Claude Code / Cline (el producto no contiene agentes) |
+| OWASP Top 10 for Agentic Applications | 2026 (publicado 09-12-2025) | **Nuestro flujo de desarrollo** con Claude Code (el producto no contiene agentes) |
 
 **Prioridad (MoSCoW):** **Must** = se implementa y se prueba antes de la entrega; **Should** = se implementa si el tiempo lo permite; **Won't** = descartado conscientemente (con motivo).
 
@@ -96,7 +96,7 @@ Solo se listan los puntos no cubiertos ya en la sección 3.
 
 ## 6. Flujo de desarrollo con agentes — OWASP Top 10 for Agentic Applications (2026)
 
-El producto no incluye agentes, pero **el equipo desarrolla con agentes** (Claude Code como herramienta principal; Cline permitido). Aplicamos los principios de la lista: **mínima agencia** (el agente solo tiene el poder que necesita) y **observabilidad fuerte** (todo uso queda registrado).
+El producto no incluye agentes, pero **el equipo desarrolla con agentes** (solo Claude Code, D-87). Aplicamos los principios de la lista: **mínima agencia** (el agente solo tiene el poder que necesita) y **observabilidad fuerte** (todo uso queda registrado).
 
 | ID | Riesgo | Cómo nos afecta | Control | Prioridad |
 |---|---|---|---|---|
@@ -104,7 +104,7 @@ El producto no incluye agentes, pero **el equipo desarrolla con agentes** (Claud
 | SEC-AGT-02 | **ASI02 Mal uso de herramientas** / **ASI05 Ejecución de código inesperada** | El agente ejecuta comandos destructivos (`rm -rf`, `git push --force`, `prisma migrate reset`, `docker system prune`) | Reglas `deny`/`ask` en `.claude/settings.json` (ver 6.1). **Nunca** usar el modo que omite confirmaciones. Rama `main` protegida: el agente no puede escribir en ella | Must |
 | SEC-AGT-03 | **ASI03 Abuso de identidad y privilegios** | El agente usa la clave SSH de producción, credenciales de AWS o el `.env` | **El despliegue solo lo hace el CI.** Ninguna máquina de desarrollo guarda la clave SSH de EC2 ni credenciales de AWS con permisos de escritura. El agente tiene denegada la lectura de `.env*` y de `~/.ssh`, `~/.aws` | Must |
 | SEC-AGT-04 | **ASI04 Cadena de suministro agéntica** | El agente sugiere un paquete inexistente que alguien registró con código malicioso (*slopsquatting*), o se instala un servidor MCP no revisado | Toda dependencia nueva se verifica en pub.dev / npmjs.com (autor, descargas, repositorio) antes de agregarla, y el PR lo menciona. Solo servidores MCP aprobados y listados en `docs/ai/APPROVED-TOOLS.md` | Must |
-| SEC-AGT-05 | **ASI06 Envenenamiento de memoria y contexto** | Un PR altera `CLAUDE.md`, `.clinerules` o `.claude/` para cambiar el comportamiento de los agentes de todo el equipo | La plantilla de PR tiene una casilla "cambia la configuración de agentes o de CI" que obliga a avisar al equipo; `CODEOWNERS` pide revisión automáticamente (ver 6.2). Solo los 3 colaboradores pueden integrar a `main`, así que un PR de alguien externo nunca entra sin que un integrante lo lea | Must |
+| SEC-AGT-05 | **ASI06 Envenenamiento de memoria y contexto** | Un PR altera `CLAUDE.md` o `.claude/` para cambiar el comportamiento de los agentes de todo el equipo | La plantilla de PR tiene una casilla "cambia la configuración de agentes o de CI" que obliga a avisar al equipo; `CODEOWNERS` pide revisión automáticamente (ver 6.2). Solo los 3 colaboradores pueden integrar a `main`, así que un PR de alguien externo nunca entra sin que un integrante lo lea | Must |
 | SEC-AGT-06 | **ASI08 Fallos en cascada** | Varias sesiones paralelas construyen sobre una abstracción equivocada | Interfaces del motor congeladas (tag `engine-v0.1`) antes de paralelizar variantes; CI con verificación de arquitectura | Must |
 | SEC-AGT-07 | **ASI09 Explotación de la confianza humana** | Se aprueba un PR del agente sin leerlo porque "se ve bien" | **Autorrevisión obligatoria** con la checklist de la plantilla de PR; el autor humano responde por todo el código (§7.1 del enunciado); la revisión de un compañero es recomendada; subagente `architecture-reviewer` y CI como apoyo, no como reemplazo | Must |
 | SEC-AGT-08 | **ASI10 Agentes descontrolados** / observabilidad | No se sabe qué hizo el agente ni con qué prompt | `AI_USAGE.md` actualizado por PR; commits pequeños y frecuentes; las sesiones largas se resumen en el PR | Must |
@@ -142,14 +142,12 @@ El producto no incluye agentes, pero **el equipo desarrolla con agentes** (Claud
 }
 ```
 
-El equivalente para Cline va en `.clinerules`, que solo apunta a este documento y a los demás de `docs/`.
 
 ### 6.2 `CODEOWNERS`
 
 ```
 # Configuración de agentes y CI: GitHub pide revisión automáticamente (no bloquea el merge)
 /CLAUDE.md              @integrante1 @integrante2 @integrante3
-/.clinerules            @integrante1 @integrante2 @integrante3
 /.claude/               @integrante1 @integrante2 @integrante3
 /.github/workflows/     @integrante1 @integrante2 @integrante3
 /docs/security/         @integrante1 @integrante2 @integrante3

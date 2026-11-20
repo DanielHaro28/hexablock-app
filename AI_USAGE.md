@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-30)
+> **Última actualización:** 2026-11-20 (IA-31)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -361,6 +361,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | La app pasa de un diagrama de 122 clases a 4 (general de 28, motor de 41, variantes de 37, aplicación y adaptadores de 38); la API, de uno de 68 a 2 (general de 32, dominio y casos de uso de 43). El general muestra las 4 capas y sus interfaces; en los de detalle, las interfaces del borde aparecen solo con su nombre («motor», «puerto»). D-76 en `DECISIONES.md`; R-04 actualizada |
 | Modificaciones del equipo | El usuario eligió la opción de un general más diagramas de detalle y el estilo del ejemplo. ⚠️ completar |
 | Lecciones | (1) PlantUML recorta las imágenes de más de 4096 px, por eso el diagrama grande se exportaba cortado. (2) En la sesión no hay PlantUML: la IA no pudo dibujar los `.puml`. Revisó con un script que cada clase de una relación esté declarada y que las llaves cierren, y usó solo construcciones que ya funcionaban en el diagrama anterior; el dibujo lo valida el equipo al exportar (R-04) |
+
+### IA-31 · Nuevo reparto de responsabilidades (D-77) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "Ok vamos a cambiar responsabilidades, yo me voy a encargar de todo el motor y despliegue, la API y frontend para los demas, pero no asignes nada a ellos, lo voy a discutir quien quiere hacer que, pero yo voy a hablar con ellos, solo asigname todo lo del despliegue y motor a mi"; después eligió "Motor y topologías" y quitarse los Issues de API y frontend |
+| Resultado | D-77 cerrada y D-78 abierta. @DanielHaro28 asignado a TEC-01, TEC-02, TEC-06, TEC-07, TEC-08 y T-03 (además del despliegue, que ya tenía); quitado de los 17 Issues de API, frontend y Hexa Merge. Los Issues de los demás dicen "por definir" y no se asignaron a nadie; `tools/planning/issues_created.json` ya no los asigna. `PLAN-ENTREGA.md` §1 y §5 y `CODEOWNERS` actualizados |
+| Modificaciones del equipo | ⚠️ completar al cerrar D-78 |
+| Lecciones | La IA preguntó qué entraba en "todo el motor" antes de reasignar, porque la etiqueta `area:engine` también incluía casos de uso y progreso de la app. Vio que el script de G-01 habría vuelto a asignar el reparto viejo, y lo corrigió |
 
 ## 4. Evaluación crítica
 

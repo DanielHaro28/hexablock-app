@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-28)
+> **Última actualización:** 2026-11-20 (IA-29)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -339,6 +339,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-02 y D-67 a D-75 cerradas. Las tablas de decisiones de los ARQ pasaron a apuntar a `DECISIONES.md`, que suma las `ARQ-A-*` y `ARQ-B-06`. `ARQ-02-MOTOR.md` empieza con el diseño final en una página y las opciones van en el Anexo A. Se borró ARQ-01-APP §10. `PENDIENTES.md` quedó con D-03, D-20, ARQ-S-02 y ARQ-S-03; las tareas pasaron a Issues (G-01 nuevo, app #83; F-01 a F-10 en T-07) y la hoja de ruta, a `PLAN-ENTREGA.md` §6. Scripts de revisión en `tools/docs-check/` con un workflow `docs-check` en los dos repos. `tools/planning/` para asignar los Issues pendientes. SEC-MOB-07 y el environment `release` en SECURITY-BASELINE; `SECURITY.md` en los dos repos. R-03 ahora incluye cambiar la plantilla del `.gitignore` |
 | Modificaciones del equipo | El usuario aceptó todas las recomendaciones. ⚠️ completar |
 | Lecciones | (1) Al quitar las tablas de los ARQ, sus IDs (`ARQ-S-*`, `ARQ-A-*`, `ARQ-B-*`) quedaban sin definir; se dejó una tabla corta de "ID → dónde está ahora" y el verificador lo comprueba. (2) ARQ-S-02 y ARQ-S-03 seguían como propuestas: en vez de darlas por cerradas, se pasaron a `PENDIENTES.md` para que el equipo las confirme. (3) El verificador de IDs viejo tomaba el final de `IA-05` como si fuera una tarea `A-*`; se corrigió antes de ponerlo en CI y se probó con roturas a propósito. (4) No se pudo activar *Private vulnerability reporting* desde la sesión (la API respondió 403); lo activa el dueño (G-05) |
+
+### IA-29 · Confirmación de ARQ-S-02 y ARQ-S-03 — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "2. confirmalas" |
+| Resultado | ARQ-S-02 (el servidor no ejecuta reglas de juego) y ARQ-S-03 (consolidación en Dart y TypeScript con ejemplos compartidos) pasan de `PENDIENTES.md` a `DECISIONES.md` en los dos repos; ARQ-00 §6 apunta allí |
+| Modificaciones del equipo | Las confirmó el usuario |
+| Lecciones | Ninguna nueva: el contrato ya las daba por hechas, solo faltaba registrarlas |
 
 ## 4. Evaluación crítica
 

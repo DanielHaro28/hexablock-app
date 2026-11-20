@@ -59,6 +59,8 @@
 | D-22 | **Estructura del backend:** módulos por área (`auth`, `users`, `progress`, `leaderboard`, `levels`, `health`) con `domain/` (capa 1), `application/` (capa 2: casos de uso y puertos), `presentation/` e `infrastructure/` (capa 3: controladores y DTOs; adaptadores que implementan los puertos, como repositorios Prisma, argon2 y JWT). `main.ts`, `src/prisma/` y la configuración de NestJS son capa 4. **Un caso de uso por clase.** Cómo se guarda el progreso (JSON) queda para D-27 | ARQ-01-API §2 a §4, ARQ-B-01, 02 | API | 17-11 |
 | ARQ-A-01 | **Cuatro capas** de la Clean Architecture, como pide el enunciado §3.4 | ARQ-01-APP §2 | App | 17-11 |
 | ARQ-B-06 | **La API no tiene estado:** toda la información vive en PostgreSQL | ARQ-01-API §2 | API | 17-11 |
+| ARQ-S-02 | **El servidor no ejecuta reglas de juego:** solo valida la plausibilidad de los resultados (RN-COM-108, SEC-API-06) | ARQ-00 §6; RN-COM-108; SEC-API-06 | Ambos | 20-11 |
+| ARQ-S-03 | **La consolidación del progreso existe dos veces** (Dart en la app y TypeScript en la API), con los ejemplos compartidos E-COM-2 y E-COM-3 para que den el mismo resultado | ARQ-00 §6; D-23; `docs/contracts/examples/` | Ambos | 20-11 |
 | D-23 | **Contrato entre app y API:** `openapi.yaml` y los ejemplos compartidos (E-COM-2, E-COM-3, E-HF-NIVEL) viven en `hexablock-api/docs/contracts/`, la fuente única. La API valida sus respuestas contra ese archivo; la app guarda una **copia** para probar sus mappers y su CI **falla si la copia difiere** de la del repo de la API (es la herramienta "equivalente a Pact" del enunciado §3.6) | ARQ-00 §6 (ARQ-S-05), ARQ-01-API §9 (ARQ-B-05) | Ambos | 17-11 |
 
 ### Partida y persistencia local

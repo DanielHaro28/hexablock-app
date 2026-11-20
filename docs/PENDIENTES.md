@@ -5,7 +5,7 @@
 > - Las decisiones **cerradas** están en `docs/DECISIONES.md` de cada repo. Al cerrar una, se pasa allí con su fecha y se borra de aquí.
 > - Las **tareas** no están aquí: son Issues de los dos repos, en el tablero [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (D-69). El plan y la hoja de ruta están en `docs/plan/PLAN-ENTREGA.md`.
 >
-> **Última actualización:** 2026-11-20 (D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-20 (ARQ-S-02 y ARQ-S-03 confirmadas; D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
 
 ---
 
@@ -15,8 +15,6 @@
 |---|---|---|---|---|
 | ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración). SECURITY §3 y API-01 ya describen la opción A como propuesta | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos | Equipo | Al implementar cada topología | RN-TOP-21 a 23 |
-| ☐ ARQ-S-02 | **Confirmar:** el servidor **no ejecuta reglas de juego**; solo valida la plausibilidad de los resultados (RN-COM-108). Quedó como propuesta (🟡) en ARQ-00 §6, pero el contrato y SEC-API-06 ya la usan. **Recomendación:** confirmarla | Equipo | 23-11 | ARQ-00 §6 (D-67) |
-| ☐ ARQ-S-03 | **Confirmar:** la consolidación del progreso existe **dos veces** (Dart y TypeScript), con los ejemplos compartidos E-COM-2 y E-COM-3 para que den el mismo resultado. Quedó como propuesta (🟡) en ARQ-00 §6, pero D-23 y los contratos ya la usan. **Recomendación:** confirmarla | Equipo | 23-11 | ARQ-00 §6 (D-67) |
 
 ## 2. Preguntas para el profesor
 

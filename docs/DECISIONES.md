@@ -165,6 +165,7 @@
 | D-85 | **Memoria automática encendida** (es personal, no se sube y carga como mucho 200 líneas o 25 KB del índice por sesión). Ninguna decisión queda solo en la memoria: va a `DECISIONES.md` | `CLAUDE.md` | Ambos | 20-11 |
 | D-86 | **Herramientas aprobadas**: Claude Code y la CLI `gh`. Único servidor MCP: el oficial de Dart y Flutter, en `hexablock-app/.mcp.json`. Ninguno en la API. Se agregan otros con un PR a `docs/ai/APPROVED-TOOLS.md` | `docs/ai/APPROVED-TOOLS.md` (compartido); `.mcp.json` | Ambos | 20-11 |
 | D-87 | **Solo Claude Code** como herramienta de agente: nadie usa Cline, así que no hay `.clinerules` ni reglas duplicadas. Otra herramienta solo entra si el equipo la decide y la lista en `docs/ai/APPROVED-TOOLS.md` | ADR-001 §2.6 (rev. 2.0); SECURITY §6 | Ambos | 20-11 |
+| D-88 | **Skills de terceros: solo las oficiales de Flutter y Dart** (`flutter/agent-plugins`, `dart-lang/skills`), y únicamente las que no choquen con las decisiones del proyecto. Cada una se revisa (instrucciones, scripts y `allowed-tools`) y se copia a `.claude/skills/` de la app en una versión fija, con un PR que la agrega a `docs/ai/APPROVED-TOOLS.md`. No se instala el plugin completo ni skills de autores desconocidos. Se hace al empezar T-03 | `docs/ai/APPROVED-TOOLS.md`; T-03 | Ambos | 20-11 |
 
 ## 2. Respuestas del profesor y del enunciado
 

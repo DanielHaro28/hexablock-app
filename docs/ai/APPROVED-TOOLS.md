@@ -25,4 +25,14 @@ En `hexablock-api` no hay servidores MCP. Se descartaron el de GitHub (la CLI `g
 
 ## Skills de terceros
 
-Ninguna por ahora. Las únicas que se pueden evaluar son las oficiales de Flutter y Dart (D-88, pendiente en `hexablock-app/docs/PENDIENTES.md`). Nunca se instalan skills de autores desconocidos: una skill puede traer scripts y pre-aprobar sus propios comandos.
+Solo las oficiales del equipo de Flutter (`github.com/flutter/agent-plugins`) y del equipo de Dart (`github.com/dart-lang/skills`), y únicamente las que no choquen con las decisiones del proyecto (D-88). Para cada una:
+
+1. Se leen las instrucciones, los scripts y el campo `allowed-tools` (pre-aprueba comandos sin preguntar, y la confianza en la carpeta no lo limita).
+2. Se descarta si empuja patrones que contradicen lo decidido (por ejemplo, dependencias en las capas 1 y 2 o generación de código donde no se usa).
+3. Se copia a `.claude/skills/` de la app **en una versión fija** (commit del repo de origen) y se agrega a la tabla de abajo, con un PR.
+
+Nunca se instala el plugin completo ni skills de autores desconocidos.
+
+| Skill | Origen y versión | Por qué |
+|---|---|---|
+| _Ninguna todavía: se revisan al empezar T-03_ | | |

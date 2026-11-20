@@ -21,4 +21,4 @@
 
 ## Sensitive changes
 
-- [ ] This PR changes agent or CI configuration (`CLAUDE.md`, `.claude/`, `.clinerules`, `.github/workflows/`) or security docs → I told the team.
+- [ ] This PR changes agent or CI configuration (`CLAUDE.md`, `.claude/`, `.github/workflows/`) or security docs → I told the team.

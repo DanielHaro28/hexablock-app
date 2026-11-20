@@ -156,6 +156,7 @@
 | D-73 | **Binarios:** el PDF del diseño se queda. No se suben archivos binarios de más de 1 MB; las versiones nuevas del diseño van como enlace o como PNG de las pantallas que cambian. Las imágenes de los diagramas se regeneran solo cuando cambia su fuente | `docs/README.md`; `tools/docs-check/` | Ambos | 20-11 |
 | D-74 | **Reporte de vulnerabilidades:** *Private vulnerability reporting* de GitHub, sin publicar correos; `SECURITY.md` en la raíz de cada repo explica cómo usarlo | `SECURITY.md`; SECURITY §7 | Ambos | 20-11 |
 | D-75 | **Keystore de firma del APK (SEC-MOB-07):** nunca está en el repo; va en base64 en un secreto del environment `release`, restringido a tags `v*`; el CI genera `key.properties` y lo borra al terminar; el dueño guarda una copia fuera de línea | SECURITY §5 (SEC-MOB-07); ADR-001 §2.4 | Ambos | 20-11 |
+| D-87 | **Solo Claude Code** como herramienta de agente: nadie usa Cline, así que no hay `.clinerules` ni reglas duplicadas. Otra herramienta solo entra si el equipo la decide y la lista en `docs/ai/APPROVED-TOOLS.md` | ADR-001 §2.6 (rev. 2.0); SECURITY §6 | Ambos | 20-11 |
 
 ## 2. Respuestas del profesor y del enunciado
 

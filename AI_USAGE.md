@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-31)
+> **Última actualización:** 2026-11-20 (IA-32)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -16,7 +16,6 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 |---|---|---|---|
 | **Claude** (claude.ai, conversación con herramientas de agente: archivos, terminal, git) | **Claude Opus 5.5** (`claude-opus-5-5`) desde el 12-11-2026. Conversaciones anteriores: ⚠️ completar el modelo | Planificación: propone opciones con ventajas y desventajas, redacta los documentos de `docs/`, verifica los ejemplos de reglas con código, revisa la coherencia entre documentos y sube los cambios por rama y PR | DanielHaro28 |
 | **Claude Code** | ⚠️ completar al empezar a usarlo (versión de la CLI y modelo) | Herramienta principal de implementación (ADR-001 §2.6), con los permisos de `.claude/settings.json` | Todo el equipo |
-| **Cline** | ⚠️ completar si se usa | Permitida de forma individual; sus reglas solo apuntan a `docs/` (ADR-001 §2.6) | ⚠️ |
 
 ## 2. Cómo aplicamos las buenas prácticas (§7.3)
 
@@ -372,6 +371,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-77 cerrada y D-78 abierta. @DanielHaro28 asignado a TEC-01, TEC-02, TEC-06, TEC-07, TEC-08 y T-03 (además del despliegue, que ya tenía); quitado de los 17 Issues de API, frontend y Hexa Merge. Los Issues de los demás dicen "por definir" y no se asignaron a nadie; `tools/planning/issues_created.json` ya no los asigna. `PLAN-ENTREGA.md` §1 y §5 y `CODEOWNERS` actualizados |
 | Modificaciones del equipo | ⚠️ completar al cerrar D-78 |
 | Lecciones | La IA preguntó qué entraba en "todo el motor" antes de reasignar, porque la etiqueta `area:engine` también incluía casos de uso y progreso de la app. Vio que el script de G-01 habría vuelto a asignar el reparto viejo, y lo corrigió |
+
+### IA-32 · Solo Claude Code (D-87) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "vi que mencionan cline, no lo voy a utilizar solo claude code" |
+| Resultado | D-87: Cline sale de ADR-001 §2.6 (rev. 2.0), de SECURITY §6 (SEC-AGT-05, §6.1 y §6.2), de las plantillas de PR y de la tabla de herramientas de `AI_USAGE.md` |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | La IA buscó en los dos repos todas las menciones antes de cambiar nada, para que los documentos compartidos quedaran iguales |
 
 ## 4. Evaluación crítica
 

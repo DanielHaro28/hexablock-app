@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-34)
+> **Última actualización:** 2026-11-20 (IA-35)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -402,6 +402,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
 | Prompt | Literal: "D88 A" |
 | Resultado | D-88 cerrada: solo skills oficiales de Flutter y Dart, revisadas una por una y copiadas en una versión fija. `docs/ai/APPROVED-TOOLS.md` (compartido) explica el procedimiento; T-03 tiene la tarea de revisarlas |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
+
+### IA-35 · Cierre de D-03; D-20 para TEC-07 — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "D03 A / D20 Recomendacion / M0 vamos a eso" |
+| Resultado | D-03 cerrada (409 `email-taken`, riesgo aceptado y mitigado); SECURITY §3, API-01, REVISION-DISENO y la trazabilidad de la API actualizadas. D-20 sigue abierta con fecha "al empezar TEC-07" |
 | Modificaciones del equipo | Lo decidió el usuario |
 | Lecciones | Ninguna nueva |
 

@@ -47,7 +47,7 @@
 | Navegación | Widget | Inicio → selección de juego → selección de nivel → partida → victoria y derrota → reintentar, siguiente, salir; niveles bloqueados con candado | Router real, casos de uso falsos |
 | Arquitectura | Estática | Ningún paquete de capa 1 o 2 importa Flutter, Drift, dio ni otra capa externa (D-21, RNF-06); el motor no nombra ninguna variante (RNF-02); ninguna clase de `hexa_variants` declara `playTurn` (D-36) | — |
 | Contrato | Estática + unitaria | `docs/contracts/` es idéntico al del repo de la API (D-23); cada mapper lee y escribe todos los ejemplos del contrato; cada petición que arma la app valida contra su esquema | Ejemplos del contrato |
-| Niveles incluidos | Unitaria | Los 25 archivos de `assets/levels/` pasan el esquema, el validador del dominio (incluida la regla geométrica, D-19) y la revisión de dificultad (D-54, D-55) | — |
+| Niveles incluidos | Unitaria | Los 25 archivos de `app/assets/levels/` pasan el esquema, el validador del dominio (incluida la regla geométrica, D-19) y la revisión de dificultad (D-54, D-55) | — |
 
 Prueba de arquitectura de D-36 (`packages/hexa_variants/test/architecture/template_method_test.dart`): recorre `lib/` del paquete y falla si encuentra una declaración de `playTurn`. Usa `package:analyzer` como **dependencia de desarrollo** del test, no del paquete, así que no rompe la regla de la capa 1.
 

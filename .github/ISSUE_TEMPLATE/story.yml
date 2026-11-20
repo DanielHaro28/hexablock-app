@@ -1,0 +1,45 @@
+name: User story
+description: A story from docs/requirements/04-HISTORIAS.md
+title: "XX-00 · "
+labels: ["type:story"]
+body:
+  - type: markdown
+    attributes:
+      value: "One Issue per story. Shared stories get one Issue in each repo, linked to each other (D-65)."
+  - type: input
+    id: story
+    attributes:
+      label: Story ID and doc
+      placeholder: "HL-02 · docs/requirements/04-HISTORIAS.md"
+    validations:
+      required: true
+  - type: textarea
+    id: criteria
+    attributes:
+      label: Story and acceptance criteria
+      description: Copy them from 04-HISTORIAS.md (Spanish is fine).
+    validations:
+      required: true
+  - type: input
+    id: rules
+    attributes:
+      label: Rules and examples
+      placeholder: "RN-HL-30 to 33; E-HL-1, E-HL-2"
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimate (hours)
+      description: Also set the Estimate field on the project board (D-62).
+  - type: checkboxes
+    id: dod
+    attributes:
+      label: Definition of Done (D-64)
+      options:
+        - label: Meets its acceptance criteria
+        - label: Tests follow should_<result>_when_<condition> and AAA, cover its E-* examples, and a person reviewed them (D-59)
+        - label: CI is green (format, analyze, tests, coverage D-58, architecture D-36, contract D-23)
+        - label: PR uses the template and was reviewed by someone from another area (D-62)
+        - label: Texts in es and en, no hard-coded strings
+        - label: Screens follow the agreed design (D-66), if any
+        - label: Docs, traceability and AI_USAGE.md are up to date
+        - label: Merged to main and working on the dev APK (app) or deployed to EC2 (api)

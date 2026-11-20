@@ -1,0 +1,15 @@
+# Responsible per area (D-62). Owners are asked for a review; nobody is blocked,
+# and anyone can help in any area.
+*                                 @DanielHaro28
+/packages/                        @DavidCR20
+/tools/                           @DavidCR20
+/app/lib/adapters/repositories/   @DavidCR20
+/app/lib/frameworks/persistence/  @DavidCR20
+/app/lib/adapters/presentation/   @dicpc
+/app/lib/frameworks/ui/           @dicpc
+/app/assets/                      @dicpc @DavidCR20
+/docs/design/                     @dicpc
+/app/lib/adapters/gateways/       @DanielHaro28
+/app/lib/frameworks/network/      @DanielHaro28
+/docs/contracts/                  @DanielHaro28 @DavidCR20
+/.github/                         @DanielHaro28

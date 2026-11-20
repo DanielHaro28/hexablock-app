@@ -18,7 +18,12 @@ docs/
 │   ├── ARQ-03-APP-DETALLE.md              casos de uso, puertos, aspectos AOP, patrones y SOLID (Paso 4)
 │   └── ARQ-04-APP-DATOS.md                tablas Drift, sincronización, niveles disponibles y migraciones (Paso 5)
 ├── contracts/                             COPIA idéntica de hexablock-api/docs/contracts/ (D-23); no se edita aquí
-├── levels/                                CATALOGO.md e informe del generador de los niveles de assets/levels/ (Paso 6)
+├── design/
+│   ├── HexaBlock-Suite-Diseno-v1.pdf      diseño inicial de @dicpc (59 pantallas, propuesta visual)
+│   └── REVISION-DISENO.md                 revisión del diseño contra las reglas: DIS-01 a DIS-16, aceptadas (Paso 7)
+├── plan/
+│   └── PLAN-ENTREGA.md                    equipo, milestones M0 a M3, horas y los 86 Issues (Paso 7)
+├── levels/                                CATALOGO.md e informe del generador de los niveles de app/assets/levels/ (Paso 6)
 ├── testing/
 │   └── ESTRATEGIA-PRUEBAS.md              pirámide, dobles, cobertura, pruebas del código de IA y CI (Paso 6)
 ├── diagrams/                              clases.puml (PlantUML), capas.mmd, extensibilidad.mmd y datos.mmd (Mermaid) + imágenes .png

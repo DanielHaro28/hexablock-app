@@ -4,7 +4,7 @@
 >
 > Reúne los que estaban en `ADR-001-tech-stack.md` §6, `SECURITY-BASELINE.md` §9 y `CONTEXTO-CONVERSACION.md` §7; esos documentos ahora apuntan aquí.
 >
-> **Última actualización:** 2026-11-19 (Paso 4 fusionado: PR app #6 y api #4; Paso 6 hecho: niveles candidatos y estrategia de pruebas; planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; Paso 3 decidido; decisiones cerradas en `DECISIONES.md`; D-21 a D-23 y D-37 a D-43 cerradas; D-36 revisada; Paso 4 listo) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-19 (Paso 4 fusionado: PR app #6 y api #4; Paso 7 hecho: 86 Issues y plan de entrega; desde ahora las tareas abiertas también están como Issues; planificación en `main` por los PR #1; `AI_USAGE.md` en los PR #2; Paso 3 decidido; decisiones cerradas en `DECISIONES.md`; D-21 a D-23 y D-37 a D-43 cerradas; D-36 revisada; Paso 4 listo) · **Entrega:** lunes 14-12-2026
 >
 > Completar la columna **Responsable** al repartir el trabajo. Al cerrar un ítem: cambiar ☐ por ☑ y anotar la fecha.
 
@@ -19,8 +19,6 @@
 | ☐ D-02 | **Repartir variantes y áreas** entre los 3 integrantes. Propuesta a discutir: motor + Hexa Merge · Hexa Lines + Hexa Sort · Hexa Fit + backend | Equipo | 12-11 | CONTEXTO §5 |
 | ☐ D-03 | Respuesta de `POST /auth/register` cuando el correo ya existe. **Recomendación: A)** mantener **409** con rate limiting (5/min por IP), login genérico y en tiempo constante; aceptarlo como riesgo documentado. B) mensaje genérico + verificación por correo (lo ideal según OWASP, pero requiere enviar correos: fuera de alcance). C) 400 genérico (peor experiencia y no evita del todo la enumeración). SECURITY §3 y API-01 ya describen la opción A como propuesta | Equipo | Reunión | SECURITY §3, OWASP Authentication Cheat Sheet |
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos | Equipo | Al implementar cada topología | RN-TOP-21 a 23 |
-| ☐ D-26 | **Figura global o por variante.** Recomendación: **una sola figura para todo el juego**, elegida en Ajustes | Equipo | Reunión | RN-TOP-32 |
-| ☐ D-61 | **Cómo conoce la API los 25 niveles incluidos en el APK** (encontrado al preparar el Paso 6). La revisión de plausibilidad de la sincronización (ARQ-04-API §3) y el ranking por nivel necesitan que el servidor tenga esos niveles, pero hoy solo viajan dentro del APK. **A)** la fuente es `hexablock-app/assets/levels/`; la API guarda una copia en `prisma/seed/levels/`, la publica con el *seed* al desplegar, y su CI falla si la copia difiere (como D-23, al revés). **B)** la fuente pasa a la API (`docs/contracts/levels/`) y la app la copia a `assets/`. **C)** la API no los conoce: acepta cualquier `levelId` con el patrón correcto, y no puede revisar si el nivel existe ni sus umbrales. **Recomendación: A**: los niveles se diseñan y se verifican con las herramientas de la app (la regla geométrica solo está en la app, D-19), y el *seed* igual los valida con las reglas estructurales | Equipo | Antes de LVL-01 | ARQ-04-API §3, §5; RN-COM-108; D-19, D-23 |
 
 ### 1.2 Cerradas
 
@@ -32,7 +30,7 @@ El profesor indicó (11-11) que lo que el enunciado no especifica lo decide el e
 
 | # | Pregunta | Por qué | Responsable |
 |---|---|---|---|
-| ☐ P-14 | ¿Cuentan como **"diseñados manualmente"** (enunciado §1.2 y §5.1) los niveles que propone un generador y que el equipo después elige, juega, ajusta y nombra, uno por uno? | D-53: si la respuesta es no, los 25 niveles se diseñan a mano y el generador queda solo para verificar | Dueño |
+| ☑ P-14 | ¿Cuentan como **"diseñados manualmente"** (enunciado §1.2 y §5.1) los niveles que propone un generador y que el equipo después elige, juega, ajusta y nombra, uno por uno? | D-53: si la respuesta es no, los 25 niveles se diseñan a mano y el generador queda solo para verificar | Dueño · **Respuesta (20-11): sí**; ver `DECISIONES.md` |
 
 ## 3. Documentos de diseño (hoja de ruta)
 
@@ -47,8 +45,8 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 | 3 | **Motor genérico:** tipos genéricos, interfaces de topología y reglas, ciclo de turno, estados, eventos, coordenada (D-07) | App | ✅ **Decidido (17-11)** en `docs/architecture/ARQ-02-MOTOR.md` (D-29 a D-35). Queda abierta D-36 | |
 | 4 | **Arquitectura detallada:** casos de uso genéricos, puertos y adaptadores, mapa de patrones, aspecto AOP, los 3 diagramas (clases en PlantUML; capas y extensibilidad en Mermaid) y `EXTENSIBILITY.md` | Ambos | 📝 **Listo (19-11)**: `ARQ-03-APP-DETALLE.md`, `ARQ-03-API-DETALLE.md`, `docs/diagrams/` y `EXTENSIBILITY.md` (D-38 a D-43). Falta generar `clases.png` en los dos repos (R-04) | DanielHaro28 (R-04) |
 | 5 | **Contratos:** `openapi.yaml`, JSON Schema de niveles, progreso, ranking y errores, ejemplos compartidos en JSON, modelo de datos local (Drift) y del servidor (Prisma) | Ambos | ✅ **Hecho (19-11):** `hexablock-api/docs/contracts/` (copia idéntica en la app), `ARQ-04-API-DATOS.md`, `ARQ-04-APP-DATOS.md`. Cerradas D-27, D-44 a D-51 (D-39 ajustada). D-19 y D-52 cerradas después (19-11) | |
-| 6 | **Contenido y pruebas:** 15 niveles de Hexa Fit y 10 de Hexa Sort; estrategia de pruebas | App (+ API para pruebas) | ✅ **Hecho (20-11):** 25 niveles candidatos en `assets/levels/` (catálogo en `docs/levels/`), `levelgen.py` y `levelcheck.py`, `docs/testing/ESTRATEGIA-PRUEBAS.md` en los dos repos. Cerradas D-28, D-36, D-53 a D-60. Quedan P-14 (profesor), la aprobación de los niveles por el equipo y D-61 | Equipo (aprobar niveles) |
-| 7 | **Plan:** historias en GitHub Issues (un Issue por repo para las compartidas), milestones semanales, Definition of Done | Ambos | ☐ Pendiente | |
+| 6 | **Contenido y pruebas:** 15 niveles de Hexa Fit y 10 de Hexa Sort; estrategia de pruebas | App (+ API para pruebas) | ✅ **Hecho (20-11):** 25 niveles candidatos en `app/assets/levels/` (catálogo en `docs/levels/`), `levelgen.py` y `levelcheck.py`, `docs/testing/ESTRATEGIA-PRUEBAS.md` en los dos repos. Cerradas D-28, D-36, D-53 a D-60. P-14 respondida (sí) y D-61 cerrada. Queda la aprobación de los niveles por el equipo en el APK (R-05) | Equipo (aprobar niveles) |
+| 7 | **Plan:** historias en GitHub Issues (un Issue por repo para las compartidas), milestones semanales, Definition of Done | Ambos | ✅ **Hecho (20-11):** 86 Issues (69 en la app, 17 en la API) con etiquetas, milestones M0 a M3, responsables y estimación; plantillas de Issue y `CODEOWNERS`; `docs/plan/PLAN-ENTREGA.md`; diseño revisado (`docs/design/`). Cerradas D-26 y D-62 a D-66. Faltan: aceptar las invitaciones (G-01) y crear el tablero (T-02) | Dueño (G-01, T-02) |
 | 8 | **Preparación para Claude Code:** `CLAUDE.md`, `.claude/agents/`, `.claude/settings.json` por repo | Ambos | ☐ Pendiente | |
 
 **Topologías adicionales** (historias TEC-07 a TEC-09), después de tener las 4 variantes jugables con hexágonos: cuadrados y triángulos jugables (Should), cubos en el dominio (Should), vista 3D (Could).
@@ -59,10 +57,10 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 
 | # | Pendiente | Responsable | Origen |
 |---|---|---|---|
-| ☐ G-01 | Repos `hexablock-app` y `hexablock-api` **creados** en la cuenta de DanielHaro28 (11-11). **Falta:** invitar a los otros 2 como colaboradores (permiso de escritura) | Dueño | ADR-001 §2.4 |
+| ☐ G-01 | Repos `hexablock-app` y `hexablock-api` **creados** en la cuenta de DanielHaro28 (11-11). **Falta:** invitar a los otros 2 como colaboradores (permiso de escritura) | Dueño | ADR-001 §2.4 | _20-11: invitaciones enviadas a @dicpc (diseño e interfaz) y @DavidCR20 (dominio). **Falta que las acepten**: todavía no se les puede asignar Issues (55 quedan con la asignación pendiente, `docs/plan/PLAN-ENTREGA.md`)._
 | ☑ G-02 | Ruleset `protect-main` en ambos repos: PR obligatorio con 0 aprobaciones, solo *squash*, historial lineal, sin *force push* ni borrado, sin bypass (11-11) | Dueño | SECURITY §7 |
 | ☐ G-03 | Activar **secret scanning**, **push protection** y **Dependabot** (alerts, security updates y `.github/dependabot.yml`) | Dueño | SECURITY §7 |
-| ☐ G-04 | Crear `CODEOWNERS` con los 3 usuarios reales (solo pide revisión, no bloquea) | Dueño | SECURITY §6.2 |
+| ☑ G-04 | Crear `CODEOWNERS` con los 3 usuarios reales (solo pide revisión, no bloquea) | Dueño | SECURITY §6.2 | _Hecho el 20-11: `.github/CODEOWNERS` en los dos repos, por área (D-62)._
 | ☐ G-05 | Crear `SECURITY.md` en la raíz de ambos repos | Cualquiera | SECURITY §7 |
 | ☐ G-06 | Exigir aprobación para workflows de colaboradores externos (forks) | Dueño | SECURITY §7 |
 | ☐ G-07 | Configurar `commitlint` + `lefthook` en ambos repos | Cualquiera | ADR-001 §2.4 |
@@ -98,7 +96,7 @@ Objetivo: terminar los Pasos 1 a 8 en **una semana como máximo** (≈ 18-11-202
 | ☐ R-02 | Citar las fuentes de los algoritmos sugeridos por la IA (xorshift32 de Marsaglia en RN-COM-43; coordenadas hexagonales de Red Blob Games en `02-RN-TOPOLOGIAS.md`) y repetir la cita en el comentario de la clase que los implemente | | Enunciado §7.3, `AI_USAGE.md` §5 |
 | ☐ R-03 | Quitar `*.lock` del `.gitignore` de la app antes del primer commit de código, para que `pubspec.lock` se suba | | Revisión del 17-11 |
 | ☐ R-04 | Generar `docs/diagrams/clases.png` en los dos repos desde `clases.puml` con la extensión de PlantUML de VS Code (exportar en alta resolución) y corregir el `.puml` si PlantUML marca algún error. Repetir cada vez que cambie el `.puml` | DanielHaro28 | D-43 |
-| ☐ R-05 | **Revisar los 25 niveles candidatos** (D-53): cada integrante los juega en el orden de `docs/levels/CATALOGO.md` y ajusta los que no le convenzan (nombre, figura, piezas, semilla). Después de cada cambio, `python3 -I tools/reference-sim/levelcheck.py` debe pasar. Lo que ajustó cada uno queda en `AI_USAGE.md`. Se puede jugar a mano con el catálogo hasta que exista la app | Los 3 | D-53, D-54, D-55; P-14 |
+| ☐ R-05 | **Revisar los 25 niveles candidatos** (D-53): cada integrante los juega en el orden de `docs/levels/CATALOGO.md` y ajusta los que no le convenzan (nombre, figura, piezas, semilla). Después de cada cambio, `python3 -I tools/reference-sim/levelcheck.py` debe pasar. Lo que ajustó cada uno queda en `AI_USAGE.md`. **Se hace cuando el juego esté implementado en el APK** (decisión del 20-11), al final del milestone en que Fit y Sort sean jugables | Los 3 | D-53, D-54, D-55; P-14 |
 
 ## 5. Antes de la defensa
 

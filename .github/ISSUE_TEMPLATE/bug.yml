@@ -1,0 +1,25 @@
+name: Bug
+description: Something does not work as the rules or the contract say
+title: "Bug: "
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen, and which rule or contract says so
+      placeholder: "RN-HS-31 / openapi.yaml PUT /v1/me/progress/{gameId}"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce (seed, level, device)
+  - type: markdown
+    attributes:
+      value: "Never paste tokens, passwords or real user data (SECURITY-BASELINE)."

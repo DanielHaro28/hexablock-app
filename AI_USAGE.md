@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-22)
+> **Última actualización:** 2026-11-20 (IA-25)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -273,6 +273,39 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-28, D-36, D-53, D-56 y D-60 cerradas. `levelgen.py` (generador como herramienta de autor) y `levelcheck.py` (verificador). 25 niveles candidatos en `assets/levels/` con catálogo en `docs/levels/`. Estrategia de pruebas en los dos repos. E-COM-2, E-COM-3, E-HF-1, E-HF-4 y E-HF-NIVEL corregidos. D-61 y P-14 nuevas; R-05 para que el equipo revise los niveles |
 | Modificaciones del equipo | Los niveles son **candidatos**: el equipo debe jugarlos, ajustarlos y aprobarlos (R-05), y el profesor debe confirmar que cuentan como "diseñados manualmente" (P-14). ⚠️ completar con lo que ajuste cada integrante |
 | Lecciones | (1) Comparar los ejemplos con niveles reales mostró que dos ejemplos ya "verificados" eran imposibles: el script solo comprobaba el orden de los intentos, no que las estrellas fueran coherentes con los umbrales. Se agregó esa comprobación. (2) El verificador de niveles pasó a la primera, así que se probó con 5 roturas a propósito, y las detectó todas. (3) El catálogo y el informe del generador se sacaron de `assets/` porque todo lo que está ahí entra al APK. (4) Al revisar la sincronización apareció un hueco del Paso 5: la API debe conocer los niveles incluidos para revisar la plausibilidad (D-61) |
+
+### IA-23 · Paso 7: revisión del diseño inicial y propuestas del plan — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "P14 Si / R05 lo hacemos cuando tengamos el juego implementado en la apk / D61 Hagamos eso / Sigamos al siguiente paso sabiendo que somos 3 personas en el desarrollo, tambien uno de lo integrante ya hizo un diseño inicial." (con el PDF del diseño adjunto) |
+| Resultado | P-14 respondida, R-05 aplazada y D-61 cerrada (copia de los niveles en el *seed* de la API). Revisión de las 59 pantallas del diseño contra las reglas (`docs/design/REVISION-DISENO.md`): qué cumple y 16 diferencias con propuesta. Propuestas D-62 a D-66 para el plan |
+| Modificaciones del equipo | ⚠️ completar (quien diseñó decide qué ajustes acepta, D-66) |
+| Lecciones | La IA leyó el texto de todas las páginas y miró las más representativas antes de opinar. Separó lo que el diseño hace bien de lo que contradice reglas ya decididas, y dejó cada cambio como propuesta para quien diseñó, sin cambiar el diseño ni las reglas por su cuenta. Encontró también un hueco en las reglas (RN-HL-71 no dice si salir guarda el récord, mientras que Merge sí lo dice) |
+
+### IA-24 · Paso 7: estimación, Definition of Done y tablero — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con búsqueda web |
+| Prompt | Literal: "Es una propuesta de diseño para que vallamos visualizando el juego, pero se puede cambiar para acoplar lo definido. / D62 me parece bien, pero cuanto trabajo seria en realidad en horas, mas o menos / D-63 que la base jugable tenga 1 variante / D64 - si cumple con el enunciado y lo que deberia ser un definitions of done / D65 Como es ese tablero? / D66 Ok / D26 Me parece bien / Ya estan los colaboradores en el repositorio / https://github.com/dicpc ella hizo el diseño" |
+| Resultado | D-26, D-64 y D-66 cerradas; el PDF del diseño en `docs/design/`; RN-HL-71 precisada; NAV-05 y RF-08 a *Should*; G-01 marcada como hecha. Estimación de horas por área en D-62; D-63 con una sola variante en M1; maqueta del tablero de GitHub Projects mostrada en el chat |
+| Modificaciones del equipo | El usuario pidió una sola variante en la base jugable (D-63). ⚠️ completar |
+| Lecciones | La IA verificó que el enunciado no define una Definition of Done y la alineó con la definición del Scrum Guide 2020. Intentó comprobar los colaboradores y la cuenta @dicpc, pero el proxy de la sesión solo permite rutas del repo; lo dijo en vez de darlo por comprobado. La estimación de horas es una aproximación y se recalibra al cerrar M1 |
+
+### IA-25 · Paso 7: Issues, milestones y plan de entrega — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` sobre los dos repos |
+| Prompt | Literal: "D-62 me parece bien / D63 Ok / D65 me parece bien"; y las respuestas "Yo puedo tomar el backend y devops, pero toma en cuenta que calquiera de nosotros puede ayudar con lo de otra seccion" y "https://github.com/DavidCR20" |
+| Resultado | D-62, D-63 y D-65 cerradas. 16 etiquetas y 4 milestones en cada repo; 86 Issues creados desde `04-HISTORIAS.md` y `PENDIENTES.md`, con responsables, estimación y Definition of Done; historias compartidas enlazadas. Plantillas de Issue y `CODEOWNERS` en los dos repos. `docs/plan/PLAN-ENTREGA.md`. Niveles movidos a `app/assets/levels/` |
+| Modificaciones del equipo | El usuario aclaró que cualquiera puede ayudar en otra área; quedó en D-62, en el plan y en cada Issue. ⚠️ completar |
+| Lecciones | (1) La IA probó primero en modo de prueba (cuántos Issues, horas por persona y por milestone) y, al ver que M1 tenía 132 h, lo aligeró antes de crear nada. (2) La primera corrida creó solo los Issues de Daniel: GitHub rechaza asignar a quien no aceptó la invitación, y el script buscaba el error en la salida equivocada. Se corrigió consultando antes quién es asignable; la segunda corrida saltó los ya creados, sin duplicados. (3) Al escribir `CODEOWNERS` se vio que los niveles estaban en la raíz y no en `app/assets/`, donde los busca la app |
 
 ## 4. Evaluación crítica
 

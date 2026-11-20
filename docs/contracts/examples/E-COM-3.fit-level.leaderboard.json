@@ -7,9 +7,33 @@
   "limit": 20,
   "offset": 0,
   "entries": [
-    { "rank": 1, "displayName": "Beto", "stars": 3, "timeMs": 70000, "moves": 9 },
-    { "rank": 2, "displayName": "Ana", "stars": 3, "timeMs": 70000, "moves": 12 },
-    { "rank": 3, "displayName": "Caro", "stars": 2, "timeMs": 30000, "moves": 3 }
+    {
+      "rank": 1,
+      "displayName": "Beto",
+      "stars": 3,
+      "timeMs": 50000,
+      "moves": 3
+    },
+    {
+      "rank": 2,
+      "displayName": "Ana",
+      "stars": 3,
+      "timeMs": 50000,
+      "moves": 4
+    },
+    {
+      "rank": 3,
+      "displayName": "Caro",
+      "stars": 2,
+      "timeMs": 30000,
+      "moves": 6
+    }
   ],
-  "me": { "rank": 2, "displayName": "Ana", "stars": 3, "timeMs": 70000, "moves": 12 }
+  "me": {
+    "rank": 2,
+    "displayName": "Ana",
+    "stars": 3,
+    "timeMs": 50000,
+    "moves": 4
+  }
 }

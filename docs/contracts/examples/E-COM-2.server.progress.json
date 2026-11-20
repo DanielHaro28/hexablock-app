@@ -4,9 +4,24 @@
     "hex": {
       "kind": "levels",
       "levels": {
-        "fit-hex-001": { "stars": 3, "timeMs": 120000, "moves": 7, "achievedAt": "2026-11-09T20:00:00Z" },
-        "fit-hex-002": { "stars": 3, "timeMs": 70000, "moves": 12, "achievedAt": "2026-11-09T20:10:00Z" },
-        "fit-hex-004": { "stars": 2, "timeMs": 60000, "moves": 8, "achievedAt": "2026-11-09T20:30:00Z" }
+        "fit-hex-001": {
+          "stars": 3,
+          "timeMs": 38000,
+          "moves": 3,
+          "achievedAt": "2026-11-09T20:00:00Z"
+        },
+        "fit-hex-002": {
+          "stars": 3,
+          "timeMs": 28000,
+          "moves": 3,
+          "achievedAt": "2026-11-09T20:10:00Z"
+        },
+        "fit-hex-004": {
+          "stars": 2,
+          "timeMs": 60000,
+          "moves": 8,
+          "achievedAt": "2026-11-09T20:30:00Z"
+        }
       }
     }
   }

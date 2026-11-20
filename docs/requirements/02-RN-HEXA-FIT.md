@@ -121,7 +121,7 @@ Rompecabezas **por niveles**. Cada nivel define una **figura** y un conjunto fij
   . . .      r=+2
 ```
 
-Piezas: **A** = arco de 3, orientación inicial `(0,0)(1,0)(1,1)`; **B** = triángulo de 3, orientación inicial `(0,0)(1,0)(0,1)`. Área 3 + 3 = 6 = área de la figura ✅. Umbrales: `m` = 2, `t` = 60 s. Solución de referencia (celdas absolutas, RN-HF-11): A ocupa `{(2,−1), (2,0), (1,1)}` (su forma rotada 1 paso); B ocupa `{(0,0), (1,0), (0,1)}` (sin rotar). (El simulador encontró exactamente 2 soluciones para este nivel.)
+Piezas: **A** = arco de 3, orientación inicial `(0,0)(1,0)(1,1)`; **B** = triángulo de 3, orientación inicial `(0,0)(1,0)(0,1)`. Área 3 + 3 = 6 = área de la figura ✅. Umbrales: `m` = 3, `t` = 40 s (los de D-54 para 2 piezas: piezas + 1 y 20 s por pieza). Solución de referencia (celdas absolutas, RN-HF-11): A ocupa `{(2,−1), (2,0), (1,1)}` (su forma rotada 1 paso); B ocupa `{(0,0), (1,0), (0,1)}` (sin rotar). (El simulador encontró exactamente 2 soluciones para este nivel.)
 
 **E-HF-1 — Partida completa.**
 
@@ -133,7 +133,7 @@ Piezas: **A** = arco de 3, orientación inicial `(0,0)(1,0)(1,1)`; **B** = triá
 | 4 | Colocar A con ancla `(2,−1)` | Válido: cubre `(2,−1)(2,0)(1,1)` | 2 |
 | 5 | Colocar B con ancla `(0,0)` | Válido: cubre `(0,0)(1,0)(0,1)` → figura cubierta → **victoria** | 3 |
 
-Con tiempo de 45 s: ★ por completar; 3 movimientos > `m` = 2 → **sin** la estrella de movimientos; 45 s ≤ `t` = 60 s → ★ de tiempo. Total: **2★** (faltó la de movimientos). Sin el error del paso 1 habría hecho 2 movimientos → **3★**.
+Con tiempo de 45 s: ★ por completar; 3 movimientos ≤ `m` = 3 → ★ de movimientos (el umbral permite justo el error del paso 1); 45 s > `t` = 40 s → **sin** la estrella de tiempo. Total: **2★** (faltó la de tiempo). Con 40 s o menos habría sacado **3★**.
 
 **E-HF-2 — Colocaciones inválidas** (después del paso 4 de E-HF-1):
 - B con ancla `(1,0)` → necesitaría `(2,0)`, que está ocupada por A → inválido.
@@ -141,4 +141,4 @@ Con tiempo de 45 s: ★ por completar; 3 movimientos > `m` = 2 → **sin** la es
 
 **E-HF-3 — Rehacer descartado.** Colocar A → colocar B → deshacer (B vuelve) → rotar B → **rehacer ya no está disponible** (RN-HF-82).
 
-**E-HF-4 — Mejor intento.** Intento 1: 2★, 00:30, 3 mov. Intento 2: 2★, 00:25, 4 mov. → mejor intento = **intento 2** (mismas estrellas, menos tiempo; los movimientos solo desempatan).
+**E-HF-4 — Mejor intento** (en el nivel de E-HF-NIVEL, `m` = 3 y `t` = 40 s). Intento 1: 2★, 00:50, 2 mov. Intento 2: 2★, 00:45, 3 mov. → mejor intento = **intento 2** (mismas estrellas, menos tiempo; los movimientos solo desempatan). Las estrellas son coherentes con los umbrales: los dos ganan la de movimientos y pierden la de tiempo.

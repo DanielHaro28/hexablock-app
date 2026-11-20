@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-19 (IA-19)
+> **Última actualización:** 2026-11-20 (IA-22)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -240,6 +240,39 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-19 y D-52 en el `DECISIONES.md` de cada repo. RN-COM-76 pasa a acordada; la política de contraseñas queda en SEC-API-02, en la historia API-01 de los dos repos y en `openapi.yaml` (sin la marca de pendiente). Se corrigió `05-TRAZABILIDAD.md` de los dos repos, que todavía listaba como abiertas decisiones ya cerradas |
 | Modificaciones del equipo | ⚠️ completar |
 | Lecciones | Al buscar cada cita de las dos decisiones, la IA encontró una lista de decisiones abiertas desactualizada. Ninguna revisión anterior la había detectado, porque el verificador de IDs solo confirma que un ID existe, no si su estado es el correcto |
+
+### IA-20 · Paso 6: herramientas de niveles y propuestas
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 19-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai |
+| Prompt | Literal: "vamos al paso 6" |
+| Resultado | `tools/reference-sim/levelkit.py`: resolvedor de Hexa Fit (cuenta soluciones; confirma las 2 de E-HF-NIVEL) y jugador automático de Hexa Sort (voraz y búsqueda en haz) con el xorshift32 comprobado contra E-COM-1. Medición de la dificultad de Sort en 9 combinaciones con 20 semillas cada una. Propuestas D-53 a D-60 en `PENDIENTES.md`, y D-28 precisada |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | Al programar la generación de pilas, la IA encontró que RN-HS-21 (cerrada en D-11) no dice cómo se evita repetir el color del bloque anterior. Las dos formas posibles dan pilas distintas con la misma semilla, lo que rompería el determinismo entre la app y las pruebas. Se propuso como D-60 en vez de elegir en silencio. También se señaló que el enunciado pide niveles "diseñados manualmente", lo que descarta generarlos al azar (D-53) |
+
+### IA-21 · Paso 6: cierre de D-54, D-55, D-57 a D-59 y explicaciones — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con búsqueda web |
+| Prompt | Literal: "D53 quisiera un generador de niveles, aunque podemos discutir mas esta opcion dame recomendaciones / D54 Me gusta tu propuesta / D55 me gusta tu propuesta / D56 que es los dobles de pruebas, mocks y todo eso y que me recomiendas / D57 vamos con la A, aunque no consumiera mas de CI o es negible? / D58 vamos con la A / D59 creo que con la C y el equipo puede ajustar, aunque puede quedar a cambio / D60 explicame mas esto / D36 expicame mas esto" |
+| Resultado | D-54, D-55, D-57, D-58 y D-59 en el `DECISIONES.md` de cada repo (D-54 y D-55 solo en la app). D-53 reescrita con cuatro opciones para un generador y la recomendación de preguntar al profesor. Explicaciones de dobles de prueba (D-56), de RN-HS-21 con un ejemplo calculado (D-60) y de la protección del Template Method (D-36) |
+| Modificaciones del equipo | El usuario eligió C en D-59 en lugar de la recomendación B, aceptando el riesgo y dejando abierto el cambio. ⚠️ completar |
+| Lecciones | La IA verificó en GitHub que los repos son públicos y en la documentación de GitHub que los *runners* estándar no gastan minutos en repos públicos, antes de responder sobre el costo del CI. Revisó el enunciado antes de ofrecer composición como alternativa en D-36: el §3.3 pide Template Method "en una clase abstracta", así que esa alternativa no sirve |
+
+### IA-22 · Paso 6: generador, 25 niveles candidatos y estrategia de pruebas — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con búsqueda web |
+| Prompt | Literal: "D57 vamos con la recomendacion / D53 D / D56 C, pero esos dobles los escribes tu? / D60 A / D36 B"; y la respuesta "Recomendación" a la pregunta sobre D-28 |
+| Resultado | D-28, D-36, D-53, D-56 y D-60 cerradas. `levelgen.py` (generador como herramienta de autor) y `levelcheck.py` (verificador). 25 niveles candidatos en `assets/levels/` con catálogo en `docs/levels/`. Estrategia de pruebas en los dos repos. E-COM-2, E-COM-3, E-HF-1, E-HF-4 y E-HF-NIVEL corregidos. D-61 y P-14 nuevas; R-05 para que el equipo revise los niveles |
+| Modificaciones del equipo | Los niveles son **candidatos**: el equipo debe jugarlos, ajustarlos y aprobarlos (R-05), y el profesor debe confirmar que cuentan como "diseñados manualmente" (P-14). ⚠️ completar con lo que ajuste cada integrante |
+| Lecciones | (1) Comparar los ejemplos con niveles reales mostró que dos ejemplos ya "verificados" eran imposibles: el script solo comprobaba el orden de los intentos, no que las estrellas fueran coherentes con los umbrales. Se agregó esa comprobación. (2) El verificador de niveles pasó a la primera, así que se probó con 5 roturas a propósito, y las detectó todas. (3) El catálogo y el informe del generador se sacaron de `assets/` porque todo lo que está ahí entra al APK. (4) Al revisar la sincronización apareció un hueco del Paso 5: la API debe conocer los niveles incluidos para revisar la plausibilidad (D-61) |
 
 ## 4. Evaluación crítica
 

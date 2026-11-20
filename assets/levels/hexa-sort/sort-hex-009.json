@@ -1,0 +1,64 @@
+{
+  "id": "sort-hex-009",
+  "gameId": "hexa-sort",
+  "topology": "hex",
+  "order": 9,
+  "version": 1,
+  "name": {
+    "es": "Tormenta",
+    "en": "Storm"
+  },
+  "variant": {
+    "goals": 10,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple",
+      "orange"
+    ],
+    "seed": 678606260,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    },
+    "initialStacks": [
+      {
+        "cell": [
+          -1,
+          2
+        ],
+        "stack": [
+          "green",
+          "green",
+          "green"
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          0
+        ],
+        "stack": [
+          "purple",
+          "purple",
+          "purple",
+          "purple",
+          "purple"
+        ]
+      },
+      {
+        "cell": [
+          0,
+          -2
+        ],
+        "stack": [
+          "orange",
+          "red"
+        ]
+      }
+    ]
+  }
+}

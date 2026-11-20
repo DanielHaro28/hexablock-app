@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Estado | Borrador para revisión del equipo |
-| Fecha | 2026-11-11 (revisión de coherencia: 12-11; D-27, D-45, D-49 y D-50: 19-11) |
+| Fecha | 2026-11-11 (revisión de coherencia: 12-11; D-27, D-45, D-49 y D-50: 19-11; E-COM-2 y E-COM-3 corregidos: 20-11) |
 | Repositorio | **Compartido:** `hexablock-app` y `hexablock-api`, en `docs/requirements/`. Las dos copias deben ser **idénticas**: se modifica en un PR de cada repo, con el mismo cambio |
 | Relacionados | `02-RN-NIVELES.md`, `docs/security/SECURITY-BASELINE.md` |
 
@@ -40,11 +40,13 @@ Formato de las reglas y estados (✅ acordada / 🟡 propuesta / ⚠️ decidir)
 
 **Ejemplo E-COM-2 (consolidación).**
 
-| Dato (Hexa Fit) | En el dispositivo | En el servidor | Resultado |
+| Dato (Hexa Fit, niveles `fit-hex-001` a `004`) | En el dispositivo | En el servidor | Resultado |
 |---|---|---|---|
 | Niveles completados | {1, 2, 3} | {1, 2, 4} | {1, 2, 3, 4} |
-| Mejor intento nivel 2 | 3★, 01:40, 9 mov. | 3★, 01:10, 12 mov. | 3★, 01:10, 12 mov. (mismas estrellas, menor tiempo) |
-| Mejor intento nivel 1 | 2★, 00:30, 4 mov. | 3★, 02:00, 7 mov. | 3★, 02:00, 7 mov. (más estrellas) |
+| Mejor intento nivel 2 (`m` = 3, `t` = 40 s) | 3★, 00:35, 2 mov. | 3★, 00:28, 3 mov. | 3★, 00:28, 3 mov. (mismas estrellas, menor tiempo) |
+| Mejor intento nivel 1 (`m` = 3, `t` = 40 s) | 2★, 00:30, 4 mov. | 3★, 00:38, 3 mov. | 3★, 00:38, 3 mov. (más estrellas, aunque más lento) |
+
+Las estrellas de cada intento son coherentes con los umbrales del nivel (RN-HF-62). Los valores completos, con los niveles 3 y 4, están en `docs/contracts/examples/E-COM-2.*.json`.
 
 Aplicar la consolidación otra vez con el resultado no cambia nada.
 
@@ -65,19 +67,19 @@ Aplicar la consolidación otra vez con el resultado no cambia nada.
 
 **Ejemplo E-COM-3 (orden del ranking por nivel).**
 
-| Hexa Fit, nivel 3 | Estrellas | Tiempo | Movimientos | Posición |
+| Hexa Fit, nivel 3 (`m` = 4, `t` = 60 s) | Estrellas | Tiempo | Movimientos | Posición |
 |---|---|---|---|---|
-| Ana | 3★ | 01:10 | 12 | 2 |
-| Beto | 3★ | 01:10 | 9 | **1** (empata en estrellas y tiempo; menos movimientos) |
-| Caro | 2★ | 00:30 | 3 | 3 (menos estrellas, aunque fue más rápida) |
+| Ana | 3★ | 00:50 | 4 | 2 |
+| Beto | 3★ | 00:50 | 3 | **1** (empata en estrellas y tiempo; menos movimientos) |
+| Caro | 2★ | 00:30 | 6 | 3 (menos estrellas, aunque fue más rápida: 6 movimientos > `m`) |
 
-| Hexa Sort, nivel 2 | Movimientos | Puntaje | Posición |
+| Hexa Sort, nivel 2 (2 metas) | Movimientos | Puntaje | Posición |
 |---|---|---|---|
-| Ana | 12 | 300 | 3 |
-| Beto | 12 | 450 | 2 |
-| Caro | 10 | 112 | **1** (menos movimientos; el puntaje solo desempata) |
+| Ana | 12 | 240 | 3 |
+| Beto | 12 | 265 | 2 |
+| Caro | 10 | 224 | **1** (menos movimientos; el puntaje solo desempata) |
 
-_(Los puntajes de Hexa Sort son posibles según RN-HS-60: completar un nivel exige al menos 1 meta y al menos 1 ficha transferida, así que el mínimo es 101.)_
+_(Los puntajes son posibles según RN-HS-60: cada meta vale 100 y exige al menos 1 ficha transferida, así que con 2 metas el mínimo es 202. El jugador automático de `levelkit.py` gana este nivel en 10 movimientos o menos.)_
 
 **Criterios de "mejor intento" por variante** (los usan la consolidación y el ranking):
 

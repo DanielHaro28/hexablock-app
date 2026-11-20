@@ -4,17 +4,108 @@
   "topology": "hex",
   "order": 1,
   "version": 1,
-  "name": { "es": "Primer encaje", "en": "First fit" },
+  "name": {
+    "es": "Primer encaje",
+    "en": "First fit"
+  },
   "variant": {
-    "figure": [[2, -1], [0, 0], [1, 0], [2, 0], [0, 1], [1, 1]],
-    "pieces": [
-      { "id": "A", "color": "teal", "shape": [[0, 0], [1, 0], [1, 1]] },
-      { "id": "B", "color": "orange", "shape": [[0, 0], [1, 0], [0, 1]] }
+    "figure": [
+      [
+        2,
+        -1
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ]
     ],
-    "starThresholds": { "moves": 2, "timeMs": 60000 },
+    "pieces": [
+      {
+        "id": "A",
+        "color": "teal",
+        "shape": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "id": "B",
+        "color": "orange",
+        "shape": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      }
+    ],
+    "starThresholds": {
+      "moves": 3,
+      "timeMs": 40000
+    },
     "solution": {
-      "A": [[2, -1], [2, 0], [1, 1]],
-      "B": [[0, 0], [1, 0], [0, 1]]
+      "A": [
+        [
+          2,
+          -1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "B": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
     }
   }
 }

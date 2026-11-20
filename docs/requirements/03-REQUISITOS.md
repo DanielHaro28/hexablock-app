@@ -140,7 +140,7 @@
 | RNF-20 | **Determinismo** | Misma configuración + misma semilla + mismos movimientos = mismo estado final, siempre | Prueba de repetición por variante | §1.4, RN-COM-41 | Must |
 | RNF-21 | **Suite de pruebas** | Hay pruebas unitarias, de integración (repositorios con BD en memoria), de widget y de navegación. Todas siguen **AAA** y el nombre `should_[resultado]_when_[condición]` | CI | §3.6 | Must |
 | RNF-22 | **Ejemplos como pruebas** | Cada ejemplo `E-*` de las reglas de negocio tiene al menos una prueba con su ID en el nombre o en un comentario | Matriz de trazabilidad | Este documento | Must |
-| RNF-23 | **Cobertura** | Dominio ≥ 90 % de líneas; aplicación ≥ 80 %; app total ≥ 70 % | Reporte de cobertura en CI con umbral | Equipo | Should |
+| RNF-23 | **Cobertura** | Dominio ≥ 90 % de líneas; aplicación ≥ 80 %; app total ≥ 70 % | El CI falla debajo del umbral (D-58, `docs/testing/ESTRATEGIA-PRUEBAS.md` §7) | Equipo | Must |
 | RNF-24 | **Integración continua** | Cada PR ejecuta formato, análisis estático, pruebas y la verificación de arquitectura; no se puede integrar a `main` con CI en rojo. Un tag de versión publica el APK firmado | Protección de `main` | §3.6 | Must |
 | RNF-25 | **Contrato de la API** | Los mappers de la app se prueban con los ejemplos de `openapi.yaml` (el mismo contrato que valida el backend) | Pruebas de contrato del lado cliente en CI | §3.6 (recomendado), ADR-001 | Should |
 | RNF-26 | **Mantenibilidad** | 0 advertencias del linter; formato automático; Conventional Commits en inglés validados | CI + commitlint | §6.2 | Must |

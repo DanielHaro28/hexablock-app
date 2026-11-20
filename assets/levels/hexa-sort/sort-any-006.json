@@ -1,0 +1,27 @@
+{
+  "id": "sort-any-006",
+  "gameId": "hexa-sort",
+  "topology": "any",
+  "order": 6,
+  "version": 1,
+  "name": {
+    "es": "Torbellino",
+    "en": "Whirlpool"
+  },
+  "variant": {
+    "goals": 5,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple"
+    ],
+    "seed": 1444413796,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    }
+  }
+}

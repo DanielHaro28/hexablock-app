@@ -1,0 +1,25 @@
+{
+  "id": "sort-any-003",
+  "gameId": "hexa-sort",
+  "topology": "any",
+  "order": 3,
+  "version": 1,
+  "name": {
+    "es": "Tres en raya",
+    "en": "Three in a row"
+  },
+  "variant": {
+    "goals": 3,
+    "palette": [
+      "red",
+      "green",
+      "blue"
+    ],
+    "seed": 4125378150,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    }
+  }
+}

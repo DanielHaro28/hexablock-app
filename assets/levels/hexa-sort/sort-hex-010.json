@@ -1,0 +1,80 @@
+{
+  "id": "sort-hex-010",
+  "gameId": "hexa-sort",
+  "topology": "hex",
+  "order": 10,
+  "version": 1,
+  "name": {
+    "es": "Gran final",
+    "en": "Grand finale"
+  },
+  "variant": {
+    "goals": 12,
+    "palette": [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "purple",
+      "orange"
+    ],
+    "seed": 2046585253,
+    "generation": {
+      "minHeight": 2,
+      "maxHeight": 6,
+      "maxBlocks": 3
+    },
+    "initialStacks": [
+      {
+        "cell": [
+          2,
+          -1
+        ],
+        "stack": [
+          "yellow",
+          "yellow",
+          "orange",
+          "orange",
+          "orange",
+          "yellow"
+        ]
+      },
+      {
+        "cell": [
+          1,
+          -1
+        ],
+        "stack": [
+          "green",
+          "green",
+          "green"
+        ]
+      },
+      {
+        "cell": [
+          -2,
+          1
+        ],
+        "stack": [
+          "yellow",
+          "purple",
+          "purple"
+        ]
+      },
+      {
+        "cell": [
+          -1,
+          2
+        ],
+        "stack": [
+          "yellow",
+          "yellow",
+          "yellow",
+          "yellow",
+          "yellow",
+          "yellow"
+        ]
+      }
+    ]
+  }
+}

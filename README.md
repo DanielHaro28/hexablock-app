@@ -23,6 +23,25 @@ cd app && flutter test
 
 The workspace layout is described in `docs/architecture/ARQ-01-APP-GENERAL.md` §3.
 
+## Generic engine
+
+One engine (`packages/hexa_engine`) plays the four variants on any cell shape. It knows no variant and no cell shape: each cell shape is a `GridTopology<C>` in `packages/hexa_topologies`, and each variant is a set of rules in `packages/hexa_variants`. The full design is in `docs/architecture/ARQ-02-MOTOR.md`; adding a variant or a cell shape is described in `docs/EXTENSIBILITY.md`.
+
+### Type constraints
+
+Every constraint on a type parameter is there for a reason (RNF-05, ARQ-02 §4.3). Rows marked *planned* belong to engine parts that are not merged yet; their constraint is already decided.
+
+| Parameter | Constraint | Why | Where |
+|---|---|---|---|
+| `C` (coordinate) | `C extends Coord` | Boards and shapes use coordinates as map keys and set members, so every coordinate must compare by value. `Coord` is a `base` class, so a coordinate is always a real subclass, and, since Dart cannot force a subclass to override `==` and `hashCode`, the shared contract test (`checkTopologyContract` in `hexa_test_support`) checks that each topology's coordinates compare by value | `Board`, `GridTopology`, `Shape`, `TopologyVisitor` |
+| `TCell` (cell content) | `TCell extends Object` | Rules out nullable contents, so `TCell?` always means "empty cell" (D-30) and the board stores only occupied cells | `Board`, `HexBoard` |
+| `TState` (game state) | `TState extends GameState<C, TCell>` | The engine reads the board and the score of any state to notify and save it, without knowing the variant | `IGameRules`, `GameEngine` (*planned*) |
+| `TMove` (move) | None | The engine never inspects a move: it only hands it to the rules. An empty constraint would be decorative | `IGameRules`, `GameEngine` (*planned*) |
+| `TPiece` (piece) | None | A Hexa Sort stack is not a shape; the piece source only hands out values | `IPieceSource` (*planned*) |
+| `T` in `SlideMergeResolver<C, T>` | `T extends Mergeable<T>` (F-bounded) | Sliding and merging only need to know whether two values merge and into what, so the algorithm works for any mergeable content, not only powers of 2 | Hexa Merge (*planned*) |
+
+**Why the coordinate is a type parameter.** The course statement names the hexagonal board `HexBoard<TCell>`: a board that is generic in its content only, with hexagons built in. After the professor warned that the cell shape could change (triangles, squares or cubes, `docs/requirements/02-RN-TOPOLOGIAS.md`), the team made the coordinate a type parameter too (D-07). `Board<C, TCell>` works with any cell shape, and `HexBoard<TCell>` stays as a `typedef` of `Board<HexCoord, TCell>` in `hexa_topologies`. Because `C` is checked at compile time, a game created with `HexCoord` cannot receive a coordinate of another shape (RN-TOP-31). The constraint `C extends Coord` is the minimum the board needs from a coordinate: value equality.
+
 ## Continuous integration and releases
 
 - Every pull request runs `.github/workflows/ci.yml` (title in Conventional Commits, format, analysis, architecture checks, tests with coverage, debug APK) and `.github/workflows/docs-check.yml`.

@@ -154,6 +154,7 @@ package "Capa 1 · Entidades · hexa_engine" {
     + neighbors(c: C): List<C>
     + lines(cells: Set<C>, axis: Axis): Iterable<List<C>>
     + rotate(shape: Shape<C>, r: Rotation): Shape<C>
+    + place(shape: Shape<C>, anchor: C): Set<C>?
     + accept<R>(v: TopologyVisitor<R>): R
   }
   interface TopologyVisitor<R> <<interface>> <<Visitor>> {
@@ -165,6 +166,8 @@ package "Capa 1 · Entidades · hexa_topologies" {
   class HexCoord {
     + q: int
     + r: int
+    + s: int
+    + distanceTo(other: HexCoord): int
   }
   class HexTopology
   class SquareTopology

@@ -12,5 +12,8 @@ dependencies:
     path: ../hexa_engine
 
 dev_dependencies:
+  # Shared doubles and the topology contract test (D-56).
+  hexa_test_support:
+    path: ../hexa_test_support
   test: ^1.25.0
 

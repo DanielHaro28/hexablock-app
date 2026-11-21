@@ -17,8 +17,8 @@ import 'topology_visitor.dart';
 ///   [cellsOf], [neighbors], [step], [lines], [compareReadingOrder],
 ///   [rotateCell], [normalizationOrigin] and [translate].
 /// - **Written once here** for every topology: [inReadingOrder], [normalize],
-///   [rotate], [orientations], [ray] and [accept]. A new cell shape gets them
-///   for free and cannot get them wrong.
+///   [place], [rotate], [orientations], [ray] and [accept]. A new cell shape
+///   gets them for free and cannot get them wrong.
 ///
 /// Topologies hold no state, so they can be `const` and shared, and they are
 /// equal when they are of the same class and have the same [id].
@@ -57,6 +57,7 @@ abstract base class GridTopology<C extends Coord> {
   List<C> neighbors(C cell);
 
   /// The next cell after [cell] along [direction] on an unbounded grid.
+  /// Throws [ArgumentError] for a direction of another topology.
   C step(C cell, Direction direction);
 
   /// The lines of [cells] along [axis], each one in its fixed order
@@ -94,11 +95,27 @@ abstract base class GridTopology<C extends Coord> {
   /// [shape] translated so that its first cell in reading order lands on
   /// [normalizationOrigin] (RN-COM-15). Keeps the composite structure.
   Shape<C> normalize(Shape<C> shape) {
-    final first = shape.cells.reduce(
-      (a, b) => compareReadingOrder(a, b) <= 0 ? a : b,
-    );
+    final first = _firstInReadingOrder(shape);
     final origin = normalizationOrigin(first);
     return shape.map((cell) => translate(cell, first, origin));
+  }
+
+  /// The cells [shape] covers when its first cell in reading order is put on
+  /// [anchor] (D-92), unmodifiable and in the order of `shape.cells`; or
+  /// `null` if [anchor] is not of the same cell type as that first cell (on
+  /// triangles a ▲ cannot go where a ▼ goes, RN-TRI-07).
+  ///
+  /// The result does not depend on where [shape] is, so it needs no
+  /// normalizing first. It knows no board: whether the cells exist and are
+  /// empty (whether the piece *fits*) is the variant's rule.
+  Set<C>? place(Shape<C> shape, C anchor) {
+    final first = _firstInReadingOrder(shape);
+    if (normalizationOrigin(anchor) != normalizationOrigin(first)) {
+      return null;
+    }
+    return Set.unmodifiable({
+      for (final cell in shape.cells) translate(cell, first, anchor),
+    });
   }
 
   /// [shape] turned by one basic [rotation] and normalized (RN-COM-14).
@@ -140,6 +157,9 @@ abstract base class GridTopology<C extends Coord> {
   /// coordinate type, even when this topology is stored as
   /// `GridTopology<Coord>` (D-29).
   R accept<R>(TopologyVisitor<R> visitor) => visitor.visit<C>(this);
+
+  C _firstInReadingOrder(Shape<C> shape) =>
+      shape.cells.reduce((a, b) => compareReadingOrder(a, b) <= 0 ? a : b);
 
   /// Topologies hold no state, so two instances of the same class with the
   /// same [id] are interchangeable. Boards compare their topology with this,

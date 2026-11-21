@@ -169,6 +169,54 @@ void main() {
     );
   });
 
+  group('RN-COM-14 with two cell types', () {
+    const checkered = FakeCheckeredTopology();
+
+    test('should_land_on_the_origin_of_the_new_type_when_a_rotation_changes_the_cell_type', () {
+      // Arrange: (0, 0) is even; the shifted quarter turn takes it to the odd
+      // cell (0, 1), whose origin is (1, 0), as ▲ turns into ▼ (RN-TRI-06).
+      const shape = CellShape(FakeCoord(0, 0));
+
+      // Act
+      final turned = checkered.rotate(shape, FakeTopology.quarterTurn);
+
+      // Assert
+      expect(turned.cells, {const FakeCoord(1, 0)});
+    });
+
+    test(
+      'should_find_one_orientation_per_cell_type_when_rotating_a_single_cell',
+      () {
+        // Arrange
+        const shape = CellShape(FakeCoord(0, 0));
+
+        // Act
+        final orientations = checkered.orientations(shape);
+
+        // Assert
+        expect(orientations, [
+          Shape.fromCells(const [FakeCoord(0, 0)]),
+          Shape.fromCells(const [FakeCoord(1, 0)]),
+        ]);
+      },
+    );
+
+    test('should_use_the_second_basic_rotation_when_turning_half_a_circle', () {
+      // Arrange: (x, y) → (−x, −y), then normalized.
+      final shape = ell;
+
+      // Act
+      final turned = checkered.rotate(shape, FakeCheckeredTopology.halfTurn);
+
+      // Assert
+      expect(turned.cells, {
+        const FakeCoord(0, 0),
+        const FakeCoord(1, 0),
+        const FakeCoord(1, 1),
+      });
+    });
+  });
+
   group('RN-COM-13', () {
     final cells = topology.cellsOf(ShapeSpec('rectangle', const [4, 1]));
 
@@ -192,6 +240,108 @@ void main() {
 
       // Assert
       expect(ray, isEmpty);
+    });
+  });
+
+  group('D-92', () {
+    test('should_put_the_first_cell_in_reading_order_on_the_anchor_when_placing_a_shape', () {
+      // Arrange
+      const anchor = FakeCoord(3, 2);
+
+      // Act
+      final placed = topology.place(ell, anchor);
+
+      // Assert
+      expect(placed, {
+        const FakeCoord(3, 2),
+        const FakeCoord(3, 3),
+        const FakeCoord(4, 3),
+      });
+    });
+
+    test('should_place_the_same_cells_when_the_shape_is_not_normalized', () {
+      // Arrange
+      final shifted = Shape.fromCells(const [
+        FakeCoord(5, 5),
+        FakeCoord(5, 6),
+        FakeCoord(6, 6),
+      ]);
+
+      // Act
+      final placed = topology.place(shifted, const FakeCoord(3, 2));
+
+      // Assert
+      expect(placed, topology.place(ell, const FakeCoord(3, 2)));
+    });
+
+    test(
+      'should_place_the_cells_of_every_part_when_the_shape_is_composite',
+      () {
+        // Arrange
+        final shape = CompositeShape([
+          const CellShape(FakeCoord(0, 0)),
+          Shape.fromCells(const [FakeCoord(1, 0), FakeCoord(1, 1)]),
+        ]);
+
+        // Act
+        final placed = topology.place(shape, const FakeCoord(2, 2));
+
+        // Assert
+        expect(placed, {
+          const FakeCoord(2, 2),
+          const FakeCoord(3, 2),
+          const FakeCoord(3, 3),
+        });
+      },
+    );
+
+    test('should_return_cells_off_any_board_when_the_anchor_is_far_away', () {
+      // Arrange: placing does not look at a board; fitting is the variant's.
+      const anchor = FakeCoord(-1, -1);
+
+      // Act
+      final placed = topology.place(ell, anchor);
+
+      // Assert
+      expect(placed, {
+        const FakeCoord(-1, -1),
+        const FakeCoord(-1, 0),
+        const FakeCoord(0, 0),
+      });
+    });
+
+    test('should_refuse_changes_when_editing_the_placed_cells', () {
+      // Arrange
+      final placed = topology.place(ell, const FakeCoord(0, 0))!;
+
+      // Act
+      void act() => placed.add(const FakeCoord(9, 9));
+
+      // Assert
+      expect(act, throwsUnsupportedError);
+    });
+
+    test('should_return_null_when_the_anchor_is_of_another_cell_type', () {
+      // Arrange: the first cell (0, 0) is even and the anchor (1, 0) is odd.
+      const checkered = FakeCheckeredTopology();
+
+      // Act
+      final placed = checkered.place(ell, const FakeCoord(1, 0));
+
+      // Assert
+      expect(placed, isNull);
+    });
+
+    test('should_place_the_shape_when_the_anchor_is_of_the_same_cell_type', () {
+      // Arrange: the first cell (1, 0) and the anchor (0, 1) are both odd.
+      const checkered = FakeCheckeredTopology();
+      final shape = Shape.fromCells(const [FakeCoord(1, 0), FakeCoord(1, 1)]);
+
+      // Act
+      final placed = checkered.place(shape, const FakeCoord(0, 1));
+
+      // Assert
+      expect(placed, {const FakeCoord(0, 1), const FakeCoord(0, 2)});
     });
   });
 

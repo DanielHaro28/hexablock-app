@@ -4,7 +4,6 @@ E-COM-1
 E-COM-2
 E-COM-3
 E-CUB-1
-E-HEX-1
 E-HF-1
 E-HF-2
 E-HF-3

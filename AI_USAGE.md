@@ -504,13 +504,24 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió que una coordenada fuera del tablero lance un error (opción B, D-91) y dejar la colocación en un ancla fuera del PR. ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) Claude dijo que Python no estaba instalado: solo probó `python` y `python3`, que en Windows son accesos de Microsoft Store; el usuario lo corrigió y funciona con `py`. (2) El esbozo de ARQ-02 §4.3 daba por hecho que `Coord` obligaría a implementar `==`; al compilarlo se vio que Dart no lo exige, y quedó documentado. (3) La revisión de arquitectura encontró una igualdad de tableros que fallaba con dos instancias de la misma topología y la pregunta de las anclas en triángulos (D-92) |
 
+### IA-44 · Topología hexagonal intercambiable y colocación en un ancla (TEC-06, PR 2 de 5) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 21-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`); subagente `architecture-reviewer` |
+| Prompt | Paráfrasis fiel del pedido: implementar el PR 2 del plan del motor (TEC-06 #67, rama `feat/tec-06-hex-topology`, `Closes #67`) después de comprobar que el PR #100 estaba fusionado: `HexCoord` y `HexTopology` (RN-HEX-01 a 08) con solo las primitivas de D-90, el `typedef` `HexBoard<TCell>`, la prueba de E-HEX-1, la prueba de contrato común `checkTopologyContract` en `hexa_test_support`, `GridTopology.place` según D-92 y la sección de restricciones de tipo del README; plan primero, pruebas primero, revisión de arquitectura, `AI_USAGE.md` y PR con la plantilla. Después, literal: "Cual es ese mal codificacion, y cada commit no deberia ser un PR_?" y "ok, sigue con tus recomendaciones y place en este PR" |
+| Resultado | Issue #67, rama `feat/tec-06-hex-topology`. En `packages/hexa_topologies/lib/src/hex/`: `HexCoord` (con `distanceTo`, RN-HEX-07), `HexTopology` y `HexBoard`. En `hexa_engine`: `GridTopology.place` (D-92). En `hexa_test_support`: `checkTopologyContract` (ahora depende de `package:test`) y `FakeCheckeredTopology` (dos tipos de celda y dos giros básicos). 102 pruebas en `hexa_engine` y 77 en `hexa_topologies`; cobertura de 97 % en `hexa_engine` y 100 % en `hexa_topologies`. Documentos: sección *Generic engine* del README (RNF-05), EXTENSIBILITY §4, ARQ-02 §3.1 y §4.3, `clases-motor.puml` y trazabilidad de RF-10 y E-HEX-1 |
+| Modificaciones del equipo | El usuario aceptó las dos recomendaciones del plan (la distancia como `HexCoord.distanceTo` y el doble a cuadros para probar el `null` de `place`) y pidió dejar `place` en este PR. ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
+| Lecciones | (1) Al leer el código se encontró un `§` mal codificado (`Â§`) que había entrado con IA-43. (2) Para comprobar que la prueba de contrato sirve, se rompió `HexTopology` a propósito de dos maneras (sentidos invertidos en un eje y orden de vecinas distinto según la celda) y el contrato falló en las dos. (3) La revisión de arquitectura encontró que el contrato no relacionaba las vecinas con `step`, que el doble a cuadros no tenía un giro que cambiara el tipo de celda (como en triángulos) y que `FakeTopology.step` aceptaba direcciones de otra topología con el mismo `id`; se corrigió con pruebas. (4) Límites del entorno: OneDrive bloqueó `build/` de `hexa_engine` y `flutter test --coverage` falló ahí, así que la cobertura del motor se midió con `dart test --coverage`; `check_ids.py` no se pudo correr completo porque `hexablock-api` no está clonado en esta máquina, y lo verifica el CI |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
 
 | Parte | Asistencia de IA |
 |---|---|
-| Código de la app | Motor (`hexa_engine`, desde IA-43): escrito con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
+| Código de la app | Motor (`hexa_engine`, desde IA-43) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
 | Documentación de planificación (`docs/`) | Redactada en su mayor parte con Claude; las decisiones (D-*) las tomó el equipo. ⚠️ El equipo estima el porcentaje al cerrar la revisión de los Pasos 1 y 2 |
 | Herramientas de verificación (`tools/reference-sim/`) | Escritas con Claude |
 
@@ -530,6 +541,9 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | PR sin la plantilla del repo y título sin ámbito | Pregunta del usuario (IA-08) | Título `docs(planning): …` y descripción con la plantilla |
 | "Python no está instalado", cuando sí lo estaba (solo se probaron los accesos de Microsoft Store) | El usuario lo corrigió (IA-43) | Se usa `py`; los scripts de `tools/docs-check/` se corrieron antes del PR |
 | `Board.==` comparaba la topología por identidad: dos tableros iguales con dos instancias de la topología eran distintos | Subagente `architecture-reviewer` (IA-43) | Las topologías se comparan por clase e `id`, con una prueba |
+| Un `§` mal codificado (`Â§`) en un comentario de `board.dart` (IA-43) | Lectura del código al empezar IA-44 | Corregido en IA-44 |
+| La prueba de contrato no relacionaba las vecinas con `step`, y el doble a cuadros no probaba un giro que cambia el tipo de celda | Subagente `architecture-reviewer` (IA-44) | El contrato exige que las vecinas sean las celdas a un paso; el doble gira cambiando el tipo y tiene un segundo giro básico |
+| `FakeTopology.step` reconocía la dirección solo por su `id`, así que aceptaba la de otra topología | Subagente `architecture-reviewer` (IA-44) | Compara la dirección entera, y el contrato prueba que una dirección ajena lanza un error |
 
 ### 4.3 Reflexión del equipo
 

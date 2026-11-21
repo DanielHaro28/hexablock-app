@@ -1,66 +1,74 @@
 {
  "app:NAV-01": {
   "number": 24,
-  "note": "falta asignar: dicpc",
   "title": "NAV-01 · Seleccionar un juego desde el inicio",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 6
  },
  "app:NAV-02": {
   "number": 25,
-  "note": "falta asignar: dicpc",
   "title": "NAV-02 · Controlar el audio",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:NAV-03": {
   "number": 26,
-  "note": "falta asignar: dicpc",
   "title": "NAV-03 · Cambiar el idioma",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:NAV-04": {
   "number": 27,
-  "note": "falta asignar: dicpc",
   "title": "NAV-04 · Pausar una partida",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:NAV-05": {
   "number": 28,
-  "note": "falta asignar: dicpc",
   "title": "NAV-05 · Consultar cómo se juega",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:NAV-06": {
   "number": 29,
-  "note": "falta asignar: dicpc",
   "title": "NAV-06 · Acceder a mi cuenta desde la app",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:NAV-07": {
   "number": 30,
-  "note": "falta asignar: dicpc",
   "title": "NAV-07 · Ver el ranking en la app",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 6
  },
  "app:NAV-08": {
   "number": 31,
-  "note": "falta asignar: dicpc",
   "title": "NAV-08 · Elegir la figura de las celdas",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 3
  },
  "app:HL-01": {
@@ -241,18 +249,20 @@
  },
  "app:PRG-01": {
   "number": 54,
-  "note": "falta asignar: dicpc",
   "title": "PRG-01 · Ver la pantalla de victoria",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 6
  },
  "app:PRG-02": {
   "number": 55,
-  "note": "falta asignar: dicpc",
   "title": "PRG-02 · Ver la pantalla de derrota",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:PRG-03": {
@@ -273,18 +283,20 @@
  },
  "app:API-01": {
   "number": 58,
-  "note": "falta asignar: dicpc",
   "title": "API-01 · Registrarme",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 5
  },
  "app:API-02": {
   "number": 59,
-  "note": "falta asignar: dicpc",
   "title": "API-02 · Iniciar sesión",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:API-03": {
@@ -405,10 +417,11 @@
  },
  "app:TEC-09": {
   "number": 70,
-  "note": "falta asignar: dicpc",
   "title": "TEC-09 · Vista 3D",
   "milestone": null,
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 16
  },
  "app:T-01": {
@@ -443,10 +456,11 @@
  },
  "app:T-05": {
   "number": 72,
-  "note": "falta asignar: dicpc",
   "title": "T-05 · Aplicar los ajustes al diseño DIS-01 a DIS-16",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 6
  },
  "app:T-06": {

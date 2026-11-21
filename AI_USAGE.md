@@ -515,13 +515,24 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó las dos recomendaciones del plan (la distancia como `HexCoord.distanceTo` y el doble a cuadros para probar el `null` de `place`) y pidió dejar `place` en este PR. ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) Al leer el código se encontró un `§` mal codificado (`Â§`) que había entrado con IA-43. (2) Para comprobar que la prueba de contrato sirve, se rompió `HexTopology` a propósito de dos maneras (sentidos invertidos en un eje y orden de vecinas distinto según la celda) y el contrato falló en las dos. (3) La revisión de arquitectura encontró que el contrato no relacionaba las vecinas con `step`, que el doble a cuadros no tenía un giro que cambiara el tipo de celda (como en triángulos) y que `FakeTopology.step` aceptaba direcciones de otra topología con el mismo `id`; se corrigió con pruebas. (4) Límites del entorno: OneDrive bloqueó `build/` de `hexa_engine` y `flutter test --coverage` falló ahí, así que la cobertura del motor se midió con `dart test --coverage`; `check_ids.py` no se pudo correr completo porque `hexablock-api` no está clonado en esta máquina, y lo verifica el CI |
 
+### IA-45 · Motor genérico: ciclo de turno, fases, eventos y motor (TEC-01, PR 3 de 5) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 21-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`); subagente `architecture-reviewer` |
+| Prompt | Paráfrasis fiel del pedido: implementar el PR 3 del plan del motor (rama `feat/tec-01-turn-cycle`, `Refs #64`) después de comprobar el estado de los PR y de `dart`: `GameState`, `GameRules` como Template Method (`playTurn` fijo, D-36), `TurnResult`, `Step`, `GameOutcome`, `GamePhase` (5 fases), `GameEvent`, `MoveResult`, `GameEngine` con *streams* síncrono y asíncrono y `FakeRules`; leer ARQ-02, RN-COM-20 a 25 y 31, y D-36 y D-90 a D-92; proponer opciones con recomendación para lo no decidido y esperar la respuesta; pruebas primero, revisión de arquitectura, `AI_USAGE.md` y PR con la plantilla. Respuestas del usuario, literales: "Explicame bien cada opcion y dime por que una es mejor que otra y si sige las reglas del enunciado y reglas escritas.", "1. A 2. A, que pasaria con esos 2 eventos por fase que ignora generan carga en el sistema? 3. Dame una mejor Opcion por que veo que si mas adelante intento agregar una variantes con otro motivo propopio no serviria.", "Ok me gusta la opcion C, como hacemos para mitigar las desventajas?" y "Me gusta, arranca" |
+| Resultado | Issue #64, rama `feat/tec-01-turn-cycle`. En `packages/hexa_engine/lib/src/game/`: `GameState`, `GameOutcome`, `GamePhase` y sus 5 fases, `RejectionReason` con `InvalidMove` y `NotAcceptingMoves`, `GameEvent` con `PhaseChanged`, `ScoreChanged` y `MoveRejected`, `Step` y `TurnResult`, `IGameRules` y `GameRules` (Template Method con `rejectionOf`), `MoveResult` y `GameEngine` (dos *streams*, protección contra la reentrada y vuelta atrás si las reglas fallan). En `hexa_test_support`: `FakeRules`, `FakeState`, `FakeMove`, `FakeEvent` y `CellOccupied`. 161 pruebas en `hexa_engine` (60 nuevas); cobertura del dominio de 98,4 %. Decisiones D-93 a D-95 cerradas y D-96 abierta. Documentos: ARQ-02 (primera página, §2, §4.3, §6, §8, §9.6 y §12), `EXTENSIBILITY.md` §2, README (restricciones de tipo), `clases-motor.puml`, `clases.puml` y trazabilidad de RF-05, RF-10 y RF-12 |
+| Modificaciones del equipo | El usuario eligió las opciones A de D-93 y D-94. En D-95 rechazó la recomendación inicial (un `enum`), porque no servía para una variante nueva con motivos propios, y pidió una opción mejor (la jerarquía abierta) y cómo mitigar sus desventajas (nombre `rejectionOf`, ayudante `isValid`, constructor privado de `NotAcceptingMoves`). ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
+| Lecciones | (1) La primera recomendación de D-95 (un `enum`) no consideraba la extensibilidad; la detectó el usuario. (2) La revisión de arquitectura encontró que `close()` llamado desde un oyente síncrono cortaba un turno a la mitad, que faltaba explicar por qué `TState` no tiene restricción en los tipos de resultado, que ARQ-02 §9.6 citaba una prueba de D-36 que no existe y que había cuatro nombres de prueba sin `_when_`; todo se corrigió, con una prueba para `close()`. (3) También encontró una contradicción del diseño: el decorador de reglas de ARQ-02 §9.2 tendría que declarar `playTurn`, que D-36 prohíbe; quedó abierta como D-96 para el equipo. (4) Límites del entorno: VS Code heredó un PATH antiguo, así que `dart` y el servidor MCP de Dart no estaban disponibles; se usó la ruta del SDK en cada comando |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
 
 | Parte | Asistencia de IA |
 |---|---|
-| Código de la app | Motor (`hexa_engine`, desde IA-43) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
+| Código de la app | Motor (`hexa_engine`, desde IA-43; ciclo de turno en IA-45) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
 | Documentación de planificación (`docs/`) | Redactada en su mayor parte con Claude; las decisiones (D-*) las tomó el equipo. ⚠️ El equipo estima el porcentaje al cerrar la revisión de los Pasos 1 y 2 |
 | Herramientas de verificación (`tools/reference-sim/`) | Escritas con Claude |
 
@@ -544,6 +555,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Un `§` mal codificado (`Â§`) en un comentario de `board.dart` (IA-43) | Lectura del código al empezar IA-44 | Corregido en IA-44 |
 | La prueba de contrato no relacionaba las vecinas con `step`, y el doble a cuadros no probaba un giro que cambia el tipo de celda | Subagente `architecture-reviewer` (IA-44) | El contrato exige que las vecinas sean las celdas a un paso; el doble gira cambiando el tipo y tiene un segundo giro básico |
 | `FakeTopology.step` reconocía la dirección solo por su `id`, así que aceptaba la de otra topología | Subagente `architecture-reviewer` (IA-44) | Compara la dirección entera, y el contrato prueba que una dirección ajena lanza un error |
+| `GameEngine.close()` no estaba protegido: un oyente síncrono podía cerrar el motor a mitad de un turno ya aplicado | Subagente `architecture-reviewer` (IA-45) | `close()` lanza `StateError` desde un oyente síncrono, con una prueba |
+| Primera recomendación de D-95 (`enum` de motivos), cerrada para una 5.ª variante | El usuario la cuestionó (IA-45) | Jerarquía abierta `RejectionReason` (D-95) |
 
 ### 4.3 Reflexión del equipo
 

@@ -60,22 +60,25 @@ void checkTopologyContract<C extends Coord>(
     expect(cells.toList(), sorted);
   });
 
-  test('should_compare_as_zero_only_the_same_cell_when_using_reading_order', () {
-    // Arrange
-    final cells = board();
+  test(
+    'should_compare_as_zero_only_the_same_cell_when_using_reading_order',
+    () {
+      // Arrange
+      final cells = board();
 
-    for (final a in cells) {
-      for (final b in cells) {
-        // Act
-        final ab = topology.compareReadingOrder(a, b);
-        final ba = topology.compareReadingOrder(b, a);
+      for (final a in cells) {
+        for (final b in cells) {
+          // Act
+          final ab = topology.compareReadingOrder(a, b);
+          final ba = topology.compareReadingOrder(b, a);
 
-        // Assert
-        expect(ab == 0, a == b, reason: 'comparing $a and $b');
-        expect(ab.sign, -ba.sign, reason: 'comparing $a and $b');
+          // Assert
+          expect(ab == 0, a == b, reason: 'comparing $a and $b');
+          expect(ab.sign, -ba.sign, reason: 'comparing $a and $b');
+        }
       }
-    }
-  });
+    },
+  );
 
   test('should_list_distinct_neighbors_other_than_the_cell_when_asking_for_neighbors', () {
     // Arrange
@@ -111,27 +114,30 @@ void checkTopologyContract<C extends Coord>(
     }
   });
 
-  test('should_keep_the_neighbor_order_when_moving_to_a_cell_of_the_same_type', () {
-    // Arrange: one reference cell per cell type (RN-COM-17).
-    final cells = board();
-    final references = <C, C>{};
-    for (final cell in cells) {
-      references.putIfAbsent(topology.normalizationOrigin(cell), () => cell);
-    }
+  test(
+    'should_keep_the_neighbor_order_when_moving_to_a_cell_of_the_same_type',
+    () {
+      // Arrange: one reference cell per cell type (RN-COM-17).
+      final cells = board();
+      final references = <C, C>{};
+      for (final cell in cells) {
+        references.putIfAbsent(topology.normalizationOrigin(cell), () => cell);
+      }
 
-    for (final cell in cells) {
-      final reference = references[topology.normalizationOrigin(cell)]!;
+      for (final cell in cells) {
+        final reference = references[topology.normalizationOrigin(cell)]!;
 
-      // Act
-      final moved = [
-        for (final neighbor in topology.neighbors(reference))
-          topology.translate(neighbor, reference, cell),
-      ];
+        // Act
+        final moved = [
+          for (final neighbor in topology.neighbors(reference))
+            topology.translate(neighbor, reference, cell),
+        ];
 
-      // Assert
-      expect(topology.neighbors(cell), moved, reason: 'neighbors of $cell');
-    }
-  });
+        // Assert
+        expect(topology.neighbors(cell), moved, reason: 'neighbors of $cell');
+      }
+    },
+  );
 
   test('should_keep_neighbors_together_when_rotating_a_cell', () {
     // Arrange
@@ -212,25 +218,28 @@ void checkTopologyContract<C extends Coord>(
     }
   });
 
-  test('should_return_the_rest_of_the_line_when_casting_a_ray_from_its_end', () {
-    // Arrange
-    final cells = board();
+  test(
+    'should_return_the_rest_of_the_line_when_casting_a_ray_from_its_end',
+    () {
+      // Arrange
+      final cells = board();
 
-    for (final axis in topology.axes) {
-      final forward = _direction(topology, axis, forward: true);
-      final backward = _direction(topology, axis, forward: false);
+      for (final axis in topology.axes) {
+        final forward = _direction(topology, axis, forward: true);
+        final backward = _direction(topology, axis, forward: false);
 
-      for (final line in topology.lines(cells, axis)) {
-        // Act
-        final ahead = topology.ray(cells, line.first, forward).toList();
-        final behind = topology.ray(cells, line.last, backward).toList();
+        for (final line in topology.lines(cells, axis)) {
+          // Act
+          final ahead = topology.ray(cells, line.first, forward).toList();
+          final behind = topology.ray(cells, line.last, backward).toList();
 
-        // Assert
-        expect(ahead, line.sublist(1));
-        expect(behind, line.reversed.skip(1).toList());
+          // Assert
+          expect(ahead, line.sublist(1));
+          expect(behind, line.reversed.skip(1).toList());
+        }
       }
-    }
-  });
+    },
+  );
 
   test('should_return_the_same_shape_when_normalizing_twice', () {
     // Arrange
@@ -247,18 +256,21 @@ void checkTopologyContract<C extends Coord>(
     }
   });
 
-  test('should_put_the_first_cell_on_the_origin_of_its_type_when_normalizing', () {
-    // Arrange
-    final shapes = smallShapes(board());
+  test(
+    'should_put_the_first_cell_on_the_origin_of_its_type_when_normalizing',
+    () {
+      // Arrange
+      final shapes = smallShapes(board());
 
-    for (final shape in shapes) {
-      // Act
-      final first = firstInReadingOrder(topology.normalize(shape).cells);
+      for (final shape in shapes) {
+        // Act
+        final first = firstInReadingOrder(topology.normalize(shape).cells);
 
-      // Assert
-      expect(first, topology.normalizationOrigin(first));
-    }
-  });
+        // Assert
+        expect(first, topology.normalizationOrigin(first));
+      }
+    },
+  );
 
   test('should_keep_the_shape_when_placing_it_on_an_anchor_of_its_type', () {
     // Arrange
@@ -284,24 +296,27 @@ void checkTopologyContract<C extends Coord>(
     }
   });
 
-  test('should_throw_when_given_an_axis_rotation_or_kind_of_another_topology', () {
-    // Arrange
-    final cells = board();
-    const foreignAxis = Axis('not-an-axis');
-    const foreignRotation = Rotation('not-a-rotation');
-    final foreignSpec = ShapeSpec('not-a-kind', spec.size);
+  test(
+    'should_throw_when_given_an_axis_rotation_or_kind_of_another_topology',
+    () {
+      // Arrange
+      final cells = board();
+      const foreignAxis = Axis('not-an-axis');
+      const foreignRotation = Rotation('not-a-rotation');
+      final foreignSpec = ShapeSpec('not-a-kind', spec.size);
 
-    // Act and assert
-    expect(
-      () => topology.lines(cells, foreignAxis).toList(),
-      throwsArgumentError,
-    );
-    expect(
-      () => topology.rotateCell(cells.first, foreignRotation),
-      throwsArgumentError,
-    );
-    expect(() => topology.cellsOf(foreignSpec), throwsArgumentError);
-  });
+      // Act and assert
+      expect(
+        () => topology.lines(cells, foreignAxis).toList(),
+        throwsArgumentError,
+      );
+      expect(
+        () => topology.rotateCell(cells.first, foreignRotation),
+        throwsArgumentError,
+      );
+      expect(() => topology.cellsOf(foreignSpec), throwsArgumentError);
+    },
+  );
 }
 
 Direction _direction<C extends Coord>(

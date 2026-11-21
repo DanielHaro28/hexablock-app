@@ -226,23 +226,26 @@ void main() {
       expect(placed, topology.place(ell, const FakeCoord(3, 2)));
     });
 
-    test('should_place_the_cells_of_every_part_when_the_shape_is_composite', () {
-      // Arrange
-      final shape = CompositeShape([
-        const CellShape(FakeCoord(0, 0)),
-        Shape.fromCells(const [FakeCoord(1, 0), FakeCoord(1, 1)]),
-      ]);
+    test(
+      'should_place_the_cells_of_every_part_when_the_shape_is_composite',
+      () {
+        // Arrange
+        final shape = CompositeShape([
+          const CellShape(FakeCoord(0, 0)),
+          Shape.fromCells(const [FakeCoord(1, 0), FakeCoord(1, 1)]),
+        ]);
 
-      // Act
-      final placed = topology.place(shape, const FakeCoord(2, 2));
+        // Act
+        final placed = topology.place(shape, const FakeCoord(2, 2));
 
-      // Assert
-      expect(placed, {
-        const FakeCoord(2, 2),
-        const FakeCoord(3, 2),
-        const FakeCoord(3, 3),
-      });
-    });
+        // Assert
+        expect(placed, {
+          const FakeCoord(2, 2),
+          const FakeCoord(3, 2),
+          const FakeCoord(3, 3),
+        });
+      },
+    );
 
     test('should_return_cells_off_any_board_when_the_anchor_is_far_away', () {
       // Arrange: placing does not look at a board; fitting is the variant's.

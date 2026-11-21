@@ -192,45 +192,60 @@ void main() {
       expect(counts, const [1, 7, 19, 37, 61]);
     });
 
-    test('should_keep_every_cell_within_the_radius_when_building_a_hexagon', () {
-      // Act
-      final cells = topology.cellsOf(radius4);
-
-      // Assert
-      for (final c in cells) {
-        expect([c.q.abs(), c.r.abs(), c.s.abs()], everyElement(lessThan(5)));
-      }
-    });
-
-    test('should_have_lines_of_3_4_5_4_3_on_every_axis_when_the_radius_is_2', () {
-      // Arrange
-      final cells = topology.cellsOf(radius2);
-
-      for (final axis in topology.axes) {
+    test(
+      'should_keep_every_cell_within_the_radius_when_building_a_hexagon',
+      () {
         // Act
-        final lines = topology.lines(cells, axis);
+        final cells = topology.cellsOf(radius4);
 
         // Assert
-        expect(lengths(lines), const [3, 4, 5, 4, 3], reason: '$axis');
-      }
-    });
+        for (final c in cells) {
+          expect([c.q.abs(), c.r.abs(), c.s.abs()], everyElement(lessThan(5)));
+        }
+      },
+    );
 
-    test('should_have_lines_of_5_to_9_and_back_on_every_axis_when_the_radius_is_4', () {
-      // Arrange
-      final cells = topology.cellsOf(radius4);
+    test(
+      'should_have_lines_of_3_4_5_4_3_on_every_axis_when_the_radius_is_2',
+      () {
+        // Arrange
+        final cells = topology.cellsOf(radius2);
 
-      for (final axis in topology.axes) {
-        // Act
-        final lines = topology.lines(cells, axis);
+        for (final axis in topology.axes) {
+          // Act
+          final lines = topology.lines(cells, axis);
 
-        // Assert
-        expect(
-          lengths(lines),
-          const [5, 6, 7, 8, 9, 8, 7, 6, 5],
-          reason: '$axis',
-        );
-      }
-    });
+          // Assert
+          expect(lengths(lines), const [3, 4, 5, 4, 3], reason: '$axis');
+        }
+      },
+    );
+
+    test(
+      'should_have_lines_of_5_to_9_and_back_on_every_axis_when_the_radius_is_4',
+      () {
+        // Arrange
+        final cells = topology.cellsOf(radius4);
+
+        for (final axis in topology.axes) {
+          // Act
+          final lines = topology.lines(cells, axis);
+
+          // Assert
+          expect(lengths(lines), const [
+            5,
+            6,
+            7,
+            8,
+            9,
+            8,
+            7,
+            6,
+            5,
+          ], reason: '$axis');
+        }
+      },
+    );
 
     test('should_have_15_and_27_lines_when_the_radius_is_2_and_4', () {
       // Arrange
@@ -264,16 +279,19 @@ void main() {
   });
 
   group('RN-HEX-06', () {
-    test('should_map_q_r_s_to_minus_r_minus_s_minus_q_when_rotating_a_cell', () {
-      // Arrange
-      const cell = HexCoord(1, 1);
+    test(
+      'should_map_q_r_s_to_minus_r_minus_s_minus_q_when_rotating_a_cell',
+      () {
+        // Arrange
+        const cell = HexCoord(1, 1);
 
-      // Act
-      final turned = topology.rotateCell(cell, HexTopology.clockwise);
+        // Act
+        final turned = topology.rotateCell(cell, HexTopology.clockwise);
 
-      // Assert
-      expect(turned, const HexCoord(-1, 2));
-    });
+        // Assert
+        expect(turned, const HexCoord(-1, 2));
+      },
+    );
 
     test('should_turn_east_into_southeast_when_rotating_clockwise', () {
       // Arrange
@@ -283,7 +301,10 @@ void main() {
       final turned = topology.rotateCell(east, HexTopology.clockwise);
 
       // Assert
-      expect(turned, topology.step(const HexCoord(0, 0), HexTopology.southEast));
+      expect(
+        turned,
+        topology.step(const HexCoord(0, 0), HexTopology.southEast),
+      );
     });
 
     test('should_return_the_cell_when_rotating_six_times', () {
@@ -369,20 +390,23 @@ void main() {
       expect(origin, const HexCoord(0, 0));
     });
 
-    test('should_move_by_the_vector_from_one_cell_to_another_when_translating', () {
-      // Arrange
-      const cell = HexCoord(1, 1);
+    test(
+      'should_move_by_the_vector_from_one_cell_to_another_when_translating',
+      () {
+        // Arrange
+        const cell = HexCoord(1, 1);
 
-      // Act
-      final moved = topology.translate(
-        cell,
-        const HexCoord(0, 0),
-        const HexCoord(-2, 3),
-      );
+        // Act
+        final moved = topology.translate(
+          cell,
+          const HexCoord(0, 0),
+          const HexCoord(-2, 3),
+        );
 
-      // Assert
-      expect(moved, const HexCoord(-1, 4));
-    });
+        // Assert
+        expect(moved, const HexCoord(-1, 4));
+      },
+    );
   });
 
   group('E-HEX-1', () {
@@ -397,10 +421,10 @@ void main() {
       final turned = topology.rotate(arc, HexTopology.clockwise);
 
       // Assert
-      expect(turned.cells, const {
-        HexCoord(0, 0),
-        HexCoord(0, 1),
-        HexCoord(-1, 2),
+      expect(turned.cells, {
+        const HexCoord(0, 0),
+        const HexCoord(0, 1),
+        const HexCoord(-1, 2),
       });
     });
 
@@ -427,17 +451,20 @@ void main() {
   });
 
   group('D-29', () {
-    test('should_build_a_hex_board_when_visiting_a_topology_stored_as_any_coord', () {
-      // Arrange
-      const GridTopology<Coord> stored = HexTopology();
+    test(
+      'should_build_a_hex_board_when_visiting_a_topology_stored_as_any_coord',
+      () {
+        // Arrange
+        const GridTopology<Coord> stored = HexTopology();
 
-      // Act
-      final board = stored.accept(_BoardBuilder(radius2));
+        // Act
+        final board = stored.accept(_BoardBuilder(radius2));
 
-      // Assert
-      expect(board, isA<HexBoard<FakeCell>>());
-      expect(board.cells, hasLength(19));
-    });
+        // Assert
+        expect(board, isA<HexBoard<FakeCell>>());
+        expect(board.cells, hasLength(19));
+      },
+    );
   });
 
   group('contract (RN-COM-10 to 17), radius 2', () {

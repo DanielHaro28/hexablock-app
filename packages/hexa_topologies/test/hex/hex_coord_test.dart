@@ -82,30 +82,36 @@ void main() {
       expect(distances, everyElement(1));
     });
 
-    test('should_be_half_the_sum_of_the_three_gaps_when_cells_are_far_apart', () {
-      // Arrange: Δq = 2, Δr = −1, Δs = −1.
-      const from = HexCoord(0, 0);
-      const to = HexCoord(2, -1);
+    test(
+      'should_be_half_the_sum_of_the_three_gaps_when_cells_are_far_apart',
+      () {
+        // Arrange: Δq = 2, Δr = −1, Δs = −1.
+        const from = HexCoord(0, 0);
+        const to = HexCoord(2, -1);
 
-      // Act
-      final distance = from.distanceTo(to);
+        // Act
+        final distance = from.distanceTo(to);
 
-      // Assert
-      expect(distance, 2);
-    });
+        // Assert
+        expect(distance, 2);
+      },
+    );
 
-    test('should_be_the_diameter_when_measuring_opposite_corners_of_radius_2', () {
-      // Arrange
-      const from = HexCoord(-2, 2);
-      const to = HexCoord(2, -2);
+    test(
+      'should_be_the_diameter_when_measuring_opposite_corners_of_radius_2',
+      () {
+        // Arrange
+        const from = HexCoord(-2, 2);
+        const to = HexCoord(2, -2);
 
-      // Act
-      final there = from.distanceTo(to);
-      final back = to.distanceTo(from);
+        // Act
+        final there = from.distanceTo(to);
+        final back = to.distanceTo(from);
 
-      // Assert
-      expect(there, 4);
-      expect(back, there);
-    });
+        // Assert
+        expect(there, 4);
+        expect(back, there);
+      },
+    );
   });
 }

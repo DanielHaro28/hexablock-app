@@ -11,7 +11,7 @@ import 'shape_spec.dart';
 /// new one from [withCells]; nothing changes the old board, so an earlier
 /// state is already the memento for undo (D-31).
 ///
-/// Type constraints (ARQ-02 Â§4.3):
+/// Type constraints (ARQ-02 §4.3):
 /// - `C extends Coord`: coordinates are keys of the board, so they need value
 ///   equality.
 /// - `TCell extends Object`: no nullable content, so [cell] returning `null`

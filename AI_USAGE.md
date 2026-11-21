@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-38)
+> **Última actualización:** 2026-11-20 (IA-39)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -448,6 +448,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | `ci.yml` (título del PR en Conventional Commits, `pub get --enforce-lockfile`, formato con el diff en el log, análisis, arquitectura, pruebas con cobertura, puerta de cobertura, ejemplos `E-*` y APK de depuración) y `release.yml` (tag `v*` sobre `main`, keystore del environment `release`, APK ofuscado y firmado, verificación de que no es la clave de depuración, GitHub Release con SHA-256). Scripts en `tool/`: `check_architecture.dart`, `coverage_gate.dart`, `check_examples_covered.dart` y la lista `examples_pending.txt`. Verificados en el CI con violaciones a propósito (motor con `hexa-lines` y `DateTime.now`, `playTurn` en una variante, `ILogger` en un caso de uso, cobertura de 25 %, ejemplo probado aún en la lista) y luego revertidas |
 | Modificaciones del equipo | Pendiente: crear el keystore y los 4 secretos del environment `release`, y exigir el check `ci` en el ruleset (G-10) |
 | Lecciones | Flutter 3.50 agrega por su cuenta `analyzer: exclude: android/**` al `analysis_options.yaml` de la app; si no está en el repo, el paso de formato ve un cambio. Probar los scripts de CI con violaciones a propósito encontró que el control de cobertura funciona también en paquetes Dart puros con `flutter test --coverage` |
+
+### IA-39 · R-01 y D-89: versiones exactas y Prisma ORM 7 — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "Prisma 7.10" (respuesta a la decisión sobre Prisma 7 u 8 que propuso Claude) |
+| Resultado | D-89 cerrada (Prisma ORM 7, 7.10.1) en los dos registros y en ADR-001 §2.2 (rev. 2.1). Tablas de versiones exactas en los dos README: Flutter 3.50.0 y Dart 3.14.0 (vistas en el CI), Node 26 LTS, NestJS 12.5.0, Prisma 7.10.1 y PostgreSQL 18.7 (buscadas en la web el 20-11) |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
 
 ## 4. Evaluación crítica
 

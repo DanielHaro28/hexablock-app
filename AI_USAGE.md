@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-35)
+> **Última actualización:** 2026-11-20 (IA-36)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -414,6 +414,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Prompt | Literal: "D03 A / D20 Recomendacion / M0 vamos a eso" |
 | Resultado | D-03 cerrada (409 `email-taken`, riesgo aceptado y mitigado); SECURITY §3, API-01, REVISION-DISENO y la trazabilidad de la API actualizadas. D-20 sigue abierta con fecha "al empezar TEC-07" |
 | Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
+
+### IA-36 · R-03: .gitignore de la app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "D03 A / D20 Recomendacion / M0 vamos a eso" (R-03 es requisito de T-03) |
+| Resultado | El `.gitignore` era la plantilla del repo de Flutter (ignoraba `*.lock`); se reemplazó por la plantilla de app de `flutter create`, adaptada a `app/` y `packages/`, conservando las reglas de secretos |
+| Modificaciones del equipo | Ninguna todavía |
 | Lecciones | Ninguna nueva |
 
 ## 4. Evaluación crítica

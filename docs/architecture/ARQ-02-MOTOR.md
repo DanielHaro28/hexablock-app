@@ -251,7 +251,7 @@ En Merge, el enunciado sugiere `TCell = int`; se propone `Tile`, porque un `int`
 
 | Parámetro | Restricción | Por qué |
 |---|---|---|
-| `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave; `Coord` lo exige a todas las coordenadas |
+| `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave. Dart no puede obligar a sobrescribirlos, así que `Coord` es `base` (toda coordenada es una subclase real) y la prueba de contrato común (`checkTopologyContract`) comprueba la igualdad por valor de cada topología |
 | `TCell` | `TCell extends Object` | Prohíbe tipos que acepten `null`, para que `TCell?` signifique sin ambigüedad "celda vacía" |
 | `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante |
 | `TMove` | Sin restricción | El motor nunca lo inspecciona: solo lo pasa a las reglas. Una restricción vacía sería decorativa |

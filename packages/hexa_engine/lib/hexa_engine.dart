@@ -11,3 +11,5 @@ export 'src/board/grid_topology.dart';
 export 'src/board/shape.dart';
 export 'src/board/shape_spec.dart';
 export 'src/board/topology_visitor.dart';
+export 'src/game/game_outcome.dart';
+export 'src/game/game_phase.dart';

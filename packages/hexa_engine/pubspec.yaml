@@ -1,5 +1,5 @@
 name: hexa_engine
-description: Layer 1. Generic game engine and its abstractions (topology, rules, piece source, scoring, progress, randomness).
+description: "Layer 1. Generic game engine and its abstractions (topology, rules, piece source, scoring, progress, randomness)."
 publish_to: none
 version: 0.1.0
 resolution: workspace

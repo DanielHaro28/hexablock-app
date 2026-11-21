@@ -1,5 +1,5 @@
 name: hexa_test_support
-description: Hand-written fakes and stubs shared by the tests (D-56). Development only.
+description: "Hand-written fakes and stubs shared by the tests (D-56). Development only."
 publish_to: none
 version: 0.1.0
 resolution: workspace

@@ -1,5 +1,5 @@
 name: hexa_application
-description: Layer 2. Generic use cases, ports and aspects.
+description: "Layer 2. Generic use cases, ports and aspects."
 publish_to: none
 version: 0.1.0
 resolution: workspace

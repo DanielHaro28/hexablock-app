@@ -1,5 +1,5 @@
 name: hexablock_app
-description: HexaBlock Suite mobile app. Layers 3 (adapters) and 4 (frameworks).
+description: "HexaBlock Suite mobile app. Layers 3 (adapters) and 4 (frameworks)."
 publish_to: none
 version: 0.1.0+1
 resolution: workspace

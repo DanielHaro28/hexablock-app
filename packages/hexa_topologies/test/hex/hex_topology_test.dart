@@ -451,6 +451,14 @@ void main() {
   });
 
   group('D-29', () {
+    test('should_be_called_hex_when_registering_the_topology', () {
+      // Act
+      final id = topology.id;
+
+      // Assert: saved with each game and used as the registry key.
+      expect(id, 'hex');
+    });
+
     test(
       'should_build_a_hex_board_when_visiting_a_topology_stored_as_any_coord',
       () {

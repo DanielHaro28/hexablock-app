@@ -45,7 +45,7 @@ package "Capa 1 · Entidades · hexa_engine" {
     + resume(): void
     + continuePlaying(): void
     + close(): Future<void>
-    + restore(snapshot: TState): void
+    + restore(snapshot: TState): void (siguiente PR, D-31)
   }
   interface IGameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Strategy>> {
     + validMoves(s: TState): Iterable<TMove>
@@ -67,7 +67,7 @@ package "Capa 1 · Entidades · hexa_engine" {
 
   abstract class GamePhase <<State>> <<sealed>> {
     + acceptsMoves: bool
-    + allowsUndo: bool
+    + allowsUndo: bool (siguiente PR, D-31)
   }
   class PlayingPhase
   class ResolvingPhase
@@ -102,6 +102,10 @@ package "Capa 1 · Entidades · hexa_engine" {
   abstract class RejectionReason <<abstract base>>
   class InvalidMove
   class NotAcceptingMoves
+  class Step<C extends Coord, TState> {
+    + state: TState
+    + events: List<GameEvent<C>>
+  }
   abstract class TurnResult<C extends Coord, TState> <<sealed>> {
     + state: TState
   }
@@ -238,6 +242,7 @@ NotAcceptingMoves --|> RejectionReason
 PlayedTurn --|> TurnResult
 RejectedTurn --|> TurnResult
 IGameRules ..> TurnResult : devuelve
+GameRules ..> Step : cada paso
 RejectedMove ..> RejectionReason
 
 ' ===== Capacidades opcionales =====

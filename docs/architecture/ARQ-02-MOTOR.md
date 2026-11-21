@@ -257,7 +257,7 @@ En Merge, el enunciado sugiere `TCell = int`; se propone `Tile`, porque un `int`
 |---|---|---|
 | `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave. Dart no puede obligar a sobrescribirlos, así que `Coord` es `base` (toda coordenada es una subclase real) y la prueba de contrato común (`checkTopologyContract`) comprueba la igualdad por valor de cada topología |
 | `TCell` | `TCell extends Object` | Prohíbe tipos que acepten `null`, para que `TCell?` signifique sin ambigüedad "celda vacía" |
-| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante |
+| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan: restringirlo los obligaría a llevar también `TCell` sin usarlo |
 | `TMove` | Sin restricción | El motor nunca lo inspecciona: solo lo pasa a las reglas. Una restricción vacía sería decorativa |
 | `TPiece` | Sin restricción | Una pila de Sort no es una forma; la fuente de piezas solo entrega valores |
 | `T` en `SlideMergeResolver<C, T>` | `T extends Mergeable<T>` (F-acotado) | El algoritmo de deslizar y fusionar solo necesita saber si dos valores se fusionan y en qué; con esta restricción sirve para cualquier contenido fusionable, no solo para potencias de 2 |
@@ -619,7 +619,7 @@ GameOutcome evaluate(SortState<C> state) =>
 
 `TurnResult` es *sealed*: `PlayedTurn` (estado nuevo, eventos y resultado) o `RejectedTurn` (el mismo estado y el motivo, RN-COM-21). Cada `Step` es un estado más los eventos de ese paso.
 
-Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La prueba (`packages/hexa_variants/test/architecture/template_method_test.dart`) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
+Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La comprobación (`tool/check_architecture.dart`, la misma que corre el CI) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
 
 ---
 

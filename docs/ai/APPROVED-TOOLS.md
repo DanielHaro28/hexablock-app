@@ -35,4 +35,28 @@ Nunca se instala el plugin completo ni skills de autores desconocidos.
 
 | Skill | Origen y versión | Por qué |
 |---|---|---|
-| _Ninguna todavía: se revisan al empezar T-03_ | | |
+| `dart-run-static-analysis` | `dart-lang/skills` @ `f84b168` | `dart analyze` y `dart fix`, lo mismo que corre el CI |
+| `dart-fix-runtime-errors` | `dart-lang/skills` @ `f84b168` | Ubica y corrige un error en ejecución con el MCP de Dart (ya aprobado) |
+| `dart-use-pattern-matching` | `dart-lang/skills` @ `f84b168` | Patrones y `switch` exhaustivos de Dart 3, útiles en las reglas y los mappers |
+| `dart-use-primary-constructors` | `dart-lang/skills` @ `f84b168` | Constructores primarios (Dart 3.13 o posterior; el proyecto usa 3.14) |
+| `dart-write-documentation` | `dart-lang/skills` @ `f84b168` | Comentarios `///` en inglés, como pide el proyecto |
+| `flutter-add-widget-test` | `flutter/agent-plugins` @ `ff6d472` | Pruebas de *widget* con `WidgetTester`. El nombre `should_<resultado>_when_<condición>` y AAA siguen mandando (`.claude/rules/tests.md`) |
+| `flutter-fix-layout-issues` | `flutter/agent-plugins` @ `ff6d472` | Corrige desbordes y restricciones sin límite con el MCP de Dart |
+| `flutter-build-responsive-layout` | `flutter/agent-plugins` @ `ff6d472` | `LayoutBuilder` y `MediaQuery` para que el tablero se adapte a la pantalla |
+
+Cada carpeta lleva el `LICENSE` (BSD-3) de su repo de origen. Para actualizar una skill se repite la revisión y se cambia el commit en la tabla.
+
+**Descartadas en la revisión de T-03** (20-11-2026):
+
+| Skill | Por qué no |
+|---|---|
+| `dart-add-unit-test`, `dart-generate-test-mocks` | Generan *mocks* con `mockito` y `build_runner`; el proyecto usa dobles a mano y `mocktail` solo para verificar llamadas (D-56) |
+| `dart-collect-coverage` | Usa el paquete `coverage`; la cobertura sale de `flutter test --coverage` y `tool/coverage_gate.dart` (D-58) |
+| `dart-migrate-to-checks-package` | Agrega `package:checks`; las capas 1 y 2 solo admiten `test` (D-21) |
+| `flutter-apply-architecture-best-practices` | Propone otra arquitectura (UI, lógica y datos con `ChangeNotifier`); el proyecto usa cuatro capas y Cubits (ARQ-01-APP) |
+| `flutter-use-http-package` | Usa `http`; la app usa dio (ARQ-01-APP §4.4) |
+| `flutter-implement-json-serialization` | Pone `fromJson` y `toJson` en las clases del modelo; aquí la serialización vive en los mappers y códecs de la capa 3 (ARQ-03-APP) |
+| `flutter-setup-declarative-routing` | Agrega `go_router`, que no está decidido; la navegación la define quien haga la interfaz |
+| `flutter-add-integration-test` | Flutter Driver; las pruebas en emulador se corren a mano y no en CI (estrategia de pruebas §10) |
+| `flutter-setup-localization` | Se usa una sola vez; esa configuración entra con la historia de textos en es y en |
+| `flutter-add-widget-preview`, `dart-build-cli-app`, `dart-setup-ffi-assets`, `dart-use-ffigen`, `dart-use-path-package`, `dart-use-doc-examples`, `dart-resolve-package-conflicts` | No aplican: el proyecto no tiene CLI, código nativo ni dependencias en el dominio |

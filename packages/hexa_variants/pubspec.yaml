@@ -1,0 +1,19 @@
+name: hexa_variants
+description: "Layer 1. Rules, scoring, piece sources and level validators of the four variants."
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  hexa_engine:
+    path: ../hexa_engine
+
+dev_dependencies:
+  # Only in tests: the rules use the topology abstraction (ARQ-01-APP §3.1).
+  hexa_topologies:
+    path: ../hexa_topologies
+  test: ^1.25.0
+

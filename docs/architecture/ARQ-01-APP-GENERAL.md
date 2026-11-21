@@ -69,12 +69,14 @@ La regla de dependencia no se deja a la disciplina: **la hace cumplir el gestor 
 
 ```
 hexablock-app/
-├── pubspec.yaml                 # workspace: lista los paquetes
+├── pubspec.yaml                 # workspace: lista los paquetes (un solo pubspec.lock)
+├── analysis_options.yaml        # análisis estricto; cada paquete lo incluye
 ├── packages/
 │   ├── hexa_engine/             # Capa 1 · motor genérico y abstracciones
 │   ├── hexa_topologies/         # Capa 1 · hexágonos, cuadrados, triángulos, cubos
 │   ├── hexa_variants/           # Capa 1 · Lines, Fit, Sort, Merge (una carpeta por variante)
-│   └── hexa_application/        # Capa 2 · casos de uso, puertos, aspectos
+│   ├── hexa_application/        # Capa 2 · casos de uso, puertos, aspectos
+│   └── hexa_test_support/       # Solo pruebas · fakes y stubs compartidos (D-56)
 ├── app/                         # Capas 3 y 4 · aplicación Flutter
 │   ├── lib/
 │   │   ├── adapters/            # Capa 3
@@ -89,6 +91,7 @@ hexablock-app/
 │   │   │   └── platform/        #   audio, almacenamiento seguro, preferencias, logger
 │   │   ├── config/              #   registro de variantes y topologías
 │   │   └── main.dart            #   composition root (get_it)
+│   ├── android/                 #   proyecto Android generado por flutter create
 │   ├── assets/                  #   niveles incluidos, configuración por variante, audio, l10n
 │   └── test/                    #   pruebas de widget, de navegación y de integración
 ├── tools/                       # scripts de CI (verificación de arquitectura, validador de niveles)
@@ -118,6 +121,8 @@ flowchart BT
 | `app` | Todos | — | Es la capa externa; el composition root conecta todo |
 
 Los cuatro paquetes de dominio y aplicación no tienen dependencias de terceros (solo `test` como dependencia de desarrollo).
+
+`hexa_test_support` depende de `hexa_engine` y `hexa_application` y solo aparece como `dev_dependency` de los demás. Su único fin es que los dobles de prueba se escriban una vez (D-56).
 
 ### 3.2 Qué hay que tocar para extender
 

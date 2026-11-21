@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-40)
+> **Última actualización:** 2026-11-20 (IA-41)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -470,6 +470,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | El job `apk` del CI solo arma el APK si el PR cambia `app/android/`, `app/pubspec.yaml`, `pubspec.lock` o los workflows (siempre en `main`); si no, pasa en segundos para que el check obligatorio no quede esperando. Caché de Gradle solo en ese job; `release.yml` no usa caché |
 | Modificaciones del equipo | Lo eligió el usuario (opciones 1 y 2 de las que propuso Claude) |
 | Lecciones | Los runners estándar son gratis en repos públicos (D-57), así que el costo real del job era el tiempo de espera, no minutos |
+
+### IA-41 · La API se asigna a @DavidCR20 (D-78, parcial)
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "asignale API a david" |
+| Resultado | Los 8 Issues sin responsable de `hexablock-api` (T-04, API-01 a API-04, LVL-01, LVL-02 y TEC-05, 49 h) asignados a @DavidCR20 y con su línea de responsable actualizada; PLAN-ENTREGA §1 y sus filas, PENDIENTES (D-78 sigue abierta para el frontend) y `tools/planning/issues_created.json` |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
 
 ## 4. Evaluación crítica
 

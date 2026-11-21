@@ -597,50 +597,56 @@
  },
  "api:API-01": {
   "number": 8,
-  "note": "existía",
   "title": "API-01 · Registrarme",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 6
  },
  "api:API-02": {
   "number": 9,
-  "note": "existía",
   "title": "API-02 · Iniciar sesión",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 5
  },
  "api:API-03": {
   "number": 10,
-  "note": "existía",
   "title": "API-03 · Sincronizar mi progreso por juego",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 10
  },
  "api:API-04": {
   "number": 11,
-  "note": "existía",
   "title": "API-04 · Consultar el ranking",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 8
  },
  "api:LVL-01": {
   "number": 12,
-  "note": "existía",
   "title": "LVL-01 · Entregar niveles publicados",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 6
  },
  "api:LVL-02": {
   "number": 13,
-  "note": "existía",
   "title": "LVL-02 · Publicar o actualizar un nivel",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 6
  },
  "api:TEC-04": {
@@ -655,10 +661,11 @@
  },
  "api:TEC-05": {
   "number": 15,
-  "note": "existía",
   "title": "TEC-05 · API documentada y con errores consistentes",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 5
  },
  "api:TEC-10": {
@@ -673,10 +680,11 @@
  },
  "api:T-04": {
   "number": 17,
-  "note": "existía",
   "title": "T-04 · Esqueleto NestJS + Prisma + Docker",
   "milestone": "M0",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 3
  },
  "api:G-08": {

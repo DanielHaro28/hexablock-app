@@ -57,6 +57,7 @@ abstract base class GridTopology<C extends Coord> {
   List<C> neighbors(C cell);
 
   /// The next cell after [cell] along [direction] on an unbounded grid.
+  /// Throws [ArgumentError] for a direction of another topology.
   C step(C cell, Direction direction);
 
   /// The lines of [cells] along [axis], each one in its fixed order
@@ -100,9 +101,9 @@ abstract base class GridTopology<C extends Coord> {
   }
 
   /// The cells [shape] covers when its first cell in reading order is put on
-  /// [anchor] (D-92), in the order of `shape.cells`; or `null` if [anchor] is
-  /// not of the same cell type as that first cell (on triangles a ▲ cannot go
-  /// where a ▼ goes, RN-TRI-07).
+  /// [anchor] (D-92), unmodifiable and in the order of `shape.cells`; or
+  /// `null` if [anchor] is not of the same cell type as that first cell (on
+  /// triangles a ▲ cannot go where a ▼ goes, RN-TRI-07).
   ///
   /// The result does not depend on where [shape] is, so it needs no
   /// normalizing first. It knows no board: whether the cells exist and are
@@ -112,7 +113,9 @@ abstract base class GridTopology<C extends Coord> {
     if (normalizationOrigin(anchor) != normalizationOrigin(first)) {
       return null;
     }
-    return {for (final cell in shape.cells) translate(cell, first, anchor)};
+    return Set.unmodifiable({
+      for (final cell in shape.cells) translate(cell, first, anchor),
+    });
   }
 
   /// [shape] turned by one basic [rotation] and normalized (RN-COM-14).

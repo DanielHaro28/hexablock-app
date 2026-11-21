@@ -66,11 +66,11 @@ final class FakeTopology extends GridTopology<FakeCoord> {
 
   @override
   FakeCoord step(FakeCoord cell, Direction direction) {
-    final (dx, dy) = switch (direction.id) {
-      'N' => (0, -1),
-      'E' => (1, 0),
-      'S' => (0, 1),
-      'W' => (-1, 0),
+    final (dx, dy) = switch (direction) {
+      north => (0, -1),
+      east => (1, 0),
+      south => (0, 1),
+      west => (-1, 0),
       _ => throw ArgumentError.value(direction, 'direction'),
     };
     return FakeCoord(cell.x + dx, cell.y + dy);
@@ -116,19 +116,41 @@ final class FakeTopology extends GridTopology<FakeCoord> {
       FakeCoord(cell.x + to.x - from.x, cell.y + to.y - from.y);
 }
 
-/// [FakeTopology] with two cell types, like the ▲ and ▼ of triangles
-/// (RN-TRI-07), so the engine can test what depends on cell types without a
-/// real topology (D-56, D-92).
+/// [FakeTopology] with two cell types and two basic rotations, so the engine
+/// can test what triangles and cubes need without a real topology (D-56):
+/// cell types like ▲ and ▼ (RN-TRI-06, 07, D-92) and more than one basic
+/// rotation (RN-CUB-05).
 ///
 /// A cell is *even* when `x + y` is even and *odd* otherwise, like the
 /// squares of a chessboard. Even cells are normalized to `(0, 0)` and odd ones
-/// to `(1, 0)`, and a translation must keep the type. The quarter turn keeps
-/// it too, so rotations behave as in [FakeTopology].
+/// to `(1, 0)`, and a translation must keep the type.
+///
+/// Its rotations are
+/// - [FakeTopology.quarterTurn], here `(x, y) → (−y, x + 1)`: a quarter turn
+///   around a corner, which swaps even and odd cells as a triangle's turn
+///   swaps ▲ and ▼; and
+/// - [halfTurn], `(x, y) → (−x, −y)`, which keeps the type.
 final class FakeCheckeredTopology extends FakeTopology {
   const FakeCheckeredTopology();
 
+  /// The second basic rotation: 180° around the origin.
+  static const halfTurn = Rotation('cw180');
+
   @override
   String get id => 'fake-checkered';
+
+  @override
+  List<Rotation> get basicRotations => const [
+    FakeTopology.quarterTurn,
+    halfTurn,
+  ];
+
+  @override
+  FakeCoord rotateCell(FakeCoord cell, Rotation rotation) => switch (rotation) {
+    FakeTopology.quarterTurn => FakeCoord(-cell.y, cell.x + 1),
+    halfTurn => FakeCoord(-cell.x, -cell.y),
+    _ => throw ArgumentError.value(rotation, 'rotation'),
+  };
 
   /// `(0, 0)` for an even cell, `(1, 0)` for an odd one.
   @override

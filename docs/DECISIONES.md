@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-20
+> **Última actualización:** 2026-11-21
 
 ---
 
@@ -83,6 +83,9 @@
 | D-34 | **Fases de la partida:** patrón **State** con una jerarquía *sealed* (`PlayingPhase`, `ResolvingPhase`, `PausedPhase`, `VictoryPhase`, `GameOverPhase`); `Victory(canContinue)` para que Hexa Merge siga tras la victoria | ARQ-02 §8 | App | 17-11 |
 | D-35 | **Patrones de diseño del dominio (14).** Creacionales: Abstract Factory, Builder, Factory Method. Estructurales: Bridge, Composite, Decorator. De comportamiento: Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor. Cómo se protege el Template Method sigue abierto en D-36 | ARQ-02 §9 | App | 17-11 |
 | D-36 | **Protección del Template Method (opción B):** regla en la plantilla de PR y una prueba de arquitectura en CI que falla si alguna clase de `hexa_variants` declara `playTurn`. Sin `package:meta`, porque el enunciado §3.4 no permite dependencias externas en la capa 1; la composición queda descartada porque el §3.3 pide una clase abstracta | ARQ-02 §9.6; plantilla de PR | App | 20-11 |
+| D-90 | **Forma del tablero como datos:** `ShapeSpec(kind, size)` (por ejemplo `('hexagon', [4])`, `('rectangle', [8, 8])`, `('box', [4, 4, 4])`), y cada topología acepta sus propios `kind` en `cellsOf` (Factory Method) y rechaza el resto. Así no hace falta una clase por forma de tablero, y otro tamaño en la defensa es solo configuración. Las operaciones que no dependen de la figura (normalizar, rotar, orientaciones, rayos, orden de lectura, Visitor) se escriben una vez en `GridTopology`; cada figura implementa solo sus primitivas (`cellsOf`, `neighbors`, `step`, `lines`, `compareReadingOrder`, `rotateCell`, `normalizationOrigin`, `translate`) | ARQ-02 §3, §9.1; `hexa_engine/lib/src/board/` | App | 21-11 |
+| D-91 | **Una coordenada fuera del tablero es un error, no una celda vacía.** `Board.cell`, `withCells`, `neighbors` y `ray` lanzan `ArgumentError` si la coordenada no es del tablero; `cell` devuelve `null` solo para una celda vacía, y `contains` pregunta si existe. Así una pieza que se sale del borde no "cabe" sin que nada falle. La colocación de una forma en un ancla no entra en el PR del tablero (ver D-92) | ARQ-02 §4.1; `Board` | App | 21-11 |
+| D-92 | **Colocar una forma en un ancla (opción A):** una operación genérica `GridTopology.place(shape, anchor)`, escrita una vez en el motor, que traslada la forma normalizada para que su primera celda en orden de lectura caiga en el ancla y devuelve sus celdas, o `null` si el ancla no es del mismo tipo de celda que esa primera celda (lo compara con `normalizationOrigin`, así en triángulos ▲ no se pone donde va ▼, RN-TRI-07). Ninguna variante sabe de tipos de celda (RN-COM-10), y Lines y Fit comparten el código; "¿cabe?" (celdas del tablero y vacías) lo sigue decidiendo cada variante. Se descartó B (que cada variante use `translate` y la topología lance un error) porque un toque en un ancla del tipo equivocado sería un error y no un "no cabe", y Lines y Fit repetirían el mismo código. Se implementa en `hexa_engine` antes de HL-02 y HF-02 | `GridTopology`; ARQ-02 §3 | App | 21-11 |
 
 ### Arquitectura detallada (Paso 4)
 

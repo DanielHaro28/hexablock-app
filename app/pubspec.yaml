@@ -27,6 +27,3 @@ dev_dependencies:
     sdk: flutter
   hexa_test_support:
     path: ../packages/hexa_test_support
-
-flutter:
-  uses-material-design: true

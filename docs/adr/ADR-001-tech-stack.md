@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) y su configuración en los repos (D-79 a D-86) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 2.1 (20-11): Prisma ORM 7 (D-89); versiones exactas en el README de cada repo (R-01) · 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) y su configuración en los repos (D-79 a D-86) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -74,7 +74,7 @@ Restricciones del equipo:
 |---|---|---|
 | Lenguaje / framework | **TypeScript + NestJS** (impuesto por la cátedra) sobre **Node.js LTS activa** | — |
 | Base de datos | **PostgreSQL** | Relacional, con soporte JSONB para la sección específica de cada `gameId` en los niveles |
-| ORM / migraciones | **Prisma** | Esquema declarativo y migraciones versionadas (`migrate deploy` al arrancar) |
+| ORM / migraciones | **Prisma ORM 7** (D-89) | Esquema declarativo y migraciones versionadas (`migrate deploy` al arrancar) |
 | Autenticación | `@nestjs/jwt` + Passport; contraseñas con **argon2id** | §5.2 punto 1; SEC-API-02 |
 | Validación | `class-validator` + `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` | Errores 400 con detalle por campo; bloquea la asignación masiva (SEC-API-03) |
 | Endurecimiento HTTP | `helmet` + `@nestjs/throttler` (rate limiting global y estricto en `/v1/auth/*`) | SEC-API-04, SEC-API-08 |

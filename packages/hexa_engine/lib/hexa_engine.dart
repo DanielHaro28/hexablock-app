@@ -3,3 +3,11 @@
 /// Pure Dart with no dependencies. It knows no variant and no cell shape:
 /// the CI fails if their identifiers appear here (ARQ-01-APP §8).
 library;
+
+export 'src/board/board.dart';
+export 'src/board/coord.dart';
+export 'src/board/geometry.dart';
+export 'src/board/grid_topology.dart';
+export 'src/board/shape.dart';
+export 'src/board/shape_spec.dart';
+export 'src/board/topology_visitor.dart';

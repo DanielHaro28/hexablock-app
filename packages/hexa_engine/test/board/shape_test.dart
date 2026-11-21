@@ -86,6 +86,17 @@ void main() {
       expect(equal, isFalse);
     });
 
+    test('should_list_its_cells_when_described', () {
+      // Arrange
+      final shape = Shape.fromCells(const [FakeCoord(0, 0), FakeCoord(1, 0)]);
+
+      // Act
+      final description = shape.toString();
+
+      // Assert: what a failing expectation prints
+      expect(description, 'Shape{(0, 0), (1, 0)}');
+    });
+
     test('should_throw_when_composite_has_no_parts', () {
       // Arrange
       const parts = <Shape<FakeCoord>>[];

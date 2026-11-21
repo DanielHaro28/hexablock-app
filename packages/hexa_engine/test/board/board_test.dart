@@ -203,6 +203,17 @@ void main() {
       expect(a.hashCode, b.hashCode);
     });
 
+    test('should_show_the_topology_and_contents_when_described', () {
+      // Arrange
+      final board = board3x2().withCells({const FakeCoord(1, 0): red});
+
+      // Act
+      final description = board.toString();
+
+      // Assert: what a failing expectation prints
+      expect(description, 'Board(fake, 6 cells, {(1, 0): FakeCell(red)})');
+    });
+
     test('should_not_be_equal_when_contents_differ', () {
       // Arrange
       final a = board3x2().withCells({const FakeCoord(0, 0): red});

@@ -1,5 +1,5 @@
 name: hexa_variants
-description: Layer 1. Rules, scoring, piece sources and level validators of the four variants.
+description: "Layer 1. Rules, scoring, piece sources and level validators of the four variants."
 publish_to: none
 version: 0.1.0
 resolution: workspace

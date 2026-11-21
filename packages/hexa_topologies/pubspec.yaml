@@ -1,5 +1,5 @@
 name: hexa_topologies
-description: Layer 1. Concrete grid topologies: hexagons, squares, triangles and cubes.
+description: "Layer 1. Concrete grid topologies: hexagons, squares, triangles and cubes."
 publish_to: none
 version: 0.1.0
 resolution: workspace

@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-36)
+> **Última actualización:** 2026-11-20 (IA-37)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -426,6 +426,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | El `.gitignore` era la plantilla del repo de Flutter (ignoraba `*.lock`); se reemplazó por la plantilla de app de `flutter create`, adaptada a `app/` y `packages/`, conservando las reglas de secretos |
 | Modificaciones del equipo | Ninguna todavía |
 | Lecciones | Ninguna nueva |
+
+### IA-37 · T-03: esqueleto del workspace y skills oficiales — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "D03 A / D20 Recomendacion / M0 vamos a eso" |
+| Resultado | Workspace de pub con `hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`, `hexa_test_support` y `app/`; `analysis_options.yaml` estricto sin paquetes de terceros; proyecto Android generado con `flutter create` en el CI (Flutter 3.50.0) y `pubspec.lock`. Revisión de las 25 skills oficiales: 8 copiadas con su commit y licencia, 17 descartadas con el motivo en APPROVED-TOOLS (D-88). Una prueba de *widget* mínima escrita por Claude |
+| Modificaciones del equipo | Pendiente: revisar la prueba de *widget* (D-59) y confirmar el `applicationId` `io.github.danielharo28.hexablock_app` antes del primer release |
+| Lecciones | Desde Flutter 3.47 `package:flutter/material.dart` está obsoleto (Material pasó al paquete `material_ui`); el análisis estricto lo detectó en el CI. El esqueleto usa solo `widgets.dart` |
 
 ## 4. Evaluación crítica
 

@@ -76,14 +76,14 @@
 | RF-02 | HF-01, HS-01 | RN-COM-73, RN-HF-72, RN-HS-72 | — | |
 | RF-03 | NAV-03 | RN-COM-110, 112 | — | |
 | RF-04 | NAV-02 | RN-COM-111 | — | |
-| RF-05 | NAV-04 | RN-COM-24, 30 a 35, 52 | — | |
+| RF-05 | NAV-04 | RN-COM-24, 30 a 35, 52 | — | RN-COM-24, 30 y 31 (fases del motor): `hexa_engine/test/game/game_phase_test`, `game_engine_test` |
 | RF-06 | PRG-01 | RN-COM-31, RN-HF-64, RN-HS-61, RN-HM-51 | — | |
 | RF-07 | PRG-02 | RN-COM-31 | — | |
 | RF-08 | NAV-05 | — | — | |
 | RF-09 | NAV-08 | RN-COM-113, RN-TOP-30 a 34 | — | |
-| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test` |
+| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95 |
 | RF-11 | HL-02, HF-02, HS-02, HM-01 | RN-COM-21 | E-HL-3, E-HF-2, E-HS-6, E-HM-4 | |
-| RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | |
+| RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | RN-COM-25 (orden de los eventos, D-94): `hexa_engine/test/game/game_rules_test`, `game_engine_test`, `game_event_test` |
 | RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | |
 | RF-21 | HL-02 | RN-HL-22, 30 a 32 | E-HL-3 | |
 | RF-22 | HL-03 | RN-HL-40 a 44, 60 a 64 | E-HL-1, E-HL-2 | |

@@ -41,10 +41,11 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 | `fill_move.dart` | `sealed class FillMove<C>` con sus movimientos, p. ej. `PaintCell<C>` (`TMove`) | — |
 | `fill_state.dart` | `FillState<C> implements GameState<C, FillColor>`; si hay azar, también `IRandomSeeded`; si hay niveles, `ILevelBased` | `GameState`, capacidades (D-33) |
 | `fill_events.dart` | `sealed class FillEvent<C> extends GameEvent<C>` | `GameEvent` (D-32) |
-| `hexa_fill_rules.dart` | `HexaFillRules<C> extends GameRules<C, FillColor, FillMove<C>, FillState<C>>`: `isValid`, `apply` y, si hacen falta, los *hooks* `resolve`, `afterResolve` y `evaluate` | `GameRules` (Strategy + Template Method) |
+| `fill_rejections.dart` (opcional) | `sealed class FillRejection extends RejectionReason`, solo si la pantalla debe explicar por qué se rechaza un movimiento; si no, las reglas devuelven `const InvalidMove()` | `RejectionReason` (D-95) |
+| `hexa_fill_rules.dart` | `HexaFillRules<C> extends GameRules<C, FillColor, FillMove<C>, FillState<C>>`: `rejectionOf` (el motivo o `null` si es válido), `apply`, `validMoves` y, si hacen falta, los *hooks* `resolve`, `afterResolve` y `evaluate`. Nunca `playTurn` (D-36) | `GameRules` (Strategy + Template Method) |
 | `fill_scoring.dart` | `FillScoring<C> implements IScoringPolicy<FillState<C>>` | `IScoringPolicy` |
 | `fill_level_builder.dart` (si la variante es por niveles) | `FillLevelBuilder<C>`: arma y valida el nivel | Builder |
-| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, TPiece>`: crea reglas, puntuación, fuente de piezas y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
+| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, TPiece>`: crea reglas, puntuación, fuente de piezas, el estado inicial (D-93) y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
 
 | Modificar | Cambio |
 |---|---|

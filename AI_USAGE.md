@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-42)
+> **Última actualización:** 2026-11-21 (IA-43)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -15,7 +15,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Herramienta | Versión o modelo | Rol en el flujo de trabajo | Quién la usa |
 |---|---|---|---|
 | **Claude** (claude.ai, conversación con herramientas de agente: archivos, terminal, git) | **Claude Opus 5.5** (`claude-opus-5-5`) desde el 12-11-2026. Conversaciones anteriores: ⚠️ completar el modelo | Planificación: propone opciones con ventajas y desventajas, redacta los documentos de `docs/`, verifica los ejemplos de reglas con código, revisa la coherencia entre documentos y sube los cambios por rama y PR | DanielHaro28 |
-| **Claude Code** | ⚠️ completar al empezar a usarlo (versión de la CLI y modelo) | Herramienta principal de implementación (ADR-001 §2.6), con los permisos de `.claude/settings.json` | Todo el equipo |
+| **Claude Code** | Extensión de VS Code con **Claude Opus 5.5** (`claude-opus-5-5`) desde el 21-11-2026 (IA-43). ⚠️ completar la versión de la extensión | Herramienta principal de implementación (ADR-001 §2.6), con los permisos de `.claude/settings.json` | Todo el equipo |
 
 ## 2. Cómo aplicamos las buenas prácticas (§7.3)
 
@@ -493,13 +493,24 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Lo decidió el usuario |
 | Lecciones | Ninguna nueva |
 
+### IA-43 · Motor genérico: tablero, topología y formas (TEC-01, PR 1 de 5) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 21-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`); subagente `architecture-reviewer` |
+| Prompt | Literal: "Implementa el PR 1 del plan del motor (TEC-01 #64)" y "tambien me vas a explicar que hace cada archivo, clase y otras cosas que pongas, que recibe de donde y todo lo necesario para saber que estas implementando"; después, "ok, B y dejar la colocación fuera, empieza" |
+| Resultado | Issue #64, rama `feat/tec-01-board-topology`. En `packages/hexa_engine/lib/src/board/`: `Coord`, `Axis`, `Direction`, `Rotation`, `ShapeSpec`, `Shape` (Composite), `GridTopology` (normalizar, rotar, orientaciones, rayos y Visitor escritos una vez), `TopologyVisitor` y `Board` inmutable (Bridge). Dobles `FakeCoord`, `FakeTopology` y `FakeCell` en `hexa_test_support`. 56 pruebas, cobertura del dominio de 94,5 %. Documentos: D-90 y D-91 en `DECISIONES.md`, D-92 abierta en `PENDIENTES.md`, avance del *spike* en ARQ-02, EXTENSIBILITY §4 y trazabilidad de RF-10 |
+| Modificaciones del equipo | El usuario eligió que una coordenada fuera del tablero lance un error (opción B, D-91) y dejar la colocación en un ancla fuera del PR. ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
+| Lecciones | (1) Claude dijo que Python no estaba instalado: solo probó `python` y `python3`, que en Windows son accesos de Microsoft Store; el usuario lo corrigió y funciona con `py`. (2) El esbozo de ARQ-02 §4.3 daba por hecho que `Coord` obligaría a implementar `==`; al compilarlo se vio que Dart no lo exige, y quedó documentado. (3) La revisión de arquitectura encontró una igualdad de tableros que fallaba con dos instancias de la misma topología y la pregunta de las anclas en triángulos (D-92) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
 
 | Parte | Asistencia de IA |
 |---|---|
-| Código de la app | 0 %: todavía no hay código |
+| Código de la app | Motor (`hexa_engine`, desde IA-43): escrito con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
 | Documentación de planificación (`docs/`) | Redactada en su mayor parte con Claude; las decisiones (D-*) las tomó el equipo. ⚠️ El equipo estima el porcentaje al cerrar la revisión de los Pasos 1 y 2 |
 | Herramientas de verificación (`tools/reference-sim/`) | Escritas con Claude |
 
@@ -517,6 +528,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | La propuesta D-27 (figura en la clave del progreso) se apartaba del enunciado §5.2 | Lectura completa del enunciado (IA-07) | Dos opciones registradas en D-27 para que decida el equipo |
 | G-09 figuraba como hecha, pero la plantilla de PR no estaba en los repos | Al clonar los repos (IA-08) | Se agrega con el PR #1 |
 | PR sin la plantilla del repo y título sin ámbito | Pregunta del usuario (IA-08) | Título `docs(planning): …` y descripción con la plantilla |
+| "Python no está instalado", cuando sí lo estaba (solo se probaron los accesos de Microsoft Store) | El usuario lo corrigió (IA-43) | Se usa `py`; los scripts de `tools/docs-check/` se corrieron antes del PR |
+| `Board.==` comparaba la topología por identidad: dos tableros iguales con dos instancias de la topología eran distintos | Subagente `architecture-reviewer` (IA-43) | Las topologías se comparan por clase e `id`, con una prueba |
 
 ### 4.3 Reflexión del equipo
 

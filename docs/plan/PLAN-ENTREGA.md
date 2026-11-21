@@ -13,7 +13,8 @@
 |---|---|---|
 | @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación |
 | @DavidCR20 | API (D-78, asignada el 20-11) | Backend NestJS: esqueleto (T-04), cuenta (API-01, API-02), sincronización (API-03), ranking (API-04), niveles (LVL-01, LVL-02) y errores y Swagger (TEC-05) |
-| @dicpc y @DavidCR20 | Frontend (D-77) | Las 4 variantes, casos de uso y progreso, interfaz de la app. **Cómo se lo reparten está por definir (D-78)** |
+| @dicpc | Interfaz (D-78, asignada el 20-11) | Pantallas y navegación (NAV-01 a NAV-08), victoria y derrota (PRG-01, PRG-02), registro e inicio de sesión en la app (API-01, API-02), ajustes al diseño (T-05) y vista 3D (TEC-09) |
+| @dicpc y @DavidCR20 | Resto del frontend (D-77) | Las 4 variantes, casos de uso y progreso de la app. **Cómo se lo reparten está por definir (D-78)** |
 
 Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ayudar en otra sección. Cada PR lo revisa alguien de otra área (`CODEOWNERS` pide la revisión automáticamente). El 20-11 cambió el reparto de D-62 (D-77): los Issues que dicen "por definir" se asignan cuando el equipo cierre D-78.
 
@@ -111,21 +112,21 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [api #23](https://github.com/DanielHaro28/hexablock-api/issues/23) | W-05 · docs/ops/DEPLOY.md con el checklist de despliegue | @DanielHaro28 | 1 |
 | [api #24](https://github.com/DanielHaro28/hexablock-api/issues/24) | W-06 · Environment production con los secretos EC2_HOST y EC2_SSH_KEY | @DanielHaro28 | 0.5 |
 | [app #20](https://github.com/DanielHaro28/hexablock-app/issues/20) | G-10 · Exigir que el CI pase en el ruleset de los dos repos | @DanielHaro28 | 0.5 |
-| [app #24](https://github.com/DanielHaro28/hexablock-app/issues/24) | NAV-01 · Seleccionar un juego desde el inicio | por definir | 6 |
-| [app #25](https://github.com/DanielHaro28/hexablock-app/issues/25) | NAV-02 · Controlar el audio | por definir | 4 |
-| [app #26](https://github.com/DanielHaro28/hexablock-app/issues/26) | NAV-03 · Cambiar el idioma | por definir | 4 |
-| [app #27](https://github.com/DanielHaro28/hexablock-app/issues/27) | NAV-04 · Pausar una partida | por definir | 4 |
+| [app #24](https://github.com/DanielHaro28/hexablock-app/issues/24) | NAV-01 · Seleccionar un juego desde el inicio | @dicpc | 6 |
+| [app #25](https://github.com/DanielHaro28/hexablock-app/issues/25) | NAV-02 · Controlar el audio | @dicpc | 4 |
+| [app #26](https://github.com/DanielHaro28/hexablock-app/issues/26) | NAV-03 · Cambiar el idioma | @dicpc | 4 |
+| [app #27](https://github.com/DanielHaro28/hexablock-app/issues/27) | NAV-04 · Pausar una partida | @dicpc | 4 |
 | [app #32](https://github.com/DanielHaro28/hexablock-app/issues/32) | HL-01 · Empezar una partida sin fin | por definir | 4 |
 | [app #33](https://github.com/DanielHaro28/hexablock-app/issues/33) | HL-02 · Colocar una pieza | por definir | 8 |
 | [app #34](https://github.com/DanielHaro28/hexablock-app/issues/34) | HL-03 · Eliminar líneas completas | por definir | 6 |
 | [app #35](https://github.com/DanielHaro28/hexablock-app/issues/35) | HL-04 · Recibir una nueva bandeja | por definir | 3 |
 | [app #36](https://github.com/DanielHaro28/hexablock-app/issues/36) | HL-05 · Terminar cuando nada cabe | por definir | 3 |
 | [app #37](https://github.com/DanielHaro28/hexablock-app/issues/37) | HL-06 · Ver mi puntaje y mi récord | por definir | 3 |
-| [app #55](https://github.com/DanielHaro28/hexablock-app/issues/55) | PRG-02 · Ver la pantalla de derrota | por definir | 4 |
+| [app #55](https://github.com/DanielHaro28/hexablock-app/issues/55) | PRG-02 · Ver la pantalla de derrota | @dicpc | 4 |
 | [app #56](https://github.com/DanielHaro28/hexablock-app/issues/56) | PRG-03 · Guardar el progreso en el dispositivo | por definir | 8 |
 | [app #64](https://github.com/DanielHaro28/hexablock-app/issues/64) | TEC-01 · Motor genérico compartido | @DanielHaro28 | 16 |
 | [app #67](https://github.com/DanielHaro28/hexablock-app/issues/67) | TEC-06 · Topología intercambiable | @DanielHaro28 | 8 |
-| [app #72](https://github.com/DanielHaro28/hexablock-app/issues/72) | T-05 · Aplicar los ajustes al diseño DIS-01 a DIS-16 | por definir | 6 |
+| [app #72](https://github.com/DanielHaro28/hexablock-app/issues/72) | T-05 · Aplicar los ajustes al diseño DIS-01 a DIS-16 | @dicpc | 6 |
 
 ### M2 · Las otras tres variantes
 
@@ -151,7 +152,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #51](https://github.com/DanielHaro28/hexablock-app/issues/51) | HM-03 · Aparición reproducible de fichas nuevas | por definir | 3 |
 | [app #52](https://github.com/DanielHaro28/hexablock-app/issues/52) | HM-04 · Deshacer un movimiento | por definir | 3 |
 | [app #53](https://github.com/DanielHaro28/hexablock-app/issues/53) | HM-05 · Ganar, perder y guardar el récord | por definir | 4 |
-| [app #54](https://github.com/DanielHaro28/hexablock-app/issues/54) | PRG-01 · Ver la pantalla de victoria | por definir | 6 |
+| [app #54](https://github.com/DanielHaro28/hexablock-app/issues/54) | PRG-01 · Ver la pantalla de victoria | @dicpc | 6 |
 | [app #57](https://github.com/DanielHaro28/hexablock-app/issues/57) | PRG-04 · Desbloquear niveles en orden | por definir | 3 |
 | [app #66](https://github.com/DanielHaro28/hexablock-app/issues/66) | TEC-03 · Aspecto transversal sobre los casos de uso | por definir | 10 |
 
@@ -164,12 +165,12 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #11](https://github.com/DanielHaro28/hexablock-app/issues/11) | API-07 · Cerrar sesión | por definir | 2 |
 | [app #15](https://github.com/DanielHaro28/hexablock-app/issues/15) | T-06 · Release: APK firmado en GitHub Releases | @DanielHaro28 | 3 |
 | [app #23](https://github.com/DanielHaro28/hexablock-app/issues/23) | R-04 · Generar las imágenes de los diagramas de clases en los dos repos | @DanielHaro28 | 2 |
-| [app #28](https://github.com/DanielHaro28/hexablock-app/issues/28) | NAV-05 · Consultar cómo se juega | por definir | 4 |
-| [app #29](https://github.com/DanielHaro28/hexablock-app/issues/29) | NAV-06 · Acceder a mi cuenta desde la app | por definir | 4 |
-| [app #30](https://github.com/DanielHaro28/hexablock-app/issues/30) | NAV-07 · Ver el ranking en la app | por definir | 6 |
-| [app #31](https://github.com/DanielHaro28/hexablock-app/issues/31) | NAV-08 · Elegir la figura de las celdas | por definir | 3 |
-| [app #58](https://github.com/DanielHaro28/hexablock-app/issues/58) | API-01 · Registrarme | por definir | 5 |
-| [app #59](https://github.com/DanielHaro28/hexablock-app/issues/59) | API-02 · Iniciar sesión | por definir | 4 |
+| [app #28](https://github.com/DanielHaro28/hexablock-app/issues/28) | NAV-05 · Consultar cómo se juega | @dicpc | 4 |
+| [app #29](https://github.com/DanielHaro28/hexablock-app/issues/29) | NAV-06 · Acceder a mi cuenta desde la app | @dicpc | 4 |
+| [app #30](https://github.com/DanielHaro28/hexablock-app/issues/30) | NAV-07 · Ver el ranking en la app | @dicpc | 6 |
+| [app #31](https://github.com/DanielHaro28/hexablock-app/issues/31) | NAV-08 · Elegir la figura de las celdas | @dicpc | 3 |
+| [app #58](https://github.com/DanielHaro28/hexablock-app/issues/58) | API-01 · Registrarme | @dicpc | 5 |
+| [app #59](https://github.com/DanielHaro28/hexablock-app/issues/59) | API-02 · Iniciar sesión | @dicpc | 4 |
 | [app #60](https://github.com/DanielHaro28/hexablock-app/issues/60) | API-05 · Jugar como invitado | por definir | 4 |
 | [app #61](https://github.com/DanielHaro28/hexablock-app/issues/61) | API-06 · Importar mi progreso de invitado | por definir | 4 |
 | [app #62](https://github.com/DanielHaro28/hexablock-app/issues/62) | API-08 · Seguir jugando sin conexión | por definir | 5 |
@@ -186,7 +187,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 |---|---|---|---|
 | [app #68](https://github.com/DanielHaro28/hexablock-app/issues/68) | TEC-07 · Cuadrados y triángulos jugables | @DanielHaro28 | 16 |
 | [app #69](https://github.com/DanielHaro28/hexablock-app/issues/69) | TEC-08 · Cubos en el dominio | @DanielHaro28 | 10 |
-| [app #70](https://github.com/DanielHaro28/hexablock-app/issues/70) | TEC-09 · Vista 3D | por definir | 16 |
+| [app #70](https://github.com/DanielHaro28/hexablock-app/issues/70) | TEC-09 · Vista 3D | @dicpc | 16 |
 
 **Asignación:** solo @DanielHaro28 tiene Issues asignados en GitHub. Los que dicen "por definir" se asignan cuando el equipo cierre D-78, y los de los tres, cuando todos acepten la invitación (G-01). `tools/planning/assign_pending.py` asigna lo que diga `tools/planning/issues_created.json`.
 

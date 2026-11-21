@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-41)
+> **Última actualización:** 2026-11-20 (IA-42)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -479,6 +479,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
 | Prompt | Literal: "asignale API a david" |
 | Resultado | Los 8 Issues sin responsable de `hexablock-api` (T-04, API-01 a API-04, LVL-01, LVL-02 y TEC-05, 49 h) asignados a @DavidCR20 y con su línea de responsable actualizada; PLAN-ENTREGA §1 y sus filas, PENDIENTES (D-78 sigue abierta para el frontend) y `tools/planning/issues_created.json` |
+| Modificaciones del equipo | Lo decidió el usuario |
+| Lecciones | Ninguna nueva |
+
+### IA-42 · La interfaz se asigna a @dicpc (D-78, parcial)
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "asigna UI a diana" |
+| Resultado | Los 14 Issues de la app con `area:ui` y sin responsable (NAV-01 a NAV-08, PRG-01, PRG-02, API-01 y API-02 de la app, T-05 y TEC-09; 76 h) asignados a @dicpc, con su línea de responsable actualizada; PLAN-ENTREGA §1 y sus filas, PENDIENTES (D-78 sigue abierta para las variantes, los casos de uso y el progreso) y `tools/planning/issues_created.json` |
 | Modificaciones del equipo | Lo decidió el usuario |
 | Lecciones | Ninguna nueva |
 

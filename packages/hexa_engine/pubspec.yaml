@@ -8,5 +8,9 @@ environment:
   sdk: ^3.14.0
 
 dev_dependencies:
+  # Shared hand-written doubles (D-56). It depends on this package, which is
+  # fine for a dev dependency: only these tests see it, never lib/.
+  hexa_test_support:
+    path: ../hexa_test_support
   test: ^1.25.0
 

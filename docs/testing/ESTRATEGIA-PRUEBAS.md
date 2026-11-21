@@ -112,7 +112,7 @@ Cada ejemplo `E-*` de `docs/requirements/02-RN-*.md` tiene una prueba con su ID 
 4. Pruebas de arquitectura: `dart run tool/check_architecture.dart` (D-21, D-36, RNF-02, RNF-04, RNF-07, RNF-10, RNF-50)
 5. `flutter test --coverage` en cada paquete que tiene `test/` y en la app
 6. `tool/coverage_gate.dart` (D-58) y `tool/check_examples_covered.dart` (§6)
-7. APK de depuración, para que un proyecto Android roto falle en el PR y no en el release
+7. APK de depuración, para que un proyecto Android roto falle en el PR y no en el release. Solo se arma si el PR cambia `app/android/`, `app/pubspec.yaml`, `pubspec.lock` o los workflows, y siempre en `main`; si no, el check pasa en segundos. Usa la caché de Gradle; `release.yml` no usa caché
 
 El contrato (copia idéntica a la de la API, D-23, y `check_contracts.py`) y los niveles incluidos (`levelcheck.py`) los revisa `docs-check.yml`, que corre en el mismo PR. La prueba en Dart con el validador de niveles del dominio llega con su historia.
 

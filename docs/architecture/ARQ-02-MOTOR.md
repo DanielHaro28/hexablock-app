@@ -64,6 +64,7 @@ classDiagram
       +lines(cells, axis) Iterable
       +directions List~Direction~
       +rotate(shape, rotation) Shape~C~
+      +place(shape, anchor) Set~C~?
       +accept(visitor) R
     }
     class Board~C, TCell~ {
@@ -159,6 +160,10 @@ abstract interface class TopologyVisitor<R> {
 abstract base class GridTopology<C extends Coord> {
   String get id; // 'hex', 'square', 'tri', 'cube'
   // ... geometry operations (RN-COM-10) ...
+
+  /// The cells of [shape] with its first cell in reading order on [anchor],
+  /// or null if [anchor] is of another cell type (D-92). Written once here.
+  Set<C>? place(Shape<C> shape, C anchor) { /* ... */ }
 
   /// Double dispatch that keeps the real coordinate type.
   R accept<R>(TopologyVisitor<R> visitor) => visitor.visit<C>(this);

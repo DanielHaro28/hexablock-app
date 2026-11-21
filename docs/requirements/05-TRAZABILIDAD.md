@@ -81,7 +81,7 @@
 | RF-07 | PRG-02 | RN-COM-31 | — | |
 | RF-08 | NAV-05 | — | — | |
 | RF-09 | NAV-08 | RN-COM-113, RN-TOP-30 a 34 | — | |
-| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`) |
+| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test` |
 | RF-11 | HL-02, HF-02, HS-02, HM-01 | RN-COM-21 | E-HL-3, E-HF-2, E-HS-6, E-HM-4 | |
 | RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | |
 | RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | |
@@ -134,7 +134,7 @@ Cada ejemplo de las reglas de negocio debe tener al menos una prueba automatizad
 | E-COM-1 | RN-COMUNES | Secuencia de xorshift32 con semilla 12345 | Dominio | |
 | E-COM-2 | RN-CUENTA (compartido) | Consolidación de progreso (unión, máximo, mejor intento) y que repetirla no cambia nada. **Mismos datos que en el backend** | Dominio | |
 | E-COM-3 | RN-CUENTA (compartido) | Orden del ranking por nivel (lo calcula el backend; la app lo usa para su mejor intento local) | Dominio | |
-| E-HEX-1 | RN-TOPOLOGIAS | Rotación de 60° y vuelta completa (hexágonos) | Dominio | |
+| E-HEX-1 | RN-TOPOLOGIAS | Rotación de 60° y vuelta completa (hexágonos) | Dominio | `hexa_topologies/test/hex/hex_topology_test.dart` |
 | E-TRI-1 | RN-TOPOLOGIAS | Tablero de triángulos de lado 2 (24 celdas, líneas 5-7-7-5) | Dominio | |
 | E-TRI-2 | RN-TOPOLOGIAS | Giro de triángulos y conservación de vecindades | Dominio | |
 | E-SQR-1 | RN-TOPOLOGIAS | Giro de 90° de la L de 3 | Dominio | |

@@ -12,4 +12,7 @@ dependencies:
     path: ../hexa_application
   hexa_engine:
     path: ../hexa_engine
+  # checkTopologyContract registers tests (SEC-AGT-04: published by dart.dev,
+  # already in pubspec.lock as a dev dependency of every package).
+  test: ^1.25.0
 

@@ -115,3 +115,34 @@ final class FakeTopology extends GridTopology<FakeCoord> {
   FakeCoord translate(FakeCoord cell, FakeCoord from, FakeCoord to) =>
       FakeCoord(cell.x + to.x - from.x, cell.y + to.y - from.y);
 }
+
+/// [FakeTopology] with two cell types, like the ▲ and ▼ of triangles
+/// (RN-TRI-07), so the engine can test what depends on cell types without a
+/// real topology (D-56, D-92).
+///
+/// A cell is *even* when `x + y` is even and *odd* otherwise, like the
+/// squares of a chessboard. Even cells are normalized to `(0, 0)` and odd ones
+/// to `(1, 0)`, and a translation must keep the type. The quarter turn keeps
+/// it too, so rotations behave as in [FakeTopology].
+final class FakeCheckeredTopology extends FakeTopology {
+  const FakeCheckeredTopology();
+
+  @override
+  String get id => 'fake-checkered';
+
+  /// `(0, 0)` for an even cell, `(1, 0)` for an odd one.
+  @override
+  FakeCoord normalizationOrigin(FakeCoord first) =>
+      _isEven(first) ? const FakeCoord(0, 0) : const FakeCoord(1, 0);
+
+  /// Throws [ArgumentError] if [from] and [to] are of different types.
+  @override
+  FakeCoord translate(FakeCoord cell, FakeCoord from, FakeCoord to) {
+    if (_isEven(from) != _isEven(to)) {
+      throw ArgumentError.value(to, 'to', 'not the cell type of $from');
+    }
+    return super.translate(cell, from, to);
+  }
+
+  static bool _isEven(FakeCoord cell) => (cell.x + cell.y).isEven;
+}

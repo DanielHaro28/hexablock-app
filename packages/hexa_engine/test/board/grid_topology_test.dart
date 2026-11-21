@@ -169,6 +169,54 @@ void main() {
     );
   });
 
+  group('RN-COM-14 with two cell types', () {
+    const checkered = FakeCheckeredTopology();
+
+    test('should_land_on_the_origin_of_the_new_type_when_a_rotation_changes_the_cell_type', () {
+      // Arrange: (0, 0) is even; the shifted quarter turn takes it to the odd
+      // cell (0, 1), whose origin is (1, 0), as ▲ turns into ▼ (RN-TRI-06).
+      const shape = CellShape(FakeCoord(0, 0));
+
+      // Act
+      final turned = checkered.rotate(shape, FakeTopology.quarterTurn);
+
+      // Assert
+      expect(turned.cells, {const FakeCoord(1, 0)});
+    });
+
+    test(
+      'should_find_one_orientation_per_cell_type_when_rotating_a_single_cell',
+      () {
+        // Arrange
+        const shape = CellShape(FakeCoord(0, 0));
+
+        // Act
+        final orientations = checkered.orientations(shape);
+
+        // Assert
+        expect(orientations, [
+          Shape.fromCells(const [FakeCoord(0, 0)]),
+          Shape.fromCells(const [FakeCoord(1, 0)]),
+        ]);
+      },
+    );
+
+    test('should_use_the_second_basic_rotation_when_turning_half_a_circle', () {
+      // Arrange: (x, y) → (−x, −y), then normalized.
+      final shape = ell;
+
+      // Act
+      final turned = checkered.rotate(shape, FakeCheckeredTopology.halfTurn);
+
+      // Assert
+      expect(turned.cells, {
+        const FakeCoord(0, 0),
+        const FakeCoord(1, 0),
+        const FakeCoord(1, 1),
+      });
+    });
+  });
+
   group('RN-COM-13', () {
     final cells = topology.cellsOf(ShapeSpec('rectangle', const [4, 1]));
 
@@ -260,6 +308,17 @@ void main() {
         const FakeCoord(-1, 0),
         const FakeCoord(0, 0),
       });
+    });
+
+    test('should_refuse_changes_when_editing_the_placed_cells', () {
+      // Arrange
+      final placed = topology.place(ell, const FakeCoord(0, 0))!;
+
+      // Act
+      void act() => placed.add(const FakeCoord(9, 9));
+
+      // Assert
+      expect(act, throwsUnsupportedError);
     });
 
     test('should_return_null_when_the_anchor_is_of_another_cell_type', () {

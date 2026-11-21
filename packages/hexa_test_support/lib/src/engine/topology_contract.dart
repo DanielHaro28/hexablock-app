@@ -10,11 +10,13 @@ import 'package:test/test.dart';
 /// from border to border without gaps (RN-COM-12).
 ///
 /// It checks what the engine relies on but cannot enforce with types:
-/// coordinates compare by value, neighbors come in the same order around every
-/// cell of the same type, cells come in reading order, `step`, the `forward`
-/// sense of each direction and `lines` agree, `normalize` is idempotent and
-/// `place` keeps the shape. What is specific to one shape (the clockwise
-/// neighbor order, the board sizes) is tested by that topology's own tests.
+/// coordinates compare by value, the neighbors are the cells one step away and
+/// come in the same order around every cell of the same type, cells come in
+/// reading order, `step`, the `forward` sense of each direction and `lines`
+/// agree, `normalize` is idempotent, `orientations` is closed under every
+/// basic rotation and `place` keeps the shape. What is specific to one shape
+/// (the clockwise neighbor order, the board sizes) is tested by that
+/// topology's own tests.
 void checkTopologyContract<C extends Coord>(
   GridTopology<C> topology,
   ShapeSpec spec,
@@ -46,6 +48,29 @@ void checkTopologyContract<C extends Coord>(
       final copy = second.lookup(cell);
       expect(copy, isNotNull, reason: '$cell needs value equality');
       expect(copy.hashCode, cell.hashCode, reason: '$cell needs a hashCode');
+    }
+  });
+
+  test('should_find_a_cell_again_when_stepping_away_and_back', () {
+    // Arrange: copies computed by the topology, not taken from the board.
+    final cells = board();
+
+    for (final cell in cells) {
+      for (final direction in topology.directions) {
+        final opposite = _direction(
+          topology,
+          direction.axis,
+          forward: !direction.forward,
+        );
+
+        // Act
+        final copy = topology.step(topology.step(cell, direction), opposite);
+
+        // Assert
+        expect(copy, cell, reason: '$cell needs value equality');
+        expect(copy.hashCode, cell.hashCode, reason: '$cell needs a hashCode');
+        expect(cells.contains(copy), isTrue, reason: '$cell as a set key');
+      }
     }
   });
 
@@ -92,6 +117,23 @@ void checkTopologyContract<C extends Coord>(
       expect(neighbors, isNotEmpty, reason: 'neighbors of $cell');
       expect(neighbors.toSet(), hasLength(neighbors.length));
       expect(neighbors, isNot(contains(cell)));
+    }
+  });
+
+  test('should_be_the_cells_one_step_away_when_listing_neighbors', () {
+    // Arrange: RN-COM-11 and 13. On triangles the six directions reach the
+    // three neighbors, two directions each.
+    final cells = board();
+
+    for (final cell in cells) {
+      // Act
+      final reached = {
+        for (final direction in topology.directions)
+          topology.step(cell, direction),
+      };
+
+      // Assert
+      expect(topology.neighbors(cell).toSet(), reached, reason: '$cell');
     }
   });
 
@@ -272,51 +314,86 @@ void checkTopologyContract<C extends Coord>(
     },
   );
 
-  test('should_keep_the_shape_when_placing_it_on_an_anchor_of_its_type', () {
-    // Arrange
-    final cells = board();
-    final shape = smallShapes(cells).first;
-    final type = topology.normalizationOrigin(firstInReadingOrder(shape.cells));
+  test(
+    'should_be_closed_under_every_basic_rotation_when_listing_orientations',
+    () {
+      // Arrange
+      final shapes = smallShapes(board());
 
-    for (final anchor in cells) {
-      // Act
-      final placed = topology.place(shape, anchor);
+      for (final shape in shapes) {
+        // Act
+        final orientations = topology.orientations(shape);
 
-      // Assert (D-92)
-      if (topology.normalizationOrigin(anchor) != type) {
-        expect(placed, isNull, reason: 'anchor $anchor of another type');
-        continue;
+        // Assert (RN-COM-14)
+        expect(orientations.first, topology.normalize(shape));
+        expect(orientations.toSet(), hasLength(orientations.length));
+        for (final orientation in orientations) {
+          for (final rotation in topology.basicRotations) {
+            expect(
+              orientations,
+              contains(topology.rotate(orientation, rotation)),
+              reason: '$orientation turned by $rotation',
+            );
+          }
+        }
       }
-      expect(placed, isNotNull, reason: 'anchor $anchor');
-      expect(firstInReadingOrder(placed!), anchor);
-      expect(
-        topology.normalize(Shape.fromCells(placed)),
-        topology.normalize(shape),
-      );
+    },
+  );
+
+  test('should_keep_the_shape_when_placing_it_on_an_anchor_of_its_type', () {
+    // Arrange: shapes whose first cell is of every cell type.
+    final cells = board();
+
+    for (final shape in smallShapes(cells)) {
+      final first = firstInReadingOrder(shape.cells);
+      final type = topology.normalizationOrigin(first);
+
+      for (final anchor in cells) {
+        // Act
+        final placed = topology.place(shape, anchor);
+
+        // Assert (D-92)
+        if (topology.normalizationOrigin(anchor) != type) {
+          expect(placed, isNull, reason: 'anchor $anchor for $first');
+          continue;
+        }
+        expect(placed, isNotNull, reason: 'anchor $anchor for $first');
+        expect(firstInReadingOrder(placed!), anchor);
+        expect(
+          topology.normalize(Shape.fromCells(placed)),
+          topology.normalize(shape),
+        );
+      }
     }
   });
 
-  test(
-    'should_throw_when_given_an_axis_rotation_or_kind_of_another_topology',
-    () {
-      // Arrange
-      final cells = board();
-      const foreignAxis = Axis('not-an-axis');
-      const foreignRotation = Rotation('not-a-rotation');
-      final foreignSpec = ShapeSpec('not-a-kind', spec.size);
+  test('should_throw_when_given_a_direction_axis_rotation_or_kind_of_another_topology', () {
+    // Arrange
+    final cells = board();
+    const foreignAxis = Axis('not-an-axis');
+    const foreignDirection = Direction(
+      'not-a-direction',
+      axis: foreignAxis,
+      forward: true,
+    );
+    const foreignRotation = Rotation('not-a-rotation');
+    final foreignSpec = ShapeSpec('not-a-kind', spec.size);
 
-      // Act and assert
-      expect(
-        () => topology.lines(cells, foreignAxis).toList(),
-        throwsArgumentError,
-      );
-      expect(
-        () => topology.rotateCell(cells.first, foreignRotation),
-        throwsArgumentError,
-      );
-      expect(() => topology.cellsOf(foreignSpec), throwsArgumentError);
-    },
-  );
+    // Act and assert
+    expect(
+      () => topology.step(cells.first, foreignDirection),
+      throwsArgumentError,
+    );
+    expect(
+      () => topology.lines(cells, foreignAxis).toList(),
+      throwsArgumentError,
+    );
+    expect(
+      () => topology.rotateCell(cells.first, foreignRotation),
+      throwsArgumentError,
+    );
+    expect(() => topology.cellsOf(foreignSpec), throwsArgumentError);
+  });
 }
 
 Direction _direction<C extends Coord>(

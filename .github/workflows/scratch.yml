@@ -1,0 +1,41 @@
+# Temporary: verifies the T-03 skeleton and prints the files that only
+# Flutter can generate (android/, .metadata, pubspec.lock). Never merged.
+name: scratch
+on:
+  push:
+    branches: [ci/t-03-scratch]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.0
+      - run: flutter --version
+      - name: Generate the Android project
+        working-directory: app
+        run: flutter create --platforms=android --org io.github.danielharo28 --project-name hexablock_app --no-pub . && git status --short
+      - name: Drop files flutter create adds outside android/
+        working-directory: app
+        run: rm -f README.md .gitignore test/widget_test.dart && git status --short
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: dart analyze --fatal-infos
+      - working-directory: app
+        run: flutter test
+      - working-directory: app
+        run: flutter build apk --debug
+      - name: Print generated files
+        if: always()
+        run: |
+          echo "BEGIN-TARBALL"
+          tar czf - app/android app/.metadata pubspec.lock | base64 -w 0
+          echo
+          echo "END-TARBALL"

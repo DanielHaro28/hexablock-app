@@ -1,0 +1,16 @@
+# Pub workspace (D-21): one resolution and one pubspec.lock for every package.
+# Each package below can only import what its own pubspec.yaml declares, so the
+# dependency rule of ARQ-01-APP §3.1 is enforced by pub, not by discipline.
+name: hexablock_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.14.0
+
+workspace:
+  - packages/hexa_engine
+  - packages/hexa_topologies
+  - packages/hexa_variants
+  - packages/hexa_application
+  - packages/hexa_test_support
+  - app

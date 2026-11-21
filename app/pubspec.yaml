@@ -1,0 +1,32 @@
+name: hexablock_app
+description: HexaBlock Suite mobile app. Layers 3 (adapters) and 4 (frameworks).
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.14.0
+  flutter: ">=3.50.0"
+
+# The app is the outer layer and may depend on every package (ARQ-01-APP §3.1).
+# Third-party libraries are added by the story that needs them (SEC-AGT-04).
+dependencies:
+  flutter:
+    sdk: flutter
+  hexa_application:
+    path: ../packages/hexa_application
+  hexa_engine:
+    path: ../packages/hexa_engine
+  hexa_topologies:
+    path: ../packages/hexa_topologies
+  hexa_variants:
+    path: ../packages/hexa_variants
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  hexa_test_support:
+    path: ../packages/hexa_test_support
+
+flutter:
+  uses-material-design: true

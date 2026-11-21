@@ -1,0 +1,16 @@
+name: hexa_topologies
+description: Layer 1. Concrete grid topologies: hexagons, squares, triangles and cubes.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  hexa_engine:
+    path: ../hexa_engine
+
+dev_dependencies:
+  test: ^1.25.0
+

@@ -12,6 +12,8 @@
 **Cómo leer este documento.** Empieza con el diseño final en una página. Las secciones 3 a 8 explican cada decisión con un esbozo de código; las opciones que se compararon, con sus ventajas y desventajas, están en el Anexo A como registro de lo que se descartó y por qué, útil para la defensa (D-68).
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
+>
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El resto (reglas, motor, fases, deshacer) se valida en los PR siguientes de TEC-01.
 
 ---
 
@@ -601,7 +603,7 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 | Riesgo | Verificación |
 |---|---|
 | Los esbozos no compilan tal cual (sin SDK en la planificación) | *Spike* de TEC-01: compilar `hexa_engine` con un tipo de celda de prueba y una topología de prueba antes de empezar Hexa Merge |
-| La covarianza de Dart permite pasar una `HexCoord` a una topología de cuadrados guardada como `GridTopology<Coord>` (error en ejecución) | Del registro solo se llama a `accept`; toda operación geométrica ocurre ya dentro del visitante, con `C` concreto. Una prueba lo comprueba |
+| La covarianza de Dart permite pasar una `HexCoord` a una topología de cuadrados guardada como `GridTopology<Coord>` (error en ejecución) | Del registro solo se llama a `accept`; toda operación geométrica ocurre ya dentro del visitante, con `C` concreto. Lo comprueban las pruebas `D-29` de `hexa_engine/test/board/grid_topology_test.dart` |
 | Copiar el estado en cada turno es lento | El tablero más grande tiene 64 celdas; se mide con el aspecto de métricas (ARQ-A-05) en la cascada de Sort y en la búsqueda de movimientos de Lines |
 | En Merge, deshacer la jugada que ganó y repetirla vuelve a anunciar la victoria, porque el estado restaurado no la tenía anunciada | Es coherente con "deshacer restaura todo" (RN-COM-61). Si el equipo prefiere no repetir el anuncio, se agrega una regla a `02-RN-HEXA-MERGE.md` |
 | Demasiados patrones para explicar en la defensa | Cada uno tiene su fila en §9 con el problema que resuelve; los ensayos F-09 y F-10 recorren esta tabla |

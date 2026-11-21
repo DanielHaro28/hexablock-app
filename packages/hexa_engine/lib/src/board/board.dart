@@ -11,7 +11,7 @@ import 'shape_spec.dart';
 /// new one from [withCells]; nothing changes the old board, so an earlier
 /// state is already the memento for undo (D-31).
 ///
-/// Type constraints (ARQ-02 §4.3):
+/// Type constraints (ARQ-02 Â§4.3):
 /// - `C extends Coord`: coordinates are keys of the board, so they need value
 ///   equality.
 /// - `TCell extends Object`: no nullable content, so [cell] returning `null`
@@ -21,7 +21,7 @@ import 'shape_spec.dart';
 /// cell: [cell], [withCells], [neighbors] and [ray] throw [ArgumentError] for
 /// it. Use [contains] to ask first.
 final class Board<C extends Coord, TCell extends Object> {
-  /// An empty board with exactly [cells] (for example, a Hexa Fit figure).
+  /// An empty board with exactly [cells] (for example, a level's figure).
   /// Throws [ArgumentError] if [cells] is empty.
   Board(GridTopology<C> topology, Iterable<C> cells)
     : this._(
@@ -81,7 +81,7 @@ final class Board<C extends Coord, TCell extends Object> {
   Iterable<C> get emptyCells =>
       cells.where((coord) => !_contents.containsKey(coord));
 
-  /// Whether every cell is occupied (for example, a covered Hexa Fit figure).
+  /// Whether every cell is occupied (for example, a fully covered figure).
   bool get isFull => _contents.length == cells.length;
 
   /// The neighbors of [coord] that are on the board, in the topology's order

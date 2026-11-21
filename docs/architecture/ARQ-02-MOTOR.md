@@ -521,7 +521,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 | **Observer** | `GameEngine.events` (`Stream<GameEvent<C>>`); se suscriben `UndoHistory` y `ActiveTimer` (síncronos), y el audio y la analítica. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
 | **Command** | `MoveCommand<TMove, TState>` con `undo` y `redo`; `UndoHistory` es el invocador | Historial de deshacer y rehacer genérico | §3.3 |
 | **Memento** | Los estados inmutables son los mementos; el motor es el originador (`restore`) y `UndoHistory`, el cuidador | Restaurar **todo**, generador incluido, sin lógica inversa (RN-COM-61) | — |
-| **Iterator** | `GridTopology`: `lines`, `ray`, `neighbors` y `ring` devuelven `Iterable` perezosos (`sync*`); `validMoves` también es perezoso | Recorrer por ejes, anillos o vecindad sin exponer el mapa interno. Como es perezoso, "¿hay algún movimiento válido?" se detiene en el primero (fin de Lines, RN-HL-50) | §3.3 |
+| **Iterator** | `GridTopology`: `lines` y `ray` devuelven `Iterable` (`ray` es perezoso, `sync*`); `neighbors` devuelve una `List`, porque son a lo sumo 6 y se recorren enteras; `validMoves` también es perezoso | Recorrer por ejes, rayos o vecindad sin exponer el mapa interno. Como es perezoso, "¿hay algún movimiento válido?" se detiene en el primero (fin de Lines, RN-HL-50) | §3.3 |
 | **Visitor** | `TopologyVisitor<R>` + `GridTopology.accept` (§3.1); la app aplica lo mismo a su `TopologyEntry` | Despachar la figura elegida en ejecución conservando el tipo `C`, sin `switch` | — |
 
 ### 9.4 Patrones fuera del dominio (para el mapa completo del README)

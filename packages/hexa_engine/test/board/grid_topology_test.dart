@@ -219,7 +219,29 @@ void main() {
       expect(board, isA<Board<FakeCoord, FakeCell>>());
       expect(board.cells, hasLength(4));
     });
+
+    test('should_fail_at_runtime_when_a_stored_topology_gets_a_foreign_coordinate', () {
+      // Arrange: why only `accept` is called on a stored topology (ARQ-02 §11)
+      const GridTopology<Coord> stored = FakeTopology();
+
+      // Act
+      List<Coord> neighbors() => stored.neighbors(const _ForeignCoord());
+
+      // Assert
+      expect(neighbors, throwsA(isA<TypeError>()));
+    });
   });
+}
+
+/// A coordinate of some other topology, to show the covariance risk.
+final class _ForeignCoord extends Coord {
+  const _ForeignCoord();
+
+  @override
+  bool operator ==(Object other) => other is _ForeignCoord;
+
+  @override
+  int get hashCode => 0;
 }
 
 /// Returns the real coordinate type of the visited topology.

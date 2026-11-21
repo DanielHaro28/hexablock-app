@@ -66,17 +66,6 @@ void main() {
       expect(content, isNull);
     });
 
-    test('should_throw_when_reading_a_cell_outside_the_board', () {
-      // Arrange
-      final board = board3x2();
-
-      // Act
-      FakeCell? read() => board.cell(const FakeCoord(5, 0));
-
-      // Assert
-      expect(read, throwsArgumentError);
-    });
-
     test('should_report_whether_a_coordinate_belongs_to_the_board', () {
       // Arrange
       final board = board3x2();
@@ -101,17 +90,6 @@ void main() {
       expect(filled.cell(const FakeCoord(1, 0)), red);
     });
 
-    test('should_leave_the_original_board_unchanged_when_cells_change', () {
-      // Arrange
-      final board = board3x2();
-
-      // Act
-      board.withCells({const FakeCoord(1, 0): red});
-
-      // Assert
-      expect(board.cell(const FakeCoord(1, 0)), isNull);
-    });
-
     test('should_empty_the_cell_when_the_change_is_null', () {
       // Arrange
       final board = board3x2().withCells({const FakeCoord(1, 0): red});
@@ -121,18 +99,6 @@ void main() {
 
       // Assert
       expect(cleared.cell(const FakeCoord(1, 0)), isNull);
-    });
-
-    test('should_throw_when_changing_a_cell_outside_the_board', () {
-      // Arrange
-      final board = board3x2();
-
-      // Act
-      Board<FakeCoord, FakeCell> change() =>
-          board.withCells({const FakeCoord(-1, 0): red});
-
-      // Assert
-      expect(change, throwsArgumentError);
     });
 
     test(
@@ -189,6 +155,19 @@ void main() {
       expect(board.isFull, isFalse);
       expect(full.isFull, isTrue);
     });
+  });
+
+  group('D-30', () {
+    test('should_leave_the_original_board_unchanged_when_cells_change', () {
+      // Arrange
+      final board = board3x2();
+
+      // Act
+      board.withCells({const FakeCoord(1, 0): red});
+
+      // Assert
+      expect(board.cell(const FakeCoord(1, 0)), isNull);
+    });
 
     test('should_be_equal_when_boards_have_the_same_cells_and_contents', () {
       // Arrange
@@ -203,15 +182,20 @@ void main() {
       expect(a.hashCode, b.hashCode);
     });
 
-    test('should_show_the_topology_and_contents_when_described', () {
-      // Arrange
-      final board = board3x2().withCells({const FakeCoord(1, 0): red});
+    test('should_be_equal_when_each_board_has_its_own_topology_instance', () {
+      // Arrange: a registry might build a second, non-const instance
+      final spec = ShapeSpec('rectangle', const [2, 1]);
+      // ignore: prefer_const_constructors
+      final a = Board<FakeCoord, FakeCell>.of(FakeTopology(), spec);
+      // ignore: prefer_const_constructors
+      final b = Board<FakeCoord, FakeCell>.of(FakeTopology(), spec);
 
       // Act
-      final description = board.toString();
+      final equal = a == b;
 
-      // Assert: what a failing expectation prints
-      expect(description, 'Board(fake, 6 cells, {(1, 0): FakeCell(red)})');
+      // Assert
+      expect(equal, isTrue);
+      expect(a.hashCode, b.hashCode);
     });
 
     test('should_not_be_equal_when_contents_differ', () {
@@ -224,6 +208,68 @@ void main() {
 
       // Assert
       expect(equal, isFalse);
+    });
+
+    test('should_show_the_topology_and_contents_when_described', () {
+      // Arrange
+      final board = board3x2().withCells({const FakeCoord(1, 0): red});
+
+      // Act
+      final description = board.toString();
+
+      // Assert: what a failing expectation prints
+      expect(description, 'Board(fake, 6 cells, {(1, 0): FakeCell(red)})');
+    });
+  });
+
+  group('D-91', () {
+    test('should_throw_when_reading_a_cell_outside_the_board', () {
+      // Arrange
+      final board = board3x2();
+
+      // Act
+      FakeCell? read() => board.cell(const FakeCoord(5, 0));
+
+      // Assert
+      expect(read, throwsArgumentError);
+    });
+
+    test('should_throw_when_changing_a_cell_outside_the_board', () {
+      // Arrange
+      final board = board3x2();
+
+      // Act
+      Board<FakeCoord, FakeCell> change() =>
+          board.withCells({const FakeCoord(-1, 0): red});
+
+      // Assert
+      expect(change, throwsArgumentError);
+    });
+
+    test(
+      'should_throw_when_asking_for_neighbors_of_a_cell_outside_the_board',
+      () {
+        // Arrange
+        final board = board3x2();
+
+        // Act
+        List<FakeCoord> neighbors() => board.neighbors(const FakeCoord(9, 9));
+
+        // Assert
+        expect(neighbors, throwsArgumentError);
+      },
+    );
+
+    test('should_throw_when_the_ray_starts_outside_the_board', () {
+      // Arrange
+      final board = board3x2();
+
+      // Act
+      Iterable<FakeCoord> ray() =>
+          board.ray(const FakeCoord(7, 0), FakeTopology.west);
+
+      // Assert
+      expect(ray, throwsArgumentError);
     });
   });
 
@@ -239,20 +285,6 @@ void main() {
 
         // Assert
         expect(neighbors, const [FakeCoord(1, 0), FakeCoord(0, 1)]);
-      },
-    );
-
-    test(
-      'should_throw_when_asking_for_neighbors_of_a_cell_outside_the_board',
-      () {
-        // Arrange
-        final board = board3x2();
-
-        // Act
-        List<FakeCoord> neighbors() => board.neighbors(const FakeCoord(9, 9));
-
-        // Assert
-        expect(neighbors, throwsArgumentError);
       },
     );
   });
@@ -324,18 +356,6 @@ void main() {
 
       // Assert
       expect(ray, const [FakeCoord(1, 1), FakeCoord(2, 1)]);
-    });
-
-    test('should_throw_when_the_ray_starts_outside_the_board', () {
-      // Arrange
-      final board = board3x2();
-
-      // Act
-      Iterable<FakeCoord> ray() =>
-          board.ray(const FakeCoord(7, 0), FakeTopology.west);
-
-      // Assert
-      expect(ray, throwsArgumentError);
     });
   });
 }

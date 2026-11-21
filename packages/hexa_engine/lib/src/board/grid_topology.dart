@@ -20,7 +20,8 @@ import 'topology_visitor.dart';
 ///   [rotate], [orientations], [ray] and [accept]. A new cell shape gets them
 ///   for free and cannot get them wrong.
 ///
-/// Topologies hold no state, so they can be `const` and shared.
+/// Topologies hold no state, so they can be `const` and shared, and they are
+/// equal when they are of the same class and have the same [id].
 ///
 /// Patterns (D-35): Factory Method ([cellsOf]), Iterator ([ray], [lines]),
 /// Visitor ([accept]).
@@ -76,6 +77,10 @@ abstract base class GridTopology<C extends Coord> {
   C normalizationOrigin(C first);
 
   /// [cell] moved by the vector that takes [from] to [to].
+  ///
+  /// The vector must keep every cell's type. Topologies with more than one
+  /// cell type (triangles ▲ and ▼, RN-TRI-07) throw [ArgumentError] when
+  /// [from] and [to] are of different types; [normalize] never asks for that.
   C translate(C cell, C from, C to);
 
   // ---------------------------------------------------------------------------
@@ -135,4 +140,16 @@ abstract base class GridTopology<C extends Coord> {
   /// coordinate type, even when this topology is stored as
   /// `GridTopology<Coord>` (D-29).
   R accept<R>(TopologyVisitor<R> visitor) => visitor.visit<C>(this);
+
+  /// Topologies hold no state, so two instances of the same class with the
+  /// same [id] are interchangeable. Boards compare their topology with this,
+  /// so equal boards stay equal even if a registry builds a second instance.
+  @override
+  bool operator ==(Object other) =>
+      other is GridTopology &&
+      other.runtimeType == runtimeType &&
+      other.id == id;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, id);
 }

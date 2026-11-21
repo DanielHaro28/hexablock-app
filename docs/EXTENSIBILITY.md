@@ -111,7 +111,7 @@ En ningún caso se modifica `GameEngine`, `Board` ni un caso de uso.
 | Crear | Qué implementa |
 |---|---|
 | `packages/hexa_topologies/lib/src/<figura>/<figura>_coord.dart` | `final class XCoord extends Coord` (igualdad por valor) |
-| `packages/hexa_topologies/lib/src/<figura>/<figura>_topology.dart` | `XTopology extends GridTopology<XCoord>`: vecinas en orden canónico, ejes, direcciones, giros básicos, normalización y `cellsOf` (RN-COM-10 a 17) |
+| `packages/hexa_topologies/lib/src/<figura>/<figura>_topology.dart` | `final class XTopology extends GridTopology<XCoord>` con constructor `const`. Declara sus ejes, direcciones y giros básicos, e implementa solo las primitivas de la figura: `cellsOf`, `neighbors` (en orden canónico), `step`, `lines`, `compareReadingOrder`, `rotateCell`, `normalizationOrigin` y `translate` (RN-COM-10 a 17). Normalizar, rotar, las orientaciones, los rayos y el Visitor ya vienen escritos en `GridTopology` (D-90) |
 | `docs/requirements/02-RN-TOPOLOGIAS.md` (anexo nuevo) | Reglas y ejemplos verificados de la figura |
 | `app/lib/frameworks/ui/layouts/<figura>_layout.dart` | `XLayout implements TopologyLayout<XCoord>`: dónde se dibuja cada celda y qué celda se tocó |
 | Catálogos y niveles por figura | Catálogos según D-20 (abierta); niveles según D-28: 3 de muestra de Fit por figura nueva; los de Sort con `any` ya sirven |

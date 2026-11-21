@@ -3,7 +3,7 @@ import 'coord.dart';
 /// A set of cells relative to an origin, with no place on a board (glosario).
 ///
 /// Composite pattern (D-35): a [CellShape] is a leaf and a [CompositeShape]
-/// is made of parts. A piece is a composition of cells, and a Hexa Fit figure
+/// is made of parts. A piece is a composition of cells, and a level's figure
 /// can be a composition of regions. Rotating, translating and normalizing go
 /// through [map], so they treat a cell, a piece and a whole figure alike.
 ///
@@ -51,15 +51,21 @@ final class CellShape<C extends Coord> extends Shape<C> {
 
 /// A shape made of other shapes: the node of the composite.
 final class CompositeShape<C extends Coord> extends Shape<C> {
-  /// Copies [parts]; throws [ArgumentError] if there is none, because a shape
-  /// with no cells cannot be normalized or placed.
-  CompositeShape(Iterable<Shape<C>> parts)
-    : parts = List.unmodifiable(parts),
-      cells = Set.unmodifiable({for (final part in parts) ...part.cells}) {
-    if (this.parts.isEmpty) {
+  /// Copies [parts] (reading them once, so a lazy iterable is fine); throws
+  /// [ArgumentError] if there is none, because a shape with no cells cannot
+  /// be normalized or placed.
+  factory CompositeShape(Iterable<Shape<C>> parts) {
+    final copied = List<Shape<C>>.unmodifiable(parts);
+    if (copied.isEmpty) {
       throw ArgumentError.value(parts, 'parts', 'a shape needs a cell');
     }
+    return CompositeShape._(
+      copied,
+      Set.unmodifiable({for (final part in copied) ...part.cells}),
+    );
   }
+
+  CompositeShape._(this.parts, this.cells);
 
   /// The shapes it is made of, in the order they were given.
   final List<Shape<C>> parts;

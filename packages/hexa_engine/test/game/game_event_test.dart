@@ -80,7 +80,9 @@ void main() {
         'Defeat()',
       ]);
     });
+  });
 
+  group('D-95', () {
     test('should_name_the_engine_reason_when_printed', () {
       // Arrange
       final engine = GameEngine(

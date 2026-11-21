@@ -136,10 +136,15 @@ final class GameEngine<
     _moveTo(_phase.onContinue());
   }
 
-  /// Closes both streams. The engine cannot be used afterwards.
-  Future<void> close() async {
-    if (isClosed) return;
-    await Future.wait([_sync.close(), _async.close()]);
+  /// Closes both streams. The engine cannot be used afterwards; closing it
+  /// again does nothing. Like the other operations, it throws a [StateError]
+  /// if a synchronous listener calls it, so a turn is never cut in half.
+  Future<void> close() {
+    if (_publishing) {
+      throw StateError('close: called from a synchronous listener (D-32)');
+    }
+    if (isClosed) return Future.value();
+    return Future.wait([_sync.close(), _async.close()]);
   }
 
   RejectedMove<C, TState> _reject(RejectionReason reason) {

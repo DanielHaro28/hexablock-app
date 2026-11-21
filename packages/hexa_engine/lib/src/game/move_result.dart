@@ -8,6 +8,11 @@ import 'rejection_reason.dart';
 /// The screen receives it in the same call, through the use case, and
 /// animates [events] in order. [events] are exactly the events the engine
 /// published on its streams for this call (D-94).
+///
+/// `TState` has no constraint here on purpose: these are plain carriers that
+/// never read the state. Constraining it to `GameState<C, TCell>` would force
+/// a `TCell` parameter on every result type for nothing; `IGameRules` and
+/// `GameEngine`, which do read it, carry the constraint (ARQ-02 §4.3).
 sealed class MoveResult<C extends Coord, TState> {
   const MoveResult(this.events);
 

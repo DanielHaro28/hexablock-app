@@ -162,7 +162,7 @@ void main() {
       expect((result as RejectedMove).reason, isA<NotAcceptingMoves>());
     });
 
-    test('should_reject_a_move_submitted_while_the_turn_is_resolving', () {
+    test('should_reject_a_move_when_it_is_submitted_while_resolving', () {
       // Arrange
       late final _Engine engine;
       final nested = <MoveResult<FakeCoord, FakeState>>[];
@@ -203,23 +203,26 @@ void main() {
   });
 
   group('RN-COM-25', () {
-    test('should_list_phase_rule_score_and_phase_events_in_order', () {
-      // Arrange
-      final engine = engineWith(FakeRules(pointsPerTurn: 10));
+    test(
+      'should_list_phase_rule_score_and_phase_events_when_the_turn_is_played',
+      () {
+        // Arrange
+        final engine = engineWith(FakeRules(pointsPerTurn: 10));
 
-      // Act
-      final result = engine.submit(const FakeMove(a));
+        // Act
+        final result = engine.submit(const FakeMove(a));
 
-      // Assert (D-94)
-      expect(result.events, const [
-        PhaseChanged<FakeCoord>(playing, resolving),
-        FakeEvent('apply'),
-        FakeEvent('resolve'),
-        FakeEvent('afterResolve'),
-        ScoreChanged<FakeCoord>(0, 10),
-        PhaseChanged<FakeCoord>(resolving, playing),
-      ]);
-    });
+        // Assert (D-94)
+        expect(result.events, const [
+          PhaseChanged<FakeCoord>(playing, resolving),
+          FakeEvent('apply'),
+          FakeEvent('resolve'),
+          FakeEvent('afterResolve'),
+          ScoreChanged<FakeCoord>(0, 10),
+          PhaseChanged<FakeCoord>(resolving, playing),
+        ]);
+      },
+    );
 
     test('should_leave_out_score_changed_when_the_score_stays_the_same', () {
       // Arrange
@@ -265,7 +268,7 @@ void main() {
   });
 
   group('D-32', () {
-    test('should_notify_sync_listeners_before_submit_returns', () {
+    test('should_notify_sync_listeners_when_submit_has_not_returned_yet', () {
       // Arrange
       final engine = engineWith(FakeRules());
       final published = recordSync(engine);
@@ -277,7 +280,7 @@ void main() {
       expect(published, result.events);
     });
 
-    test('should_notify_async_listeners_after_submit_returns', () async {
+    test('should_notify_async_listeners_when_submit_has_returned', () async {
       // Arrange
       final engine = engineWith(FakeRules());
       final published = <GameEvent<FakeCoord>>[];
@@ -432,7 +435,7 @@ void main() {
     });
   });
 
-  group('GameEngine', () {
+  group('D-94', () {
     test('should_restore_the_phase_and_state_when_the_rules_throw', () {
       // Arrange
       final engine = engineWith(
@@ -449,6 +452,29 @@ void main() {
       expect(engine.phase, playing);
       expect(identical(engine.state, before), isTrue);
       expect(published, isEmpty);
+    });
+  });
+
+  group('D-32', () {
+    test('should_throw_when_a_sync_listener_closes_the_engine', () {
+      // Arrange
+      final engine = engineWith(FakeRules());
+      final errors = <Object>[];
+      final subscription = engine.syncEvents.listen((_) {
+        try {
+          engine.close();
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(errors, hasLength(result.events.length));
+      expect(engine.isClosed, isFalse);
     });
 
     test('should_throw_when_used_after_being_closed', () async {

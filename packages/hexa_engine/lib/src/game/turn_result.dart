@@ -5,6 +5,11 @@ import 'rejection_reason.dart';
 
 /// The result of one step of a turn: the new state and the events of that
 /// step, in order (RN-COM-25).
+///
+/// `TState` has no constraint here on purpose: these are plain carriers that
+/// never read the state. Constraining it to `GameState<C, TCell>` would force
+/// a `TCell` parameter on every result type for nothing; `IGameRules` and
+/// `GameEngine`, which do read it, carry the constraint (ARQ-02 §4.3).
 final class Step<C extends Coord, TState> {
   const Step(this.state, [this.events = const []]);
 

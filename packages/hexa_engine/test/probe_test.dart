@@ -13,5 +13,16 @@ void main() {
       // Assert
       expect(result, 2);
     });
+
+    test('should_double_the_previous_when_uncovered_is_called', () {
+      // Arrange
+      const x = 3;
+
+      // Act
+      final result = uncovered(x);
+
+      // Assert
+      expect(result, 4);
+    });
   });
 }

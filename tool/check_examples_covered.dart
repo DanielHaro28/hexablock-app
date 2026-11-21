@@ -24,9 +24,10 @@ void main() {
   final tested = <String>{};
   for (final dir in [
     Directory('app/test'),
-    ...Directory('packages').listSync().whereType<Directory>().map(
-      (package) => Directory('${package.path}/test'),
-    ),
+    ...Directory('packages')
+        .listSync()
+        .whereType<Directory>()
+        .map((package) => Directory('${package.path}/test')),
   ]) {
     if (!dir.existsSync()) continue;
     for (final file in dir.listSync(recursive: true).whereType<File>()) {

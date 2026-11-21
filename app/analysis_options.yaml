@@ -1,1 +1,6 @@
+analyzer:
+  exclude:
+    - android/**
+    - build/**
+    - "**/*.g.dart"
 include: ../analysis_options.yaml

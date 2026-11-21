@@ -24,7 +24,7 @@ jobs:
         run: flutter create --platforms=android --org io.github.danielharo28 --project-name hexablock_app --no-pub . && git status --short
       - name: Drop files flutter create adds outside android/
         working-directory: app
-        run: rm -f README.md .gitignore test/widget_test.dart && git status --short
+        run: rm -rf README.md .gitignore test/widget_test.dart pubspec.lock .idea && git status --short
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed .
       - run: dart analyze --fatal-infos

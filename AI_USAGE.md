@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-39)
+> **Última actualización:** 2026-11-20 (IA-40)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -459,6 +459,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | D-89 cerrada (Prisma ORM 7, 7.10.1) en los dos registros y en ADR-001 §2.2 (rev. 2.1). Tablas de versiones exactas en los dos README: Flutter 3.50.0 y Dart 3.14.0 (vistas en el CI), Node 26 LTS, NestJS 12.5.0, Prisma 7.10.1 y PostgreSQL 18.7 (buscadas en la web el 20-11) |
 | Modificaciones del equipo | Lo decidió el usuario |
 | Lecciones | Ninguna nueva |
+
+### IA-40 · CI: APK de depuración más rápido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "esa prueba en el Ci de apk tarda mucho no hay forma de ponerla mas rapido" y luego "la 1 y 2 me parece bien me da miedo que ese en cache" |
+| Resultado | El job `apk` del CI solo arma el APK si el PR cambia `app/android/`, `app/pubspec.yaml`, `pubspec.lock` o los workflows (siempre en `main`); si no, pasa en segundos para que el check obligatorio no quede esperando. Caché de Gradle solo en ese job; `release.yml` no usa caché |
+| Modificaciones del equipo | Lo eligió el usuario (opciones 1 y 2 de las que propuso Claude) |
+| Lecciones | Los runners estándar son gratis en repos públicos (D-57), así que el costo real del job era el tiempo de espera, no minutos |
 
 ## 4. Evaluación crítica
 

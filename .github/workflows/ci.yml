@@ -1,0 +1,109 @@
+# Continuous integration of the app (TEC-04, ESTRATEGIA-PRUEBAS §9).
+# The contract copy and the bundled levels are checked by docs-check.yml.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: 3.50.0
+
+jobs:
+  # Squash merges use the PR title as the commit message on main, so the
+  # title is what must follow Conventional Commits (ADR-001 §2.4).
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Conventional Commits title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(feat|fix|docs|test|refactor|perf|style|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: [^ ].{0,99}$'
+          if printf '%s' "$TITLE" | grep -Eq "$pattern"; then
+            echo "OK: $TITLE"
+          else
+            echo "::error::The PR title must follow Conventional Commits, e.g. 'feat(hexa-lines): place a piece'"
+            exit 1
+          fi
+
+  flutter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Dependencies (lockfile only)
+        run: flutter pub get --enforce-lockfile
+
+      - name: Format
+        run: |
+          if ! dart format --output=none --set-exit-if-changed .; then
+            dart format . > /dev/null
+            echo "::error::Run 'dart format .' and commit the result:"
+            git diff
+            exit 1
+          fi
+
+      - name: Static analysis
+        run: dart analyze --fatal-infos
+
+      - name: Architecture (D-21, D-36, RNF-02, RNF-04, RNF-07, RNF-10, RNF-50)
+        run: dart run tool/check_architecture.dart
+
+      - name: Tests with coverage
+        run: |
+          for dir in packages/* app; do
+            if [ -d "$dir/test" ]; then
+              echo "::group::$dir"
+              (cd "$dir" && flutter test --coverage)
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Coverage gate (D-58)
+        run: dart run tool/coverage_gate.dart
+
+      - name: Every rule example has a test (ESTRATEGIA-PRUEBAS §6)
+        run: dart run tool/check_examples_covered.dart
+
+  # Builds the debug APK so a broken Android project fails the PR, not the
+  # release.
+  apk:
+    needs: flutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - run: flutter pub get --enforce-lockfile
+
+      - name: Debug APK
+        working-directory: app
+        run: flutter build apk --debug

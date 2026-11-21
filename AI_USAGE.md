@@ -4,7 +4,7 @@
 >
 > Las tareas de planificación que producen documentos compartidos aparecen **con el mismo ID** en el `AI_USAGE.md` de `hexablock-api`.
 >
-> **Última actualización:** 2026-11-20 (IA-37)
+> **Última actualización:** 2026-11-20 (IA-38)
 
 Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoce esos datos y no se inventaron.
 
@@ -437,6 +437,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | Workspace de pub con `hexa_engine`, `hexa_topologies`, `hexa_variants`, `hexa_application`, `hexa_test_support` y `app/`; `analysis_options.yaml` estricto sin paquetes de terceros; proyecto Android generado con `flutter create` en el CI (Flutter 3.50.0) y `pubspec.lock`. Revisión de las 25 skills oficiales: 8 copiadas con su commit y licencia, 17 descartadas con el motivo en APPROVED-TOOLS (D-88). Una prueba de *widget* mínima escrita por Claude |
 | Modificaciones del equipo | Pendiente: revisar la prueba de *widget* (D-59) y confirmar el `applicationId` `io.github.danielharo28.hexablock_app` antes del primer release |
 | Lecciones | Desde Flutter 3.47 `package:flutter/material.dart` está obsoleto (Material pasó al paquete `material_ui`); el análisis estricto lo detectó en el CI. El esqueleto usa solo `widgets.dart` |
+
+### IA-38 · TEC-04 (app): CI y release firmado
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 20-11-2026 |
+| Herramienta | Claude Opus 5.5 (`claude-opus-5-5`) en claude.ai, con `gh` |
+| Prompt | Literal: "D03 A / D20 Recomendacion / M0 vamos a eso" |
+| Resultado | `ci.yml` (título del PR en Conventional Commits, `pub get --enforce-lockfile`, formato con el diff en el log, análisis, arquitectura, pruebas con cobertura, puerta de cobertura, ejemplos `E-*` y APK de depuración) y `release.yml` (tag `v*` sobre `main`, keystore del environment `release`, APK ofuscado y firmado, verificación de que no es la clave de depuración, GitHub Release con SHA-256). Scripts en `tool/`: `check_architecture.dart`, `coverage_gate.dart`, `check_examples_covered.dart` y la lista `examples_pending.txt`. Verificados en el CI con violaciones a propósito (motor con `hexa-lines` y `DateTime.now`, `playTurn` en una variante, `ILogger` en un caso de uso, cobertura de 25 %, ejemplo probado aún en la lista) y luego revertidas |
+| Modificaciones del equipo | Pendiente: crear el keystore y los 4 secretos del environment `release`, y exigir el check `ci` en el ruleset (G-10) |
+| Lecciones | Flutter 3.50 agrega por su cuenta `analyzer: exclude: android/**` al `analysis_options.yaml` de la app; si no está en el repo, el paso de formato ve un cambio. Probar los scripts de CI con violaciones a propósito encontró que el control de cobertura funciona también en paquetes Dart puros con `flutter test --coverage` |
 
 ## 4. Evaluación crítica
 

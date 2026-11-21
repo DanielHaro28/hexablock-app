@@ -83,7 +83,7 @@ Prueba de arquitectura de D-36 (`packages/hexa_variants/test/architecture/templa
 
 ## 6. Trazabilidad
 
-Cada ejemplo `E-*` de `docs/requirements/02-RN-*.md` tiene una prueba con su ID en el `group`. Un script de CI (`tool/check_examples_covered.dart`) lista los IDs de los documentos y falla si alguno no aparece en `test/` ni en `packages/*/test/`. Los ejemplos ya están verificados con el simulador de referencia (`tools/reference-sim/`), así que una prueba en rojo indica un error en el código, no en el ejemplo.
+Cada ejemplo `E-*` de `docs/requirements/02-RN-*.md` tiene una prueba con su ID en el `group`. Un script de CI (`tool/check_examples_covered.dart`) lista los IDs de los documentos y falla si alguno no aparece en `test/` ni en `packages/*/test/`. Mientras una historia no está construida, sus ejemplos van en `tool/examples_pending.txt`: el PR que agrega la prueba borra el ID de la lista, el script falla si un ID de la lista ya tiene prueba, y la lista tiene que quedar vacía en la entrega. Los ejemplos ya están verificados con el simulador de referencia (`tools/reference-sim/`), así que una prueba en rojo indica un error en el código, no en el ejemplo.
 
 ## 7. Cobertura (D-58)
 
@@ -106,13 +106,17 @@ Cada ejemplo `E-*` de `docs/requirements/02-RN-*.md` tiene una prueba con su ID 
 
 `.github/workflows/ci.yml`, en este orden; un paso que falla corta el resto:
 
-1. `dart format --set-exit-if-changed .`
-2. `flutter analyze` (con `analysis_options.yaml` estricto)
-3. Pruebas de arquitectura (D-21, D-36, RNF-02)
-4. Contrato: `docs/contracts/` igual al del repo de la API (D-23) y `python3 docs/contracts/check_contracts.py`
-5. Niveles incluidos: `python3 tools/reference-sim/levelcheck.py` y la prueba en Dart con el validador del dominio
-6. `flutter test --coverage` en cada paquete y en la app
-7. `tool/coverage_gate.dart` (D-58) y `tool/check_examples_covered.dart` (§6)
+1. Título del PR en Conventional Commits (con *squash*, el título es el commit que queda en `main`)
+2. `flutter pub get --enforce-lockfile` y `dart format --set-exit-if-changed .` (si falla, el log muestra el cambio)
+3. `dart analyze --fatal-infos` (con `analysis_options.yaml` estricto)
+4. Pruebas de arquitectura: `dart run tool/check_architecture.dart` (D-21, D-36, RNF-02, RNF-04, RNF-07, RNF-10, RNF-50)
+5. `flutter test --coverage` en cada paquete que tiene `test/` y en la app
+6. `tool/coverage_gate.dart` (D-58) y `tool/check_examples_covered.dart` (§6)
+7. APK de depuración, para que un proyecto Android roto falle en el PR y no en el release
+
+El contrato (copia idéntica a la de la API, D-23, y `check_contracts.py`) y los niveles incluidos (`levelcheck.py`) los revisa `docs-check.yml`, que corre en el mismo PR. La prueba en Dart con el validador de niveles del dominio llega con su historia.
+
+`.github/workflows/release.yml` corre con un tag `v*` sobre un commit de `main`: arma el APK firmado y ofuscado (SEC-MOB-05, SEC-MOB-07) y lo publica en un GitHub Release.
 
 Costo: los repos son públicos, así que los *runners* estándar no gastan minutos (D-57).
 

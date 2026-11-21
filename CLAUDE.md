@@ -48,6 +48,7 @@ App móvil Flutter con un **motor de juego genérico** y cuatro variantes (Hexa 
 | Cobertura | `flutter test --coverage` y `tool/coverage_gate.dart` (D-58: 90 % dominio, 80 % casos de uso, 70 % total) |
 | Revisión de documentos | `python3 -I tools/docs-check/check_ids.py . ../hexablock-api` (ver `tools/docs-check/README.md`) |
 | Niveles | `python3 -I tools/reference-sim/levelcheck.py` |
+| Arquitectura y ejemplos | `dart run tool/check_architecture.dart`, `dart run tool/check_examples_covered.dart` (los mismos que el CI) |
 
 ## Dónde está cada cosa
 

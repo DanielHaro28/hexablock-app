@@ -14,7 +14,7 @@
 | # | Pendiente | Responsable | Fecha límite | Origen |
 |---|---|---|---|---|
 | ☐ D-20 | **Catálogos de piezas de Hexa Lines** para cuadrados (hay propuesta), triángulos y cubos. **20-11:** se deja para TEC-07 (topologías adicionales, solo si sobra tiempo); no bloquea nada antes | Equipo | Al empezar TEC-07 | RN-TOP-21 a 23 |
-| ☐ D-78 | **Reparto de la API y el frontend** entre @dicpc y @DavidCR20 (D-77): backend NestJS, las 4 variantes (HL, HF, HS, HM), casos de uso y progreso de la app (TEC-03, PRG, API-05, 06, 08, LVL-01) e interfaz. Son 55 Issues y 265,5 h con milestone, ≈ 137 h por persona. Lo conversa @DanielHaro28 con ellos; después se asignan los Issues "por definir" y se actualizan `PLAN-ENTREGA.md` y `CODEOWNERS` | @DanielHaro28 con el equipo | Antes de M1 (24-11) | D-77 |
+| ☐ D-78 | **Reparto de la API y el frontend** entre @dicpc y @DavidCR20 (D-77): backend NestJS, las 4 variantes (HL, HF, HS, HM), casos de uso y progreso de la app (TEC-03, PRG, API-05, 06, 08, LVL-01) e interfaz. Son 55 Issues y 265,5 h con milestone, ≈ 137 h por persona. **20-11: la API (backend NestJS, 8 Issues de `hexablock-api`) quedó para @DavidCR20**; falta repartir el resto. Lo conversa @DanielHaro28 con ellos; después se asignan los Issues "por definir" y se actualizan `PLAN-ENTREGA.md` y `CODEOWNERS` | @DanielHaro28 con el equipo | Antes de M1 (24-11) | D-77 |
 
 ## 2. Preguntas para el profesor
 

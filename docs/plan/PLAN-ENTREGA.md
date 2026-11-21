@@ -12,7 +12,8 @@
 | Integrante | Área | Incluye |
 |---|---|---|
 | @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación |
-| @dicpc y @DavidCR20 | API y frontend (D-77) | Backend NestJS, las 4 variantes, casos de uso y progreso, interfaz de la app. **Cómo se lo reparten está por definir (D-78)** |
+| @DavidCR20 | API (D-78, asignada el 20-11) | Backend NestJS: esqueleto (T-04), cuenta (API-01, API-02), sincronización (API-03), ranking (API-04), niveles (LVL-01, LVL-02) y errores y Swagger (TEC-05) |
+| @dicpc y @DavidCR20 | Frontend (D-77) | Las 4 variantes, casos de uso y progreso, interfaz de la app. **Cómo se lo reparten está por definir (D-78)** |
 
 Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ayudar en otra sección. Cada PR lo revisa alguien de otra área (`CODEOWNERS` pide la revisión automáticamente). El 20-11 cambió el reparto de D-62 (D-77): los Issues que dicen "por definir" se asignan cuando el equipo cierre D-78.
 
@@ -80,7 +81,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | Issue | Título | Responsable | Horas |
 |---|---|---|---|
 | [api #14](https://github.com/DanielHaro28/hexablock-api/issues/14) | TEC-04 · Integración continua del backend | @DanielHaro28 | 6 |
-| [api #17](https://github.com/DanielHaro28/hexablock-api/issues/17) | T-04 · Esqueleto NestJS + Prisma + Docker | por definir | 3 |
+| [api #17](https://github.com/DanielHaro28/hexablock-api/issues/17) | T-04 · Esqueleto NestJS + Prisma + Docker | @DavidCR20 | 3 |
 | [api #19](https://github.com/DanielHaro28/hexablock-api/issues/19) | W-01 · Budget de AWS con alertas al 50 % y 80 % | @DanielHaro28 | 0.5 |
 | [app #12](https://github.com/DanielHaro28/hexablock-app/issues/12) | TEC-04 · Integración continua y release de la app | @DanielHaro28 | 8 |
 | [app #13](https://github.com/DanielHaro28/hexablock-app/issues/13) | T-01 · Paso 8: CLAUDE.md, agentes y reglas de Claude Code en los dos repos | @DanielHaro28 | 4 |
@@ -100,9 +101,9 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 
 | Issue | Título | Responsable | Horas |
 |---|---|---|---|
-| [api #8](https://github.com/DanielHaro28/hexablock-api/issues/8) | API-01 · Registrarme | por definir | 6 |
-| [api #9](https://github.com/DanielHaro28/hexablock-api/issues/9) | API-02 · Iniciar sesión | por definir | 5 |
-| [api #15](https://github.com/DanielHaro28/hexablock-api/issues/15) | TEC-05 · API documentada y con errores consistentes | por definir | 5 |
+| [api #8](https://github.com/DanielHaro28/hexablock-api/issues/8) | API-01 · Registrarme | @DavidCR20 | 6 |
+| [api #9](https://github.com/DanielHaro28/hexablock-api/issues/9) | API-02 · Iniciar sesión | @DavidCR20 | 5 |
+| [api #15](https://github.com/DanielHaro28/hexablock-api/issues/15) | TEC-05 · API documentada y con errores consistentes | @DavidCR20 | 5 |
 | [api #16](https://github.com/DanielHaro28/hexablock-api/issues/16) | TEC-10 · Despliegue continuo en AWS | @DanielHaro28 | 12 |
 | [api #20](https://github.com/DanielHaro28/hexablock-api/issues/20) | W-02 · Subdominio en DuckDNS | @DanielHaro28 | 0.5 |
 | [api #21](https://github.com/DanielHaro28/hexablock-api/issues/21) | W-03 · Lanzar EC2 t3.small en us-east-1 | @DanielHaro28 | 1 |
@@ -130,10 +131,10 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 
 | Issue | Título | Responsable | Horas |
 |---|---|---|---|
-| [api #10](https://github.com/DanielHaro28/hexablock-api/issues/10) | API-03 · Sincronizar mi progreso por juego | por definir | 10 |
-| [api #11](https://github.com/DanielHaro28/hexablock-api/issues/11) | API-04 · Consultar el ranking | por definir | 8 |
-| [api #12](https://github.com/DanielHaro28/hexablock-api/issues/12) | LVL-01 · Entregar niveles publicados | por definir | 6 |
-| [api #13](https://github.com/DanielHaro28/hexablock-api/issues/13) | LVL-02 · Publicar o actualizar un nivel | por definir | 6 |
+| [api #10](https://github.com/DanielHaro28/hexablock-api/issues/10) | API-03 · Sincronizar mi progreso por juego | @DavidCR20 | 10 |
+| [api #11](https://github.com/DanielHaro28/hexablock-api/issues/11) | API-04 · Consultar el ranking | @DavidCR20 | 8 |
+| [api #12](https://github.com/DanielHaro28/hexablock-api/issues/12) | LVL-01 · Entregar niveles publicados | @DavidCR20 | 6 |
+| [api #13](https://github.com/DanielHaro28/hexablock-api/issues/13) | LVL-02 · Publicar o actualizar un nivel | @DavidCR20 | 6 |
 | [app #38](https://github.com/DanielHaro28/hexablock-app/issues/38) | HF-01 · Elegir un nivel | por definir | 6 |
 | [app #39](https://github.com/DanielHaro28/hexablock-app/issues/39) | HF-02 · Colocar una pieza dentro de la figura | por definir | 8 |
 | [app #40](https://github.com/DanielHaro28/hexablock-app/issues/40) | HF-03 · Rotar una pieza | por definir | 4 |

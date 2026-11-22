@@ -46,7 +46,13 @@ abstract interface class IGameRules<
 /// **[playTurn] must not be overridden.** Dart has no `final` methods and
 /// layer 1 cannot depend on `package:meta`, so D-36 protects it with a rule in
 /// the pull request template and a CI check that fails if a variant declares
-/// `playTurn`. The steps are meant to be called only by [playTurn].
+/// `playTurn`. The steps are meant to be called only by [playTurn], or by a
+/// rule decorator that delegates to the rules it wraps.
+///
+/// A rule decorator (for example, a move limit) also extends [GameRules]: it
+/// wraps other [GameRules], delegates each step to them and adds its
+/// condition in the step it belongs to, so it never declares [playTurn]
+/// (D-96, ARQ-02 §9.6).
 abstract base class GameRules<
   C extends Coord,
   TCell extends Object,

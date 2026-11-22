@@ -526,6 +526,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió las opciones A de D-93 y D-94. En D-95 rechazó la recomendación inicial (un `enum`), porque no servía para una variante nueva con motivos propios, y pidió una opción mejor (la jerarquía abierta) y cómo mitigar sus desventajas (nombre `rejectionOf`, ayudante `isValid`, constructor privado de `NotAcceptingMoves`). ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) La primera recomendación de D-95 (un `enum`) no consideraba la extensibilidad; la detectó el usuario. (2) La revisión de arquitectura encontró que `close()` llamado desde un oyente síncrono cortaba un turno a la mitad, que faltaba explicar por qué `TState` no tiene restricción en los tipos de resultado, que ARQ-02 §9.6 citaba una prueba de D-36 que no existe y que había cuatro nombres de prueba sin `_when_`; todo se corrigió, con una prueba para `close()`. (3) También encontró una contradicción del diseño: el decorador de reglas de ARQ-02 §9.2 tendría que declarar `playTurn`, que D-36 prohíbe; quedó abierta como D-96 para el equipo. (4) Límites del entorno: VS Code heredó un PATH antiguo, así que `dart` y el servidor MCP de Dart no estaban disponibles; se usó la ruta del SDK en cada comando |
 
+### IA-46 · Cierre de D-96: decoradores de reglas sobre `GameRules` — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 21-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: cerrar D-96 (abierta en IA-45) con la opción A que eligió el usuario y alinear los documentos. Lo redactó una sesión anterior, que dejó los cambios sin commit en la rama de #102; esta sesión los pasó a una rama propia. Pedido literal de esta sesión: "ya esta el PR y la desicion de D96" |
+| Resultado | Issue #64, rama `docs/d-96-rule-decorators`. D-96 pasa de `PENDIENTES.md` a `DECISIONES.md`. ARQ-02 §9.2, §9.6 (esbozo de `MoveLimitRulesDecorator`), §10 y §12, `EXTENSIBILITY.md` §3 y el comentario de `GameRules` describen que un decorador extiende `GameRules`, delega cada paso y nunca declara `playTurn` |
+| Modificaciones del equipo | El usuario eligió la opción A recomendada en IA-45 |
+| Lecciones | (1) Los cambios del cierre quedaron sin commit en la rama de #102, que se integró sin ellos; se detectó al revisar `git status` antes de seguir. (2) Al compilar y correr el esbozo de §9.6 contra `FakeRules` se vio que devolvía derrota cuando el último movimiento permitido también ganaba, contra RN-COM-23; se corrigió para que respete la victoria de las reglas envueltas, y la corrección también se comprobó corriéndola |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -557,6 +568,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | `FakeTopology.step` reconocía la dirección solo por su `id`, así que aceptaba la de otra topología | Subagente `architecture-reviewer` (IA-44) | Compara la dirección entera, y el contrato prueba que una dirección ajena lanza un error |
 | `GameEngine.close()` no estaba protegido: un oyente síncrono podía cerrar el motor a mitad de un turno ya aplicado | Subagente `architecture-reviewer` (IA-45) | `close()` lanza `StateError` desde un oyente síncrono, con una prueba |
 | Primera recomendación de D-95 (`enum` de motivos), cerrada para una 5.ª variante | El usuario la cuestionó (IA-45) | Jerarquía abierta `RejectionReason` (D-95) |
+| El esbozo del decorador de reglas (D-96) daba derrota aunque el último movimiento permitido ganara, contra RN-COM-23 | Se compiló y corrió el esbozo con `FakeRules` (IA-46) | `evaluate` respeta primero la victoria de las reglas envueltas |
 
 ### 4.3 Reflexión del equipo
 

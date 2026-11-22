@@ -34,9 +34,9 @@ Every constraint on a type parameter is there for a reason (RNF-05, ARQ-02 §4.3
 | Parameter | Constraint | Why | Where |
 |---|---|---|---|
 | `C` (coordinate) | `C extends Coord` | Boards and shapes use coordinates as map keys and set members, so every coordinate must compare by value. `Coord` is a `base` class, so a coordinate is always a real subclass, and, since Dart cannot force a subclass to override `==` and `hashCode`, the shared contract test (`checkTopologyContract` in `hexa_test_support`) checks that each topology's coordinates compare by value | `Board`, `GridTopology`, `Shape`, `TopologyVisitor` |
-| `TCell` (cell content) | `TCell extends Object` | Rules out nullable contents, so `TCell?` always means "empty cell" (D-30) and the board stores only occupied cells | `Board`, `HexBoard` |
-| `TState` (game state) | `TState extends GameState<C, TCell>` | The engine reads the board and the score of any state to notify and save it, without knowing the variant | `IGameRules`, `GameEngine` (*planned*) |
-| `TMove` (move) | None | The engine never inspects a move: it only hands it to the rules. An empty constraint would be decorative | `IGameRules`, `GameEngine` (*planned*) |
+| `TCell` (cell content) | `TCell extends Object` | Rules out nullable contents, so `TCell?` always means "empty cell" (D-30) and the board stores only occupied cells | `Board`, `HexBoard`, `GameState` |
+| `TState` (game state) | `TState extends GameState<C, TCell>` | The engine reads the board and the score of any state to notify and save it, without knowing the variant. `Step`, `TurnResult` and `MoveResult` only carry the state, so they leave it unconstrained instead of adding an unused `TCell` | `IGameRules`, `GameRules`, `GameEngine` |
+| `TMove` (move) | None | The engine never inspects a move: it only hands it to the rules. An empty constraint would be decorative | `IGameRules`, `GameRules`, `GameEngine` |
 | `TPiece` (piece) | None | A Hexa Sort stack is not a shape; the piece source only hands out values | `IPieceSource` (*planned*) |
 | `T` in `SlideMergeResolver<C, T>` | `T extends Mergeable<T>` (F-bounded) | Sliding and merging only need to know whether two values merge and into what, so the algorithm works for any mergeable content, not only powers of 2 | Hexa Merge (*planned*) |
 

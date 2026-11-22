@@ -37,20 +37,24 @@ package "Capa 1 · Entidades · hexa_engine" {
   class GameEngine<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
     + state: TState
     + phase: GamePhase
+    + syncEvents: Stream<GameEvent<C>>
     + events: Stream<GameEvent<C>>
+    + GameEngine(rules: IGameRules, initialState: TState)
     + submit(m: TMove): MoveResult<C, TState>
     + pause(): void
     + resume(): void
-    + restore(snapshot: TState): void
+    + continuePlaying(): void
+    + close(): Future<void>
+    + restore(snapshot: TState): void (siguiente PR, D-31)
   }
   interface IGameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Strategy>> {
-    + initialState(setup: GameSetup<C>): TState
     + validMoves(s: TState): Iterable<TMove>
     + playTurn(s: TState, m: TMove): TurnResult<C, TState>
   }
   abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Template Method>> {
     + playTurn(s: TState, m: TMove): TurnResult<C, TState>
-    # isValid(s: TState, m: TMove): bool
+    # rejectionOf(s: TState, m: TMove): RejectionReason?
+    + isValid(s: TState, m: TMove): bool
     # apply(s: TState, m: TMove): Step<C, TState>
     # resolve(s: TState): Step<C, TState>
     # afterResolve(s: TState): Step<C, TState>
@@ -63,7 +67,7 @@ package "Capa 1 · Entidades · hexa_engine" {
 
   abstract class GamePhase <<State>> <<sealed>> {
     + acceptsMoves: bool
-    + allowsUndo: bool
+    + allowsUndo: bool (siguiente PR, D-31)
   }
   class PlayingPhase
   class ResolvingPhase
@@ -80,9 +84,38 @@ package "Capa 1 · Entidades · hexa_engine" {
     + outcome: GameOutcome
   }
   class RejectedMove<C extends Coord, TState> {
-    + reason: String
+    + reason: RejectionReason
+    + events: List<GameEvent<C>>
   }
   abstract class GameEvent<C extends Coord> <<abstract base>>
+  class PhaseChanged<C extends Coord> {
+    + from: GamePhase
+    + to: GamePhase
+  }
+  class ScoreChanged<C extends Coord> {
+    + from: int
+    + to: int
+  }
+  class MoveRejected<C extends Coord> {
+    + reason: RejectionReason
+  }
+  abstract class RejectionReason <<abstract base>>
+  class InvalidMove
+  class NotAcceptingMoves
+  class Step<C extends Coord, TState> {
+    + state: TState
+    + events: List<GameEvent<C>>
+  }
+  abstract class TurnResult<C extends Coord, TState> <<sealed>> {
+    + state: TState
+  }
+  class PlayedTurn<C extends Coord, TState> {
+    + events: List<GameEvent<C>>
+    + outcome: GameOutcome
+  }
+  class RejectedTurn<C extends Coord, TState> {
+    + reason: RejectionReason
+  }
   abstract class GameOutcome <<sealed>>
 
   interface IUndoable <<interface>> {
@@ -201,6 +234,16 @@ VictoryPhase --|> GamePhase
 GameOverPhase --|> GamePhase
 AcceptedMove --|> MoveResult
 RejectedMove --|> MoveResult
+PhaseChanged --|> GameEvent
+ScoreChanged --|> GameEvent
+MoveRejected --|> GameEvent
+InvalidMove --|> RejectionReason
+NotAcceptingMoves --|> RejectionReason
+PlayedTurn --|> TurnResult
+RejectedTurn --|> TurnResult
+IGameRules ..> TurnResult : devuelve
+GameRules ..> Step : cada paso
+RejectedMove ..> RejectionReason
 
 ' ===== Capacidades opcionales =====
 UndoHistory ..|> IUndoable

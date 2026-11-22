@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-95, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.6) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -13,7 +13,7 @@
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 >
-> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El resto (reglas, motor, fases, deshacer) se valida en los PR siguientes de TEC-01.
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. Deshacer, el cronómetro y la sesión se validan en los PR siguientes de TEC-01.
 
 ---
 
@@ -27,7 +27,9 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Figura de la celda | Registro de topologías + **Visitor** genérico, sin `switch` ni casts; `TCoord` llega hasta el widget del tablero | §3 | D-29 |
 | Tipos por variante | Estado inmutable; celda vacía = `null` (`TCell extends Object`); movimientos *sealed* por variante; `Tile implements Mergeable<Tile>` en Merge | §4 | D-30 |
 | Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada) | §5 | D-31 |
-| Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica | §6 | D-32 |
+| Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica. Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94 |
+| Estado inicial | Lo crea la fábrica (o lo lee el codec al continuar) y se lo pasa a `GameEngine`; `IGameRules` no tiene `initialState` | §2 | D-93 |
+| Motivo de un rechazo | Jerarquía abierta `RejectionReason` (`InvalidMove`, `NotAcceptingMoves` y los de cada variante); las reglas validan con `rejectionOf` | §6, §9.6 | D-95 |
 | Capacidades opcionales | Interfaces segregadas (`IUndoable`, `ITimed`, `IRandomSeeded`, `ILevelBased`) que la fábrica compone en una `GameSession`; `IMonotonicClock` en el dominio | §7 | D-33 |
 | Fases | Patrón **State** con 5 fases *sealed*; `Victory(canContinue)` para Merge | §8 | D-34 |
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
@@ -74,13 +76,13 @@ classDiagram
     }
     class IGameRules~C, TCell, TMove, TState~ {
       <<interface>>
-      +initialState(setup) TState
       +validMoves(TState) Iterable~TMove~
       +playTurn(TState, TMove) TurnResult
     }
     class GameRules~C, TCell, TMove, TState~ {
       <<abstract>>
       +playTurn(TState, TMove) TurnResult
+      #rejectionOf(TState, TMove) RejectionReason?
       #apply(TState, TMove)
       #resolve(TState)
       #afterResolve(TState)
@@ -89,10 +91,12 @@ classDiagram
     class GameEngine~C, TCell, TMove, TState~ {
       +state TState
       +phase GamePhase
+      +syncEvents Stream~GameEvent~
       +events Stream~GameEvent~
       +submit(TMove) MoveResult
       +pause()
       +resume()
+      +continuePlaying()
     }
     class GamePhase {
       <<sealed>>
@@ -253,7 +257,7 @@ En Merge, el enunciado sugiere `TCell = int`; se propone `Tile`, porque un `int`
 |---|---|---|
 | `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave. Dart no puede obligar a sobrescribirlos, así que `Coord` es `base` (toda coordenada es una subclase real) y la prueba de contrato común (`checkTopologyContract`) comprueba la igualdad por valor de cada topología |
 | `TCell` | `TCell extends Object` | Prohíbe tipos que acepten `null`, para que `TCell?` signifique sin ambigüedad "celda vacía" |
-| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante |
+| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan: restringirlo los obligaría a llevar también `TCell` sin usarlo |
 | `TMove` | Sin restricción | El motor nunca lo inspecciona: solo lo pasa a las reglas. Una restricción vacía sería decorativa |
 | `TPiece` | Sin restricción | Una pila de Sort no es una forma; la fuente de piezas solo entrega valores |
 | `T` en `SlideMergeResolver<C, T>` | `T extends Mergeable<T>` (F-acotado) | El algoritmo de deslizar y fusionar solo necesita saber si dos valores se fusionan y en qué; con esta restricción sirve para cualquier contenido fusionable, no solo para potencias de 2 |
@@ -370,26 +374,33 @@ El tipo de retorno no se llama igual que los eventos para que no se confundan: `
 
 ```dart
 // hexa_engine
-sealed class MoveResult<C extends Coord, TState> { const MoveResult(); }
+sealed class MoveResult<C extends Coord, TState> {
+  const MoveResult(this.events);
+  final List<GameEvent<C>> events; // in order: what the screen animates (D-94)
+}
 
 final class AcceptedMove<C extends Coord, TState> extends MoveResult<C, TState> {
-  const AcceptedMove(this.state, this.events, this.outcome);
+  const AcceptedMove(this.state, List<GameEvent<C>> events, this.outcome) : super(events);
   final TState state;
-  final List<GameEvent<C>> events; // in order: what the screen animates
   final GameOutcome outcome;
 }
 
 final class RejectedMove<C extends Coord, TState> extends MoveResult<C, TState> {
-  const RejectedMove(this.reason); // RN-COM-21: state unchanged
-  final String reason;
+  const RejectedMove(this.reason, List<GameEvent<C>> events) : super(events); // RN-COM-21: state unchanged
+  final RejectionReason reason; // D-95
 }
 
 abstract base class GameEvent<C extends Coord> { const GameEvent(); }
 
-final class PhaseChanged<C extends Coord> extends GameEvent<C> {
-  const PhaseChanged(this.from, this.to);
-  final GamePhase from, to;
-}
+// Engine events (D-94)
+final class PhaseChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
+final class ScoreChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
+final class MoveRejected<C extends Coord> extends GameEvent<C> { /* reason */ }
+
+// Rejection reasons (D-95): open, like the events
+abstract base class RejectionReason { const RejectionReason(); }
+final class InvalidMove extends RejectionReason { const InvalidMove(); }             // generic, from the rules
+final class NotAcceptingMoves extends RejectionReason { const NotAcceptingMoves._(); } // from the engine only (RN-COM-24)
 
 // hexa_variants/lines
 sealed class LinesEvent<C extends Coord> extends GameEvent<C> { const LinesEvent(); }
@@ -402,6 +413,18 @@ final class LinesCleared<C extends Coord> extends LinesEvent<C> {
 ```
 
 Una base *sealed* común no sirve: Dart solo permite extender una clase *sealed* desde su propia biblioteca, y las variantes viven en otro paquete. Por eso la base es `abstract base` y cada variante define su propia familia *sealed*.
+
+**Qué publica el motor y en qué orden (D-94).** `MoveResult.events` es exactamente lo que el motor publicó en sus dos *streams* (`syncEvents` y `events`) en esa llamada:
+
+| Llamada | Eventos, en orden |
+|---|---|
+| `submit` con un turno jugado | `PhaseChanged(en juego → resolviendo)`, los eventos de las reglas (aplicar, resolver, después de resolver), `ScoreChanged` si el puntaje cambió, `PhaseChanged(resolviendo → en juego, victoria o derrota)` |
+| `submit` rechazado por la fase (RN-COM-24) o por las reglas (RN-COM-21) | Solo `MoveRejected(motivo)`. El motor pasa a resolviendo mientras calcula, para rechazar un `submit` que llegue en ese momento, pero el turno no ocurrió y la fase vuelve sin publicarse |
+| `pause`, `resume`, `continuePlaying` | `PhaseChanged`, solo si la fase cambia |
+
+Un oyente síncrono que llame a `submit`, `pause`, `resume` o `continuePlaying` mientras recibe un evento recibe un `StateError`: así la lista de un turno nunca se mezcla con la de otro. Si las reglas lanzan una excepción, el motor vuelve al estado y la fase que tenía y la relanza.
+
+**Motivos de rechazo (D-95).** El motor no sabe por qué una variante rechaza un movimiento, así que el motivo es una jerarquía abierta, como los eventos. Una variante devuelve `const InvalidMove()` si el motivo no importa, o uno de su propia familia *sealed* si la pantalla debe explicarlo (por ejemplo, "la pieza no cabe"). Los motivos no llevan texto: la capa de presentación los traduce con ARB (RNF-50). El `GameCubit` genérico traduce los del motor y usa un texto genérico para uno que no conozca; el módulo de cada variante traduce su familia con un `switch` exhaustivo.
 
 ---
 
@@ -450,7 +473,11 @@ Opciones consideradas: Anexo A.8.
 sealed class GamePhase {
   const GamePhase();
   bool get acceptsMoves => false;
-  bool get allowsUndo => false;
+  bool get allowsUndo => false; // arrives with UndoHistory (D-31)
+  // Every transition is on the base, so the engine delegates without asking
+  // which phase it is; a transition a phase does not allow returns `this`.
+  GamePhase onTurnStarted() => this;
+  GamePhase onTurnFinished(GameOutcome outcome) => this;
   GamePhase onPause() => this;
   GamePhase onResume() => this;
   GamePhase onContinue() => this;
@@ -461,11 +488,12 @@ final class PlayingPhase extends GamePhase {
   @override bool get acceptsMoves => true;
   @override bool get allowsUndo => true;
   @override GamePhase onPause() => const PausedPhase();
-  GamePhase onTurnStarted() => const ResolvingPhase();
+  @override GamePhase onTurnStarted() => const ResolvingPhase();
 }
 
 final class ResolvingPhase extends GamePhase {
   const ResolvingPhase();
+  @override
   GamePhase onTurnFinished(GameOutcome outcome) => switch (outcome) {
         Ongoing() => const PlayingPhase(),
         Victory(:final canContinue) => VictoryPhase(canContinue: canContinue),
@@ -558,7 +586,7 @@ abstract base class GameRules<C extends Coord, TCell extends Object, TMove,
   /// Template method: fixed turn skeleton (RN-COM-20). Do not override.
   @override
   TurnResult<C, TState> playTurn(TState state, TMove move) {
-    if (!isValid(state, move)) return RejectedTurn(state, reason: 'invalid move');
+    if (rejectionOf(state, move) case final reason?) return RejectedTurn(state, reason); // D-95
     final applied = apply(state, move);
     final resolved = resolve(applied.state);
     final settled = afterResolve(resolved.state);
@@ -570,8 +598,11 @@ abstract base class GameRules<C extends Coord, TCell extends Object, TMove,
   }
 
   // Primitive operations
-  bool isValid(TState state, TMove move);
+  RejectionReason? rejectionOf(TState state, TMove move); // null = valid (D-95)
   Step<C, TState> apply(TState state, TMove move);
+
+  // Helper for validMoves, so the validation is written once
+  bool isValid(TState state, TMove move) => rejectionOf(state, move) == null;
 
   // Hooks with defaults
   Step<C, TState> resolve(TState state) => Step(state);      // Fit: no resolution
@@ -588,7 +619,7 @@ GameOutcome evaluate(SortState<C> state) =>
 
 `TurnResult` es *sealed*: `PlayedTurn` (estado nuevo, eventos y resultado) o `RejectedTurn` (el mismo estado y el motivo, RN-COM-21). Cada `Step` es un estado más los eventos de ese paso.
 
-Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La prueba (`packages/hexa_variants/test/architecture/template_method_test.dart`) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
+Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La comprobación (`tool/check_architecture.dart`, la misma que corre el CI) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
 
 ---
 
@@ -615,7 +646,7 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36 y D-90 a D-95, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

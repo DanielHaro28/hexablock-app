@@ -10,8 +10,10 @@ final class MoveCommand<TMove, TState> {
   /// The command for [move], which took the game from [before] to [after].
   const MoveCommand(this.move, this.before, this.after);
 
-  /// The move that was played.
-  final TMove move;
+  /// The move that was played, or `null` for a turn restored from a saved
+  /// game: a saved history keeps only states (D-107). Undo and redo never
+  /// read it; the engine always sets it in `committedTurns`.
+  final TMove? move;
 
   /// The state before the move (memento).
   final TState before;

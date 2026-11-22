@@ -1,6 +1,7 @@
 import '../session/capabilities.dart';
 import 'move_command.dart';
 import 'restorable.dart';
+import 'undo_snapshot.dart';
 
 /// The undo and redo of a game: the invoker of the Command pattern and the
 /// caretaker of the mementos (D-31).
@@ -13,14 +14,29 @@ import 'restorable.dart';
 /// It hears about each turn from the engine's `committedTurns`, before
 /// `submit` returns, so it is up to date when the screen redraws (D-32). The
 /// engine's phase decides whether undo is possible now (RN-COM-63).
+///
+/// A saved game keeps it as an [UndoSnapshot] (D-107): [snapshot] gives it
+/// and the `from` parameter takes it back when the game continues.
 final class UndoHistory<TMove, TState> implements IUndoable {
-  /// A history of the turns played on [engine].
+  /// A history of the turns played on [engine], starting with the turns
+  /// saved in [from], if any (a game that continues, D-37, D-107).
+  ///
+  /// The saved turns follow this history's configuration: only the last
+  /// [limit] undo states are kept, and the redo states are dropped if
+  /// [allowsRedo] is false (RN-COM-60). The engine's current state is the
+  /// pivot between both lists.
   ///
   /// Throws an [ArgumentError] if [limit] is less than 1.
-  UndoHistory(this._engine, {this.limit, this.allowsRedo = false}) {
+  UndoHistory(
+    this._engine, {
+    this.limit,
+    this.allowsRedo = false,
+    UndoSnapshot<TState>? from,
+  }) {
     if (limit case final limit? when limit < 1) {
       throw ArgumentError.value(limit, 'limit', 'must be at least 1');
     }
+    if (from != null) _load(from);
     _engine.committedTurns.listen(_record, onDone: _forget);
   }
 
@@ -62,6 +78,36 @@ final class UndoHistory<TMove, TState> implements IUndoable {
     final command = _undone.last..redo(_engine);
     _undone.removeLast();
     _done.add(command);
+  }
+
+  /// What a saved game keeps of this history: the states it can undo to and
+  /// redo to (D-107). It copies only references to immutable states, so it
+  /// costs a list of pointers, not a copy of the states.
+  UndoSnapshot<TState> snapshot() => UndoSnapshot(
+    undoStates: List.unmodifiable(_done.map((command) => command.before)),
+    redoStates: List.unmodifiable(
+      _undone.reversed.map((command) => command.after),
+    ),
+  );
+
+  /// Rebuilds the commands between consecutive states of [saved], with the
+  /// engine's current state in the middle. The moves are not saved (D-107).
+  void _load(UndoSnapshot<TState> saved) {
+    final current = _engine.state;
+    final undoStates = switch (limit) {
+      final limit? when saved.undoStates.length > limit =>
+        saved.undoStates.sublist(saved.undoStates.length - limit),
+      _ => saved.undoStates,
+    };
+    final back = [...undoStates, current];
+    for (var i = 0; i + 1 < back.length; i++) {
+      _done.add(MoveCommand(null, back[i], back[i + 1]));
+    }
+    if (!allowsRedo) return;
+    final forward = [current, ...saved.redoStates];
+    for (var i = forward.length - 2; i >= 0; i--) {
+      _undone.add(MoveCommand(null, forward[i], forward[i + 1]));
+    }
   }
 
   void _record(MoveCommand<TMove, TState> command) {

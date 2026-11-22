@@ -32,3 +32,4 @@ export 'src/time/timed_engine.dart';
 export 'src/undo/move_command.dart';
 export 'src/undo/restorable.dart';
 export 'src/undo/undo_history.dart';
+export 'src/undo/undo_snapshot.dart';

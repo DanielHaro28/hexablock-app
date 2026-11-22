@@ -65,6 +65,7 @@ final class GameEngine<
   bool _publishing = false;
 
   /// The current state of the game.
+  @override
   TState get state => _state;
 
   /// The current phase of the game.

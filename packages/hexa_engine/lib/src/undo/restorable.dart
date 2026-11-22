@@ -11,10 +11,14 @@ abstract interface class Restorable<TState> {
 }
 
 /// What `UndoHistory` needs from `GameEngine`, and nothing else (ISP):
-/// restore a state, know whether the phase allows undo, and hear about each
-/// turn that was played.
+/// restore a state, know whether the phase allows undo, hear about each
+/// turn that was played and read the current state (the pivot of a saved
+/// history, D-107).
 abstract interface class UndoableEngine<TMove, TState>
     implements Restorable<TState> {
+  /// The current state of the game.
+  TState get state;
+
   /// The current phase, which decides whether undo is possible (D-31).
   GamePhase get phase;
 

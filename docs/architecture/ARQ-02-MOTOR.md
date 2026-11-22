@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-95, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.6) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -34,6 +34,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Fases | Patrón **State** con 5 fases *sealed*; `Victory(canContinue)` para Merge | §8 | D-34 |
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
 | Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
+| Decoradores de reglas | Extienden `GameRules` y delegan cada paso en las reglas que envuelven; nunca declaran `playTurn` | §9.2, §9.6 | D-96 |
 
 ## 1. Qué tiene que cumplir el motor
 
@@ -542,7 +543,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 |---|---|---|---|
 | **Bridge** | `Board<C, TCell>` (abstracción) ↔ `GridTopology<C>` (implementador) | Separa **qué hay en las celdas** (varía por variante) de **cómo es la rejilla** (varía por figura): 4 variantes × 4 figuras sin 16 clases de tablero. Es el núcleo de D-07 | — |
 | **Composite** | `Shape<C>`: `CellShape` (hoja) y `CompositeShape` (compuesto). Las piezas son composiciones de celdas y las figuras de Fit, composiciones de regiones (por ejemplo, un hexágono más una línea) | Rotar, trasladar y normalizar tratan igual una celda, una pieza o una figura entera. Además, los niveles se diseñan a mano más rápido componiendo regiones | §3.3 (el ejemplo es el mismo) |
-| **Decorator** | Sobre `IScoringPolicy<TState>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState>` sirve para cualquier variante. Sobre `IGameRules`: decoradores de regla como `MoveLimitRulesDecorator` | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
+| **Decorator** | Sobre `IScoringPolicy<TState>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState>` sirve para cualquier variante. Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
 
 ### 9.3 De comportamiento
 
@@ -621,6 +622,43 @@ GameOutcome evaluate(SortState<C> state) =>
 
 Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playTurn` hay dos caminos: la anotación `@nonVirtual` de `package:meta`, que es del equipo de Dart pero es una dependencia externa (ARQ-01-APP §3 dice "sin dependencias de terceros"), o una regla de revisión más una prueba de arquitectura. **Decidido en D-36 (20-11): regla en la plantilla de PR + prueba de arquitectura en CI**, porque el enunciado §3.4 pide que la capa 1 no tenga ninguna dependencia externa. La comprobación (`tool/check_architecture.dart`, la misma que corre el CI) recorre `lib/` de `hexa_variants` y falla si alguna clase declara `playTurn`. Cambiar la herencia por composición quedó descartado: el enunciado §3.3 pide el esqueleto del turno "en una clase abstracta".
 
+**Decoradores de reglas (D-96).** Un decorador de reglas, como el cambio de regla de la defensa, también **extiende `GameRules`**: envuelve otras `GameRules`, delega cada paso y agrega su condición en el paso que le corresponde. No declara `playTurn`, así que hereda el esqueleto y la comprobación de D-36 lo acepta sin excepciones.
+
+```dart
+// hexa_variants: a move limit on any variant, wired in the factory's createRules()
+final class MoveLimitRulesDecorator<C extends Coord, TCell extends Object, TMove,
+    TState extends GameState<C, TCell>> extends GameRules<C, TCell, TMove, TState> {
+  const MoveLimitRulesDecorator(this._inner, this._limit, this._movesOf);
+
+  final GameRules<C, TCell, TMove, TState> _inner;
+  final int _limit;
+  final int Function(TState state) _movesOf; // the factory reads it from its state
+
+  bool _reached(TState state) => _movesOf(state) >= _limit;
+
+  @override
+  Iterable<TMove> validMoves(TState state) =>
+      _reached(state) ? const [] : _inner.validMoves(state);
+  @override
+  RejectionReason? rejectionOf(TState state, TMove move) =>
+      _reached(state) ? const MoveLimitReached() : _inner.rejectionOf(state, move);
+  @override
+  Step<C, TState> apply(TState state, TMove move) => _inner.apply(state, move);
+  @override
+  Step<C, TState> resolve(TState state) => _inner.resolve(state);
+  @override
+  Step<C, TState> afterResolve(TState state) => _inner.afterResolve(state);
+  @override
+  GameOutcome evaluate(TState state) => switch (_inner.evaluate(state)) {
+        final Victory victory => victory, // victory beats defeat (RN-COM-23)
+        final outcome => _reached(state) ? const Defeat() : outcome,
+      };
+  // No playTurn: the Template Method is inherited (D-36).
+}
+```
+
+El motivo `MoveLimitReached` es de la familia del decorador, gracias a la jerarquía abierta de D-95. En `evaluate`, el decorador pregunta primero a las reglas que envuelve: si el último movimiento permitido también gana, gana la victoria (RN-COM-23). El dato que la condición necesita vive en el estado, no en el decorador, para que deshacer lo restaure (RN-COM-61). Los decoradores se apilan porque cada uno es un `GameRules`. Se descartó implementar `IGameRules` y exceptuar una carpeta en el CI, porque abre un hueco en D-36 y corrige el resultado después de evaluar.
+
 ---
 
 ## 10. Cómo responde el diseño a la defensa
@@ -630,7 +668,7 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 | Otro tamaño de tablero | Configuración (`assets/config/<gameId>.json`) → `GridTopology.cellsOf` | Sin cambios |
 | Otra política de puntuación | Una clase `IScoringPolicy` nueva o un decorador, conectado en la fábrica de la variante | Sin cambios |
 | Una forma de pieza nueva | El catálogo en configuración (Lines) o el nivel (Fit) | Sin cambios |
-| Un cambio de regla (p. ej., límite de movimientos) | Un decorador de `IGameRules` en la fábrica | Sin cambios |
+| Un cambio de regla (p. ej., límite de movimientos) | Un decorador que extiende `GameRules` (D-96, §9.6), conectado en `createRules()` de la fábrica | Sin cambios |
 | Una 5ª variante | Una carpeta en `hexa_variants` (`VariantFamily` + reglas + eventos) y su `VariantModule` registrado en `app/lib/config/` | Sin cambios |
 | Otra figura de celda | Una `GridTopology` nueva en `hexa_topologies`, su layout y su registro | Sin cambios |
 
@@ -646,7 +684,7 @@ Dart no tiene métodos `final`. Para impedir que una variante sobrescriba `playT
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36 y D-90 a D-95, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36 y D-90 a D-96, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

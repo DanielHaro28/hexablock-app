@@ -4,7 +4,7 @@
 >
 > Los nombres de clases y rutas son los previstos en `docs/architecture/ARQ-02-MOTOR.md` y `ARQ-03-APP-DETALLE.md`. Cuando exista el código, se revisan contra las clases reales (tarea de TEC-02).
 >
-> **Última actualización:** 2026-11-19
+> **Última actualización:** 2026-11-21
 
 ![Diagrama de extensibilidad](diagrams/extensibilidad.png)
 
@@ -102,7 +102,7 @@ Después de agregar la variante, `git diff --stat main` **no** debe mostrar camb
 | **Otro tamaño de tablero** | `app/assets/config/<gameId>.json` → `GridTopology.cellsOf(ShapeSpec)` (Factory Method) | Solo configuración |
 | **Otra política de puntuación** | Una clase nueva `…Scoring implements IScoringPolicy<TState>`, o un decorador como `BonusMultiplierDecorator<TState>` | La clase nueva y **una línea** en `createScoring()` de la fábrica de esa variante |
 | **Una forma de pieza nueva** | El catálogo de piezas en la configuración (Lines) o la definición del nivel (Fit) | Solo configuración |
-| **Una restricción de regla** (p. ej., límite de movimientos) | Un decorador de reglas: `MoveLimitRulesDecorator<…> implements IGameRules<…>`, que envuelve las reglas y agrega la condición en `evaluate` | La clase nueva y una línea en `createRules()` |
+| **Una restricción de regla** (p. ej., límite de movimientos) | Un decorador de reglas: `MoveLimitRulesDecorator<…> extends GameRules<…>`, que envuelve las reglas de la variante, delega cada paso y agrega la condición en su paso (`rejectionOf`, `evaluate`). No declara `playTurn`, así que la comprobación de D-36 lo acepta (D-96, ARQ-02 §9.6) | La clase nueva y una línea en `createRules()` |
 | **Otra ficha objetivo** (Merge) o **más metas** (Sort) | Configuración de la variante o del nivel | Solo configuración |
 
 En ningún caso se modifica `GameEngine`, `Board` ni un caso de uso.

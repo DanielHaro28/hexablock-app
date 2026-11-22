@@ -92,7 +92,7 @@
 | RF-30 | HF-01 | RN-COM-03, RN-HF-10 a 13 | E-HF-NIVEL | |
 | RF-31 | HF-02, HF-04 | RN-HF-30, 32 a 34 | E-HF-1, E-HF-2 | |
 | RF-32 | HF-03 | RN-COM-14, RN-HF-31 | E-HEX-1 | |
-| RF-33 | HF-05 | RN-HF-80 a 82, RN-COM-60 a 63 | E-HF-1, E-HF-3 | RN-COM-60 a 63 (historial genérico, sin límite y con rehacer): `hexa_engine/test/undo/undo_history_test`, `game_engine_test`, `game_phase_test`. E-HF-3 se prueba con la variante |
+| RF-33 | HF-05 | RN-HF-80 a 82, RN-COM-60 a 63 | E-HF-1, E-HF-3 | RN-COM-60 a 63 (historial genérico, sin límite y con rehacer): `hexa_engine/test/undo/undo_history_test`, `game_engine_test`, `game_phase_test`; conservar la cuenta de movimientos al deshacer (D-109, para RN-HF-61): `hexa_engine/test/undo/undo_carry_over_test`. E-HF-3 y RN-HF-61 se prueban con la variante |
 | RF-34 | HF-06 | RN-HF-50 a 52, 60 a 64, 70, 71 | E-HF-1, E-HF-4 | |
 | RF-40 | HS-01 | RN-COM-03, RN-HS-10 a 12 | — | |
 | RF-41 | HS-02 | RN-HS-20 a 22, 30, 31 | E-HS-6 | |

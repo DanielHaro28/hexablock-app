@@ -116,7 +116,7 @@ Movida a **`02-RN-TOPOLOGIAS.md`** (reglas RN-COM-10 a 19, alcance, tableros por
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
 | RN-COM-60 | Disponibilidad: **Hexa Lines no**, **Hexa Fit ilimitado + rehacer**, **Hexa Sort no**, **Hexa Merge 1 movimiento** | Enunciado §1.5, §5.1 | ✅ |
-| RN-COM-61 | Deshacer restaura **todo** el estado anterior al movimiento: tablero, bandeja, puntaje, contadores y estado del generador aleatorio | Diseño | 🟡 |
+| RN-COM-61 | Deshacer restaura **todo** el estado anterior al movimiento: tablero, bandeja, puntaje, contadores y estado del generador aleatorio. La única excepción son los contadores que la regla de una variante prohíbe cambiar al deshacer, como los movimientos de Hexa Fit (RN-HF-61): esos se conservan (D-109). El tablero y el generador vuelven siempre | Diseño | 🟡 |
 | RN-COM-62 | Hacer un movimiento nuevo después de deshacer **descarta** lo que se podía rehacer | HU HF-05 | ✅ |
 | RN-COM-63 | No se puede deshacer una vez que la partida terminó en derrota. Tras la victoria de Hexa Fit tampoco (el nivel ya quedó registrado). En Hexa Merge, después de la victoria se sigue pudiendo deshacer mientras se sigue jugando | Diseño | 🟡 |
 

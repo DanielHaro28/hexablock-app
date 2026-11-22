@@ -22,15 +22,13 @@ skinparam ranksep 40
 
 package "Capa 1 · Entidades · hexa_engine" {
 
-  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<interface>> <<Abstract Factory>> {
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Abstract Factory>> {
     + createRules(): IGameRules<C, TCell, TMove, TState>
-    + createScoring(): IScoringPolicy<TState, TEvent>
-    + createPieceSource(): IPieceSource<TPiece>
     + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
   }
   note right of VariantFamily
-    createScoring y createPieceSource:
-    D-100 abierta (ARQ-02 §9.7)
+    La fábrica concreta crea la fuente de piezas
+    y la política, y las conecta en sus reglas (D-100)
   end note
   class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
     + engine: GameEngine<C, TCell, TMove, TState>
@@ -220,8 +218,6 @@ package "Capa 1 · Entidades · hexa_topologies" {
 ' ===== Fábrica y sesión =====
 VariantFamily ..> GameSession : crea
 VariantFamily ..> IGameRules : crea
-VariantFamily ..> IScoringPolicy : crea
-VariantFamily ..> IPieceSource : crea
 IPieceSource ..> Xorshift32 : recibe y devuelve
 GameSession *-- GameEngine
 GameSession o-- IUndoable

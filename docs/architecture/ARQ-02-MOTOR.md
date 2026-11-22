@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-99, el mismo día, en las estrategias (§9.7) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -35,7 +35,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
 | Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
 | Decoradores de reglas | Extienden `GameRules` y delegan cada paso en las reglas que envuelven; nunca declaran `playTurn` | §9.2, §9.6 | D-96 |
-| Estrategias de la variante | `IPieceSource` recibe el generador del estado y devuelve el siguiente; `IScoringPolicy` puntúa cada paso con sus eventos; `IProgressModel` es el criterio del mejor intento | §9.7 | D-97 a D-99 |
+| Estrategias de la variante | `IPieceSource` recibe el generador del estado y devuelve el siguiente; `IScoringPolicy` puntúa cada paso con sus eventos; `IProgressModel` es el criterio del mejor intento; la fábrica las crea y las conecta en sus reglas, y `VariantFamily` solo expone `createRules` y `createSession` | §9.7 | D-97 a D-101 |
 
 ## 1. Qué tiene que cumplir el motor
 
@@ -103,11 +103,9 @@ classDiagram
     class GamePhase {
       <<sealed>>
     }
-    class VariantFamily~C, TCell, TMove, TState, TPiece~ {
+    class VariantFamily~C, TCell, TMove, TState~ {
       <<interface>>
       +createRules() IGameRules
-      +createPieceSource() IPieceSource~TPiece~
-      +createScoring() IScoringPolicy~TState, TEvent~
       +createSession(options) GameSession
     }
     Board --> GridTopology : delega la geometría (Bridge)
@@ -116,7 +114,6 @@ classDiagram
     GameEngine --> IGameRules : Strategy
     GameEngine --> GamePhase : State
     VariantFamily ..> IGameRules : crea
-    note for VariantFamily "createScoring y createPieceSource: D-100 abierta (§9.7)"
 ```
 
 ```mermaid
@@ -537,7 +534,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState, TPiece>`, con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
+| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` (`createRules`, `createSession`; D-100), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
 | **Builder** | `FitLevelBuilder<C>` y `SortLevelBuilder<C>` en `hexa_variants` | Arma un nivel paso a paso (figura, piezas, metas, umbrales) y lo **valida** al final (RN-HF-12, D-19). El *mapper* de JSON (capa 3) actúa como director; el validador de niveles del CI usa el mismo builder | §3.3 |
 | **Factory Method** | `GridTopology<C>.cellsOf(ShapeSpec)`: cada topología decide cómo crear las celdas de una forma de tablero (hexágono de radio R, rectángulo N × M, hexágono de triángulos de lado n, caja de cubos) | `Board` se crea sin conocer la figura: la topología concreta fabrica sus coordenadas a partir de la configuración (RNF-11) | — |
 
@@ -705,9 +702,9 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 **El generador es un valor del estado.** `Xorshift32` es inmutable: `next()`, `nextInt(n)` (`mod n`) y `chance(p)` (`mod 100 < p`, RN-COM-44) devuelven el valor y el generador siguiente. Una fuente solo guarda configuración, así que hay una secuencia por partida, que también usan las reglas (Merge elige la celda antes que el valor). Guardarla es guardar un entero, y deshacer la restaura con el resto del estado (RN-COM-42, 61). Con semilla 0 se usa la constante `0x9E3779B9`, la de `tools/reference-sim` (RN-COM-43); una semilla fuera de 0 a 4294967295, el rango del contrato de niveles, es un error.
 
-**Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas, que es lo único que multiplica la racha). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94). Si un multiplicador con fracciones abarcara varios pasos del turno, se redondearía una vez por paso y no una por turno (RN-COM-51): queda abierto en D-101.
+**Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas, que es lo único que multiplica la racha). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94). Por eso un multiplicador con fracciones envuelve solo la política del paso cuyos eventos multiplica, como la racha (D-101): así se redondea una sola vez (RN-COM-51). Si hiciera falta uno sobre el turno completo, se pasa a puntos racionales, en `hexa_variants` y sin tocar el motor.
 
-**Abierto (D-100):** qué expone `VariantFamily` de estas estrategias. `createScoring()` necesitaría un genérico `TEvent` que la fábrica no tiene, y `createPieceSource` ya no recibe la semilla; la recomendación es sacar los dos de la interfaz y dejarlos en la fábrica concreta. Se decide al escribir `VariantFamily`; hasta entonces, el diagrama de §2 los sigue mostrando en la interfaz.
+**La fábrica las conecta (D-100).** La fábrica concreta crea la fuente y la política y se las pasa a sus reglas; `VariantFamily` solo expone `createRules` y `createSession`, que es lo que usa el *composition root*. Por eso tiene 4 genéricos, como `GameEngine`, y una variante sin azar no tiene que inventar una fuente.
 
 **El progreso es un criterio.** El mismo `compare` elige el mejor intento completo (RN-COM-83) y ordena un ranking por nivel (E-COM-3). La forma del progreso (récord o niveles, D-45) la da `ILevelBased` (D-33); la consolidación (E-COM-2) se escribe sobre este criterio.
 
@@ -736,7 +733,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36 y D-90 a D-99, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36 y D-90 a D-101, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

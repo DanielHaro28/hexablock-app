@@ -7,8 +7,8 @@
 /// score of the new state to publish `ScoreChanged`.
 ///
 /// Another policy, or a decorator that wraps one, is a new class connected
-/// in the factory, without touching the rules or the engine (ARQ-02 §9.2,
-/// §10).
+/// in the variant's concrete factory, without touching the rules or the
+/// engine (ARQ-02 §9.2, §10; D-100).
 ///
 /// Type parameters (ARQ-02 §4.3):
 /// - `TState` has no constraint, as in `Step`: bounding it by `GameState`
@@ -18,7 +18,8 @@
 abstract interface class IScoringPolicy<TState, TEvent> {
   /// The points of a step that left [state] and published [events], in
   /// order. An integer ≥ 0 (RN-COM-50). If the formula has fractions, it
-  /// rounds down once, after applying them (RN-COM-51); a fraction that
-  /// spans several steps of a turn is still open (D-101).
+  /// rounds down once, after applying them (RN-COM-51). So a fractional
+  /// multiplier wraps only the policy of the step whose events it
+  /// multiplies, never one used by several steps (D-101).
   int pointsFor(TState state, Iterable<TEvent> events);
 }

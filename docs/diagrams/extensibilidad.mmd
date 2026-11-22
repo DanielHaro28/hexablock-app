@@ -10,7 +10,7 @@ flowchart TB
     H5["5ª variante (p. ej. Hexa Fill)<br/>carpeta nueva en hexa_variants<br/>+ VariantModule en app/config"]
 
     subgraph CORE["Motor genérico · hexa_engine — no se modifica"]
-        EXT["<b>Puntos de extensión</b> (lo que implementa una variante nueva)<br/>VariantFamily&lt;C, TCell, TMove, TState, TPiece&gt; · Abstract Factory<br/>IGameRules / GameRules&lt;C, TCell, TMove, TState&gt; · Strategy + Template Method<br/>IScoringPolicy&lt;TState, TEvent&gt; · IPieceSource&lt;TPiece&gt; · IProgressModel&lt;TAttempt&gt;<br/>GameState&lt;C, TCell&gt; · GameEvent&lt;C&gt; · IGameStateCodec&lt;TState&gt; (capa 3)"]
+        EXT["<b>Puntos de extensión</b> (lo que implementa una variante nueva)<br/>VariantFamily&lt;C, TCell, TMove, TState&gt; · Abstract Factory<br/>IGameRules / GameRules&lt;C, TCell, TMove, TState&gt; · Strategy + Template Method<br/>IScoringPolicy&lt;TState, TEvent&gt; · IPieceSource&lt;TPiece&gt; · IProgressModel&lt;TAttempt&gt;<br/>GameState&lt;C, TCell&gt; · GameEvent&lt;C&gt; · IGameStateCodec&lt;TState&gt; (capa 3)"]
         ENG["GameEngine&lt;C, TCell, TMove, TState&gt;<br/>ciclo de turno · fases · eventos · deshacer · capacidades"]
         BRD(["Board&lt;C, TCell&gt; ↔ <b>GridTopology&lt;C&gt;</b><br/>punto de extensión de la figura de celda"])
         EXT --- ENG --- BRD

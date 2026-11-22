@@ -23,7 +23,7 @@ skinparam nodesep 30
 skinparam ranksep 45
 
 package "Capa 1 · hexa_engine (detalle en clases-motor)" {
-  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<motor>>
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
   abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
   interface GameState<C extends Coord, TCell extends Object> <<motor>>
   interface IPieceSource<TPiece> <<motor>>

@@ -4,7 +4,7 @@
 >
 > Los nombres de clases y rutas son los previstos en `docs/architecture/ARQ-02-MOTOR.md` y `ARQ-03-APP-DETALLE.md`. Cuando exista el código, se revisan contra las clases reales (tarea de TEC-02).
 >
-> **Última actualización:** 2026-11-21 (D-97 a D-99)
+> **Última actualización:** 2026-11-21 (D-97 a D-101)
 
 ![Diagrama de extensibilidad](diagrams/extensibilidad.png)
 
@@ -47,7 +47,7 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 | `fill_piece_source.dart` (solo si hay azar) | `FillPieceSource implements IPieceSource<FillPiece>`, con `FillPiece` (lo que entrega la fuente) en el mismo archivo: recibe el generador del estado y devuelve la pieza y el generador siguiente; el generador vive en `FillState` (D-97) | `IPieceSource` |
 | `fill_progress.dart` (solo si el criterio es nuevo) | `FillAttempt` (lo que guarda un intento) y `FillProgressModel implements IProgressModel<FillAttempt>`: qué intento es mejor (D-99). Si sirve el récord o el criterio de otra variante, se reutiliza | `IProgressModel` |
 | `fill_level_builder.dart` (si la variante es por niveles) | `FillLevelBuilder<C>`: arma y valida el nivel | Builder |
-| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, FillPiece>`: crea reglas, puntuación, fuente de piezas, el estado inicial (D-93) y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
+| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>>`: crea reglas, puntuación, fuente de piezas (si hay azar), el estado inicial (D-93) y la `GameSession`; la puntuación y la fuente las pasa a las reglas, porque la interfaz solo expone `createRules` y `createSession` (D-100), con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
 
 | Modificar | Cambio |
 |---|---|
@@ -102,7 +102,7 @@ Después de agregar la variante, `git diff --stat main` **no** debe mostrar camb
 | Pedido | Dónde se implementa | Qué se toca |
 |---|---|---|
 | **Otro tamaño de tablero** | `app/assets/config/<gameId>.json` → `GridTopology.cellsOf(ShapeSpec)` (Factory Method) | Solo configuración |
-| **Otra política de puntuación** | Una clase nueva `…Scoring implements IScoringPolicy<TState, TEvent>`, o un decorador como `BonusMultiplierDecorator<TState, TEvent>` (D-98) | La clase nueva y **una línea** en `createScoring()` de la fábrica de esa variante |
+| **Otra política de puntuación** | Una clase nueva `…Scoring implements IScoringPolicy<TState, TEvent>`, o un decorador como `BonusMultiplierDecorator<TState, TEvent>` (D-98). Un multiplicador con fracciones envuelve solo la política del paso cuyos eventos multiplica, para redondear una sola vez (D-101, RN-COM-51) | La clase nueva y **una línea** en `createScoring()` de la fábrica concreta de esa variante (D-100) |
 | **Una forma de pieza nueva** | El catálogo de piezas en la configuración (Lines) o la definición del nivel (Fit) | Solo configuración |
 | **Una restricción de regla** (p. ej., límite de movimientos) | Un decorador de reglas: `MoveLimitRulesDecorator<…> extends GameRules<…>`, que envuelve las reglas de la variante, delega cada paso y agrega la condición en su paso (`rejectionOf`, `evaluate`). No declara `playTurn`, así que la comprobación de D-36 lo acepta (D-96, ARQ-02 §9.6) | La clase nueva y una línea en `createRules()` |
 | **Otra ficha objetivo** (Merge) o **más metas** (Sort) | Configuración de la variante o del nivel | Solo configuración |

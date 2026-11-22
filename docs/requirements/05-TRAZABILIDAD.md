@@ -76,12 +76,12 @@
 | RF-02 | HF-01, HS-01 | RN-COM-73, RN-HF-72, RN-HS-72 | — | |
 | RF-03 | NAV-03 | RN-COM-110, 112 | — | |
 | RF-04 | NAV-02 | RN-COM-111 | — | |
-| RF-05 | NAV-04 | RN-COM-24, 30 a 35, 52 | — | RN-COM-24, 30 y 31 (fases del motor): `hexa_engine/test/game/game_phase_test`, `game_engine_test` |
+| RF-05 | NAV-04 | RN-COM-24, 30 a 35, 52 | — | RN-COM-24, 30 y 31 (fases del motor): `hexa_engine/test/game/game_phase_test`, `game_engine_test`; RN-COM-52 (tiempo activo, D-106): `hexa_engine/test/time/active_timer_test`, `game_phase_test` |
 | RF-06 | PRG-01 | RN-COM-31, RN-HF-64, RN-HS-61, RN-HM-51 | — | |
 | RF-07 | PRG-02 | RN-COM-31 | — | |
 | RF-08 | NAV-05 | — | — | |
 | RF-09 | NAV-08 | RN-COM-113, RN-TOP-30 a 34 | — | |
-| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95; E-COM-1 y RN-COM-41 a 44 (generador): `hexa_engine/test/random/xorshift32_test`; estrategias (D-97 a D-99): `hexa_engine/test/strategy/`; `FakeClock` (D-56): `hexa_test_support/test/fake_clock_test`. RN-COM-51, 52 y 83 se prueban con las variantes, `ActiveTimer` y la consolidación |
+| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95; E-COM-1 y RN-COM-41 a 44 (generador): `hexa_engine/test/random/xorshift32_test`; estrategias (D-97 a D-99): `hexa_engine/test/strategy/`; `FakeClock` (D-56): `hexa_test_support/test/fake_clock_test`; deshacer (D-31, D-102, D-103): `hexa_engine/test/undo/`, `game_engine_test`; sesión y capacidades (D-33): `hexa_engine/test/session/game_session_test`. RN-COM-51 y 83 se prueban con las variantes y la consolidación |
 | RF-11 | HL-02, HF-02, HS-02, HM-01 | RN-COM-21 | E-HL-3, E-HF-2, E-HS-6, E-HM-4 | |
 | RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | RN-COM-25 (orden de los eventos, D-94): `hexa_engine/test/game/game_rules_test`, `game_engine_test`, `game_event_test` |
 | RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | |
@@ -92,7 +92,7 @@
 | RF-30 | HF-01 | RN-COM-03, RN-HF-10 a 13 | E-HF-NIVEL | |
 | RF-31 | HF-02, HF-04 | RN-HF-30, 32 a 34 | E-HF-1, E-HF-2 | |
 | RF-32 | HF-03 | RN-COM-14, RN-HF-31 | E-HEX-1 | |
-| RF-33 | HF-05 | RN-HF-80 a 82 | E-HF-1, E-HF-3 | |
+| RF-33 | HF-05 | RN-HF-80 a 82, RN-COM-60 a 63 | E-HF-1, E-HF-3 | RN-COM-60 a 63 (historial genérico, sin límite y con rehacer): `hexa_engine/test/undo/undo_history_test`, `game_engine_test`, `game_phase_test`. E-HF-3 se prueba con la variante |
 | RF-34 | HF-06 | RN-HF-50 a 52, 60 a 64, 70, 71 | E-HF-1, E-HF-4 | |
 | RF-40 | HS-01 | RN-COM-03, RN-HS-10 a 12 | — | |
 | RF-41 | HS-02 | RN-HS-20 a 22, 30, 31 | E-HS-6 | |
@@ -102,7 +102,7 @@
 | RF-50 | HM-01 | RN-HM-30, 31, 40, 41 | E-HM-1, E-HM-3, E-HM-4 | |
 | RF-51 | HM-02 | RN-HM-40 a 43, 60, 61 | E-HM-1, E-HM-2, E-HM-3 | |
 | RF-52 | HM-03 | RN-COM-40 a 45, RN-HM-11, 20 a 22 | E-COM-1, E-HM-6 | |
-| RF-53 | HM-04 | RN-HM-80 a 83 | E-HM-7 | |
+| RF-53 | HM-04 | RN-HM-80 a 83, RN-COM-60 a 63 | E-HM-7 | RN-COM-60 a 63 (límite 1, sin rehacer; restaura el generador, RN-COM-61): `hexa_engine/test/undo/undo_history_test`. E-HM-7 se prueba con la variante |
 | RF-54 | HM-05 | RN-HM-50 a 53, 70 | E-HM-5 | |
 | RF-60 | PRG-03 | RN-COM-80 | — | |
 | RF-61 | PRG-04 | RN-COM-73 | — | |

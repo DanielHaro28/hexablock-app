@@ -109,7 +109,7 @@ Movida a **`02-RN-TOPOLOGIAS.md`** (reglas RN-COM-10 a 19, alcance, tableros por
 |---|---|---|---|
 | RN-COM-50 | El puntaje es un **entero ≥ 0**. Dentro de una partida solo **sube**, salvo al deshacer, que restaura el puntaje anterior | Diseño | 🟡 |
 | RN-COM-51 | Cada variante define su **política de puntuación** y la documenta en su archivo de reglas. Las fórmulas usan solo enteros; si hay multiplicadores fraccionarios, se redondea **hacia abajo una sola vez**, al final del cálculo del turno | Enunciado §5.1 | ✅ (fórmulas: 🟡) |
-| RN-COM-52 | El **tiempo** de una partida es **tiempo activo**: no cuenta las pausas ni el tiempo en segundo plano. Se mide en milisegundos y se muestra como `mm:ss` | HU NAV-04, HF-06 | 🟡 |
+| RN-COM-52 | El **tiempo** de una partida es **tiempo activo**: no cuenta las pausas ni el tiempo en segundo plano. Se mide en milisegundos y se muestra como `mm:ss`. Deshacer no lo retrocede: el tiempo no es parte del estado que se restaura (RN-COM-61, D-106) | HU NAV-04, HF-06 | 🟡 |
 
 ## 7. Deshacer y rehacer
 

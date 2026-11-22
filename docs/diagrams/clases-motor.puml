@@ -47,7 +47,8 @@ package "Capa 1 · Entidades · hexa_engine" {
     + resume(): void
     + continuePlaying(): void
     + close(): Future<void>
-    + restore(snapshot: TState): void (siguiente PR, D-31)
+    + committedTurns: Stream<MoveCommand<TMove, TState>>
+    + restore(snapshot: TState): void
   }
   interface IGameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Strategy>> {
     + validMoves(s: TState): Iterable<TMove>
@@ -69,7 +70,8 @@ package "Capa 1 · Entidades · hexa_engine" {
 
   abstract class GamePhase <<State>> <<sealed>> {
     + acceptsMoves: bool
-    + allowsUndo: bool (siguiente PR, D-31)
+    + allowsUndo: bool
+    + countsActiveTime: bool
   }
   class PlayingPhase
   class ResolvingPhase
@@ -101,6 +103,7 @@ package "Capa 1 · Entidades · hexa_engine" {
   class MoveRejected<C extends Coord> {
     + reason: RejectionReason
   }
+  class StateRestored<C extends Coord>
   abstract class RejectionReason <<abstract base>>
   class InvalidMove
   class NotAcceptingMoves
@@ -122,6 +125,7 @@ package "Capa 1 · Entidades · hexa_engine" {
 
   interface IUndoable <<interface>> {
     + canUndo: bool
+    + canRedo: bool
     + undo(): void
     + redo(): void
   }
@@ -134,11 +138,23 @@ package "Capa 1 · Entidades · hexa_engine" {
   interface ILevelBased <<interface>> {
     + levelId: String
   }
+  interface Restorable<TState> <<interface>> <<Memento originator>> {
+    + restore(snapshot: TState): void
+  }
+  interface UndoableEngine<TMove, TState> <<interface>> {
+    + phase: GamePhase
+    + committedTurns: Stream<MoveCommand<TMove, TState>>
+  }
+  interface TimedEngine <<interface>> {
+    + phase: GamePhase
+    + syncEvents: Stream<GameEvent<Coord>>
+  }
   class UndoHistory<TMove, TState> <<Command>> <<Memento caretaker>> {
     - done: List<MoveCommand>
     - undone: List<MoveCommand>
     + limit: int?
     + allowsRedo: bool
+    + UndoHistory(e: UndoableEngine, limit: int?, allowsRedo: bool)
   }
   class MoveCommand<TMove, TState> <<Command>> {
     + move: TMove
@@ -149,6 +165,7 @@ package "Capa 1 · Entidades · hexa_engine" {
   }
   class ActiveTimer {
     + activeTime: Duration
+    + ActiveTimer(e: TimedEngine, clock: IMonotonicClock, elapsed: Duration)
   }
   interface IMonotonicClock <<interface>> {
     + nowMillis(): int
@@ -243,6 +260,7 @@ RejectedMove --|> MoveResult
 PhaseChanged --|> GameEvent
 ScoreChanged --|> GameEvent
 MoveRejected --|> GameEvent
+StateRestored --|> GameEvent
 InvalidMove --|> RejectionReason
 NotAcceptingMoves --|> RejectionReason
 PlayedTurn --|> TurnResult
@@ -254,8 +272,13 @@ RejectedMove ..> RejectionReason
 ' ===== Capacidades opcionales =====
 UndoHistory ..|> IUndoable
 UndoHistory *-- "0..*" MoveCommand
-UndoHistory --> GameEngine : restore (Memento)
+GameEngine ..|> UndoableEngine
+GameEngine ..|> TimedEngine
+UndoableEngine --|> Restorable
+UndoHistory --> UndoableEngine : restore (Memento)
+MoveCommand ..> Restorable : undo / redo
 ActiveTimer ..|> ITimed
+ActiveTimer --> TimedEngine : escucha PhaseChanged
 ActiveTimer --> IMonotonicClock
 
 ' ===== Tablero y figuras =====

@@ -11,6 +11,10 @@ import 'fake_strategies.dart';
 /// Like a real state, it carries the generator as an immutable value
 /// (RN-COM-42, D-97), so restoring a state restores the generator too
 /// (RN-COM-61). It records the [seed] it started with (RN-COM-45).
+///
+/// It also counts the [moves] played, a counter that must survive undo, as
+/// the moves of a level game do: [keepingMovesOf] is what the history
+/// carries over (D-109).
 final class FakeSeededState
     implements GameState<FakeCoord, FakeCell>, IRandomSeeded {
   /// A state with an explicit [random] generator.
@@ -19,12 +23,14 @@ final class FakeSeededState
     required this.seed,
     required this.random,
     this.score = 0,
+    this.moves = 0,
   });
 
   /// The first state of a game on [board] seeded with [seed].
   FakeSeededState.start(this.board, {required this.seed})
     : random = Xorshift32(seed),
-      score = 0;
+      score = 0,
+      moves = 0;
 
   @override
   final Board<FakeCoord, FakeCell> board;
@@ -38,20 +44,35 @@ final class FakeSeededState
   /// The generator the next draw uses.
   final Xorshift32 random;
 
+  /// The moves played; undoing and redoing do not change it (D-109).
+  final int moves;
+
+  /// This state with the [moves] of [current]: what the undo history
+  /// carries over (D-109).
+  FakeSeededState keepingMovesOf(FakeSeededState current) => FakeSeededState(
+    board,
+    seed: seed,
+    random: random,
+    score: score,
+    moves: current.moves,
+  );
+
   @override
   bool operator ==(Object other) =>
       other is FakeSeededState &&
       other.board == board &&
       other.score == score &&
       other.seed == seed &&
-      other.random == random;
+      other.random == random &&
+      other.moves == moves;
 
   @override
-  int get hashCode => Object.hash(board, score, seed, random);
+  int get hashCode => Object.hash(board, score, seed, random, moves);
 
   @override
   String toString() =>
-      'FakeSeededState(score: $score, seed: $seed, $random, $board)';
+      'FakeSeededState(score: $score, moves: $moves, seed: $seed, $random, '
+      '$board)';
 }
 
 /// Rules that draw what they place from the state's generator (D-56): like
@@ -61,7 +82,8 @@ final class FakeSeededState
 ///   occupied cell, a [CellOccupied].
 /// - **Apply:** draws a label with a [FakePieceSource] over [labels] and the
 ///   state's generator, puts it on the move's cell (the move's own label is
-///   ignored), adds [pointsPerTurn] and keeps the generator after the draw.
+///   ignored), adds [pointsPerTurn] and one move, and keeps the generator
+///   after the draw.
 /// - **Evaluate:** the default of `GameRules` (defeat on a full board).
 final class FakeSeededRules
     extends GameRules<FakeCoord, FakeCell, FakeMove, FakeSeededState> {
@@ -93,6 +115,7 @@ final class FakeSeededRules
         seed: state.seed,
         random: after,
         score: state.score + pointsPerTurn,
+        moves: state.moves + 1,
       ),
       const [FakeEvent('apply')],
     );

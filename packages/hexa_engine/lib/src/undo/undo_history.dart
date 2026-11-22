@@ -17,6 +17,12 @@ import 'undo_snapshot.dart';
 ///
 /// A saved game keeps it as an [UndoSnapshot] (D-107): [snapshot] gives it
 /// and the `from` parameter takes it back when the game continues.
+///
+/// Undo restores the whole state before the turn (RN-COM-61), except what
+/// the variant asks to keep with `carryOver` (D-109): for example, a moves
+/// counter that undo and redo must not change. The function belongs to the
+/// variant's state and its factory wires it; it must keep only such
+/// counters, never the board or the generator.
 final class UndoHistory<TMove, TState> implements IUndoable {
   /// A history of the turns played on [engine], starting with the turns
   /// saved in [from], if any (a game that continues, D-37, D-107).
@@ -26,13 +32,19 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   /// [allowsRedo] is false (RN-COM-60). The engine's current state is the
   /// pivot between both lists.
   ///
+  /// [carryOver], if given, receives the state an undo or a redo goes to and
+  /// the current one, and returns the state to restore (D-109).
+  ///
   /// Throws an [ArgumentError] if [limit] is less than 1.
   UndoHistory(
     this._engine, {
     this.limit,
     this.allowsRedo = false,
+    TState Function(TState restored, TState current)? carryOver,
     UndoSnapshot<TState>? from,
-  }) {
+  }) : _target = carryOver == null
+           ? _engine
+           : _CarryingOver(_engine, carryOver) {
     if (limit case final limit? when limit < 1) {
       throw ArgumentError.value(limit, 'limit', 'must be at least 1');
     }
@@ -41,6 +53,10 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   }
 
   final UndoableEngine<TMove, TState> _engine;
+
+  /// Where the commands restore their states: the engine itself, or the
+  /// engine behind the variant's `carryOver` (D-109).
+  final Restorable<TState> _target;
   final _done = <MoveCommand<TMove, TState>>[];
   final _undone = <MoveCommand<TMove, TState>>[];
 
@@ -65,7 +81,7 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   @override
   void undo() {
     if (!canUndo) return;
-    final command = _done.last..undo(_engine);
+    final command = _done.last..undo(_target);
     _done.removeLast();
     if (allowsRedo) _undone.add(command);
   }
@@ -75,7 +91,7 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   @override
   void redo() {
     if (!canRedo) return;
-    final command = _undone.last..redo(_engine);
+    final command = _undone.last..redo(_target);
     _undone.removeLast();
     _done.add(command);
   }
@@ -121,4 +137,18 @@ final class UndoHistory<TMove, TState> implements IUndoable {
     _done.clear();
     _undone.clear();
   }
+}
+
+/// A [Restorable] that adjusts each state before the engine restores it:
+/// a Decorator, so `MoveCommand` keeps restoring its mementos as they are
+/// (D-31) and the snapshot keeps the states as they were played (D-107).
+final class _CarryingOver<TState> implements Restorable<TState> {
+  const _CarryingOver(this._engine, this._carryOver);
+
+  final UndoableEngine<Object?, TState> _engine;
+  final TState Function(TState restored, TState current) _carryOver;
+
+  @override
+  void restore(TState snapshot) =>
+      _engine.restore(_carryOver(snapshot, _engine.state));
 }

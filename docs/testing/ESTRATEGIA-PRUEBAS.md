@@ -37,7 +37,7 @@
 
 | Parte | Tipo | Qué se prueba | Dobles |
 |---|---|---|---|
-| `hexa_engine` | Unitaria | Tablero genérico, fases (`GamePhase`), `GameEngine`, deshacer y rehacer (`UndoHistory`), eventos. **Con `FakeCell` y una topología de prueba**, para demostrar que el motor no conoce ninguna variante (RNF-01, RNF-02) | `FakeCell`, `FakeTopology`, `FakeRules` |
+| `hexa_engine` | Unitaria | Tablero genérico, fases (`GamePhase`), `GameEngine`, deshacer y rehacer (`UndoHistory`), eventos, tiempo activo (`ActiveTimer`) y sesión (`GameSession`). **Con `FakeCell` y una topología de prueba**, para demostrar que el motor no conoce ninguna variante (RNF-01, RNF-02) | `FakeCell`, `FakeTopology`, `FakeRules`, `FakeClock`; `FakeSeededState` y `FakeSeededRules` (un estado con `Xorshift32`, para RN-COM-61) |
 | `hexa_topologies` | Unitaria | Vecinas, líneas, giros y tablero por defecto de cada figura (RN-TOP-*) | — |
 | `hexa_variants` | Unitaria | Cada ejemplo `E-HL-*`, `E-HF-*`, `E-HS-*`, `E-HM-*`: líneas en los 3 ejes, cobertura exacta, cascada con desempate horario, fusión por choque; puntajes; generación de pilas (E-HS-GEN); validadores de nivel | xorshift real con semilla fija |
 | `hexa_application` | Unitaria | Cada caso de uso (tabla de ARQ-03-APP §3) y cada aspecto (sesión, errores y reintentos, métricas, logging) y su orden (D-41) | *Fakes* de todos los puertos (§4) |

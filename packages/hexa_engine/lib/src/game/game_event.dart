@@ -6,8 +6,9 @@ import 'rejection_reason.dart';
 /// (RN-COM-25, D-32).
 ///
 /// The rules return their events with each step of the turn; the engine adds
-/// its own ([PhaseChanged], [ScoreChanged], [MoveRejected]), returns them in
-/// the `MoveResult` of `submit` and publishes the same list on its streams.
+/// its own ([PhaseChanged], [ScoreChanged], [MoveRejected], [StateRestored]),
+/// returns those of a turn in the `MoveResult` of `submit` and publishes the
+/// same list on its streams.
 ///
 /// It is `abstract base` and not sealed because Dart only lets a sealed class
 /// be extended in its own library, and the variants live in another package:
@@ -37,7 +38,28 @@ final class PhaseChanged<C extends Coord> extends GameEvent<C> {
   String toString() => 'PhaseChanged($from → $to)';
 }
 
-/// The score went from [from] to [to] during a turn (D-94).
+/// The engine went back or forward to a saved state: a turn was undone or
+/// redone (D-31, D-103).
+///
+/// It has no fields because events are generic only in the coordinate: the
+/// restored state is `engine.state`. The engine does not know whether it was
+/// an undo or a redo; the undo history does. If the score changed, a
+/// `ScoreChanged` follows it.
+final class StateRestored<C extends Coord> extends GameEvent<C> {
+  const StateRestored();
+
+  @override
+  bool operator ==(Object other) => other is StateRestored<C>;
+
+  @override
+  int get hashCode => (StateRestored).hashCode;
+
+  @override
+  String toString() => 'StateRestored()';
+}
+
+/// The score went from [from] to [to] (D-94): during a turn, where it only
+/// goes up (RN-COM-50), or after a restore, where it goes back (D-103).
 final class ScoreChanged<C extends Coord> extends GameEvent<C> {
   const ScoreChanged(this.from, this.to);
 

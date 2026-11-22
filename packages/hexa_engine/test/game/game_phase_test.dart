@@ -154,6 +154,46 @@ void main() {
     );
   });
 
+  group('RN-COM-63', () {
+    test('should_allow_undo_only_when_playing', () {
+      // Arrange
+      const phases = <GamePhase>[
+        playing,
+        resolving,
+        paused,
+        victory,
+        continuable,
+        gameOver,
+      ];
+
+      // Act
+      final allowing = phases.where((phase) => phase.allowsUndo);
+
+      // Assert
+      expect(allowing, [playing]);
+    });
+  });
+
+  group('RN-COM-52', () {
+    test('should_count_active_time_only_when_playing_or_resolving', () {
+      // Arrange
+      const phases = <GamePhase>[
+        playing,
+        resolving,
+        paused,
+        victory,
+        continuable,
+        gameOver,
+      ];
+
+      // Act
+      final counting = phases.where((phase) => phase.countsActiveTime);
+
+      // Assert
+      expect(counting, [playing, resolving]);
+    });
+  });
+
   group('D-34', () {
     test('should_be_equal_when_two_outcomes_are_the_same_kind', () {
       // Arrange

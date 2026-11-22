@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107 y D-109, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -13,7 +13,7 @@
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 >
-> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer, el cronómetro y la sesión se validan en el PR siguiente de TEC-01.
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer (`MoveCommand`, `UndoHistory`, `GameEngine.restore` y `committedTurns`), las capacidades, el cronómetro (`ActiveTimer`) y la sesión (`GameSession`) están en `packages/hexa_engine/lib/src/undo/`, `session/` y `time/` (D-102 a D-107 y D-109). Una diferencia con el esbozo de §7: `ActiveTimer` recibe del motor solo lo que necesita (`TimedEngine`: la fase y `syncEvents`), igual que `UndoHistory` con `UndoableEngine`.
 
 ---
 
@@ -26,11 +26,11 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Coordenada | Parámetro genérico: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<…>`; `HexBoard<TCell>` es un `typedef` | §3 | D-07 |
 | Figura de la celda | Registro de topologías + **Visitor** genérico, sin `switch` ni casts; `TCoord` llega hasta el widget del tablero | §3 | D-29 |
 | Tipos por variante | Estado inmutable; celda vacía = `null` (`TCell extends Object`); movimientos *sealed* por variante; `Tile implements Mergeable<Tile>` en Merge | §4 | D-30 |
-| Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada) | §5 | D-31 |
+| Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada). `restore` mantiene la fase, exige que permita deshacer y publica `StateRestored` y, si cambió, `ScoreChanged`. La partida guardada lleva el historial como la línea de estados alrededor del actual (`UndoSnapshot`); un contador que deshacer no debe cambiar lo conserva el `carryOver` de la variante | §5 | D-31, D-102, D-103, D-107, D-109 |
 | Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica. Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94 |
 | Estado inicial | Lo crea la fábrica (o lo lee el codec al continuar) y se lo pasa a `GameEngine`; `IGameRules` no tiene `initialState` | §2 | D-93 |
 | Motivo de un rechazo | Jerarquía abierta `RejectionReason` (`InvalidMove`, `NotAcceptingMoves` y los de cada variante); las reglas validan con `rejectionOf` | §6, §9.6 | D-95 |
-| Capacidades opcionales | Interfaces segregadas (`IUndoable`, `ITimed`, `IRandomSeeded`, `ILevelBased`) que la fábrica compone en una `GameSession`; `IMonotonicClock` en el dominio | §7 | D-33 |
+| Capacidades opcionales | Interfaces segregadas (`IUndoable`, `ITimed`, `IRandomSeeded`, `ILevelBased`) que la fábrica compone en una `GameSession`; `IMonotonicClock` en el dominio. `ILevelBased.levelId`; `ITimed.activeTime` es un `Duration`; `ActiveTimer` calcula el tiempo al leerlo, la fase dice si corre y deshacer no lo retrocede | §7 | D-33, D-104 a D-106 |
 | Fases | Patrón **State** con 5 fases *sealed*; `Victory(canContinue)` para Merge | §8 | D-34 |
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
 | Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
@@ -301,36 +301,54 @@ extension type const PieceId(int value) {}
 
 Opciones consideradas: Anexo A.5.
 
-**Elegida: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`.
+**Elegida: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`. El modelo no incluye guardar y continuar el historial (D-107) ni lo que la variante conserva al deshacer (D-109): eso lo comprueban las pruebas de `hexa_engine/test/undo/`.
 
 La capacidad la da un único `UndoHistory` configurado por la fábrica de cada variante: sin límite y con rehacer para Fit, límite 1 sin rehacer para Merge, y nada para Lines y Sort. Las reglas que impiden deshacer (RN-COM-63) las decide la **fase**: `GameOverPhase` y `VictoryPhase` no permiten deshacer; en Merge, al seguir jugando se vuelve a `PlayingPhase`, que sí lo permite.
+
+**`restore` no cambia la fase (D-102).** El motor solo restaura si la fase actual permite deshacer; si no, lanza un `StateError`, como con la reentrada. Como solo `PlayingPhase` lo permite, después de deshacer o rehacer el motor sigue en juego, y ningún llamador se salta RN-COM-63. Publica `StateRestored` y, si el puntaje cambió, `ScoreChanged` después (D-103, §6). `committedTurns` envía un `MoveCommand` por cada turno jugado, también el que termina la partida (así Merge puede deshacer la jugada ganadora después de seguir jugando), y ninguno por un movimiento rechazado (RN-COM-21).
+
+**La partida guardada lleva el historial (D-107).** `UndoHistory.snapshot()` devuelve la línea de estados alrededor del actual: a dónde va cada deshacer y cada rehacer. Al continuar, `UndoHistory(engine, from: snapshot)` reconstruye los comandos, con el estado actual del motor en el medio, y se ajusta a su límite y a si permite rehacer. Solo se guardan estados, así que alcanza con el codec de estados de cada variante; por eso un turno restaurado no sabe qué movimiento fue (`MoveCommand.move` es `TMove?`), algo que deshacer y rehacer nunca leen.
+
+**Lo que la variante conserva al deshacer (D-109).** En Hexa Fit deshacer y rehacer no cambian la cuenta de movimientos (RN-HF-61), y la cuenta vive en el estado. La fábrica de Fit pasa `carryOver: (restored, current) => restored.keepingMovesOf(current)`: un decorador de `Restorable` ajusta cada estado antes de restaurarlo, así que `MoveCommand` y el `UndoSnapshot` siguen guardando los estados como se jugaron. Solo sirve para contadores así: el tablero y el generador vuelven siempre (RN-COM-61). Merge no lo usa.
 
 ```dart
 // hexa_engine
 abstract interface class Restorable<TState> {
-  void restore(TState snapshot); // emits StateRestored
+  void restore(TState snapshot); // StateRestored, then ScoreChanged if it changed (D-103); throws unless phase.allowsUndo (D-102)
 }
 
 /// What UndoHistory needs from GameEngine (ISP): GameEngine implements it.
 abstract interface class UndoableEngine<TMove, TState> implements Restorable<TState> {
+  TState get state; // the pivot of a saved history (D-107)
   GamePhase get phase;
   Stream<MoveCommand<TMove, TState>> get committedTurns; // one per valid turn
 }
 
 final class MoveCommand<TMove, TState> {
   const MoveCommand(this.move, this.before, this.after);
-  final TMove move;
+  final TMove? move; // null for a turn restored from a saved game (D-107)
   final TState before, after; // mementos: immutable states
 
   void undo(Restorable<TState> engine) => engine.restore(before);
   void redo(Restorable<TState> engine) => engine.restore(after);
 }
 
+final class UndoSnapshot<TState> { // what a saved game keeps (D-107)
+  const UndoSnapshot({this.undoStates = const [], this.redoStates = const []});
+  final List<TState> undoStates; // oldest first
+  final List<TState> redoStates; // next first
+}
+
 final class UndoHistory<TMove, TState> implements IUndoable {
-  UndoHistory(this._engine, {this.limit, this.allowsRedo = false}) {
-    _engine.committedTurns.listen(_record); // Observer, synchronous stream (D-32)
+  UndoHistory(this._engine, {this.limit, this.allowsRedo = false,
+      TState Function(TState restored, TState current)? carryOver, // D-109
+      UndoSnapshot<TState>? from})                                 // D-107
+      : _target = carryOver == null ? _engine : _CarryingOver(_engine, carryOver) {
+    if (from != null) _load(from); // commands between consecutive states, around engine.state
+    _engine.committedTurns.listen(_record, onDone: _forget); // Observer, synchronous stream (D-32)
   }
   final UndoableEngine<TMove, TState> _engine;
+  final Restorable<TState> _target; // the engine, or the engine behind carryOver (Decorator)
   final int? limit; // null = unlimited (Fit); 1 = Hexa Merge
   final bool allowsRedo;
   final _done = <MoveCommand<TMove, TState>>[];
@@ -342,21 +360,37 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   @override
   void undo() {
     if (!canUndo) return;
-    final command = _done.removeLast()..undo(_engine);
+    final command = _done.last..undo(_target); // leaves the list only once restored
+    _done.removeLast();
     if (allowsRedo) _undone.add(command);
   }
 
   @override
   void redo() {
     if (!canRedo) return;
-    _done.add(_undone.removeLast()..redo(_engine));
+    final command = _undone.last..redo(_target);
+    _undone.removeLast();
+    _done.add(command);
   }
+
+  UndoSnapshot<TState> snapshot() => UndoSnapshot(
+      undoStates: [for (final c in _done) c.before],
+      redoStates: [for (final c in _undone.reversed) c.after]); // states as played
 
   void _record(MoveCommand<TMove, TState> command) {
     _undone.clear(); // RN-COM-62
     _done.add(command);
     if (limit != null && _done.length > limit!) _done.removeAt(0);
   }
+}
+
+/// Adjusts each state before the engine restores it (D-109): Decorator of Restorable.
+final class _CarryingOver<TState> implements Restorable<TState> {
+  const _CarryingOver(this._engine, this._carryOver);
+  final UndoableEngine<Object?, TState> _engine;
+  final TState Function(TState restored, TState current) _carryOver;
+  @override
+  void restore(TState snapshot) => _engine.restore(_carryOver(snapshot, _engine.state));
 }
 ```
 
@@ -369,7 +403,7 @@ Opciones consideradas: Anexo A.6.
 **Elegida: A2.** El turno se calcula completo, en menos de un milisegundo, y después:
 
 1. **La pantalla** recibe el `MoveResult` como valor de retorno de `submit` → `ApplyMoveUseCase` → `GameCubit`. El retraso que ve el jugador es solo el de las animaciones, y lo controla la vista: su duración, la opción de saltarlas y el bloqueo de toques mientras se reproducen.
-2. **Los oyentes internos del dominio** (`UndoHistory` y `ActiveTimer`) se suscriben a un `StreamController.broadcast(sync: true)`: reciben cada evento antes de que `submit` termine, así que el historial y el cronómetro ya están al día cuando la pantalla se redibuja. Ninguno de ellos llama a `submit`, lo que evita la reentrada que permite un *stream* síncrono.
+2. **Los oyentes internos del dominio** se suscriben a un `StreamController.broadcast(sync: true)`, `ActiveTimer` a los eventos y `UndoHistory` a `committedTurns` (un `MoveCommand` por turno): reciben cada evento antes de que `submit` termine, así que el historial y el cronómetro ya están al día cuando la pantalla se redibuja. Ninguno de ellos llama a `submit`, lo que evita la reentrada que permite un *stream* síncrono.
 3. **Los oyentes externos** (el audio y la analítica, ARQ-A-07) se suscriben al `Stream` normal, que entrega los eventos en un instante posterior. No son urgentes.
 
 El tipo de retorno no se llama igual que los eventos para que no se confundan: `MoveRejected` es un evento (por ejemplo, para el sonido de error); `RejectedMove` es el resultado que devuelve `submit`.
@@ -398,6 +432,7 @@ abstract base class GameEvent<C extends Coord> { const GameEvent(); }
 final class PhaseChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
 final class ScoreChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
 final class MoveRejected<C extends Coord> extends GameEvent<C> { /* reason */ }
+final class StateRestored<C extends Coord> extends GameEvent<C> { const StateRestored(); } // undo or redo (D-103)
 
 // Rejection reasons (D-95): open, like the events
 abstract base class RejectionReason { const RejectionReason(); }
@@ -423,8 +458,9 @@ Una base *sealed* común no sirve: Dart solo permite extender una clase *sealed*
 | `submit` con un turno jugado | `PhaseChanged(en juego → resolviendo)`, los eventos de las reglas (aplicar, resolver, después de resolver), `ScoreChanged` si el puntaje cambió, `PhaseChanged(resolviendo → en juego, victoria o derrota)` |
 | `submit` rechazado por la fase (RN-COM-24) o por las reglas (RN-COM-21) | Solo `MoveRejected(motivo)`. El motor pasa a resolviendo mientras calcula, para rechazar un `submit` que llegue en ese momento, pero el turno no ocurrió y la fase vuelve sin publicarse |
 | `pause`, `resume`, `continuePlaying` | `PhaseChanged`, solo si la fase cambia |
+| `restore` (deshacer o rehacer, D-103) | `StateRestored` y, si el puntaje cambió, `ScoreChanged`. La fase no cambia (D-102) |
 
-Un oyente síncrono que llame a `submit`, `pause`, `resume` o `continuePlaying` mientras recibe un evento recibe un `StateError`: así la lista de un turno nunca se mezcla con la de otro. Si las reglas lanzan una excepción, el motor vuelve al estado y la fase que tenía y la relanza.
+Un oyente síncrono (de `syncEvents` o de `committedTurns`) que llame a `submit`, `pause`, `resume`, `continuePlaying` o `restore` mientras recibe un evento recibe un `StateError`: así la lista de un turno nunca se mezcla con la de otro. Si las reglas lanzan una excepción, el motor vuelve al estado y la fase que tenía y la relanza.
 
 **Motivos de rechazo (D-95).** El motor no sabe por qué una variante rechaza un movimiento, así que el motivo es una jerarquía abierta, como los eventos. Una variante devuelve `const InvalidMove()` si el motivo no importa, o uno de su propia familia *sealed* si la pantalla debe explicarlo (por ejemplo, "la pieza no cabe"). Los motivos no llevan texto: la capa de presentación los traduce con ARB (RNF-50). El `GameCubit` genérico traduce los del motor y usa un texto genérico para uno que no conozca; el módulo de cada variante traduce su familia con un `switch` exhaustivo.
 
@@ -438,11 +474,41 @@ Opciones consideradas: Anexo A.7.
 
 **Elegida: A.** El tiempo activo necesita un reloj: se propone un puerto mínimo **en el dominio**, `IMonotonicClock` (milisegundos monótonos), porque las estrellas de Fit dependen del tiempo (RN-HF-62). El `IClock` de la capa 2 (ARQ-01-APP §4.2) lo extiende, y la misma implementación de la capa 4 sirve para los dos. `ActiveTimer` escucha `PhaseChanged`: corre en juego y resolviendo, y se detiene en pausa, victoria y derrota (RN-COM-52).
 
+**Cómo cuenta (D-106).** Cada fase dice si cuenta tiempo (`countsActiveTime`, como `acceptsMoves` y `allowsUndo`), así que el cronómetro no tiene `if` por fase. El tiempo se calcula al leerlo: los tramos cerrados más el que sigue abierto. Nada hace *tick*: la pantalla lo lee cuando redibuja y las pruebas mueven un `FakeClock`. Deshacer no lo retrocede, porque no es parte del estado (RN-COM-52, 61). Recibe un `elapsed` inicial para continuar una partida guardada (D-37) y se detiene cuando se cierra el motor. `activeTime` es un `Duration` (D-105). `ILevelBased` expone el `levelId` del contrato (D-104) y lo implementan los estados, igual que `IRandomSeeded` (la semilla con que empezó la partida, RN-COM-45).
+
 ```dart
 // hexa_engine
 abstract interface class IUndoable { bool get canUndo; bool get canRedo; void undo(); void redo(); }
 abstract interface class ITimed { Duration get activeTime; }
-abstract interface class IRandomSeeded { int get seed; }
+abstract interface class IRandomSeeded { int get seed; } // the starting seed (RN-COM-45)
+abstract interface class ILevelBased { String get levelId; } // e.g. fit-hex-001 (D-104)
+
+/// What ActiveTimer needs from GameEngine (ISP): GameEngine implements it.
+abstract interface class TimedEngine {
+  GamePhase get phase;
+  Stream<GameEvent<Coord>> get syncEvents;
+}
+
+final class ActiveTimer implements ITimed {
+  ActiveTimer(TimedEngine engine, this._clock, {Duration elapsed = Duration.zero})
+      : _closedMillis = elapsed.inMilliseconds {
+    if (engine.phase.countsActiveTime) _start();
+    engine.syncEvents.listen(_onEvent, onDone: _stop); // synchronous (D-32)
+  }
+  final IMonotonicClock _clock;
+  int _closedMillis;
+  int? _runningSinceMillis;
+
+  @override // computed when read: the closed stretches plus the running one (D-106)
+  Duration get activeTime => Duration(milliseconds: _closedMillis +
+      switch (_runningSinceMillis) { final since? => _clock.nowMillis() - since, null => 0 });
+
+  void _onEvent(GameEvent<Coord> event) {
+    if (event case PhaseChanged(:final to)) to.countsActiveTime ? _start() : _stop();
+  }
+  void _start() => _runningSinceMillis ??= _clock.nowMillis();
+  void _stop() { /* adds the running stretch to _closedMillis */ }
+}
 
 final class GameSession<C extends Coord, TCell extends Object, TMove,
     TState extends GameState<C, TCell>> {
@@ -475,7 +541,8 @@ Opciones consideradas: Anexo A.8.
 sealed class GamePhase {
   const GamePhase();
   bool get acceptsMoves => false;
-  bool get allowsUndo => false; // arrives with UndoHistory (D-31)
+  bool get allowsUndo => false;       // only while playing (D-31, RN-COM-63)
+  bool get countsActiveTime => false; // playing and resolving (D-106)
   // Every transition is on the base, so the engine delegates without asking
   // which phase it is; a transition a phase does not allow returns `this`.
   GamePhase onTurnStarted() => this;
@@ -489,12 +556,14 @@ final class PlayingPhase extends GamePhase {
   const PlayingPhase();
   @override bool get acceptsMoves => true;
   @override bool get allowsUndo => true;
+  @override bool get countsActiveTime => true;
   @override GamePhase onPause() => const PausedPhase();
   @override GamePhase onTurnStarted() => const ResolvingPhase();
 }
 
 final class ResolvingPhase extends GamePhase {
   const ResolvingPhase();
+  @override bool get countsActiveTime => true;
   @override
   GamePhase onTurnFinished(GameOutcome outcome) => switch (outcome) {
         Ongoing() => const PlayingPhase(),
@@ -544,7 +613,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 |---|---|---|---|
 | **Bridge** | `Board<C, TCell>` (abstracción) ↔ `GridTopology<C>` (implementador) | Separa **qué hay en las celdas** (varía por variante) de **cómo es la rejilla** (varía por figura): 4 variantes × 4 figuras sin 16 clases de tablero. Es el núcleo de D-07 | — |
 | **Composite** | `Shape<C>`: `CellShape` (hoja) y `CompositeShape` (compuesto). Las piezas son composiciones de celdas y las figuras de Fit, composiciones de regiones (por ejemplo, un hexágono más una línea) | Rotar, trasladar y normalizar tratan igual una celda, una pieza o una figura entera. Además, los niveles se diseñan a mano más rápido componiendo regiones | §3.3 (el ejemplo es el mismo) |
-| **Decorator** | Sobre `IScoringPolicy<TState, TEvent>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState, TEvent>` sirve para cualquier variante (D-98). Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
+| **Decorator** | Sobre `IScoringPolicy<TState, TEvent>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState, TEvent>` sirve para cualquier variante (D-98). Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6). Sobre `Restorable`: el `carryOver` de `UndoHistory` ajusta cada estado antes de restaurarlo, como la cuenta de movimientos de Fit (D-109, §5) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
 
 ### 9.3 De comportamiento
 
@@ -553,7 +622,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 | **Strategy** (obligatorio) | `IGameRules` (el motor la usa sin saber cuál es), `IScoringPolicy<TState, TEvent>`, `IPieceSource<TPiece>` (`WeightedRandomPieceSource`, `RandomStackSource`, `RandomTileSource`) e `IProgressModel<TAttempt>` (el criterio del mejor intento: récord, o estrellas, tiempo y movimientos por nivel). Esbozo en §9.7 | Todo lo que varía entre variantes se intercambia sin tocar el motor | §3.3 ("patrón central") |
 | **Template Method** | `GameRules<…>` (abstracta): `playTurn` fija el orden validar → aplicar → resolver → después de resolver → evaluar. Los pasos son *hooks*: `resolve` y `afterResolve` no hacen nada por defecto (Fit) y `evaluate`, por defecto, es "derrota si no hay movimientos válidos" (Lines, Sort y Merge) | Ninguna variante puede saltarse ni reordenar pasos (RN-COM-20, 23) | §3.3 (el ejemplo es el mismo) |
 | **State** | `GamePhase` y sus 5 fases (§8) | Ciclo de vida sin `if` repartidos | §3.3 |
-| **Observer** | `GameEngine.events` (`Stream<GameEvent<C>>`); se suscriben `UndoHistory` y `ActiveTimer` (síncronos), y el audio y la analítica. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
+| **Observer** | Los *streams* del motor: `ActiveTimer` escucha `syncEvents` y `UndoHistory`, `committedTurns` (síncronos); el audio y la analítica, `events`. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
 | **Command** | `MoveCommand<TMove, TState>` con `undo` y `redo`; `UndoHistory` es el invocador | Historial de deshacer y rehacer genérico | §3.3 |
 | **Memento** | Los estados inmutables son los mementos; el motor es el originador (`restore`) y `UndoHistory`, el cuidador | Restaurar **todo**, generador incluido, sin lógica inversa (RN-COM-61) | — |
 | **Iterator** | `GridTopology`: `lines` y `ray` devuelven `Iterable` (`ray` es perezoso, `sync*`); `neighbors` devuelve una `List`, porque son a lo sumo 6 y se recorren enteras; `validMoves` también es perezoso | Recorrer por ejes, rayos o vecindad sin exponer el mapa interno. Como es perezoso, "¿hay algún movimiento válido?" se detiene en el primero (fin de Lines, RN-HL-50) | §3.3 |
@@ -733,7 +802,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36 y D-90 a D-101, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107 y D-109, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

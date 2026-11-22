@@ -10,6 +10,7 @@ export 'src/engine/fake_cell.dart';
 export 'src/engine/fake_clock.dart';
 export 'src/engine/fake_coord.dart';
 export 'src/engine/fake_rules.dart';
+export 'src/engine/fake_seeded.dart';
 export 'src/engine/fake_strategies.dart';
 export 'src/engine/fake_topology.dart';
 export 'src/engine/topology_contract.dart';

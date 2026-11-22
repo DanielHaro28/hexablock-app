@@ -456,6 +456,28 @@ void main() {
   });
 
   group('D-32', () {
+    test('should_throw_when_a_sync_listener_restores', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial);
+      final errors = <Object>[];
+      final subscription = engine.syncEvents.listen((_) {
+        try {
+          engine.restore(initial);
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(errors, hasLength(result.events.length));
+      expect(engine.state.board.cell(a), const FakeCell('x'));
+    });
+
     test('should_throw_when_a_sync_listener_closes_the_engine', () {
       // Arrange
       final engine = engineWith(FakeRules());
@@ -490,7 +512,7 @@ void main() {
       expect(engine.isClosed, isTrue);
     });
 
-    test('should_close_both_streams_when_closed', () async {
+    test('should_close_the_event_streams_when_closed', () async {
       // Arrange
       final engine = GameEngine(FakeRules(), empty3x1());
       final syncDone = engine.syncEvents.isEmpty;
@@ -502,6 +524,250 @@ void main() {
       // Assert
       expect(await syncDone, isTrue);
       expect(await asyncDone, isTrue);
+    });
+  });
+
+  group('D-102', () {
+    test('should_keep_playing_with_the_snapshot_when_restored', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial)
+        ..submit(const FakeMove(a));
+
+      // Act
+      engine.restore(initial);
+
+      // Assert
+      expect(identical(engine.state, initial), isTrue);
+      expect(engine.phase, playing);
+    });
+
+    test('should_throw_and_change_nothing_when_restored_while_paused', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial)
+        ..submit(const FakeMove(a))
+        ..pause();
+      final before = engine.state;
+      final published = recordSync(engine);
+
+      // Act
+      void restore() => engine.restore(initial);
+
+      // Assert
+      expect(restore, throwsStateError);
+      expect(identical(engine.state, before), isTrue);
+      expect(engine.phase, paused);
+      expect(published, isEmpty);
+    });
+
+    test('should_throw_when_restored_after_being_closed', () async {
+      // Arrange
+      final initial = empty3x1();
+      final engine = GameEngine(FakeRules(), initial);
+      await engine.close();
+
+      // Act
+      void restore() => engine.restore(initial);
+
+      // Assert
+      expect(restore, throwsStateError);
+    });
+  });
+
+  group('RN-COM-63', () {
+    test('should_throw_when_restored_after_a_defeat', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial)
+        ..submit(const FakeMove(a))
+        ..submit(const FakeMove(b))
+        ..submit(const FakeMove(c)); // a full board is a defeat
+
+      // Act
+      void restore() => engine.restore(initial);
+
+      // Assert
+      expect(engine.phase, const GameOverPhase());
+      expect(restore, throwsStateError);
+    });
+
+    test('should_throw_when_restored_after_a_victory', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(victoryWhen: (_) => true), initial)
+        ..submit(const FakeMove(a));
+
+      // Act
+      void restore() => engine.restore(initial);
+
+      // Assert
+      expect(engine.phase, const VictoryPhase(canContinue: false));
+      expect(restore, throwsStateError);
+    });
+  });
+
+  group('D-103', () {
+    test('should_publish_state_restored_then_score_changed_when_restored', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(pointsPerTurn: 10), initial)
+        ..submit(const FakeMove(a));
+      final published = recordSync(engine);
+
+      // Act
+      engine.restore(initial);
+
+      // Assert
+      expect(published, const [
+        StateRestored<FakeCoord>(),
+        ScoreChanged<FakeCoord>(10, 0),
+      ]);
+    });
+
+    test('should_publish_only_state_restored_when_the_score_is_the_same', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial)
+        ..submit(const FakeMove(a));
+      final published = recordSync(engine);
+
+      // Act
+      engine.restore(initial);
+
+      // Assert
+      expect(published, const [StateRestored<FakeCoord>()]);
+    });
+
+    test('should_publish_the_same_events_later_when_restored', () async {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(pointsPerTurn: 10), initial)
+        ..submit(const FakeMove(a));
+      await pumpEventQueue(); // deliver the turn before listening
+      final published = <GameEvent<FakeCoord>>[];
+      final subscription = engine.events.listen(published.add);
+      addTearDown(subscription.cancel);
+
+      // Act
+      engine.restore(initial);
+      final beforeDelivery = List.of(published);
+      await pumpEventQueue();
+
+      // Assert
+      expect(beforeDelivery, isEmpty);
+      expect(published, const [
+        StateRestored<FakeCoord>(),
+        ScoreChanged<FakeCoord>(10, 0),
+      ]);
+    });
+  });
+
+  group('D-31', () {
+    /// Every command [engine] commits, from now on.
+    List<MoveCommand<FakeMove, FakeState>> recordCommits(_Engine engine) {
+      final commands = <MoveCommand<FakeMove, FakeState>>[];
+      final subscription = engine.committedTurns.listen(commands.add);
+      addTearDown(subscription.cancel);
+      return commands;
+    }
+
+    test('should_commit_the_move_and_both_states_when_a_turn_is_played', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial);
+      final commands = recordCommits(engine);
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      final accepted = result as AcceptedMove<FakeCoord, FakeState>;
+      expect(commands, hasLength(1));
+      expect(commands.single.move, const FakeMove(a));
+      expect(identical(commands.single.before, initial), isTrue);
+      expect(identical(commands.single.after, accepted.state), isTrue);
+    });
+
+    test('should_commit_the_turn_when_it_ends_the_game', () {
+      // Arrange
+      final engine = engineWith(FakeRules(victoryWhen: (_) => true));
+      final commands = recordCommits(engine);
+
+      // Act
+      engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(commands, hasLength(1));
+    });
+
+    test('should_commit_after_publishing_the_turn_events_when_played', () {
+      // Arrange
+      final engine = engineWith(FakeRules());
+      final published = recordSync(engine);
+      final seenAtCommit = <int>[];
+      final subscription = engine.committedTurns.listen(
+        (_) => seenAtCommit.add(published.length),
+      );
+      addTearDown(subscription.cancel);
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(seenAtCommit, [result.events.length]);
+    });
+
+    test('should_throw_when_a_commit_listener_calls_the_engine', () {
+      // Arrange
+      final engine = engineWith(FakeRules());
+      final errors = <Object>[];
+      final subscription = engine.committedTurns.listen((_) {
+        try {
+          engine.pause();
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+
+      // Act
+      engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(errors, hasLength(1));
+      expect(engine.phase, playing);
+    });
+
+    test('should_close_the_committed_turns_when_closed', () async {
+      // Arrange
+      final engine = GameEngine(FakeRules(), empty3x1());
+      final done = engine.committedTurns.isEmpty;
+
+      // Act
+      await engine.close();
+
+      // Assert
+      expect(await done, isTrue);
+    });
+  });
+
+  group('RN-COM-21', () {
+    test('should_commit_nothing_when_the_move_is_rejected', () {
+      // Arrange
+      final engine = engineWith(FakeRules())..submit(const FakeMove(a));
+      final commands = <Object>[];
+      final subscription = engine.committedTurns.listen(commands.add);
+      addTearDown(subscription.cancel);
+
+      // Act
+      engine
+        ..submit(const FakeMove(a)) // occupied: rejected by the rules
+        ..pause()
+        ..submit(const FakeMove(b)); // paused: rejected by the phase
+
+      // Assert
+      expect(commands, isEmpty);
     });
   });
 }

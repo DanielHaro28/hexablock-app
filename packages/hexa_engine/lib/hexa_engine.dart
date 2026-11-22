@@ -21,3 +21,4 @@ export 'src/game/move_result.dart';
 export 'src/game/rejection_reason.dart';
 export 'src/game/turn_result.dart';
 export 'src/random/xorshift32.dart';
+export 'src/time/monotonic_clock.dart';

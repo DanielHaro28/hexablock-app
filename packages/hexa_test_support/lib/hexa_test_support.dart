@@ -7,6 +7,7 @@
 library;
 
 export 'src/engine/fake_cell.dart';
+export 'src/engine/fake_clock.dart';
 export 'src/engine/fake_coord.dart';
 export 'src/engine/fake_rules.dart';
 export 'src/engine/fake_topology.dart';

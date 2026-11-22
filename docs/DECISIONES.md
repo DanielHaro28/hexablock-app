@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-21
+> **Última actualización:** 2026-11-22
 
 ---
 
@@ -180,6 +180,12 @@
 | D-87 | **Solo Claude Code** como herramienta de agente: nadie usa Cline, así que no hay `.clinerules` ni reglas duplicadas. Otra herramienta solo entra si el equipo la decide y la lista en `docs/ai/APPROVED-TOOLS.md` | ADR-001 §2.6 (rev. 2.0); SECURITY §6 | Ambos | 20-11 |
 | D-88 | **Skills de terceros: solo las oficiales de Flutter y Dart** (`flutter/agent-plugins`, `dart-lang/skills`), y únicamente las que no choquen con las decisiones del proyecto. Cada una se revisa (instrucciones, scripts y `allowed-tools`) y se copia a `.claude/skills/` de la app en una versión fija, con un PR que la agrega a `docs/ai/APPROVED-TOOLS.md`. No se instala el plugin completo ni skills de autores desconocidos. Se hace al empezar T-03 | `docs/ai/APPROVED-TOOLS.md`; T-03 | Ambos | 20-11 |
 | D-89 | **ORM del backend: Prisma ORM 7** (7.10.x; al empezar, 7.10.1), con `schema.prisma`, `PrismaClient` y Prisma Migrate como en ARQ-04-API. Se descartó Prisma ORM 8: todavía figura como *release candidate* y cambia la API de consultas, lo que obligaba a reescribir ARQ-04-API a tres semanas de la entrega. Prisma 7 sigue con correcciones y parches de seguridad 18 meses después de que salga la 8 | ADR-001 §2.2; README de `hexablock-api` (R-01) | API | 20-11 |
+
+### Infraestructura (22-11)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-108 | **Región de AWS: `us-east-2` (Ohio)**, en lugar de la `us-east-1` del ADR. La cuenta usa la experiencia nueva de AWS (proyectos), que asigna la región según el país de la cuenta y no permite cambiarla. Para usar `us-east-1` había que activar las *advanced features*, lo que es irreversible, exige el plan pagado y quita el cierre de la cuenta al agotar los créditos, que es el control de costos del ADR. EC2, EBS y la IPv4 pública cuestan lo mismo en las dos regiones, así que el costo estimado no cambia. No se activan las *advanced features* | ADR-001 §2.3 (rev. 2.2); W-03 | Ambos | 22-11 |
 
 ## 2. Respuestas del profesor y del enunciado
 

@@ -107,7 +107,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [api #15](https://github.com/DanielHaro28/hexablock-api/issues/15) | TEC-05 · API documentada y con errores consistentes | @DavidCR20 | 5 |
 | [api #16](https://github.com/DanielHaro28/hexablock-api/issues/16) | TEC-10 · Despliegue continuo en AWS | @DanielHaro28 | 12 |
 | [api #20](https://github.com/DanielHaro28/hexablock-api/issues/20) | W-02 · Subdominio en DuckDNS | @DanielHaro28 | 0.5 |
-| [api #21](https://github.com/DanielHaro28/hexablock-api/issues/21) | W-03 · Lanzar EC2 t3.small en us-east-1 | @DanielHaro28 | 1 |
+| [api #21](https://github.com/DanielHaro28/hexablock-api/issues/21) | W-03 · Lanzar EC2 t3.small en us-east-2 | @DanielHaro28 | 1 |
 | [api #22](https://github.com/DanielHaro28/hexablock-api/issues/22) | W-04 · Endurecer la instancia EC2 | @DanielHaro28 | 2 |
 | [api #23](https://github.com/DanielHaro28/hexablock-api/issues/23) | W-05 · docs/ops/DEPLOY.md con el checklist de despliegue | @DanielHaro28 | 1 |
 | [api #24](https://github.com/DanielHaro28/hexablock-api/issues/24) | W-06 · Environment production con los secretos EC2_HOST y EC2_SSH_KEY | @DanielHaro28 | 0.5 |

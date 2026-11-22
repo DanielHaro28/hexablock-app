@@ -28,6 +28,7 @@ export 'src/strategy/progress_model.dart';
 export 'src/strategy/scoring_policy.dart';
 export 'src/time/active_timer.dart';
 export 'src/time/monotonic_clock.dart';
+export 'src/time/timed_engine.dart';
 export 'src/undo/move_command.dart';
 export 'src/undo/restorable.dart';
 export 'src/undo/undo_history.dart';

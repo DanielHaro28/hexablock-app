@@ -40,8 +40,8 @@ abstract interface class IRandomSeeded {
 
 /// A game played level by level (D-45, D-104).
 abstract interface class ILevelBased {
-  /// The `id` of the level being played, as in the level contract (for
-  /// example, `fit-hex-001`). Progress is kept by this id, not by the level
+  /// The `id` of the level being played, as written in the level contract
+  /// (`docs/contracts/`). Progress is kept by this id, not by the level
   /// version (RN-COM-74).
   String get levelId;
 }

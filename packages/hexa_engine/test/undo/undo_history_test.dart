@@ -28,7 +28,7 @@ void main() {
       // Arrange
       final initial = FakeState(board3x2());
       final engine = engineWith(FakeRules(), initial);
-      final history = UndoHistory(engine, allowsRedo: true);
+      final history = UndoHistory<FakeMove, FakeState>(engine);
       engine
         ..submit(const FakeMove(a))
         ..submit(const FakeMove(b))
@@ -235,6 +235,60 @@ void main() {
 
       // Assert
       expect(history.canUndo, isFalse);
+    });
+  });
+
+  group('D-32', () {
+    test('should_keep_the_turn_when_undo_is_called_from_a_sync_listener', () {
+      // Arrange
+      final initial = FakeState(board3x2());
+      final engine = engineWith(FakeRules(), initial);
+      final history = UndoHistory<FakeMove, FakeState>(engine);
+      engine.submit(const FakeMove(a));
+      final errors = <Object>[];
+      final subscription = engine.syncEvents.listen((_) {
+        try {
+          history.undo(); // the engine is publishing: restore throws
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+      engine.submit(const FakeMove(b));
+
+      // Act
+      history
+        ..undo()
+        ..undo();
+
+      // Assert
+      expect(errors, isNotEmpty);
+      expect(identical(engine.state, initial), isTrue);
+    });
+
+    test('should_keep_the_turn_when_redo_is_called_from_a_sync_listener', () {
+      // Arrange
+      final engine = engineWith(FakeRules());
+      final history = UndoHistory(engine, allowsRedo: true);
+      engine.submit(const FakeMove(a));
+      history.undo();
+      final errors = <Object>[];
+      final subscription = engine.syncEvents.listen((_) {
+        try {
+          history.redo(); // the engine is publishing: restore throws
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+      engine.pause();
+
+      // Act: resuming publishes PhaseChanged when the phase already allows it
+      engine.resume();
+
+      // Assert
+      expect(errors, hasLength(1));
+      expect(history.canRedo, isTrue);
     });
   });
 

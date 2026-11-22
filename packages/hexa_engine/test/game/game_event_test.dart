@@ -20,7 +20,6 @@ void main() {
       expect(identical(built, const StateRestored<FakeCoord>()), isFalse);
       expect(built.hashCode, const StateRestored<FakeCoord>().hashCode);
       expect(built, isNot(const ScoreChanged<FakeCoord>(0, 0)));
-      expect(built.toString(), 'StateRestored()');
     });
   });
 
@@ -74,6 +73,7 @@ void main() {
         const PhaseChanged<FakeCoord>(playing, resolving),
         const ScoreChanged<FakeCoord>(0, 10),
         const MoveRejected<FakeCoord>(InvalidMove()),
+        const StateRestored<FakeCoord>(),
         const PausedPhase(),
         const VictoryPhase(canContinue: true),
         const GameOverPhase(),
@@ -90,6 +90,7 @@ void main() {
         'PhaseChanged(PlayingPhase() → ResolvingPhase())',
         'ScoreChanged(0 → 10)',
         'MoveRejected(InvalidMove())',
+        'StateRestored()',
         'PausedPhase()',
         'VictoryPhase(canContinue: true)',
         'GameOverPhase()',

@@ -38,21 +38,30 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   bool get canUndo => _done.isNotEmpty && _engine.phase.allowsUndo;
 
   @override
-  bool get canRedo => _undone.isNotEmpty && _engine.phase.allowsUndo;
+  bool get canRedo =>
+      allowsRedo && _undone.isNotEmpty && _engine.phase.allowsUndo;
 
   /// Undoes the last turn; if [canUndo] is false, it does nothing.
+  ///
+  /// The turn leaves the history only once the engine restored it, so if
+  /// `restore` throws (for example, when called from a synchronous listener,
+  /// D-32) nothing is lost.
   @override
   void undo() {
     if (!canUndo) return;
-    final command = _done.removeLast()..undo(_engine);
+    final command = _done.last..undo(_engine);
+    _done.removeLast();
     if (allowsRedo) _undone.add(command);
   }
 
   /// Redoes the last undone turn; if [canRedo] is false, it does nothing.
+  /// Like [undo], it loses nothing if `restore` throws.
   @override
   void redo() {
     if (!canRedo) return;
-    _done.add(_undone.removeLast()..redo(_engine));
+    final command = _undone.last..redo(_engine);
+    _undone.removeLast();
+    _done.add(command);
   }
 
   void _record(MoveCommand<TMove, TState> command) {

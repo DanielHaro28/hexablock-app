@@ -1,18 +1,8 @@
 import '../board/coord.dart';
 import '../game/game_event.dart';
-import '../game/game_phase.dart';
 import '../session/capabilities.dart';
 import 'monotonic_clock.dart';
-
-/// What `ActiveTimer` needs from `GameEngine`, and nothing else (ISP): the
-/// current phase and the events it publishes synchronously.
-abstract interface class TimedEngine {
-  /// The current phase.
-  GamePhase get phase;
-
-  /// Every event, delivered before the call that caused it returns (D-32).
-  Stream<GameEvent<Coord>> get syncEvents;
-}
+import 'timed_engine.dart';
 
 /// The active time of a game: it runs while the phase counts time and stops
 /// otherwise (RN-COM-52, D-106).

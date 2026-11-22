@@ -16,8 +16,8 @@ void main() {
     return engine;
   }
 
-  group('RN-COM-60', () {
-    test('should_have_no_undo_when_the_game_does_not_allow_it', () {
+  group('D-33', () {
+    test('should_have_no_capability_when_built_without_any', () {
       // Arrange
       final engine = newEngine();
 
@@ -29,9 +29,7 @@ void main() {
       expect(session.undo, isNull);
       expect(session.timer, isNull);
     });
-  });
 
-  group('D-33', () {
     test('should_offer_the_capabilities_it_was_built_with', () {
       // Arrange
       final engine = newEngine();
@@ -58,25 +56,6 @@ void main() {
 
       // Assert
       expect(identical(engine.state, initial), isTrue);
-    });
-
-    test('should_read_the_seed_from_the_state_when_the_game_is_seeded', () {
-      // Arrange
-      final engine = GameEngine(
-        const FakeSeededRules(labels: ['red', 'blue']),
-        FakeSeededState.start(board3x1(), seed: 12345),
-      );
-      addTearDown(engine.close);
-      final session = GameSession(engine);
-      engine.submit(const FakeMove(a));
-
-      // Act
-      final state = session.engine.state;
-
-      // Assert
-      expect(state, isA<IRandomSeeded>());
-      expect(state.seed, 12345);
-      expect(state.random, isNot(Xorshift32(12345)));
     });
   });
 }

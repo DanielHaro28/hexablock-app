@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import '../board/coord.dart';
-import '../time/active_timer.dart';
+import '../time/timed_engine.dart';
 import '../undo/move_command.dart';
 import '../undo/restorable.dart';
 import 'game_event.dart';

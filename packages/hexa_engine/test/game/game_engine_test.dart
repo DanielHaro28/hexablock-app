@@ -456,6 +456,28 @@ void main() {
   });
 
   group('D-32', () {
+    test('should_throw_when_a_sync_listener_restores', () {
+      // Arrange
+      final initial = empty3x1();
+      final engine = engineWith(FakeRules(), initial);
+      final errors = <Object>[];
+      final subscription = engine.syncEvents.listen((_) {
+        try {
+          engine.restore(initial);
+        } on StateError catch (error) {
+          errors.add(error);
+        }
+      });
+      addTearDown(subscription.cancel);
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(errors, hasLength(result.events.length));
+      expect(engine.state.board.cell(a), const FakeCell('x'));
+    });
+
     test('should_throw_when_a_sync_listener_closes_the_engine', () {
       // Arrange
       final engine = engineWith(FakeRules());
@@ -490,7 +512,7 @@ void main() {
       expect(engine.isClosed, isTrue);
     });
 
-    test('should_close_both_streams_when_closed', () async {
+    test('should_close_the_event_streams_when_closed', () async {
       // Arrange
       final engine = GameEngine(FakeRules(), empty3x1());
       final syncDone = engine.syncEvents.isEmpty;
@@ -537,28 +559,6 @@ void main() {
       expect(identical(engine.state, before), isTrue);
       expect(engine.phase, paused);
       expect(published, isEmpty);
-    });
-
-    test('should_throw_when_a_sync_listener_restores', () {
-      // Arrange
-      final initial = empty3x1();
-      final engine = engineWith(FakeRules(), initial);
-      final errors = <Object>[];
-      final subscription = engine.syncEvents.listen((_) {
-        try {
-          engine.restore(initial);
-        } on StateError catch (error) {
-          errors.add(error);
-        }
-      });
-      addTearDown(subscription.cancel);
-
-      // Act
-      final result = engine.submit(const FakeMove(a));
-
-      // Assert
-      expect(errors, hasLength(result.events.length));
-      expect(engine.state.board.cell(a), const FakeCell('x'));
     });
 
     test('should_throw_when_restored_after_being_closed', () async {

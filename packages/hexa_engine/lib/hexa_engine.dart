@@ -23,6 +23,7 @@ export 'src/game/turn_result.dart';
 export 'src/random/xorshift32.dart';
 export 'src/session/capabilities.dart';
 export 'src/session/game_session.dart';
+export 'src/session/session_snapshot.dart';
 export 'src/strategy/piece_source.dart';
 export 'src/strategy/progress_model.dart';
 export 'src/strategy/scoring_policy.dart';

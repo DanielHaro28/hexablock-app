@@ -6,7 +6,7 @@ void main() {
   // FakeClock is the double of the domain's IMonotonicClock port (D-33): the
   // tests move time by hand, so they never wait for real time.
 
-  group('RN-COM-52', () {
+  group('D-56', () {
     test('should_start_at_zero_when_no_start_is_given', () {
       // Arrange
       final IMonotonicClock clock = FakeClock();

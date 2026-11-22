@@ -11,13 +11,14 @@
 /// §10).
 ///
 /// Type parameters (ARQ-02 §4.3):
-/// - `TState` has no constraint: a policy reads what it needs from the
-///   variant's own state (for example, a streak).
+/// - `TState` has no constraint, as in `Step`: bounding it by `GameState`
+///   would force the policy to carry `C` and `TCell` without using them.
 /// - `TEvent` has no constraint: it is the variant's own event family, so
 ///   the policy switches over it exhaustively, without casts.
 abstract interface class IScoringPolicy<TState, TEvent> {
   /// The points of a step that left [state] and published [events], in
-  /// order. An integer ≥ 0 (RN-COM-50); if the formula has fractions, it
-  /// rounds down once, at the end (RN-COM-51).
+  /// order. An integer ≥ 0 (RN-COM-50). If the formula has fractions, it
+  /// rounds down once, after applying them (RN-COM-51); a fraction that
+  /// spans several steps of a turn is still open (D-101).
   int pointsFor(TState state, Iterable<TEvent> events);
 }

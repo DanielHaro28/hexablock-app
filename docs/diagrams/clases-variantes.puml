@@ -46,6 +46,7 @@ package "Capa 1 · hexa_variants · hexa_lines" {
   class LinesState<C extends Coord> {
     + tray: List<LinesPiece<C>>
     + streak: int
+    + random: Xorshift32
     + seed: int
   }
   class PlacePiece<C extends Coord> {
@@ -54,6 +55,10 @@ package "Capa 1 · hexa_variants · hexa_lines" {
   }
   enum PieceColor
   class LinesScoring<C extends Coord> {
+    - lineBonus: IScoringPolicy
+    + pointsFor(s: LinesState<C>, events: Iterable<LinesEvent<C>>): int
+  }
+  class LineBonus<C extends Coord> {
     + pointsFor(s: LinesState<C>, events: Iterable<LinesEvent<C>>): int
   }
   class StreakMultiplier<C extends Coord> <<Decorator>> {
@@ -98,6 +103,7 @@ package "Capa 1 · hexa_variants · hexa_sort" {
   class SortState<C extends Coord> {
     + goals: int
     + moves: int
+    + random: Xorshift32
     + seed: int
   }
   class PlaceStack<C extends Coord> {
@@ -123,6 +129,7 @@ package "Capa 1 · hexa_variants · hexa_merge" {
   }
   class MergeState<C extends Coord> {
     + target: Tile
+    + random: Xorshift32
     + seed: int
   }
   class Slide {
@@ -149,10 +156,14 @@ HexaLinesFactory ..> LinesScoring : crea
 HexaLinesFactory ..> StreakMultiplier : crea
 HexaLinesFactory ..> WeightedRandomPieceSource : crea
 HexaLinesRules ..> PlacePiece
+HexaLinesRules --> IScoringPolicy : usa (inyectada)
+HexaLinesRules --> IPieceSource : usa (inyectada)
 LinesState ..> PieceColor
 LinesScoring ..|> IScoringPolicy
 StreakMultiplier ..|> IScoringPolicy
-StreakMultiplier o-- LinesScoring : envuelve
+StreakMultiplier o-- LineBonus : envuelve (solo el bono, RN-HL-64)
+LinesScoring o-- StreakMultiplier : bono de líneas
+LineBonus ..|> IScoringPolicy
 WeightedRandomPieceSource ..|> IPieceSource
 
 ' ===== Hexa Fit =====
@@ -175,6 +186,8 @@ HexaSortFactory ..> HexaSortRules : crea
 HexaSortFactory ..> SortLevelBuilder : usa
 HexaSortFactory ..> RandomStackSource : crea
 HexaSortRules ..> PlaceStack
+HexaSortRules --> IScoringPolicy : usa (inyectada)
+HexaSortRules --> IPieceSource : usa (inyectada)
 SortState ..> ColorStack
 RandomStackSource ..|> IPieceSource
 
@@ -187,6 +200,8 @@ Tile ..|> Mergeable : «bind» T = Tile
 HexaMergeFactory ..> HexaMergeRules : crea
 HexaMergeFactory ..> RandomTileSource : crea
 HexaMergeRules --> SlideMergeResolver : «bind» T = Tile
+HexaMergeRules --> IScoringPolicy : usa (inyectada)
+HexaMergeRules --> IPieceSource : usa (inyectada)
 HexaMergeRules ..> Slide
 MergeState ..> Tile
 RandomTileSource ..|> IPieceSource

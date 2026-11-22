@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   const IProgressModel<FakeAttempt> model = FakeProgressModel();
 
-  group('RN-COM-83', () {
+  group('D-99', () {
     test('should_prefer_more_points_when_the_points_differ', () {
       // Arrange
       const better = FakeAttempt(points: 30, moves: 9);

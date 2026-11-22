@@ -116,6 +116,7 @@ classDiagram
     GameEngine --> IGameRules : Strategy
     GameEngine --> GamePhase : State
     VariantFamily ..> IGameRules : crea
+    note for VariantFamily "createScoring y createPieceSource: D-100 abierta (§9.7)"
 ```
 
 ```mermaid
@@ -259,7 +260,7 @@ En Merge, el enunciado sugiere `TCell = int`; se propone `Tile`, porque un `int`
 |---|---|---|
 | `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave. Dart no puede obligar a sobrescribirlos, así que `Coord` es `base` (toda coordenada es una subclase real) y la prueba de contrato común (`checkTopologyContract`) comprueba la igualdad por valor de cada topología |
 | `TCell` | `TCell extends Object` | Prohíbe tipos que acepten `null`, para que `TCell?` signifique sin ambigüedad "celda vacía" |
-| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan: restringirlo los obligaría a llevar también `TCell` sin usarlo |
+| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan, e `IScoringPolicy` porque solo lee el estado de su variante: restringirlo los obligaría a llevar también `C` y `TCell` sin usarlos |
 | `TMove` | Sin restricción | El motor nunca lo inspecciona: solo lo pasa a las reglas. Una restricción vacía sería decorativa |
 | `TPiece` | Sin restricción | Una pila de Sort no es una forma; la fuente de piezas solo entrega valores |
 | `TEvent` en `IScoringPolicy<TState, TEvent>` | Sin restricción | Es la familia de eventos de la variante: la política hace un `switch` exhaustivo sobre ella. Restringirlo a `GameEvent<C>` obligaría a la política a llevar también `C` sin usarlo (D-98) |
@@ -685,17 +686,26 @@ final (index, r1) = state.random.nextInt(empty.length);
 final (tile, r2) = _tiles.next(r1);
 return Step(state.copyWith(board: /* tile on empty[index] */, random: r2), [TileSpawned(/* ... */)]);
 
-// hexa_variants/lines: each step scores its own events; LinesEvent is sealed, so the switch is exhaustive
-int pointsFor(LinesState<C> state, Iterable<LinesEvent<C>> events) => events.fold(0,
-    (sum, event) => sum + switch (event) {
-          PiecePlaced(:final cells) => cells.length,
-          LinesCleared(:final lines) => _streakBonus(lines, state.streak), // one floor (RN-HL-64)
-        });
+// hexa_variants/lines: each step scores its own events; LinesEvent is sealed, so the switch is exhaustive.
+// The streak multiplies only the line bonus (RN-HL-63, 64), so the decorator wraps LineBonus, not
+// the whole policy: the factory wires LinesScoring(StreakMultiplier(LineBonus())).
+final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C>, LinesEvent<C>> {
+  const LinesScoring(this._lineBonus);
+  final IScoringPolicy<LinesState<C>, LinesEvent<C>> _lineBonus;
+
+  @override
+  int pointsFor(LinesState<C> state, Iterable<LinesEvent<C>> events) =>
+      events.fold(0, (sum, event) => sum + switch (event) {
+            PiecePlaced(:final cells) => cells.length, // RN-HL-60: one point per placed cell
+            LinesCleared() => 0,                       // scored by the line bonus
+          }) +
+      _lineBonus.pointsFor(state, events); // ⌊bonus × L × streak⌋, one floor (RN-HL-64)
+}
 ```
 
 **El generador es un valor del estado.** `Xorshift32` es inmutable: `next()`, `nextInt(n)` (`mod n`) y `chance(p)` (`mod 100 < p`, RN-COM-44) devuelven el valor y el generador siguiente. Una fuente solo guarda configuración, así que hay una secuencia por partida, que también usan las reglas (Merge elige la celda antes que el valor). Guardarla es guardar un entero, y deshacer la restaura con el resto del estado (RN-COM-42, 61). Con semilla 0 se usa la constante `0x9E3779B9`, la de `tools/reference-sim` (RN-COM-43); una semilla fuera de 0 a 4294967295, el rango del contrato de niveles, es un error.
 
-**Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94).
+**Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas, que es lo único que multiplica la racha). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94). Si un multiplicador con fracciones abarcara varios pasos del turno, se redondearía una vez por paso y no una por turno (RN-COM-51): queda abierto en D-101.
 
 **Abierto (D-100):** qué expone `VariantFamily` de estas estrategias. `createScoring()` necesitaría un genérico `TEvent` que la fábrica no tiene, y `createPieceSource` ya no recibe la semilla; la recomendación es sacar los dos de la interfaz y dejarlos en la fábrica concreta. Se decide al escribir `VariantFamily`; hasta entonces, el diagrama de §2 los sigue mostrando en la interfaz.
 

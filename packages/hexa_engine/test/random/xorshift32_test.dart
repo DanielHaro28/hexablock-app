@@ -162,29 +162,48 @@ void main() {
       expect(after, generator.next().$2);
     });
 
-    test('should_never_succeed_at_0_and_always_succeed_at_100', () {
+    test('should_never_succeed_when_the_percent_is_0', () {
       // Arrange
       final generator = Xorshift32(12345);
 
       // Act
-      final (never, _) = generator.chance(0);
-      final (always, _) = generator.chance(100);
+      final (happened, _) = generator.chance(0);
 
       // Assert
-      expect(never, isFalse);
-      expect(always, isTrue);
+      expect(happened, isFalse);
     });
 
-    test('should_throw_when_n_or_p_is_out_of_range', () {
+    test('should_always_succeed_when_the_percent_is_100', () {
+      // Arrange
+      final generator = Xorshift32(12345);
+
+      // Act
+      final (happened, _) = generator.chance(100);
+
+      // Assert
+      expect(happened, isTrue);
+    });
+
+    test('should_throw_when_choosing_among_no_options', () {
       // Arrange
       final generator = Xorshift32(12345);
 
       // Act
       (int, Xorshift32) choose(int n) => generator.nextInt(n);
-      (bool, Xorshift32) tryChance(int p) => generator.chance(p);
 
       // Assert
       expect(() => choose(0), throwsArgumentError);
+      expect(() => choose(-3), throwsArgumentError);
+    });
+
+    test('should_throw_when_the_percent_is_outside_0_to_100', () {
+      // Arrange
+      final generator = Xorshift32(12345);
+
+      // Act
+      (bool, Xorshift32) tryChance(int p) => generator.chance(p);
+
+      // Assert
       expect(() => tryChance(-1), throwsArgumentError);
       expect(() => tryChance(101), throwsArgumentError);
     });

@@ -20,7 +20,7 @@ void main() {
   final state = FakeState(Board.of(topology, ShapeSpec('rectangle', [2, 1])));
   const scoring = FakeScoring({'apply': 1, 'resolve': 10});
 
-  group('RN-COM-51', () {
+  group('D-98', () {
     test('should_add_the_points_of_each_event_when_scoring_a_step', () {
       // Arrange
       const events = [FakeEvent('resolve'), FakeEvent('resolve')];

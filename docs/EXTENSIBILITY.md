@@ -16,7 +16,7 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 
 | Paquete o archivo | Qué contiene | Por qué no hace falta tocarlo |
 |---|---|---|
-| `packages/hexa_engine/` | `GameEngine`, `Board`, `GridTopology`, `GameRules`, fases, eventos, `UndoHistory`, capacidades | Solo conoce abstracciones: no nombra ninguna variante ni figura, y el CI lo comprueba (RNF-02, RNF-04) |
+| `packages/hexa_engine/` | `GameEngine`, `Board`, `GridTopology`, `GameRules`, fases, eventos, `UndoHistory`, capacidades, `Xorshift32`, `IMonotonicClock` y las estrategias (`IPieceSource`, `IScoringPolicy`, `IProgressModel`) | Solo conoce abstracciones: no nombra ninguna variante ni figura, y el CI lo comprueba (RNF-02, RNF-04) |
 | `packages/hexa_application/` | Casos de uso genéricos (`StartGameUseCase`, `ApplyMoveUseCase`, …), puertos y aspectos | Los casos de uso son genéricos en `C`, `TCell`, `TMove` y `TState` (RNF-07) |
 | `packages/hexa_variants/lib/src/{lines,fit,sort,merge}/` | Las 4 variantes actuales | Cada variante es independiente |
 | `packages/hexa_topologies/` | Hexágonos, cuadrados, triángulos y cubos | Una variante funciona con cualquier figura |
@@ -44,10 +44,10 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 | `fill_rejections.dart` (opcional) | `sealed class FillRejection extends RejectionReason`, solo si la pantalla debe explicar por qué se rechaza un movimiento; si no, las reglas devuelven `const InvalidMove()` | `RejectionReason` (D-95) |
 | `hexa_fill_rules.dart` | `HexaFillRules<C> extends GameRules<C, FillColor, FillMove<C>, FillState<C>>`: `rejectionOf` (el motivo o `null` si es válido), `apply`, `validMoves` y, si hacen falta, los *hooks* `resolve`, `afterResolve` y `evaluate`. Nunca `playTurn` (D-36) | `GameRules` (Strategy + Template Method) |
 | `fill_scoring.dart` | `FillScoring<C> implements IScoringPolicy<FillState<C>, FillEvent<C>>`: los puntos de cada paso, a partir de los eventos de ese paso (D-98) | `IScoringPolicy` |
-| `fill_piece_source.dart` (solo si hay azar) | `FillPieceSource implements IPieceSource<TPiece>`: recibe el generador del estado y devuelve la pieza y el generador siguiente; el generador vive en `FillState` (D-97) | `IPieceSource` |
-| `fill_progress.dart` (solo si el criterio es nuevo) | `FillProgressModel implements IProgressModel<FillAttempt>`: qué intento es mejor (D-99). Si sirve el récord o el criterio de otra variante, se reutiliza | `IProgressModel` |
+| `fill_piece_source.dart` (solo si hay azar) | `FillPieceSource implements IPieceSource<FillPiece>`, con `FillPiece` (lo que entrega la fuente) en el mismo archivo: recibe el generador del estado y devuelve la pieza y el generador siguiente; el generador vive en `FillState` (D-97) | `IPieceSource` |
+| `fill_progress.dart` (solo si el criterio es nuevo) | `FillAttempt` (lo que guarda un intento) y `FillProgressModel implements IProgressModel<FillAttempt>`: qué intento es mejor (D-99). Si sirve el récord o el criterio de otra variante, se reutiliza | `IProgressModel` |
 | `fill_level_builder.dart` (si la variante es por niveles) | `FillLevelBuilder<C>`: arma y valida el nivel | Builder |
-| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, TPiece>`: crea reglas, puntuación, fuente de piezas, el estado inicial (D-93) y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
+| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, FillPiece>`: crea reglas, puntuación, fuente de piezas, el estado inicial (D-93) y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
 
 | Modificar | Cambio |
 |---|---|

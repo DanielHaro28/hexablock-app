@@ -28,6 +28,10 @@ package "Capa 1 · Entidades · hexa_engine" {
     + createPieceSource(): IPieceSource<TPiece>
     + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
   }
+  note right of VariantFamily
+    createScoring y createPieceSource:
+    D-100 abierta (ARQ-02 §9.7)
+  end note
   class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
     + engine: GameEngine<C, TCell, TMove, TState>
     + undo: IUndoable?

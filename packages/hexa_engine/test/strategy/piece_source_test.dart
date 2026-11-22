@@ -21,7 +21,7 @@ List<FakeCell> drawsOf(
 void main() {
   const source = FakePieceSource(['a', 'b', 'c']);
 
-  group('RN-COM-40', () {
+  group('D-97', () {
     test('should_draw_with_the_given_generator_when_asked_for_a_piece', () {
       // Arrange: the first value of seed 12345 is 3336926330 (E-COM-1).
       final random = Xorshift32(12345);
@@ -33,9 +33,7 @@ void main() {
       expect(piece, FakeCell(const ['a', 'b', 'c'][3336926330 % 3]));
       expect(after, random.next().$2);
     });
-  });
 
-  group('RN-COM-41', () {
     test('should_draw_the_same_pieces_when_the_generator_is_the_same', () {
       // Arrange
       final first = Xorshift32(2024);
@@ -48,9 +46,7 @@ void main() {
       // Assert
       expect(fromFirst, fromSecond);
     });
-  });
 
-  group('RN-COM-42', () {
     test('should_draw_the_same_piece_again_when_the_generator_is_restored', () {
       // Arrange: the state before a turn keeps its generator (the memento).
       final before = Xorshift32(12345);

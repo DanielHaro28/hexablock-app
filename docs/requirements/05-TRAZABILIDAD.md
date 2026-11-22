@@ -108,7 +108,7 @@
 | RF-61 | PRG-04 | RN-COM-73 | — | |
 | RF-62 | API-05 | RN-COM-81, 107 | — | |
 | RF-63 | API-08 | RN-COM-82, 85 | — | |
-| RF-64 | NAV-04 | RN-COM-32 a 35, 42 | — | Historial y tiempo que se pueden guardar y continuar (D-106, D-107): `hexa_engine/test/undo/undo_snapshot_test`, `hexa_engine/test/time/active_timer_test`; lo que guarda la sesión y cómo continúa (D-111, D-113): `hexa_engine/test/session/game_session_test`. RN-COM-33 y 35 (no guardar una partida terminada, D-110 y D-112) se prueban con los casos de uso y el repositorio de la partida guardada |
+| RF-64 | NAV-04 | RN-COM-32 a 35, 42 | — | Historial y tiempo que se pueden guardar y continuar (D-106, D-107): `hexa_engine/test/undo/undo_snapshot_test`, `hexa_engine/test/time/active_timer_test`; lo que guarda la sesión y cómo continúa (D-111, D-113): `hexa_engine/test/session/game_session_test`; que cada fábrica continúe en pausa (D-116): `checkVariantFamilyContract` en las pruebas de cada variante. RN-COM-33 y 35 (no guardar una partida terminada, D-110 y D-112) se prueban con los casos de uso y el repositorio de la partida guardada |
 | RF-70 | API-01 | SEC-MOB-01 | — | |
 | RF-71 | API-02, API-07 | RN-COM-87, 89, SEC-MOB-04 | — | |
 | RF-72 | API-03, API-08 | RN-COM-83 a 87, 90 | E-COM-2 | |

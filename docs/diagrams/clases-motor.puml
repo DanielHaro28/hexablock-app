@@ -25,6 +25,7 @@ package "Capa 1 · Entidades · hexa_engine" {
   interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Abstract Factory>> {
     + createRules(): IGameRules<C, TCell, TMove, TState>
     + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
+    + continueSession(saved: SavedGame<TState>): GameSession<C, TCell, TMove, TState>
   }
   note right of VariantFamily
     La fábrica concreta crea la fuente de piezas

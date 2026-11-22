@@ -37,6 +37,7 @@ package "Capa 1 · hexa_variants · hexa_lines" {
   class HexaLinesFactory<C extends Coord> {
     + createRules(): HexaLinesRules<C>
     + createSession(o: StartOptions): GameSession
+    + continueSession(saved: SavedGame): GameSession
   }
   class HexaLinesRules<C extends Coord> {
     # apply(s: LinesState<C>, m: PlacePiece<C>): Step

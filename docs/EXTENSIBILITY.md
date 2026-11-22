@@ -47,7 +47,7 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 | `fill_piece_source.dart` (solo si hay azar) | `FillPieceSource implements IPieceSource<FillPiece>`, con `FillPiece` (lo que entrega la fuente) en el mismo archivo: recibe el generador del estado y devuelve la pieza y el generador siguiente; el generador vive en `FillState` (D-97) | `IPieceSource` |
 | `fill_progress.dart` (solo si el criterio es nuevo) | `FillAttempt` (lo que guarda un intento) y `FillProgressModel implements IProgressModel<FillAttempt>`: qué intento es mejor (D-99). Si sirve el récord o el criterio de otra variante, se reutiliza | `IProgressModel` |
 | `fill_level_builder.dart` (si la variante es por niveles) | `FillLevelBuilder<C>`: arma y valida el nivel | Builder |
-| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>>`: crea reglas, puntuación, fuente de piezas (si hay azar), el estado inicial (D-93) y la `GameSession`; la puntuación y la fuente las pasa a las reglas, porque la interfaz solo expone `createRules` y `createSession` (D-100), con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
+| `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>>`: crea reglas, puntuación, fuente de piezas (si hay azar), el estado inicial (D-93) y la `GameSession`, nueva (`createSession`) o continuada (`continueSession`: `GameEngine.paused`, `UndoHistory(from:)` y `ActiveTimer(elapsed:)`, D-111, D-116); la puntuación y la fuente las pasa a las reglas, porque la interfaz solo expone `createRules`, `createSession` y `continueSession` (D-100, D-116), con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
 
 | Modificar | Cambio |
 |---|---|
@@ -91,6 +91,7 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 |---|---|
 | `packages/hexa_variants/test/fill/hexa_fill_rules_test.dart` | Cada ejemplo `E-*` de `02-RN-HEXA-FILL.md` (RNF-22), con nombres `should_<resultado>_when_<condición>` |
 | `packages/hexa_variants/test/fill/hexa_fill_determinism_test.dart` | Misma semilla y mismos movimientos → mismo estado (RNF-20) |
+| `packages/hexa_variants/test/fill/hexa_fill_factory_test.dart` | En un `group`, `checkVariantFamilyContract(HexaFillFactory(...))` de `hexa_test_support`: una partida continuada empieza en pausa y su `snapshot()` vuelve igual (RN-COM-34, D-116) |
 | `app/test/adapters/fill_state_codec_test.dart` | Guardar y leer devuelve el mismo estado |
 
 ### Comprobación final

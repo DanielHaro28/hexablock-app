@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107 y D-109, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8); D-111 y D-113, el mismo día, en cómo se guarda y continúa una partida (§7, §8) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107 y D-109, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8); D-111, D-113 y D-116, el mismo día, en cómo se guarda y continúa una partida (§7, §8, §9.7) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -35,7 +35,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
 | Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
 | Decoradores de reglas | Extienden `GameRules` y delegan cada paso en las reglas que envuelven; nunca declaran `playTurn` | §9.2, §9.6 | D-96 |
-| Estrategias de la variante | `IPieceSource` recibe el generador del estado y devuelve el siguiente; `IScoringPolicy` puntúa cada paso con sus eventos; `IProgressModel` es el criterio del mejor intento; la fábrica las crea y las conecta en sus reglas, y `VariantFamily` solo expone `createRules` y `createSession` | §9.7 | D-97 a D-101 |
+| Estrategias de la variante | `IPieceSource` recibe el generador del estado y devuelve el siguiente; `IScoringPolicy` puntúa cada paso con sus eventos; `IProgressModel` es el criterio del mejor intento; la fábrica las crea y las conecta en sus reglas, y `VariantFamily` solo expone `createRules`, `createSession` y `continueSession` (continuar una partida guardada) | §9.7 | D-97 a D-101, D-116 |
 
 ## 1. Qué tiene que cumplir el motor
 
@@ -107,6 +107,7 @@ classDiagram
       <<interface>>
       +createRules() IGameRules
       +createSession(options) GameSession
+      +continueSession(saved) GameSession
     }
     Board --> GridTopology : delega la geometría (Bridge)
     GridTopology ..> Coord
@@ -533,7 +534,7 @@ final class SavedGame<TState> {
 }
 ```
 
-**Lo que guarda la partida (D-113).** `GameSession.snapshot()` lee de una vez el estado, el historial de deshacer (D-107) y el tiempo activo, así que los tres coinciden. Es lo que recibe `ISavedGameRepository.scheduleSave` (ARQ-03 §3). Se llama cuando `submit`, `undo` o `redo` ya devolvieron: el motor publica los eventos de un turno antes de enviar su `MoveCommand` a `committedTurns`, así que un *snapshot* tomado desde un oyente no tendría el último turno. Para continuar, la fábrica arma lo mismo al revés:
+**Lo que guarda la partida (D-113).** `GameSession.snapshot()` lee de una vez el estado, el historial de deshacer (D-107) y el tiempo activo, así que los tres coinciden. Es lo que recibe `ISavedGameRepository.scheduleSave` (ARQ-03 §3). Se llama cuando `submit`, `undo` o `redo` ya devolvieron: el motor publica los eventos de un turno antes de enviar su `MoveCommand` a `committedTurns`, así que un *snapshot* tomado desde un oyente no tendría el último turno. Para continuar, `VariantFamily.continueSession(saved)` arma lo mismo al revés (D-116):
 
 ```dart
 final engine = GameEngine.paused(rules, saved.state);         // RN-COM-34, D-111
@@ -628,7 +629,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` (`createRules`, `createSession`; D-100), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
+| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` (`createRules`, `createSession`, `continueSession`; D-100, D-116), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
 | **Builder** | `FitLevelBuilder<C>` y `SortLevelBuilder<C>` en `hexa_variants` | Arma un nivel paso a paso (figura, piezas, metas, umbrales) y lo **valida** al final (RN-HF-12, D-19). El *mapper* de JSON (capa 3) actúa como director; el validador de niveles del CI usa el mismo builder | §3.3 |
 | **Factory Method** | `GridTopology<C>.cellsOf(ShapeSpec)`: cada topología decide cómo crear las celdas de una forma de tablero (hexágono de radio R, rectángulo N × M, hexágono de triángulos de lado n, caja de cubos) | `Board` se crea sin conocer la figura: la topología concreta fabrica sus coordenadas a partir de la configuración (RNF-11) | — |
 
@@ -798,7 +799,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 **Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas, que es lo único que multiplica la racha). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94). Por eso un multiplicador con fracciones envuelve solo la política del paso cuyos eventos multiplica, como la racha (D-101): así se redondea una sola vez (RN-COM-51). Si hiciera falta uno sobre el turno completo, se pasa a puntos racionales, en `hexa_variants` y sin tocar el motor.
 
-**La fábrica las conecta (D-100).** La fábrica concreta crea la fuente y la política y se las pasa a sus reglas; `VariantFamily` solo expone `createRules` y `createSession`, que es lo que usa el *composition root*. Por eso tiene 4 genéricos, como `GameEngine`, y una variante sin azar no tiene que inventar una fuente.
+**La fábrica las conecta (D-100).** La fábrica concreta crea la fuente y la política y se las pasa a sus reglas; `VariantFamily` solo expone `createRules`, `createSession` y `continueSession` (continuar una partida guardada, D-116), que es lo que usa el *composition root*. Por eso tiene 4 genéricos, como `GameEngine`, y una variante sin azar no tiene que inventar una fuente.
 
 **El progreso es un criterio.** El mismo `compare` elige el mejor intento completo (RN-COM-83) y ordena un ranking por nivel (E-COM-3). La forma del progreso (récord o niveles, D-45) la da `ILevelBased` (D-33); la consolidación (E-COM-2) se escribe sobre este criterio.
 
@@ -827,7 +828,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, D-90 a D-107, D-109, D-111 y D-113, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107, D-109, D-111, D-113 y D-116, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

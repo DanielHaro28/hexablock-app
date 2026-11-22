@@ -581,6 +581,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó todas las recomendaciones (A en D-110, D-111, D-112, D-113 y D-115; B en D-114). En D-116 preguntó si repetir líneas en cada fábrica era violar ISP; Claude explicó que es un tema de DRY y no de ISP, y el usuario eligió B (`continueSession`). ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) La revisión encontró lo que ningún PR veía por separado: el motor siempre arrancaba en juego y no evaluaba el estado, y el caso de uso guardaba también el turno que termina la partida, así que un guardado encolado después del borrado reabría una partida terminada (D-110). (2) La revisión de arquitectura encontró que ARQ-03 no guardaba al pasar a segundo plano, contra RN-COM-33 y D-37, y que en Fit eso permitía ganar la estrella de tiempo cerrando la app; se corrigió sin decisión nueva porque la regla ya lo pedía. También encontró que no estaba definido cómo llega la partida guardada a la fábrica, que quedó como D-116. (3) Claude había llamado `SessionSnapshot` al tipo nuevo; el glosario compartido y el puerto del repositorio ya usaban `SavedGame`, así que se renombró antes de integrar, sin tocar documentos compartidos. (4) Durante la sesión, otra sesión integró el PR 5 (#106) y quitó su *worktree*: se comprobó que los cambios sin commit que había visto ya estaban en `main` antes de seguir. (5) `check_contracts.py` no corre en local por falta de `yaml`; este PR no toca `docs/contracts/` |
 
+### IA-51 · Próximos pasos, Hexa Lines asignada y reporte privado de vulnerabilidades (D-78, G-05) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 22-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Ok que es lo siguiente que deberia hacer?". Después: "Sí, empieza con G-05 y G-07, hexa lines damelos a mi" |
+| Resultado | Prioridades a partir de los milestones y los Issues abiertos: D-78 sin cerrar con Hexa Lines sin responsable a 8 días del fin de M1, y 7 Issues de M0 que vencen el 23-11. HL-01 a HL-06 (#32 a #37) asignados a @DanielHaro28, con el responsable en su descripción; rama `docs/assign-hexa-lines`: `PLAN-ENTREGA.md` §1, horas y tabla de M1, y la nota de D-78 en `PENDIENTES.md` (sigue abierta para Fit, Sort y Merge). G-05: los dos `SECURITY.md` ya existían (#84), pero remitían al *Private vulnerability reporting*, que estaba desactivado; se activó en los dos repos |
+| Modificaciones del equipo | El usuario eligió tomar Hexa Lines |
+| Lecciones | (1) G-05 parecía hecho porque el archivo existía; solo al consultar la API de GitHub se vio que el botón que el archivo indica no estaba activo. (2) G-07 pide `commitlint`, que es de Node, en un repo de Dart, y en `hexablock-api` todavía no hay `package.json` (T-04 está abierto); como obliga a decidir algo, se propusieron opciones antes de escribir código |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

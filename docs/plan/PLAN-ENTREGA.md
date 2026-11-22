@@ -11,10 +11,10 @@
 
 | Integrante | Área | Incluye |
 |---|---|---|
-| @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación |
+| @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación. **Hexa Lines** (HL-01 a HL-06, D-78, asignada el 22-11) |
 | @DavidCR20 | API (D-78, asignada el 20-11) | Backend NestJS: esqueleto (T-04), cuenta (API-01, API-02), sincronización (API-03), ranking (API-04), niveles (LVL-01, LVL-02) y errores y Swagger (TEC-05) |
 | @dicpc | Interfaz (D-78, asignada el 20-11) | Pantallas y navegación (NAV-01 a NAV-08), victoria y derrota (PRG-01, PRG-02), registro e inicio de sesión en la app (API-01, API-02), ajustes al diseño (T-05) y vista 3D (TEC-09) |
-| @dicpc y @DavidCR20 | Resto del frontend (D-77) | Las 4 variantes, casos de uso y progreso de la app. **Cómo se lo reparten está por definir (D-78)** |
+| @dicpc y @DavidCR20 | Resto del frontend (D-77) | Hexa Fit, Hexa Sort y Hexa Merge, casos de uso y progreso de la app. **Cómo se lo reparten está por definir (D-78)** |
 
 Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ayudar en otra sección. Cada PR lo revisa alguien de otra área (`CODEOWNERS` pide la revisión automáticamente). El 20-11 cambió el reparto de D-62 (D-77): los Issues que dicen "por definir" se asignan cuando el equipo cierre D-78.
 
@@ -34,8 +34,8 @@ El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 
 | Responsable | Con milestone | Sin milestone (opcional) |
 |---|---|---|
-| @DanielHaro28 | 87.7 h | 26 h |
-| Por definir (@dicpc y @DavidCR20, D-78) | 265.5 h + 8.3 h de tareas de los tres (≈ 137 h cada uno) | 16 h |
+| @DanielHaro28 | 114.7 h (27 h de Hexa Lines, D-78) | 26 h |
+| Por definir (@dicpc y @DavidCR20, D-78) | 238.5 h + 8.3 h de tareas de los tres (≈ 123 h cada uno) | 16 h |
 
 Es una estimación con Claude Code escribiendo la mayor parte del código (D-62). Se anota el tiempo real en el campo **Estimación (h)** del tablero y se recalcula al cerrar M1.
 
@@ -116,12 +116,12 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #25](https://github.com/DanielHaro28/hexablock-app/issues/25) | NAV-02 · Controlar el audio | @dicpc | 4 |
 | [app #26](https://github.com/DanielHaro28/hexablock-app/issues/26) | NAV-03 · Cambiar el idioma | @dicpc | 4 |
 | [app #27](https://github.com/DanielHaro28/hexablock-app/issues/27) | NAV-04 · Pausar una partida | @dicpc | 4 |
-| [app #32](https://github.com/DanielHaro28/hexablock-app/issues/32) | HL-01 · Empezar una partida sin fin | por definir | 4 |
-| [app #33](https://github.com/DanielHaro28/hexablock-app/issues/33) | HL-02 · Colocar una pieza | por definir | 8 |
-| [app #34](https://github.com/DanielHaro28/hexablock-app/issues/34) | HL-03 · Eliminar líneas completas | por definir | 6 |
-| [app #35](https://github.com/DanielHaro28/hexablock-app/issues/35) | HL-04 · Recibir una nueva bandeja | por definir | 3 |
-| [app #36](https://github.com/DanielHaro28/hexablock-app/issues/36) | HL-05 · Terminar cuando nada cabe | por definir | 3 |
-| [app #37](https://github.com/DanielHaro28/hexablock-app/issues/37) | HL-06 · Ver mi puntaje y mi récord | por definir | 3 |
+| [app #32](https://github.com/DanielHaro28/hexablock-app/issues/32) | HL-01 · Empezar una partida sin fin | @DanielHaro28 | 4 |
+| [app #33](https://github.com/DanielHaro28/hexablock-app/issues/33) | HL-02 · Colocar una pieza | @DanielHaro28 | 8 |
+| [app #34](https://github.com/DanielHaro28/hexablock-app/issues/34) | HL-03 · Eliminar líneas completas | @DanielHaro28 | 6 |
+| [app #35](https://github.com/DanielHaro28/hexablock-app/issues/35) | HL-04 · Recibir una nueva bandeja | @DanielHaro28 | 3 |
+| [app #36](https://github.com/DanielHaro28/hexablock-app/issues/36) | HL-05 · Terminar cuando nada cabe | @DanielHaro28 | 3 |
+| [app #37](https://github.com/DanielHaro28/hexablock-app/issues/37) | HL-06 · Ver mi puntaje y mi récord | @DanielHaro28 | 3 |
 | [app #55](https://github.com/DanielHaro28/hexablock-app/issues/55) | PRG-02 · Ver la pantalla de derrota | @dicpc | 4 |
 | [app #56](https://github.com/DanielHaro28/hexablock-app/issues/56) | PRG-03 · Guardar el progreso en el dispositivo | por definir | 8 |
 | [app #64](https://github.com/DanielHaro28/hexablock-app/issues/64) | TEC-01 · Motor genérico compartido | @DanielHaro28 | 16 |

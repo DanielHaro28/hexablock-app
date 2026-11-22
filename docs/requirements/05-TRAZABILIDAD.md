@@ -108,7 +108,7 @@
 | RF-61 | PRG-04 | RN-COM-73 | — | |
 | RF-62 | API-05 | RN-COM-81, 107 | — | |
 | RF-63 | API-08 | RN-COM-82, 85 | — | |
-| RF-64 | NAV-04 | RN-COM-32 a 35, 42 | — | |
+| RF-64 | NAV-04 | RN-COM-32 a 35, 42 | — | Historial y tiempo que se pueden guardar y continuar (D-106, D-107): `hexa_engine/test/undo/undo_snapshot_test`, `hexa_engine/test/time/active_timer_test`. RN-COM-33 se prueba con el codec de la partida guardada |
 | RF-70 | API-01 | SEC-MOB-01 | — | |
 | RF-71 | API-02, API-07 | RN-COM-87, 89, SEC-MOB-04 | — | |
 | RF-72 | API-03, API-08 | RN-COM-83 a 87, 90 | E-COM-2 | |

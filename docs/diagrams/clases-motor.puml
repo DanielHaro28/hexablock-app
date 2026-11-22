@@ -142,6 +142,7 @@ package "Capa 1 · Entidades · hexa_engine" {
     + restore(snapshot: TState): void
   }
   interface UndoableEngine<TMove, TState> <<interface>> {
+    + state: TState
     + phase: GamePhase
     + committedTurns: Stream<MoveCommand<TMove, TState>>
   }
@@ -154,10 +155,15 @@ package "Capa 1 · Entidades · hexa_engine" {
     - undone: List<MoveCommand>
     + limit: int?
     + allowsRedo: bool
-    + UndoHistory(e: UndoableEngine, limit: int?, allowsRedo: bool)
+    + UndoHistory(e: UndoableEngine, limit: int?, allowsRedo: bool, from: UndoSnapshot?)
+    + snapshot(): UndoSnapshot<TState>
+  }
+  class UndoSnapshot<TState> <<Memento>> {
+    + undoStates: List<TState>
+    + redoStates: List<TState>
   }
   class MoveCommand<TMove, TState> <<Command>> {
-    + move: TMove
+    + move: TMove?
     + before: TState
     + after: TState
     + undo(e: Restorable<TState>): void
@@ -277,6 +283,7 @@ GameEngine ..|> TimedEngine
 UndoableEngine --|> Restorable
 UndoHistory --> UndoableEngine : restore (Memento)
 MoveCommand ..> Restorable : undo / redo
+UndoHistory ..> UndoSnapshot : guarda y recibe (D-107)
 ActiveTimer ..|> ITimed
 ActiveTimer --> TimedEngine : escucha PhaseChanged
 ActiveTimer --> IMonotonicClock

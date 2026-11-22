@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-106, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -13,7 +13,7 @@
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 >
-> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer (`MoveCommand`, `UndoHistory`, `GameEngine.restore` y `committedTurns`), las capacidades, el cronómetro (`ActiveTimer`) y la sesión (`GameSession`) están en `packages/hexa_engine/lib/src/undo/`, `session/` y `time/` (D-102 a D-106). Una diferencia con el esbozo de §7: `ActiveTimer` recibe del motor solo lo que necesita (`TimedEngine`: la fase y `syncEvents`), igual que `UndoHistory` con `UndoableEngine`.
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer (`MoveCommand`, `UndoHistory`, `GameEngine.restore` y `committedTurns`), las capacidades, el cronómetro (`ActiveTimer`) y la sesión (`GameSession`) están en `packages/hexa_engine/lib/src/undo/`, `session/` y `time/` (D-102 a D-107). Una diferencia con el esbozo de §7: `ActiveTimer` recibe del motor solo lo que necesita (`TimedEngine`: la fase y `syncEvents`), igual que `UndoHistory` con `UndoableEngine`.
 
 ---
 
@@ -26,7 +26,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Coordenada | Parámetro genérico: `Board<TCoord extends Coord, TCell>`, `GridTopology<TCoord>`, `IGameRules<TCoord, TCell, TMove, TState>` y `GameEngine<…>`; `HexBoard<TCell>` es un `typedef` | §3 | D-07 |
 | Figura de la celda | Registro de topologías + **Visitor** genérico, sin `switch` ni casts; `TCoord` llega hasta el widget del tablero | §3 | D-29 |
 | Tipos por variante | Estado inmutable; celda vacía = `null` (`TCell extends Object`); movimientos *sealed* por variante; `Tile implements Mergeable<Tile>` en Merge | §4 | D-30 |
-| Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada). `restore` mantiene la fase, exige que permita deshacer y publica `StateRestored` y, si cambió, `ScoreChanged` | §5 | D-31, D-102, D-103 |
+| Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada). `restore` mantiene la fase, exige que permita deshacer y publica `StateRestored` y, si cambió, `ScoreChanged`. La partida guardada lleva el historial como la línea de estados alrededor del actual (`UndoSnapshot`) | §5 | D-31, D-102, D-103, D-107 |
 | Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica. Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94 |
 | Estado inicial | Lo crea la fábrica (o lo lee el codec al continuar) y se lo pasa a `GameEngine`; `IGameRules` no tiene `initialState` | §2 | D-93 |
 | Motivo de un rechazo | Jerarquía abierta `RejectionReason` (`InvalidMove`, `NotAcceptingMoves` y los de cada variante); las reglas validan con `rejectionOf` | §6, §9.6 | D-95 |
@@ -307,6 +307,8 @@ La capacidad la da un único `UndoHistory` configurado por la fábrica de cada v
 
 **`restore` no cambia la fase (D-102).** El motor solo restaura si la fase actual permite deshacer; si no, lanza un `StateError`, como con la reentrada. Como solo `PlayingPhase` lo permite, después de deshacer o rehacer el motor sigue en juego, y ningún llamador se salta RN-COM-63. Publica `StateRestored` y, si el puntaje cambió, `ScoreChanged` después (D-103, §6). `committedTurns` envía un `MoveCommand` por cada turno jugado, también el que termina la partida (así Merge puede deshacer la jugada ganadora después de seguir jugando), y ninguno por un movimiento rechazado (RN-COM-21).
 
+**La partida guardada lleva el historial (D-107).** `UndoHistory.snapshot()` devuelve la línea de estados alrededor del actual: a dónde va cada deshacer y cada rehacer. Al continuar, `UndoHistory(engine, from: snapshot)` reconstruye los comandos, con el estado actual del motor en el medio, y se ajusta a su límite y a si permite rehacer. Solo se guardan estados, así que alcanza con el codec de estados de cada variante; por eso un turno restaurado no sabe qué movimiento fue (`MoveCommand.move` es `TMove?`), algo que deshacer y rehacer nunca leen.
+
 ```dart
 // hexa_engine
 abstract interface class Restorable<TState> {
@@ -321,7 +323,7 @@ abstract interface class UndoableEngine<TMove, TState> implements Restorable<TSt
 
 final class MoveCommand<TMove, TState> {
   const MoveCommand(this.move, this.before, this.after);
-  final TMove move;
+  final TMove? move; // null for a turn restored from a saved game (D-107)
   final TState before, after; // mementos: immutable states
 
   void undo(Restorable<TState> engine) => engine.restore(before);
@@ -770,7 +772,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36 y D-90 a D-106, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36 y D-90 a D-107, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

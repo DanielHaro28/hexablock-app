@@ -52,7 +52,20 @@ final class GameEngine<
     implements UndoableEngine<TMove, TState>, TimedEngine {
   /// An engine that starts playing [initialState] with [rules]. The variant's
   /// factory builds the state, or the saved-game codec reads it (D-93).
-  GameEngine(this._rules, TState initialState) : _state = initialState;
+  GameEngine(this._rules, TState initialState)
+    : _state = initialState,
+      _phase = const PlayingPhase();
+
+  /// An engine that continues [savedState] in the paused phase (RN-COM-34,
+  /// D-111): a saved game always comes back paused, and only `resume` takes
+  /// it back to playing. Nothing is published, because nothing happened yet;
+  /// an `ActiveTimer` built on it stays stopped until `resume`.
+  ///
+  /// The saved game is always one that was going on (D-110): a finished game
+  /// is never saved, so the engine does not evaluate [savedState].
+  GameEngine.paused(this._rules, TState savedState)
+    : _state = savedState,
+      _phase = const PausedPhase();
 
   final IGameRules<C, TCell, TMove, TState> _rules;
   final _sync = StreamController<GameEvent<C>>.broadcast(sync: true);
@@ -61,7 +74,7 @@ final class GameEngine<
     sync: true,
   );
   TState _state;
-  GamePhase _phase = const PlayingPhase();
+  GamePhase _phase;
   bool _publishing = false;
 
   /// The current state of the game.

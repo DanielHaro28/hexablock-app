@@ -102,7 +102,7 @@ La versión 1 es la de este documento.
 ## 8. Formato de la partida guardada
 
 `saved_games.state_json` no es parte del contrato con la API: nunca sale del teléfono. Lo escribe y lo lee el `IGameStateCodec<TState>` de cada variante (ARQ-03-APP, puertos). Reglas:
-- guarda el estado completo, el estado del generador (RN-COM-42), el historial de deshacer y el tiempo activo (D-37). El historial es un `UndoSnapshot`: los estados a los que se puede deshacer y rehacer, escritos con el mismo codec del estado, sin movimientos (D-107). El estado actual no se repite en él; la escritura va en la cola del repositorio, fuera del turno;
+- guarda el estado completo, el estado del generador (RN-COM-42), el historial de deshacer y el tiempo activo (D-37). El historial es un `UndoSnapshot`: los estados a los que se puede deshacer y rehacer, escritos con el mismo codec del estado, sin movimientos (D-107). El estado actual no se repite en él; la escritura va en la cola del repositorio, fuera del turno. Lo que se escribe es el `SavedGame<TState>` de `GameSession.snapshot()` (D-113), y el codec de una variante con cronómetro siempre escribe su tiempo activo, porque continuar sin él le daría a Fit un tiempo de cero (RN-HF-62);
 - `codec_version` sube cuando cambia el formato. Si una versión nueva del APK no puede leer una partida vieja, la descarta con un aviso; el progreso no se toca, porque vive en otras tablas;
 - cada codec tiene una prueba de ida y vuelta: guardar, leer y comparar que el estado sea idéntico, incluida la siguiente pieza que sale del generador.
 

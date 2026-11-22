@@ -131,6 +131,8 @@ package "Capa 2 · Casos de uso (hexa_application)" {
     + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
     + flush(): Future<void>
     + load(k: SavedGameKey): Future<SavedGame<TState>?>
+    + delete(k: SavedGameKey): void
+    + exists(p: ProfileId): Future<bool>
   }
   interface IGameStateCodec<TState> <<interface>> {
     + encode(s: TState): Map<String, Object?>

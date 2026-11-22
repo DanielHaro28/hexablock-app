@@ -301,7 +301,7 @@ extension type const PieceId(int value) {}
 
 Opciones consideradas: Anexo A.5.
 
-**Elegida: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`.
+**Elegida: C.** La lógica (historial, límite, rehacer descartado y fases que bloquean) se comprobó con un modelo en Python contra E-HF-3, E-HM-7 y RN-COM-21, 24 y 60 a 63: `tools/reference-sim/engine_model.py`. El modelo no incluye guardar y continuar el historial (D-107) ni lo que la variante conserva al deshacer (D-109): eso lo comprueban las pruebas de `hexa_engine/test/undo/`.
 
 La capacidad la da un único `UndoHistory` configurado por la fábrica de cada variante: sin límite y con rehacer para Fit, límite 1 sin rehacer para Merge, y nada para Lines y Sort. Las reglas que impiden deshacer (RN-COM-63) las decide la **fase**: `GameOverPhase` y `VictoryPhase` no permiten deshacer; en Merge, al seguir jugando se vuelve a `PlayingPhase`, que sí lo permite.
 
@@ -319,6 +319,7 @@ abstract interface class Restorable<TState> {
 
 /// What UndoHistory needs from GameEngine (ISP): GameEngine implements it.
 abstract interface class UndoableEngine<TMove, TState> implements Restorable<TState> {
+  TState get state; // the pivot of a saved history (D-107)
   GamePhase get phase;
   Stream<MoveCommand<TMove, TState>> get committedTurns; // one per valid turn
 }
@@ -332,11 +333,22 @@ final class MoveCommand<TMove, TState> {
   void redo(Restorable<TState> engine) => engine.restore(after);
 }
 
+final class UndoSnapshot<TState> { // what a saved game keeps (D-107)
+  const UndoSnapshot({this.undoStates = const [], this.redoStates = const []});
+  final List<TState> undoStates; // oldest first
+  final List<TState> redoStates; // next first
+}
+
 final class UndoHistory<TMove, TState> implements IUndoable {
-  UndoHistory(this._engine, {this.limit, this.allowsRedo = false}) {
+  UndoHistory(this._engine, {this.limit, this.allowsRedo = false,
+      TState Function(TState restored, TState current)? carryOver, // D-109
+      UndoSnapshot<TState>? from})                                 // D-107
+      : _target = carryOver == null ? _engine : _CarryingOver(_engine, carryOver) {
+    if (from != null) _load(from); // commands between consecutive states, around engine.state
     _engine.committedTurns.listen(_record, onDone: _forget); // Observer, synchronous stream (D-32)
   }
   final UndoableEngine<TMove, TState> _engine;
+  final Restorable<TState> _target; // the engine, or the engine behind carryOver (Decorator)
   final int? limit; // null = unlimited (Fit); 1 = Hexa Merge
   final bool allowsRedo;
   final _done = <MoveCommand<TMove, TState>>[];
@@ -348,21 +360,37 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   @override
   void undo() {
     if (!canUndo) return;
-    final command = _done.removeLast()..undo(_engine);
+    final command = _done.last..undo(_target); // leaves the list only once restored
+    _done.removeLast();
     if (allowsRedo) _undone.add(command);
   }
 
   @override
   void redo() {
     if (!canRedo) return;
-    _done.add(_undone.removeLast()..redo(_engine));
+    final command = _undone.last..redo(_target);
+    _undone.removeLast();
+    _done.add(command);
   }
+
+  UndoSnapshot<TState> snapshot() => UndoSnapshot(
+      undoStates: [for (final c in _done) c.before],
+      redoStates: [for (final c in _undone.reversed) c.after]); // states as played
 
   void _record(MoveCommand<TMove, TState> command) {
     _undone.clear(); // RN-COM-62
     _done.add(command);
     if (limit != null && _done.length > limit!) _done.removeAt(0);
   }
+}
+
+/// Adjusts each state before the engine restores it (D-109): Decorator of Restorable.
+final class _CarryingOver<TState> implements Restorable<TState> {
+  const _CarryingOver(this._engine, this._carryOver);
+  final UndoableEngine<Object?, TState> _engine;
+  final TState Function(TState restored, TState current) _carryOver;
+  @override
+  void restore(TState snapshot) => _engine.restore(_carryOver(snapshot, _engine.state));
 }
 ```
 
@@ -585,7 +613,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 |---|---|---|---|
 | **Bridge** | `Board<C, TCell>` (abstracción) ↔ `GridTopology<C>` (implementador) | Separa **qué hay en las celdas** (varía por variante) de **cómo es la rejilla** (varía por figura): 4 variantes × 4 figuras sin 16 clases de tablero. Es el núcleo de D-07 | — |
 | **Composite** | `Shape<C>`: `CellShape` (hoja) y `CompositeShape` (compuesto). Las piezas son composiciones de celdas y las figuras de Fit, composiciones de regiones (por ejemplo, un hexágono más una línea) | Rotar, trasladar y normalizar tratan igual una celda, una pieza o una figura entera. Además, los niveles se diseñan a mano más rápido componiendo regiones | §3.3 (el ejemplo es el mismo) |
-| **Decorator** | Sobre `IScoringPolicy<TState, TEvent>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState, TEvent>` sirve para cualquier variante (D-98). Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
+| **Decorator** | Sobre `IScoringPolicy<TState, TEvent>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState, TEvent>` sirve para cualquier variante (D-98). Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6). Sobre `Restorable`: el `carryOver` de `UndoHistory` ajusta cada estado antes de restaurarlo, como la cuenta de movimientos de Fit (D-109, §5) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
 
 ### 9.3 De comportamiento
 

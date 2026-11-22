@@ -155,7 +155,7 @@ package "Capa 1 · Entidades · hexa_engine" {
     - undone: List<MoveCommand>
     + limit: int?
     + allowsRedo: bool
-    + UndoHistory(e: UndoableEngine, limit: int?, allowsRedo: bool, carryOver: (TState, TState) -> TState?, from: UndoSnapshot?)
+    + UndoHistory(e: UndoableEngine, limit: int?, allowsRedo: bool, carryOver: ((TState, TState) -> TState)?, from: UndoSnapshot?)
     + snapshot(): UndoSnapshot<TState>
   }
   class UndoSnapshot<TState> <<Memento>> {

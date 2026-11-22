@@ -400,6 +400,7 @@ abstract base class GameEvent<C extends Coord> { const GameEvent(); }
 final class PhaseChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
 final class ScoreChanged<C extends Coord> extends GameEvent<C> { /* from, to */ }
 final class MoveRejected<C extends Coord> extends GameEvent<C> { /* reason */ }
+final class StateRestored<C extends Coord> extends GameEvent<C> { const StateRestored(); } // undo or redo (D-103)
 
 // Rejection reasons (D-95): open, like the events
 abstract base class RejectionReason { const RejectionReason(); }

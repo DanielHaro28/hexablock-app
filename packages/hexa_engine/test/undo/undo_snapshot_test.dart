@@ -164,7 +164,6 @@ void main() {
         // Act
         final history = UndoHistory<FakeMove, FakeState>(
           engineAt(states[1]),
-          limit: 1,
           from: UndoSnapshot(undoStates: [states[0]], redoStates: [states[2]]),
         );
 
@@ -173,6 +172,48 @@ void main() {
         expect(history.snapshot().redoStates, isEmpty);
       },
     );
+
+    test('should_keep_the_turns_chained_when_crossing_the_continued_state', () {
+      // Arrange
+      final states = timeline();
+      final engine = engineAt(states[2]); // the game continues at S2
+      final history = UndoHistory<FakeMove, FakeState>(
+        engine,
+        allowsRedo: true,
+        from: UndoSnapshot(
+          undoStates: [states[0], states[1]],
+          redoStates: [states[3]],
+        ),
+      );
+
+      // Act
+      history
+        ..undo() // S1
+        ..redo() // S2
+        ..redo(); // S3
+
+      // Assert
+      expect(identical(engine.state, states[3]), isTrue);
+      expect(history.snapshot().undoStates, [states[0], states[1], states[2]]);
+      expect(history.snapshot().redoStates, isEmpty);
+    });
+
+    test('should_drop_the_oldest_saved_turn_when_a_move_exceeds_the_limit', () {
+      // Arrange
+      final states = timeline();
+      final engine = engineAt(states[2]);
+      final history = UndoHistory<FakeMove, FakeState>(
+        engine,
+        limit: 2,
+        from: UndoSnapshot(undoStates: [states[0], states[1]]),
+      );
+
+      // Act
+      engine.submit(const FakeMove(d));
+
+      // Assert
+      expect(history.snapshot().undoStates, [states[1], states[2]]);
+    });
 
     test('should_discard_the_saved_redo_when_a_new_move_is_made', () {
       // Arrange

@@ -29,8 +29,9 @@ final class UndoHistory<TMove, TState> implements IUndoable {
   ///
   /// The saved turns follow this history's configuration: only the last
   /// [limit] undo states are kept, and the redo states are dropped if
-  /// [allowsRedo] is false (RN-COM-60). The engine's current state is the
-  /// pivot between both lists.
+  /// [allowsRedo] is false (RN-COM-60). The [limit] counts only the turns
+  /// that can be undone, as while playing; the redo states are kept as
+  /// saved. The engine's current state is the pivot between both lists.
   ///
   /// [carryOver], if given, receives the state an undo or a redo goes to and
   /// the current one, and returns the state to restore (D-109).

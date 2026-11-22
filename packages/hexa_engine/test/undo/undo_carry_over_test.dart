@@ -61,19 +61,21 @@ void main() {
       // Arrange
       final engine = engineAt(start());
       final history = keepingMoves(engine);
-      engine
-        ..submit(const FakeMove(a))
-        ..submit(const FakeMove(b));
-      final latest = engine.state;
-      history.undo();
+      engine.submit(const FakeMove(a));
+      final afterFirst = engine.state; // its own count is 1
+      engine.submit(const FakeMove(b));
+      history
+        ..undo()
+        ..undo(); // the board of the start, still 2 moves
 
       // Act
       history.redo();
 
       // Assert
+      expect(afterFirst.moves, 1);
       expect(engine.state.moves, 2);
-      expect(engine.state.board, latest.board);
-      expect(engine.state.random, latest.random);
+      expect(engine.state.board, afterFirst.board);
+      expect(engine.state.random, afterFirst.random);
     });
 
     test('should_count_on_from_the_kept_value_when_playing_after_undo', () {
@@ -116,16 +118,17 @@ void main() {
       final first = start();
       final engine = engineAt(first);
       final history = keepingMoves(engine);
-      engine.submit(const FakeMove(a));
-      history.undo(); // the engine keeps 1 move, the saved state does not
+      engine
+        ..submit(const FakeMove(a))
+        ..submit(const FakeMove(b));
+      history.undo(); // the engine keeps 2 moves; the state of the start has 0
 
       // Act
       final snapshot = history.snapshot();
 
       // Assert
-      expect(snapshot.redoStates.single.moves, 1);
-      expect(identical(engine.state, first), isFalse);
-      expect(engine.state.moves, 1);
+      expect(identical(snapshot.undoStates.single, first), isTrue);
+      expect(snapshot.undoStates.single.moves, 0);
     });
   });
 }

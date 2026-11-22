@@ -548,6 +548,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó las recomendaciones: B en la fuente de piezas, B en la puntuación y A en el progreso, y después A en D-100 (`VariantFamily` solo con `createRules` y `createSession`, sin `TPiece`) y A en D-101 (un multiplicador con fracciones envuelve solo la política de un paso). ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) El esbozo de `IPieceSource` del diagrama de clases (la fuente guarda su generador) no servía para Hexa Merge, que saca la celda y el valor del mismo generador (RN-HM-21); se vio al recorrer cómo usaría la firma cada variante antes de proponer las opciones. (2) Claude escribió en el comentario de `Xorshift32` que ninguna otra semilla llegaba al estado de la semilla 0, lo que es falso (la semilla `0x9E3779B9` llega); lo corrigió antes del commit. (3) La revisión de arquitectura encontró el nombre de una variante en un comentario del motor (el CI no lo detecta porque ignora los comentarios), un esbozo de §9.7 que aplicaba la racha de Lines dentro de la política y contradecía el decorador de §9.2, `group` con reglas que las pruebas no comprobaban, dos pruebas que comprobaban dos cosas y el redondeo por paso de un multiplicador que abarque varios pasos (D-101). (4) Límites del entorno: no hay ninguna herramienta aprobada para exportar los diagramas, así que `extensibilidad.png` queda desactualizada hasta que alguien la exporte |
 
+### IA-49 · Plan del setup de AWS y región `us-east-2` (D-108) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 22-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`); un subagente para leer la documentación de AWS |
+| Prompt | Literal: "Voy a hacer el setup de AWS hazme el plan y que tengo que hacer paso a paso". Después, capturas de la consola ("estoy usando el new experience de AWS"), la región asignada y "acepto la recomendacion" |
+| Resultado | Plan paso a paso de W-01 a W-06, TEC-10 y A-02, a partir de ADR-001 §2.3, SECURITY-BASELINE y los Issues. Rama `docs/aws-region` en los dos repos: D-108 en los dos `DECISIONES.md`, ADR-001 §2.3 (rev. 2.2) y el título de W-03 en `PLAN-ENTREGA.md` |
+| Modificaciones del equipo | El usuario aceptó la opción recomendada: usar la región asignada, sin activar las *advanced features* |
+| Lecciones | (1) El primer plan suponía la consola clásica (elegir `us-east-1`, usuario root y usuarios IAM). La experiencia nueva de AWS asigna la región y usa AWS Builder ID. Se detectó por la captura del usuario y se verificó en la documentación de AWS. (2) El agente no ejecuta `aws` ni `ssh` y no recibe claves (SEC-AGT-03), así que los pasos en la consola los hace una persona. (3) DuckDNS apunta el subdominio nuevo a la IP de quien lo crea, y hay que cambiarla mientras no exista la instancia |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -585,6 +596,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | El comentario de `IMonotonicClock` nombraba una variante dentro del motor | Subagente `architecture-reviewer` (IA-47) | Comentario genérico |
 | El esbozo de ARQ-02 §9.7 aplicaba la racha dentro de `LinesScoring`, contra el decorador de §9.2, que envuelve solo el bono de líneas | Subagente `architecture-reviewer` (IA-47) | El esbozo y `clases-variantes.puml` envuelven `LineBonus` con `StreakMultiplier` |
 | Pruebas de los dobles agrupadas por reglas (RN-COM-40, 51, 52, 83) que no comprobaban | Subagente `architecture-reviewer` (IA-47) | Agrupadas por decisión (D-56, D-97 a D-99); la trazabilidad deja esas reglas para las variantes |
+| El plan del setup de AWS suponía la consola clásica (elegir `us-east-1`, usuario root e IAM), pero la cuenta usa la experiencia nueva, que asigna la región | Captura de la consola enviada por el usuario y documentación de AWS (IA-49) | D-108: región `us-east-2`; plan ajustado a AWS Builder ID y MFA en AWS Settings |
 
 ### 4.3 Reflexión del equipo
 

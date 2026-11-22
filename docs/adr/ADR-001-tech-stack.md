@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 2.1 (20-11): Prisma ORM 7 (D-89); versiones exactas en el README de cada repo (R-01) · 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) y su configuración en los repos (D-79 a D-86) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
+| Revisión | 2.2 (22-11): región `us-east-2`, la que AWS asigna a la cuenta (D-108) · 2.1 (20-11): Prisma ORM 7 (D-89); versiones exactas en el README de cada repo (R-01) · 2.0 (20-11): solo Claude Code como herramienta de agente (D-87) y su configuración en los repos (D-79 a D-86) · 1.9 (17-11): tabla `saved_games` (D-37) y contrato en `hexablock-api` con copia verificada (D-23) · 1.8 (17-11): las decisiones cerradas pasan a `docs/DECISIONES.md` de cada repo · 1.7 (12-11): coherencia con los demás documentos, sin cambios de stack (argon2id como en SECURITY, tabla `profiles`, figura de celdas en preferencias, nota sobre los paquetes de D-21, `CODEOWNERS` y ruleset de `main`) · 1.6: revisión de PR por un compañero recomendada, no obligatoria · 1.5: topologías (hexágonos, cuadrados, triángulos y cubos) y documentos separados por repo · 1.4: diagrama de clases en PlantUML por §4.1 ("notación UML de plantilla"); repos públicos confirmados · 1.3: repos en la cuenta personal Pro de un integrante (antes: organización) · 1.2: diagramas en Mermaid (antes PlantUML) y detalle del almacenamiento local · 1.1: controles de seguridad y referencia a `SECURITY-BASELINE.md` |
 | Autores | Equipo HexaBlock Suite |
 | Aplica a | `hexablock-app` (cliente) y `hexablock-api` (backend) |
 | Repositorio | **Compartido:** `docs/adr/` en ambos repos; las dos copias deben ser idénticas |
@@ -89,8 +89,8 @@ Restricciones del equipo:
 
 | Aspecto | Elección |
 |---|---|
-| Proveedor | **AWS**, cuenta en plan Free (USD 100 en créditos, vence el 11-05-2027) |
-| Cómputo | **1 instancia EC2 `t3.small`** (2 vCPU, 2 GB RAM, x86_64), con 20 GB gp3, en **`us-east-1`** |
+| Proveedor | **AWS**, cuenta en plan Free de la experiencia nueva de AWS, con proyectos (USD 100 en créditos más USD 20 por cada actividad completada; vence el 11-05-2027) |
+| Cómputo | **1 instancia EC2 `t3.small`** (2 vCPU, 2 GB RAM, x86_64), con 20 GB gp3, en **`us-east-2`** (Ohio): la experiencia nueva asigna la región según el país de la cuenta y no permite cambiarla (D-108) |
 | Orquestación | **Docker Compose** en la instancia: `api` + `postgres` (con volumen persistente) + `caddy` |
 | HTTPS | **Caddy** como *reverse proxy*, con certificado Let's Encrypt automático sobre un subdominio gratuito (DuckDNS). Es obligatorio: Android bloquea por defecto el tráfico HTTP sin cifrar |
 | Registro de imágenes | **GitHub Container Registry (GHCR)** |
@@ -99,9 +99,9 @@ Restricciones del equipo:
 | Security Group | Puertos 80 y 443 abiertos; 22 solo con autenticación por clave. Postgres (5432) **no se expone** |
 | Observabilidad mínima | Endpoint `GET /health`, *healthcheck* en Compose y `restart: unless-stopped` |
 | Respaldo | `pg_dump` diario por *cron* a un volumen local (opcional: subirlo a S3) |
-| Control de costos | **AWS Budgets** con alertas al 50 % y al 80 % de los créditos. En el plan Free la cuenta **se cierra al agotar los créditos**, así que no se crean RDS, balanceadores ni NAT Gateways |
+| Control de costos | **AWS Budgets** con alertas al 50 % y al 80 % de los créditos. En el plan Free la cuenta **se cierra al agotar los créditos**, así que no se crean RDS, balanceadores ni NAT Gateways. No se activan las *advanced features* de la cuenta: son irreversibles y exigen el plan pagado, que quita ese cierre (D-108) |
 
-Costo estimado (on-demand, `us-east-1`): unos USD 15/mes por la instancia, unos USD 1,6/mes por el disco y unos USD 3,6/mes por la IPv4 pública. **Total aproximado: USD 20/mes**, por lo que los créditos alcanzan para unos 5 meses. Las cifras deben verificarse en la AWS Pricing Calculator al crear la instancia.
+Costo estimado (on-demand, `us-east-2`, con los mismos precios que `us-east-1`): unos USD 15/mes por la instancia, unos USD 1,6/mes por el disco y unos USD 3,6/mes por la IPv4 pública. **Total aproximado: USD 20/mes**, por lo que los créditos alcanzan para unos 5 meses. Las cifras deben verificarse en la AWS Pricing Calculator al crear la instancia.
 
 ### 2.4 Repositorios, CI/CD y flujo de trabajo
 

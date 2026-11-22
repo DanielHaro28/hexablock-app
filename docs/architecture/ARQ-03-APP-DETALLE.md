@@ -77,14 +77,14 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 
 ## 3. Casos de uso
 
-`GameKey` = `(gameId, topologyId)`: identifica una variante con una figura (D-25, RN-COM-80).
+`GameKey` = `(gameId, topologyId)`: identifica una variante con una figura (D-25, RN-COM-80). `SavedGameKey` = `(ProfileId, GameKey)`: la partida guardada de un perfil en una variante y una figura, que es una sola (RN-COM-33, D-37).
 
 | Caso de uso | Entrada → salida | Puertos | Requisitos |
 |---|---|---|---|
 | `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, nivel, semilla) → `GameSession<C, TCell, TMove, TState>` | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
 | `ApplyMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `MoveResult<C, TState>` | `ISavedGameRepository` (guardado tras cada turno, D-37) | RF-10, RN-COM-20 a 25, 33 |
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
-| `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (`flush` al pausar) | RF-05, RN-COM-32 |
+| `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (al pausar: guarda un `snapshot()` nuevo, con el tiempo activo, y hace `flush`) | RF-05, RN-COM-32, 33 |
 | `ContinuePlayingUseCase<…>` | `()` → `GamePhase` (Hexa Merge tras la victoria) | `ISavedGameRepository` (guarda el turno de la victoria al elegir seguir, D-112) | RN-COM-31, RN-HM-51 |
 | `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-60, RN-COM-80, 83 |
 | `SyncProgressUseCase` | `()` → `SyncReport` | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `IProfileRepository` | RF-63, RF-72, RN-COM-86. Cubre también el `SyncLeaderboardUseCase` del enunciado: los mejores intentos viajan en el progreso |
@@ -127,7 +127,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 `scheduleSave` no espera la escritura: el repositorio (capa 3) la encola, conserva solo la última y escribe en una transacción. `delete` pasa por la **misma cola** y descarta el guardado pendiente, así que la última operación gana y una partida terminada nunca reaparece (D-110). `flush()` fuerza la escritura y lo llama `PauseGameUseCase` cuando la app pasa a segundo plano. Así el guardado nunca retrasa la pantalla y un cierre inesperado pierde, como mucho, el turno que se estaba escribiendo.
 
-**Qué se guarda y cuándo (D-110, D-112, D-113).** Lo guardado es el `SessionSnapshot<TState>` de `GameSession.snapshot()`: estado, historial de deshacer y tiempo activo. Se toma siempre después de que `submit`, `undo` o `redo` devolvieron, nunca desde un oyente del motor. Guardan `ApplyMoveUseCase` (turno en curso), `UndoMoveUseCase` y `RedoMoveUseCase` (después de restaurar) y `ContinuePlayingUseCase` (el turno de la victoria de Merge, al elegir seguir). Para **continuar**, `StartGameUseCase` pide a la fábrica de la variante la sesión armada con `GameEngine.paused(rules, saved.state)`, `UndoHistory(…, from: saved.undo)` y `ActiveTimer(…, elapsed: saved.activeTime)`: la partida vuelve en pausa (RN-COM-34, D-111).
+**Qué se guarda y cuándo (D-110, D-112, D-113).** Lo guardado es el `SavedGame<TState>` de `GameSession.snapshot()`: estado, historial de deshacer y tiempo activo. Se toma siempre después de que `submit`, `undo` o `redo` devolvieron, nunca desde un oyente del motor. Guardan `ApplyMoveUseCase` (turno en curso), `UndoMoveUseCase` y `RedoMoveUseCase` (después de restaurar), `ContinuePlayingUseCase` (el turno de la victoria de Merge, al elegir seguir) y `PauseGameUseCase`, que después de `pause()` guarda un `snapshot()` nuevo y hace `flush()`, para que el tiempo jugado desde el último turno no se pierda (RN-COM-33): en Fit ese tiempo decide una estrella (RN-HF-62). Solo guarda si la partida quedó en `PausedPhase`: una pausa pedida en la victoria o en la derrota no cambia la fase, y esas partidas no se guardan (D-110, D-112). Para **continuar**, `StartGameUseCase` pide a la fábrica de la variante la sesión armada con `GameEngine.paused(rules, saved.state)`, `UndoHistory(…, from: saved.undo)` y `ActiveTimer(…, elapsed: saved.activeTime!)` (el codec de una variante con cronómetro siempre lo escribe, ARQ-04 §8): la partida vuelve en pausa (RN-COM-34, D-111).
 
 ## 4. Puertos (capa 2) y adaptadores (capa 3)
 
@@ -135,7 +135,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|
 | `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift |
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift |
-| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SessionSnapshot<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
+| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
 | `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |
 | `IProgressGateway` | `push(GameKey, VariantProgress) → VariantProgress` (consolidado), `pullAll()` | `HttpProgressGateway` → dio |
@@ -255,7 +255,7 @@ Como `ApplyMoveUseCase` es genérico, sus aspectos aplican a las 4 variantes sin
 |---|---|---|
 | Arranque (`main.dart`) | Base de datos, adaptadores, `AspectChain`, casos de uso que no dependen de una partida, Cubits de pantalla; registro de **topologías con su layout** (`TopologyEntry`, D-29) y de **módulos de variante** (`VariantModule`) | `app/lib/config/`, con `get_it` (*lazy singletons*) |
 | Al abrir una partida | `topologyRegistry[figura].accept(OpenGame(module, opciones))` → el módulo crea su `VariantFamily<C>`, la `GameSession`, el codec del estado, los casos de uso de partida envueltos por `AspectChain` y el `GameCubit` | `VariantModule.open<C>()` (ARQ-02 §3.1) |
-| Al pasar a segundo plano | Un `WidgetsBindingObserver` llama a `PauseGameUseCase`, que pausa y hace `flush()` de la partida guardada | `app/lib/frameworks/lifecycle/` |
+| Al pasar a segundo plano | Un `WidgetsBindingObserver` llama a `PauseGameUseCase`, que pausa, guarda un `snapshot()` nuevo y hace `flush()` de la partida guardada | `app/lib/frameworks/lifecycle/` |
 
 ## 7. Mapa completo de patrones de la app (para el README)
 

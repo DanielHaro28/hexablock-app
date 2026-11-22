@@ -4,7 +4,7 @@ import '../game/game_state.dart';
 import '../time/active_timer.dart';
 import '../undo/undo_history.dart';
 import 'capabilities.dart';
-import 'session_snapshot.dart';
+import 'saved_game.dart';
 
 /// A game being played: the engine and only the capabilities this game has
 /// (D-33, ARQ-02 §7).
@@ -48,7 +48,7 @@ final class GameSession<
   /// listener of the engine's streams: the engine publishes the events of a
   /// turn before the history records it, so a snapshot taken inside a
   /// listener would miss the last turn.
-  SessionSnapshot<TState> snapshot() => SessionSnapshot(
+  SavedGame<TState> snapshot() => SavedGame(
     engine.state,
     undo: _undo?.snapshot(),
     activeTime: _timer?.activeTime,

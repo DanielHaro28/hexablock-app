@@ -208,7 +208,7 @@ final class HexaLinesModule implements VariantModule {
     final family = HexaLinesFactory<C>(entry.topology, config.linesFor(entry.topology.id));
     final session = family.createSession(options);
     return GamePage<C, PieceColor, LinesMove<C>, LinesState<C>>(
-      cubit: GameCubit(applyMove: ApplyMoveUseCase(session), /* ... */),
+      cubit: GameCubit(applyMove: ApplyMoveUseCase(session, savedGames, key), /* ... */),
       painter: const LinesCellPainter(),
       layout: entry.layout,
     );
@@ -521,12 +521,12 @@ final class GameSession<C extends Coord, TCell extends Object, TMove,
 
   // What the saved game keeps, read together (D-113). Call it once submit,
   // undo or redo has returned, never from a listener of the engine.
-  SessionSnapshot<TState> snapshot() => SessionSnapshot(engine.state,
+  SavedGame<TState> snapshot() => SavedGame(engine.state,
       undo: _undo?.snapshot(), activeTime: _timer?.activeTime);
 }
 
-final class SessionSnapshot<TState> {
-  const SessionSnapshot(this.state, {this.undo, this.activeTime});
+final class SavedGame<TState> {
+  const SavedGame(this.state, {this.undo, this.activeTime});
   final TState state;
   final UndoSnapshot<TState>? undo; // null without undo
   final Duration? activeTime;       // null without a timer

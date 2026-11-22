@@ -35,9 +35,9 @@ package "Capa 1 · Entidades · hexa_engine" {
     + undo: IUndoable?
     + timer: ITimed?
     + GameSession(e: GameEngine, undo: UndoHistory?, timer: ActiveTimer?)
-    + snapshot(): SessionSnapshot<TState>
+    + snapshot(): SavedGame<TState>
   }
-  class SessionSnapshot<TState> <<Memento>> {
+  class SavedGame<TState> <<Memento>> {
     + state: TState
     + undo: UndoSnapshot<TState>?
     + activeTime: Duration?
@@ -253,8 +253,8 @@ IPieceSource ..> Xorshift32 : recibe y devuelve
 GameSession *-- GameEngine
 GameSession o-- IUndoable
 GameSession o-- ITimed
-GameSession ..> SessionSnapshot : da (D-113)
-SessionSnapshot o-- UndoSnapshot
+GameSession ..> SavedGame : da (D-113)
+SavedGame o-- UndoSnapshot
 
 ' ===== Motor =====
 GameEngine --> IGameRules : usa (Strategy)

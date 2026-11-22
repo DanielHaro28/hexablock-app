@@ -47,7 +47,7 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
   class DriftSavedGameRepository<TState> <<Adapter>> {
     - db: AppDatabase
     - codec: IGameStateCodec<TState>
-    + scheduleSave(k: SavedGameKey, g: SessionSnapshot<TState>): void
+    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
     + flush(): Future<void>
   }
   class LinesStateCodec <<Adapter>> {
@@ -128,9 +128,11 @@ package "Capa 2 · Casos de uso (hexa_application)" {
   }
 
   interface ISavedGameRepository<TState> <<interface>> {
-    + scheduleSave(k: SavedGameKey, g: SessionSnapshot<TState>): void
+    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
     + flush(): Future<void>
-    + load(k: SavedGameKey): Future<SessionSnapshot<TState>?>
+    + load(k: SavedGameKey): Future<SavedGame<TState>?>
+    + delete(k: SavedGameKey): void
+    + exists(p: ProfileId): Future<bool>
   }
   interface IGameStateCodec<TState> <<interface>> {
     + encode(s: TState): Map<String, Object?>

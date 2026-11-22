@@ -10,10 +10,10 @@ import '../undo/undo_snapshot.dart';
 /// undo)` and `ActiveTimer(engine, clock, elapsed: activeTime)`.
 ///
 /// `TState` has no constraint, as in `UndoSnapshot`: it only carries states.
-final class SessionSnapshot<TState> {
+final class SavedGame<TState> {
   /// A snapshot of [state] with the parts of the capabilities the session
   /// has.
-  const SessionSnapshot(this.state, {this.undo, this.activeTime});
+  const SavedGame(this.state, {this.undo, this.activeTime});
 
   /// The current state of the game.
   final TState state;

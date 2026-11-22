@@ -157,7 +157,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 | `StartGameUseCase` | Crea una partida de cualquier variante a partir de su configuración (y nivel, si aplica) | Registro de variantes, `ILevelRepository`, semilla |
 | `ApplyMoveUseCase` | Aplica un movimiento con el motor | — |
 | `UndoMoveUseCase` / `RedoMoveUseCase` | Deshace o rehace, si la variante lo permite | — |
-| `PauseGameUseCase` / `ResumeGameUseCase` | Pausa y reanuda | `IClock` |
+| `PauseGameUseCase` / `ResumeGameUseCase` | Pausa y reanuda; al pausar, guarda la partida (RN-COM-33) | `ISavedGameRepository` |
 | `SaveProgressUseCase` | Guarda el resultado en el perfil activo y lo marca como pendiente de enviar | `IProgressRepository`, `ISyncOutbox` |
 | `SyncProgressUseCase` | Envía los resultados pendientes y consolida las respuestas (D-49) | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `ISessionStore` |
 | `LoadLevelsUseCase` | Junta los niveles incluidos y los descargados, valida y ordena | `ILevelRepository`, `ILevelGateway` |

@@ -61,7 +61,10 @@ Prueba de arquitectura de D-36 (`packages/hexa_variants/test/architecture/templa
 | `ISyncOutbox` | `InMemorySyncOutbox` (marca y revisión, como ARQ-04-APP §4) | *Fake* |
 | `ILevelGateway`, `IProgressGateway`, `IAuthGateway`, `ILeaderboardGateway` | `Contract…Gateway`: responden con `docs/contracts/examples/` | *Stub* |
 | `IClock`, `IMonotonicClock` | `FakeClock` (se adelanta a mano) | *Fake* |
-| `IRandomSeeded`, `IPieceSource` | El **xorshift32 real** con semilla fija (RN-COM-43) | Real |
+| `IRandomSeeded`, `Xorshift32` | El **xorshift32 real** con semilla fija (RN-COM-43) | Real |
+| `IPieceSource` | En las pruebas del motor, `FakePieceSource` (elige entre etiquetas con el xorshift32 real, D-97); en las de cada variante, su fuente real con semilla fija | *Fake* / Real |
+| `IScoringPolicy` | En las pruebas del motor, `FakeScoring` (puntos por etiqueta de evento, D-98); en las de cada variante, su política real | *Fake* / Real |
+| `IProgressModel` | En las pruebas del motor, `FakeProgressModel` con `FakeAttempt` (puntos y movimientos, D-99); en las de cada variante, su criterio real | *Fake* / Real |
 | `IConnectivity` | `FakeConnectivity` (se pasa a "sin conexión" a mano) | *Fake* |
 | `ISessionStore` | `InMemorySessionStore` | *Fake* |
 | `ILogger` | `RecordingLogger` (guarda lo que recibió) | *Spy* |

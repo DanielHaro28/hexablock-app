@@ -1,6 +1,5 @@
 # Rule examples (E-*) whose test does not exist yet (ESTRATEGIA-PRUEBAS §6).
 # Remove an ID in the same PR that adds its test. Must be empty at delivery.
-E-COM-1
 E-COM-2
 E-COM-3
 E-CUB-1

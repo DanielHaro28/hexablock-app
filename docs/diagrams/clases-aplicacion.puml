@@ -163,7 +163,7 @@ package "Capa 2 · Casos de uso (hexa_application)" {
 }
 
 package "Capa 1 · hexa_engine (detalle en clases-motor)" {
-  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<motor>>
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
   class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
   abstract class GameEvent<C extends Coord> <<motor>>
 }

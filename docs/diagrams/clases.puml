@@ -89,7 +89,7 @@ package "Capa 2 · Casos de uso (hexa_application)" {
 }
 
 package "Capa 1 · Entidades (hexa_engine, hexa_topologies, hexa_variants)" {
-  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<interface>> <<Abstract Factory>> {
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Abstract Factory>> {
     + createRules(): IGameRules
     + createSession(o: StartOptions): GameSession
   }

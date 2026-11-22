@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -13,7 +13,7 @@
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 >
-> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. Deshacer, el cronómetro y la sesión se validan en los PR siguientes de TEC-01.
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer, el cronómetro y la sesión se validan en el PR siguiente de TEC-01.
 
 ---
 
@@ -35,6 +35,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
 | Template Method protegido | Regla en la plantilla de PR + prueba de arquitectura en CI que falla si una variante declara `playTurn` | §9.6 | D-36 |
 | Decoradores de reglas | Extienden `GameRules` y delegan cada paso en las reglas que envuelven; nunca declaran `playTurn` | §9.2, §9.6 | D-96 |
+| Estrategias de la variante | `IPieceSource` recibe el generador del estado y devuelve el siguiente; `IScoringPolicy` puntúa cada paso con sus eventos; `IProgressModel` es el criterio del mejor intento; la fábrica las crea y las conecta en sus reglas, y `VariantFamily` solo expone `createRules` y `createSession` | §9.7 | D-97 a D-101 |
 
 ## 1. Qué tiene que cumplir el motor
 
@@ -102,11 +103,9 @@ classDiagram
     class GamePhase {
       <<sealed>>
     }
-    class VariantFamily~C, TCell, TMove, TState, TPiece~ {
+    class VariantFamily~C, TCell, TMove, TState~ {
       <<interface>>
       +createRules() IGameRules
-      +createPieceSource(seed) IPieceSource~TPiece~
-      +createScoring() IScoringPolicy~TState~
       +createSession(options) GameSession
     }
     Board --> GridTopology : delega la geometría (Bridge)
@@ -241,8 +240,8 @@ Opciones consideradas: Anexo A.3.2.
 |---|---|---|---|---|
 | **`TCell`** | `PieceColor` (solo visual, RN-HL-01) | `PieceId` (*extension type* sobre `int`, RN-HF-01) | `ColorStack` (lista inmutable de colores, de abajo arriba; bloque de cima, RN-HS-02) | `Tile` (valor potencia de 2) que implementa `Mergeable<Tile>` |
 | **`TMove`** | `PlacePiece<C>(trayIndex, anchor)` | *sealed* `FitMove<C>`: `PlaceFitPiece`, `MoveFitPiece`, `RemoveFitPiece`, `RotateFitPiece` (este no cuenta como movimiento, RN-HF-61) | `PlaceStack<C>(cell)` | `Slide(direction)` |
-| **`TState`** | Tablero, bandeja (≤ 3 piezas), fuente de piezas, puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, fuente de pilas, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, fuente de fichas, ficha objetivo, victoria ya anunciada, semilla |
-| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color) | `FitPiece<C>` (id + forma) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4) |
+| **`TState`** | Tablero, bandeja (≤ 3 piezas), generador (`Xorshift32`), puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, generador, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, generador, ficha objetivo, victoria ya anunciada, semilla |
+| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color) | Sin fuente: las piezas del nivel están en la bandeja desde el inicio (RN-HF-20, 21; D-97) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4; la celda la eligen las reglas con el mismo generador, RN-HM-21) |
 | **Aplicar** | Ocupar las celdas | Colocar, mover, retirar o rotar | Poner la pila | Deslizar sin fusionar |
 | **Resolver** | Vaciar las líneas completas de todos los ejes (un paso, RN-HL-43) | — (RN-HF-40) | Cascada con cola y desempate horario (RN-HS-42, 43) | Fusionar una vez por ficha desde el frente y compactar (RN-HM-41, 42) |
 | **Después de resolver** | Bandeja nueva si quedó vacía (RN-HL-21) | — | Pila nueva en la bandeja (RN-HS-20) | Ficha nueva (RN-HM-20, 21) |
@@ -258,9 +257,11 @@ En Merge, el enunciado sugiere `TCell = int`; se propone `Tile`, porque un `int`
 |---|---|---|
 | `C` | `C extends Coord` | El tablero y la topología necesitan un valor con igualdad y `hashCode` para usarlo como clave. Dart no puede obligar a sobrescribirlos, así que `Coord` es `base` (toda coordenada es una subclase real) y la prueba de contrato común (`checkTopologyContract`) comprueba la igualdad por valor de cada topología |
 | `TCell` | `TCell extends Object` | Prohíbe tipos que acepten `null`, para que `TCell?` signifique sin ambigüedad "celda vacía" |
-| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan: restringirlo los obligaría a llevar también `TCell` sin usarlo |
+| `TState` | `TState extends GameState<C, TCell>` | El motor necesita leer el tablero y el puntaje de cualquier estado para notificar y guardar, sin conocer la variante. Va en `IGameRules`, `GameRules` y `GameEngine`, que leen el estado. `Step`, `TurnResult` y `MoveResult` lo dejan sin restricción porque solo lo transportan, e `IScoringPolicy` porque solo lee el estado de su variante: restringirlo los obligaría a llevar también `C` y `TCell` sin usarlos |
 | `TMove` | Sin restricción | El motor nunca lo inspecciona: solo lo pasa a las reglas. Una restricción vacía sería decorativa |
 | `TPiece` | Sin restricción | Una pila de Sort no es una forma; la fuente de piezas solo entrega valores |
+| `TEvent` en `IScoringPolicy<TState, TEvent>` | Sin restricción | Es la familia de eventos de la variante: la política hace un `switch` exhaustivo sobre ella. Restringirlo a `GameEvent<C>` obligaría a la política a llevar también `C` sin usarlo (D-98) |
+| `TAttempt` en `IProgressModel<TAttempt>` | Sin restricción | Cada variante define qué guarda un intento (estrellas, tiempo, movimientos, puntaje); el modelo solo los compara (D-99) |
 | `T` en `SlideMergeResolver<C, T>` | `T extends Mergeable<T>` (F-acotado) | El algoritmo de deslizar y fusionar solo necesita saber si dos valores se fusionan y en qué; con esta restricción sirve para cualquier contenido fusionable, no solo para potencias de 2 |
 
 ```dart
@@ -533,7 +534,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState, TPiece>`, con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
+| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` (`createRules`, `createSession`; D-100), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
 | **Builder** | `FitLevelBuilder<C>` y `SortLevelBuilder<C>` en `hexa_variants` | Arma un nivel paso a paso (figura, piezas, metas, umbrales) y lo **valida** al final (RN-HF-12, D-19). El *mapper* de JSON (capa 3) actúa como director; el validador de niveles del CI usa el mismo builder | §3.3 |
 | **Factory Method** | `GridTopology<C>.cellsOf(ShapeSpec)`: cada topología decide cómo crear las celdas de una forma de tablero (hexágono de radio R, rectángulo N × M, hexágono de triángulos de lado n, caja de cubos) | `Board` se crea sin conocer la figura: la topología concreta fabrica sus coordenadas a partir de la configuración (RNF-11) | — |
 
@@ -543,13 +544,13 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 |---|---|---|---|
 | **Bridge** | `Board<C, TCell>` (abstracción) ↔ `GridTopology<C>` (implementador) | Separa **qué hay en las celdas** (varía por variante) de **cómo es la rejilla** (varía por figura): 4 variantes × 4 figuras sin 16 clases de tablero. Es el núcleo de D-07 | — |
 | **Composite** | `Shape<C>`: `CellShape` (hoja) y `CompositeShape` (compuesto). Las piezas son composiciones de celdas y las figuras de Fit, composiciones de regiones (por ejemplo, un hexágono más una línea) | Rotar, trasladar y normalizar tratan igual una celda, una pieza o una figura entera. Además, los niveles se diseñan a mano más rápido componiendo regiones | §3.3 (el ejemplo es el mismo) |
-| **Decorator** | Sobre `IScoringPolicy<TState>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState>` sirve para cualquier variante. Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
+| **Decorator** | Sobre `IScoringPolicy<TState, TEvent>`: `StreakMultiplier` envuelve el bono de líneas de Lines (RN-HL-63); `BonusMultiplierDecorator<TState, TEvent>` sirve para cualquier variante (D-98). Sobre las reglas: decoradores como `MoveLimitRulesDecorator`, que extienden `GameRules` y envuelven otras `GameRules` sin declarar `playTurn` (D-96, §9.6) | Agrega comportamiento sin tocar la clase base: es la vía para el **cambio de regla en vivo** de la defensa | §3.3 (`BonusMultiplierDecorator`, `TimedRulesDecorator`) |
 
 ### 9.3 De comportamiento
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Strategy** (obligatorio) | `IGameRules` (el motor la usa sin saber cuál es), `IScoringPolicy<TState>`, `IPieceSource<TPiece>` (`WeightedRandomPieceSource`, `FixedPieceSource`, `RandomStackSource`, `RandomTileSource`) e `IProgressModel` (récord o niveles con estrellas) | Todo lo que varía entre variantes se intercambia sin tocar el motor | §3.3 ("patrón central") |
+| **Strategy** (obligatorio) | `IGameRules` (el motor la usa sin saber cuál es), `IScoringPolicy<TState, TEvent>`, `IPieceSource<TPiece>` (`WeightedRandomPieceSource`, `RandomStackSource`, `RandomTileSource`) e `IProgressModel<TAttempt>` (el criterio del mejor intento: récord, o estrellas, tiempo y movimientos por nivel). Esbozo en §9.7 | Todo lo que varía entre variantes se intercambia sin tocar el motor | §3.3 ("patrón central") |
 | **Template Method** | `GameRules<…>` (abstracta): `playTurn` fija el orden validar → aplicar → resolver → después de resolver → evaluar. Los pasos son *hooks*: `resolve` y `afterResolve` no hacen nada por defecto (Fit) y `evaluate`, por defecto, es "derrota si no hay movimientos válidos" (Lines, Sort y Merge) | Ninguna variante puede saltarse ni reordenar pasos (RN-COM-20, 23) | §3.3 (el ejemplo es el mismo) |
 | **State** | `GamePhase` y sus 5 fases (§8) | Ciclo de vida sin `if` repartidos | §3.3 |
 | **Observer** | `GameEngine.events` (`Stream<GameEvent<C>>`); se suscriben `UndoHistory` y `ActiveTimer` (síncronos), y el audio y la analítica. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
@@ -659,6 +660,54 @@ final class MoveLimitRulesDecorator<C extends Coord, TCell extends Object, TMove
 
 El motivo `MoveLimitReached` es de la familia del decorador, gracias a la jerarquía abierta de D-95. En `evaluate`, el decorador pregunta primero a las reglas que envuelve: si el último movimiento permitido también gana, gana la victoria (RN-COM-23). El dato que la condición necesita vive en el estado, no en el decorador, para que deshacer lo restaure (RN-COM-61). Los decoradores se apilan porque cada uno es un `GameRules`. Se descartó implementar `IGameRules` y exceptuar una carpeta en el CI, porque abre un hueco en D-36 y corrige el resultado después de evaluar.
 
+### 9.7 Esbozo: las estrategias de la variante (D-97 a D-99)
+
+Las tres las elige la fábrica de cada variante y las inyecta en sus reglas; el motor no las llama.
+
+```dart
+// hexa_engine
+abstract interface class IPieceSource<TPiece> {
+  (TPiece piece, Xorshift32 after) next(Xorshift32 random); // the generator lives in the state (D-97)
+}
+
+abstract interface class IScoringPolicy<TState, TEvent> {
+  int pointsFor(TState state, Iterable<TEvent> events); // the events of one step (D-98)
+}
+
+abstract interface class IProgressModel<TAttempt> {
+  int compare(TAttempt a, TAttempt b); // negative if a is better (D-99)
+}
+
+// hexa_variants/merge, in afterResolve: one sequence, the cell and then the value (RN-HM-21)
+final (index, r1) = state.random.nextInt(empty.length);
+final (tile, r2) = _tiles.next(r1);
+return Step(state.copyWith(board: /* tile on empty[index] */, random: r2), [TileSpawned(/* ... */)]);
+
+// hexa_variants/lines: each step scores its own events; LinesEvent is sealed, so the switch is exhaustive.
+// The streak multiplies only the line bonus (RN-HL-63, 64), so the decorator wraps LineBonus, not
+// the whole policy: the factory wires LinesScoring(StreakMultiplier(LineBonus())).
+final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C>, LinesEvent<C>> {
+  const LinesScoring(this._lineBonus);
+  final IScoringPolicy<LinesState<C>, LinesEvent<C>> _lineBonus;
+
+  @override
+  int pointsFor(LinesState<C> state, Iterable<LinesEvent<C>> events) =>
+      events.fold(0, (sum, event) => sum + switch (event) {
+            PiecePlaced(:final cells) => cells.length, // RN-HL-60: one point per placed cell
+            LinesCleared() => 0,                       // scored by the line bonus
+          }) +
+      _lineBonus.pointsFor(state, events); // ⌊bonus × L × streak⌋, one floor (RN-HL-64)
+}
+```
+
+**El generador es un valor del estado.** `Xorshift32` es inmutable: `next()`, `nextInt(n)` (`mod n`) y `chance(p)` (`mod 100 < p`, RN-COM-44) devuelven el valor y el generador siguiente. Una fuente solo guarda configuración, así que hay una secuencia por partida, que también usan las reglas (Merge elige la celda antes que el valor). Guardarla es guardar un entero, y deshacer la restaura con el resto del estado (RN-COM-42, 61). Con semilla 0 se usa la constante `0x9E3779B9`, la de `tools/reference-sim` (RN-COM-43); una semilla fuera de 0 a 4294967295, el rango del contrato de niveles, es un error.
+
+**Cada paso puntúa sus eventos.** Un paso del Template Method solo ve su estado, así que cada uno suma los puntos de los eventos que produjo (en Lines, `apply` suma las celdas y `resolve` el bono de líneas, que es lo único que multiplica la racha). El estado no guarda datos de un solo turno, y el motor publica `ScoreChanged` leyendo el puntaje nuevo (D-94). Por eso un multiplicador con fracciones envuelve solo la política del paso cuyos eventos multiplica, como la racha (D-101): así se redondea una sola vez (RN-COM-51). Si hiciera falta uno sobre el turno completo, se pasa a puntos racionales, en `hexa_variants` y sin tocar el motor.
+
+**La fábrica las conecta (D-100).** La fábrica concreta crea la fuente y la política y se las pasa a sus reglas; `VariantFamily` solo expone `createRules` y `createSession`, que es lo que usa el *composition root*. Por eso tiene 4 genéricos, como `GameEngine`, y una variante sin azar no tiene que inventar una fuente.
+
+**El progreso es un criterio.** El mismo `compare` elige el mejor intento completo (RN-COM-83) y ordena un ranking por nivel (E-COM-3). La forma del progreso (récord o niveles, D-45) la da `ILevelBased` (D-33); la consolidación (E-COM-2) se escribe sobre este criterio.
+
 ---
 
 ## 10. Cómo responde el diseño a la defensa
@@ -684,7 +733,7 @@ El motivo `MoveLimitReached` es de la familia del decorador, gracias a la jerarq
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36 y D-90 a D-96, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36 y D-90 a D-101, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

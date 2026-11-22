@@ -19,7 +19,7 @@ flowchart TB
                     ENG["GameEngine&lt;C, TCell, TMove, TState&gt; · Board&lt;C, TCell&gt;<br/>GamePhase · UndoHistory · GameEvent"]
                     TOP["GridTopology&lt;C&gt;: HexTopology · SquareTopology<br/>TriTopology · CubeTopology"]
                     VAR["VariantFamily: Hexa Lines · Hexa Fit<br/>Hexa Sort · Hexa Merge (reglas, puntuación, piezas)"]
-                    DPORT(["Puertos del dominio<br/>IGameRules · IScoringPolicy · IPieceSource<br/>IMonotonicClock"])
+                    DPORT(["Puertos del dominio<br/>IGameRules · IScoringPolicy · IPieceSource<br/>IProgressModel · IMonotonicClock"])
                 end
             end
         end

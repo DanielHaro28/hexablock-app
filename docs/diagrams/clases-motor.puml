@@ -22,12 +22,14 @@ skinparam ranksep 40
 
 package "Capa 1 · Entidades · hexa_engine" {
 
-  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState, TPiece> <<interface>> <<Abstract Factory>> {
+  interface VariantFamily<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<interface>> <<Abstract Factory>> {
     + createRules(): IGameRules<C, TCell, TMove, TState>
-    + createScoring(): IScoringPolicy<TState>
-    + createPieceSource(seed: int): IPieceSource<TPiece>
     + createSession(o: StartOptions): GameSession<C, TCell, TMove, TState>
   }
+  note right of VariantFamily
+    La fábrica concreta crea la fuente de piezas
+    y la política, y las conecta en sus reglas (D-100)
+  end note
   class GameSession<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
     + engine: GameEngine<C, TCell, TMove, TState>
     + undo: IUndoable?
@@ -152,11 +154,14 @@ package "Capa 1 · Entidades · hexa_engine" {
     + nowMillis(): int
   }
 
-  interface IScoringPolicy<TState> <<interface>> <<Strategy>> {
-    + pointsFor(s: TState): int
+  interface IScoringPolicy<TState, TEvent> <<interface>> <<Strategy>> {
+    + pointsFor(s: TState, events: Iterable<TEvent>): int
   }
   interface IPieceSource<TPiece> <<interface>> <<Strategy>> {
-    + next(): (TPiece, IPieceSource<TPiece>)
+    + next(random: Xorshift32): (TPiece, Xorshift32)
+  }
+  interface IProgressModel<TAttempt> <<interface>> <<Strategy>> {
+    + compare(a: TAttempt, b: TAttempt): int
   }
   interface Mergeable<T extends Mergeable> <<interface>> {
     + canMergeWith(o: T): bool
@@ -165,6 +170,8 @@ package "Capa 1 · Entidades · hexa_engine" {
   class Xorshift32 {
     + state: int
     + next(): (int, Xorshift32)
+    + nextInt(n: int): (int, Xorshift32)
+    + chance(percent: int): (bool, Xorshift32)
   }
 
   class Board<C extends Coord, TCell extends Object> <<Bridge>> {
@@ -211,8 +218,7 @@ package "Capa 1 · Entidades · hexa_topologies" {
 ' ===== Fábrica y sesión =====
 VariantFamily ..> GameSession : crea
 VariantFamily ..> IGameRules : crea
-VariantFamily ..> IScoringPolicy : crea
-VariantFamily ..> IPieceSource : crea
+IPieceSource ..> Xorshift32 : recibe y devuelve
 GameSession *-- GameEngine
 GameSession o-- IUndoable
 GameSession o-- ITimed

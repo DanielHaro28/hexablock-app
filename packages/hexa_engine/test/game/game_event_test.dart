@@ -6,6 +6,24 @@ void main() {
   const playing = PlayingPhase();
   const resolving = ResolvingPhase();
 
+  group('D-103', () {
+    test('should_be_equal_when_two_state_restored_events_are_built', () {
+      // Arrange: a tear-off builds it at run time, not as the constant.
+      const make = StateRestored<FakeCoord>.new;
+      final built = make();
+
+      // Act
+      final same = built == const StateRestored<FakeCoord>();
+
+      // Assert
+      expect(same, isTrue);
+      expect(identical(built, const StateRestored<FakeCoord>()), isFalse);
+      expect(built.hashCode, const StateRestored<FakeCoord>().hashCode);
+      expect(built, isNot(const ScoreChanged<FakeCoord>(0, 0)));
+      expect(built.toString(), 'StateRestored()');
+    });
+  });
+
   group('D-94', () {
     test('should_have_equal_hash_codes_when_two_events_are_equal', () {
       // Arrange: built at run time, so they are not the same constant.

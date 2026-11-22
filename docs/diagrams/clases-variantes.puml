@@ -27,7 +27,7 @@ package "Capa 1 · hexa_engine (detalle en clases-motor)" {
   abstract class GameRules<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<motor>>
   interface GameState<C extends Coord, TCell extends Object> <<motor>>
   interface IPieceSource<TPiece> <<motor>>
-  interface IScoringPolicy<TState> <<motor>>
+  interface IScoringPolicy<TState, TEvent> <<motor>>
   interface Mergeable<T extends Mergeable> <<motor>>
   interface IRandomSeeded <<motor>>
   interface ILevelBased <<motor>>
@@ -54,14 +54,14 @@ package "Capa 1 · hexa_variants · hexa_lines" {
   }
   enum PieceColor
   class LinesScoring<C extends Coord> {
-    + pointsFor(s: LinesState<C>): int
+    + pointsFor(s: LinesState<C>, events: Iterable<LinesEvent<C>>): int
   }
   class StreakMultiplier<C extends Coord> <<Decorator>> {
     - inner: IScoringPolicy
-    + pointsFor(s: LinesState<C>): int
+    + pointsFor(s: LinesState<C>, events: Iterable<LinesEvent<C>>): int
   }
   class WeightedRandomPieceSource<C extends Coord> {
-    + next(): (LinesPiece<C>, IPieceSource)
+    + next(random: Xorshift32): (LinesPiece<C>, Xorshift32)
   }
 }
 
@@ -85,7 +85,6 @@ package "Capa 1 · hexa_variants · hexa_fit" {
     + piece(p: FitPiece<C>): FitLevelBuilder<C>
     + build(): FitState<C>
   }
-  class FixedPieceSource<TPiece>
 }
 
 package "Capa 1 · hexa_variants · hexa_sort" {
@@ -163,10 +162,8 @@ FitState ..|> GameState : «bind» TCell = PieceId
 FitState ..|> ILevelBased
 HexaFitFactory ..> HexaFitRules : crea
 HexaFitFactory ..> FitLevelBuilder : usa
-HexaFitFactory ..> FixedPieceSource : crea
 HexaFitRules ..> FitMove
 FitState ..> PieceId
-FixedPieceSource ..|> IPieceSource
 
 ' ===== Hexa Sort =====
 HexaSortFactory ..|> VariantFamily : «bind» TCell = ColorStack, TMove = PlaceStack, TState = SortState

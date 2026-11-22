@@ -4,7 +4,7 @@
 >
 > Los nombres de clases y rutas son los previstos en `docs/architecture/ARQ-02-MOTOR.md` y `ARQ-03-APP-DETALLE.md`. Cuando exista el código, se revisan contra las clases reales (tarea de TEC-02).
 >
-> **Última actualización:** 2026-11-21
+> **Última actualización:** 2026-11-21 (D-97 a D-99)
 
 ![Diagrama de extensibilidad](diagrams/extensibilidad.png)
 
@@ -43,7 +43,9 @@ Fuente editable: `docs/diagrams/extensibilidad.mmd`.
 | `fill_events.dart` | `sealed class FillEvent<C> extends GameEvent<C>` | `GameEvent` (D-32) |
 | `fill_rejections.dart` (opcional) | `sealed class FillRejection extends RejectionReason`, solo si la pantalla debe explicar por qué se rechaza un movimiento; si no, las reglas devuelven `const InvalidMove()` | `RejectionReason` (D-95) |
 | `hexa_fill_rules.dart` | `HexaFillRules<C> extends GameRules<C, FillColor, FillMove<C>, FillState<C>>`: `rejectionOf` (el motivo o `null` si es válido), `apply`, `validMoves` y, si hacen falta, los *hooks* `resolve`, `afterResolve` y `evaluate`. Nunca `playTurn` (D-36) | `GameRules` (Strategy + Template Method) |
-| `fill_scoring.dart` | `FillScoring<C> implements IScoringPolicy<FillState<C>>` | `IScoringPolicy` |
+| `fill_scoring.dart` | `FillScoring<C> implements IScoringPolicy<FillState<C>, FillEvent<C>>`: los puntos de cada paso, a partir de los eventos de ese paso (D-98) | `IScoringPolicy` |
+| `fill_piece_source.dart` (solo si hay azar) | `FillPieceSource implements IPieceSource<TPiece>`: recibe el generador del estado y devuelve la pieza y el generador siguiente; el generador vive en `FillState` (D-97) | `IPieceSource` |
+| `fill_progress.dart` (solo si el criterio es nuevo) | `FillProgressModel implements IProgressModel<FillAttempt>`: qué intento es mejor (D-99). Si sirve el récord o el criterio de otra variante, se reutiliza | `IProgressModel` |
 | `fill_level_builder.dart` (si la variante es por niveles) | `FillLevelBuilder<C>`: arma y valida el nivel | Builder |
 | `hexa_fill_factory.dart` | `HexaFillFactory<C> implements VariantFamily<C, FillColor, FillMove<C>, FillState<C>, TPiece>`: crea reglas, puntuación, fuente de piezas, el estado inicial (D-93) y la `GameSession`, con **solo** las capacidades que tenga (por ejemplo, `UndoHistory` sin límite) | `VariantFamily` (Abstract Factory) |
 
@@ -100,7 +102,7 @@ Después de agregar la variante, `git diff --stat main` **no** debe mostrar camb
 | Pedido | Dónde se implementa | Qué se toca |
 |---|---|---|
 | **Otro tamaño de tablero** | `app/assets/config/<gameId>.json` → `GridTopology.cellsOf(ShapeSpec)` (Factory Method) | Solo configuración |
-| **Otra política de puntuación** | Una clase nueva `…Scoring implements IScoringPolicy<TState>`, o un decorador como `BonusMultiplierDecorator<TState>` | La clase nueva y **una línea** en `createScoring()` de la fábrica de esa variante |
+| **Otra política de puntuación** | Una clase nueva `…Scoring implements IScoringPolicy<TState, TEvent>`, o un decorador como `BonusMultiplierDecorator<TState, TEvent>` (D-98) | La clase nueva y **una línea** en `createScoring()` de la fábrica de esa variante |
 | **Una forma de pieza nueva** | El catálogo de piezas en la configuración (Lines) o la definición del nivel (Fit) | Solo configuración |
 | **Una restricción de regla** (p. ej., límite de movimientos) | Un decorador de reglas: `MoveLimitRulesDecorator<…> extends GameRules<…>`, que envuelve las reglas de la variante, delega cada paso y agrega la condición en su paso (`rejectionOf`, `evaluate`). No declara `playTurn`, así que la comprobación de D-36 lo acepta (D-96, ARQ-02 §9.6) | La clase nueva y una línea en `createRules()` |
 | **Otra ficha objetivo** (Merge) o **más metas** (Sort) | Configuración de la variante o del nivel | Solo configuración |

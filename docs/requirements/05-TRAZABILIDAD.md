@@ -81,7 +81,7 @@
 | RF-07 | PRG-02 | RN-COM-31 | — | |
 | RF-08 | NAV-05 | — | — | |
 | RF-09 | NAV-08 | RN-COM-113, RN-TOP-30 a 34 | — | |
-| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95 |
+| RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95; E-COM-1 y RN-COM-40 a 44 (generador): `hexa_engine/test/random/xorshift32_test`; estrategias (D-97 a D-99, RN-COM-51, 83): `hexa_engine/test/strategy/`; reloj (RN-COM-52, `FakeClock`): `hexa_engine/test/time/` |
 | RF-11 | HL-02, HF-02, HS-02, HM-01 | RN-COM-21 | E-HL-3, E-HF-2, E-HS-6, E-HM-4 | |
 | RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | RN-COM-25 (orden de los eventos, D-94): `hexa_engine/test/game/game_rules_test`, `game_engine_test`, `game_event_test` |
 | RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | |
@@ -131,7 +131,7 @@ Cada ejemplo de las reglas de negocio debe tener al menos una prueba automatizad
 
 | Ejemplo | Documento | Qué prueba | Capa | Prueba |
 |---|---|---|---|---|
-| E-COM-1 | RN-COMUNES | Secuencia de xorshift32 con semilla 12345 | Dominio | |
+| E-COM-1 | RN-COMUNES | Secuencia de xorshift32 con semilla 12345 | Dominio | `hexa_engine/test/random/xorshift32_test.dart` |
 | E-COM-2 | RN-CUENTA (compartido) | Consolidación de progreso (unión, máximo, mejor intento) y que repetirla no cambia nada. **Mismos datos que en el backend** | Dominio | |
 | E-COM-3 | RN-CUENTA (compartido) | Orden del ranking por nivel (lo calcula el backend; la app lo usa para su mejor intento local) | Dominio | |
 | E-HEX-1 | RN-TOPOLOGIAS | Rotación de 60° y vuelta completa (hexágonos) | Dominio | `hexa_topologies/test/hex/hex_topology_test.dart` |

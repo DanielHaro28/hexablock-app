@@ -409,7 +409,7 @@ Como jugador, quiero que aparezcan niveles nuevos de Hexa Fit y Hexa Sort, para 
 No entregan una función visible, pero el enunciado las evalúa directamente. TEC-01 y TEC-06 van primero: las épicas 2 a 5 dependen de ellas.
 
 ### TEC-01 · Motor genérico compartido
-Como equipo de desarrollo, quiero un motor genérico (`Board<TCoord, TCell>` con `HexBoard<TCell>` como su versión hexagonal, `IGameRules<TCoord, TCell, TMove, TState>`, `GameEngine<TCoord, TCell, TMove, TState>`, `IPieceSource<TPiece>`, `IScoringPolicy<TState>`, `IProgressModel`), para que cada variante sea una instanciación y no una copia.
+Como equipo de desarrollo, quiero un motor genérico (`Board<TCoord, TCell>` con `HexBoard<TCell>` como su versión hexagonal, `IGameRules<TCoord, TCell, TMove, TState>`, `GameEngine<TCoord, TCell, TMove, TState>`, `IPieceSource<TPiece>`, `IScoringPolicy<TState, TEvent>`, `IProgressModel<TAttempt>`; D-97 a D-99), para que cada variante sea una instanciación y no una copia.
 - Las 4 variantes usan el mismo tablero y el mismo motor.
 - `GameEngine` no tiene condicionales por variante (RNF-02).
 - El motor pasa sus pruebas con un tipo de celda de prueba.

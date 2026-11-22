@@ -537,13 +537,24 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción A recomendada en IA-45 |
 | Lecciones | (1) Los cambios del cierre quedaron sin commit en la rama de #102, que se integró sin ellos; se detectó al revisar `git status` antes de seguir. (2) Al compilar y correr el esbozo de §9.6 contra `FakeRules` se vio que devolvía derrota cuando el último movimiento permitido también ganaba, contra RN-COM-23; se corrigió para que respete la victoria de las reglas envueltas, y la corrección también se comprobó corriéndola |
 
+### IA-47 · Motor genérico: generador, reloj y estrategias (TEC-01, PR 4 de 5) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 21-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`); subagente `architecture-reviewer` |
+| Prompt | Paráfrasis fiel del pedido: implementar el PR 4 del plan del motor (rama `feat/tec-01-strategies`, `Refs #64`) después de comprobar el estado de los PR, de `dart`, del MCP de Dart y de la identidad de git: `IPieceSource<TPiece>`, `IScoringPolicy<TState>` e `IProgressModel` (Strategy, D-35); `Xorshift32` según RN-COM-40 a 45, con el estado del generador como valor inmutable dentro del estado de la partida (RN-COM-42) y la prueba de E-COM-1 (sin E-COM-2 ni E-COM-3); `IMonotonicClock` y `FakeClock`; nada de `Random()` ni `DateTime.now()` en el dominio; dejar fuera lo del PR 5. Leer ARQ-02, RN-COM-40 a 45 y 50 a 52 y D-14, D-31, D-33, D-35 y D-93 a D-96; si una firma no está decidida, proponer opciones explicadas y esperar; pruebas primero, revisión de arquitectura, `AI_USAGE.md` y PR con la plantilla. Respuesta del usuario, literal: "acepto las recomendaciones y sigue" |
+| Resultado | Issue #64, rama `feat/tec-01-strategies`. En `packages/hexa_engine/lib/src/`: `random/xorshift32.dart` (`next`, `nextInt`, `chance`, semilla 0 → `0x9E3779B9` como `tools/reference-sim`, semilla fuera de 32 bits → error), `time/monotonic_clock.dart` y `strategy/` (`IPieceSource`, `IScoringPolicy<TState, TEvent>` e `IProgressModel<TAttempt>`). En `hexa_test_support`: `FakeClock`, `FakePieceSource`, `FakeScoring`, `FakeAttempt` y `FakeProgressModel`, y su primera carpeta `test/`. 188 pruebas en `hexa_engine` (27 nuevas) y 4 en `hexa_test_support`; cobertura del dominio de 98 %. E-COM-1 sale de `tool/examples_pending.txt`. Decisiones D-97 a D-99 cerradas y D-100 y D-101 abiertas. Documentos: ARQ-02 (primera página, §2, §4.2, §4.3, §9.2, §9.3, §9.7 nueva y §12), `EXTENSIBILITY.md`, README (restricciones de tipo), TEC-01, trazabilidad, `ESTRATEGIA-PRUEBAS.md` §4 y las fuentes de `clases-motor.puml`, `clases-variantes.puml`, `extensibilidad.mmd` y `capas.mmd` |
+| Modificaciones del equipo | El usuario aceptó las tres recomendaciones (B en la fuente de piezas, B en la puntuación y A en el progreso). ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
+| Lecciones | (1) El esbozo de `IPieceSource` del diagrama de clases (la fuente guarda su generador) no servía para Hexa Merge, que saca la celda y el valor del mismo generador (RN-HM-21); se vio al recorrer cómo usaría la firma cada variante antes de proponer las opciones. (2) Claude escribió en el comentario de `Xorshift32` que ninguna otra semilla llegaba al estado de la semilla 0, lo que es falso (la semilla `0x9E3779B9` llega); lo corrigió antes del commit. (3) La revisión de arquitectura encontró el nombre de una variante en un comentario del motor (el CI no lo detecta porque ignora los comentarios), un esbozo de §9.7 que aplicaba la racha de Lines dentro de la política y contradecía el decorador de §9.2, `group` con reglas que las pruebas no comprobaban, dos pruebas que comprobaban dos cosas y el redondeo por paso de un multiplicador que abarque varios pasos (D-101). (4) Límites del entorno: no hay ninguna herramienta aprobada para exportar los diagramas, así que `extensibilidad.png` queda desactualizada hasta que alguien la exporte |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
 
 | Parte | Asistencia de IA |
 |---|---|
-| Código de la app | Motor (`hexa_engine`, desde IA-43; ciclo de turno en IA-45) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
+| Código de la app | Motor (`hexa_engine`, desde IA-43; ciclo de turno en IA-45; generador, reloj y estrategias en IA-47) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
 | Documentación de planificación (`docs/`) | Redactada en su mayor parte con Claude; las decisiones (D-*) las tomó el equipo. ⚠️ El equipo estima el porcentaje al cerrar la revisión de los Pasos 1 y 2 |
 | Herramientas de verificación (`tools/reference-sim/`) | Escritas con Claude |
 
@@ -569,6 +580,11 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | `GameEngine.close()` no estaba protegido: un oyente síncrono podía cerrar el motor a mitad de un turno ya aplicado | Subagente `architecture-reviewer` (IA-45) | `close()` lanza `StateError` desde un oyente síncrono, con una prueba |
 | Primera recomendación de D-95 (`enum` de motivos), cerrada para una 5.ª variante | El usuario la cuestionó (IA-45) | Jerarquía abierta `RejectionReason` (D-95) |
 | El esbozo del decorador de reglas (D-96) daba derrota aunque el último movimiento permitido ganara, contra RN-COM-23 | Se compiló y corrió el esbozo con `FakeRules` (IA-46) | `evaluate` respeta primero la victoria de las reglas envueltas |
+| El esbozo de `IPieceSource` en `clases-motor.puml` (la fuente guarda su generador) no permitía que Hexa Merge sacara la celda y el valor del mismo generador (RN-HM-21) | Al recorrer cómo usaría la firma cada variante (IA-47) | La fuente recibe el generador del estado y devuelve el siguiente (D-97) |
+| El comentario de `Xorshift32` decía que ninguna otra semilla llegaba al estado de la semilla 0 | Relectura antes del commit (IA-47) | El comentario dice que las semillas 0 y `0x9E3779B9` dan la misma secuencia |
+| El comentario de `IMonotonicClock` nombraba una variante dentro del motor | Subagente `architecture-reviewer` (IA-47) | Comentario genérico |
+| El esbozo de ARQ-02 §9.7 aplicaba la racha dentro de `LinesScoring`, contra el decorador de §9.2, que envuelve solo el bono de líneas | Subagente `architecture-reviewer` (IA-47) | El esbozo y `clases-variantes.puml` envuelven `LineBonus` con `StreakMultiplier` |
+| Pruebas de los dobles agrupadas por reglas (RN-COM-40, 51, 52, 83) que no comprobaban | Subagente `architecture-reviewer` (IA-47) | Agrupadas por decisión (D-56, D-97 a D-99); la trazabilidad deja esas reglas para las variantes |
 
 ### 4.3 Reflexión del equipo
 

@@ -58,4 +58,113 @@ void main() {
       expect(identical(engine.state, initial), isTrue);
     });
   });
+
+  group('D-113', () {
+    const b = FakeCoord(1, 0);
+    const second = Duration(seconds: 1);
+
+    test('should_snapshot_only_the_state_when_it_has_no_capability', () {
+      // Arrange
+      final engine = newEngine();
+      final session = GameSession(engine);
+      engine.submit(const FakeMove(a));
+
+      // Act
+      final snapshot = session.snapshot();
+
+      // Assert
+      expect(identical(snapshot.state, engine.state), isTrue);
+      expect(snapshot.undo, isNull);
+      expect(snapshot.activeTime, isNull);
+    });
+
+    test('should_include_the_last_turn_when_taken_after_submit_returns', () {
+      // Arrange
+      final engine = newEngine();
+      final session = GameSession(engine, undo: UndoHistory(engine, limit: 1));
+      final initial = engine.state;
+      engine.submit(const FakeMove(a));
+
+      // Act
+      final snapshot = session.snapshot();
+
+      // Assert
+      expect(identical(snapshot.state, engine.state), isTrue);
+      expect(snapshot.undo!.undoStates, hasLength(1));
+      expect(identical(snapshot.undo!.undoStates.single, initial), isTrue);
+    });
+
+    test('should_include_the_redo_states_when_taken_after_undo_returns', () {
+      // Arrange
+      final engine = newEngine();
+      final undo = UndoHistory(engine, allowsRedo: true);
+      final session = GameSession(engine, undo: undo);
+      engine.submit(const FakeMove(a));
+      final afterA = engine.state;
+      undo.undo();
+
+      // Act
+      final snapshot = session.snapshot();
+
+      // Assert
+      expect(snapshot.undo!.undoStates, isEmpty);
+      expect(snapshot.undo!.redoStates, hasLength(1));
+      expect(identical(snapshot.undo!.redoStates.single, afterA), isTrue);
+    });
+
+    test('should_include_the_active_time_when_the_session_is_timed', () {
+      // Arrange
+      final clock = FakeClock();
+      final engine = newEngine();
+      final session = GameSession(engine, timer: ActiveTimer(engine, clock));
+      clock.advance(second * 4);
+
+      // Act
+      final snapshot = session.snapshot();
+
+      // Assert
+      expect(snapshot.activeTime, second * 4);
+    });
+
+    test('should_continue_the_same_game_when_rebuilt_from_its_snapshot', () {
+      // Arrange
+      final clock = FakeClock();
+      final engine = newEngine();
+      final undo = UndoHistory(engine, allowsRedo: true);
+      final session = GameSession(
+        engine,
+        undo: undo,
+        timer: ActiveTimer(engine, clock),
+      );
+      engine
+        ..submit(const FakeMove(a))
+        ..submit(const FakeMove(b));
+      final afterB = engine.state;
+      undo.undo();
+      clock.advance(second * 3);
+      final saved = session.snapshot();
+      clock.advance(second * 60); // the app was closed (RN-COM-34)
+
+      // Act
+      final continued = GameEngine.paused(FakeRules(), saved.state);
+      addTearDown(continued.close);
+      final continuedUndo = UndoHistory(
+        continued,
+        allowsRedo: true,
+        from: saved.undo,
+      );
+      final continuedTimer = ActiveTimer(
+        continued,
+        clock,
+        elapsed: saved.activeTime!,
+      );
+      continued.resume();
+      continuedUndo.redo();
+
+      // Assert
+      expect(identical(continued.state, afterB), isTrue);
+      expect(continuedUndo.canUndo, isTrue);
+      expect(continuedTimer.activeTime, second * 3);
+    });
+  });
 }

@@ -770,4 +770,73 @@ void main() {
       expect(commands, isEmpty);
     });
   });
+
+  group('D-111', () {
+    /// An engine over [rules] that starts paused and is closed when the test
+    /// ends.
+    _Engine pausedEngineWith(FakeRules rules, [FakeState? saved]) {
+      final engine = GameEngine.paused(rules, saved ?? empty3x1());
+      addTearDown(engine.close);
+      return engine;
+    }
+
+    test('should_start_paused_with_the_saved_state_when_built_paused', () {
+      // Arrange
+      final saved = empty3x1();
+
+      // Act
+      final engine = pausedEngineWith(FakeRules(), saved);
+
+      // Assert
+      expect(identical(engine.state, saved), isTrue);
+      expect(engine.phase, paused);
+    });
+
+    test('should_publish_nothing_when_built_paused', () async {
+      // Arrange
+      final engine = pausedEngineWith(FakeRules());
+      final sync = recordSync(engine);
+      final later = <GameEvent<FakeCoord>>[];
+      final subscription = engine.events.listen(later.add);
+      addTearDown(subscription.cancel);
+
+      // Act
+      await Future<void>.delayed(Duration.zero);
+
+      // Assert
+      expect(sync, isEmpty);
+      expect(later, isEmpty);
+    });
+
+    test('should_reject_a_move_when_built_paused_and_not_resumed', () {
+      // Arrange
+      var applied = 0;
+      final engine = pausedEngineWith(FakeRules(onApply: () => applied++));
+      final saved = engine.state;
+
+      // Act
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      final rejected = result as RejectedMove<FakeCoord, FakeState>;
+      expect(rejected.reason, isA<NotAcceptingMoves>());
+      expect(identical(engine.state, saved), isTrue);
+      expect(applied, 0);
+    });
+
+    test('should_play_the_move_when_built_paused_and_resumed', () {
+      // Arrange
+      final engine = pausedEngineWith(FakeRules());
+      final events = recordSync(engine);
+
+      // Act
+      engine.resume();
+      final result = engine.submit(const FakeMove(a));
+
+      // Assert
+      expect(events.first, const PhaseChanged<FakeCoord>(paused, playing));
+      expect(result, isA<AcceptedMove<FakeCoord, FakeState>>());
+      expect(engine.phase, playing);
+    });
+  });
 }

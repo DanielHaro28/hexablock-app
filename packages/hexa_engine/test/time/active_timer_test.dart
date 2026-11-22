@@ -226,4 +226,22 @@ void main() {
       expect(build, throwsArgumentError);
     });
   });
+
+  group('D-111', () {
+    test('should_count_only_after_resume_when_the_engine_starts_paused', () {
+      // Arrange
+      final clock = FakeClock();
+      final engine = GameEngine.paused(FakeRules(), empty3x1());
+      addTearDown(engine.close);
+      final timer = ActiveTimer(engine, clock, elapsed: second * 5);
+      clock.advance(second * 60); // the app was closed (RN-COM-34)
+
+      // Act
+      engine.resume();
+      clock.advance(second * 2);
+
+      // Assert
+      expect(timer.activeTime, second * 7);
+    });
+  });
 }

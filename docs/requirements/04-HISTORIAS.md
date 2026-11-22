@@ -183,6 +183,7 @@ Como jugador, quiero arrastrar una pieza a la figura, para ir cubriéndola.
 Como jugador, quiero rotar una pieza, para encontrar la orientación que encaja.
 - Dado que toco una pieza de la bandeja, entonces rota un giro básico (RN-HF-31): un paso horario en 2D (60° en hexágonos).
 - Dado que la roto tantas veces como pasos tiene una vuelta (6 en hexágonos), entonces vuelve a su orientación original (E-HEX-1).
+- Dado que la pieza es simétrica y rotarla la deja igual, entonces el movimiento se rechaza y no entra al historial de deshacer (RN-HF-31, D-114).
 
 **Must** · RF-32 · RN-COM-14, RN-HF-31
 

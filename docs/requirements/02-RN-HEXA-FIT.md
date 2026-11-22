@@ -51,7 +51,7 @@ Rompecabezas **por niveles**. Cada nivel define una **figura** y un conjunto fij
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
 | RN-HF-30 | **Colocar:** llevar una pieza de la bandeja a la figura con su origen en una celda ancla. Es válido si **todas** sus celdas están **dentro de la figura** y **vacías** | Enunciado §1.2 | ✅ |
-| RN-HF-31 | **Rotar:** aplicar un **giro básico** (RN-COM-14) a una pieza **que está en la bandeja**: en 2D, un paso horario (60° en hexágonos); en 3D, el jugador elige el eje. Siempre es válido | Enunciado §1.2, HU HF-03 | ✅ (en bandeja: 🟡) |
+| RN-HF-31 | **Rotar:** aplicar un **giro básico** (RN-COM-14) a una pieza **que está en la bandeja**: en 2D, un paso horario (60° en hexágonos); en 3D, el jugador elige el eje. Es válido si la pieza **cambia de orientación**; si queda igual (una pieza simétrica, como la de una celda), es inválido (RN-COM-21) y no entra al historial | Enunciado §1.2, HU HF-03, D-114 | ✅ (en bandeja: 🟡) |
 | RN-HF-32 | **Retirar:** devolver una pieza colocada a la bandeja; sus celdas quedan vacías. Conserva la orientación con la que estaba colocada | HU HF-04 | 🟡 |
 | RN-HF-33 | **Mover:** llevar una pieza colocada a otra posición de la figura, en un solo gesto y con la misma orientación. Es válido si la nueva posición cumple RN-HF-30 **ignorando las celdas que ocupa la propia pieza**. Si es inválido, la pieza se queda donde estaba | HU HF-04 | 🟡 |
 | RN-HF-34 | Soltar una pieza fuera de la figura equivale a **retirarla** (si estaba colocada) o a **no hacer nada** (si venía de la bandeja) | HU HF-02, HF-04 | 🟡 |

@@ -68,7 +68,7 @@ Partida **sin fin**, estilo 2048. El jugador desliza el tablero en una de las di
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
 | RN-HM-50 | **Victoria:** aparece una ficha con valor **igual o mayor** a la ficha objetivo (**2048** por defecto, configurable) | Enunciado §1.4 | ✅ |
-| RN-HM-51 | Tras la victoria, el jugador elige **seguir jugando** o **nueva partida**. Si sigue, la partida continúa sin volver a anunciar la victoria y conserva su puntaje | Enunciado §5.1 (P-06) | ✅ |
+| RN-HM-51 | Tras la victoria, el jugador elige **seguir jugando** o **nueva partida**. Si sigue, la partida continúa sin volver a anunciar la victoria y conserva su puntaje. Si deshace la jugada ganadora y vuelve a llegar a la ficha objetivo, la victoria se anuncia otra vez (RN-HM-83, D-115) | Enunciado §5.1 (P-06), D-115 | ✅ |
 | RN-HM-52 | **Derrota:** ninguna de las direcciones cambia el tablero | Enunciado §1.4 | ✅ |
 | RN-HM-53 | En la topología hexagonal, RN-HM-52 equivale a: **no hay celdas vacías y ninguna ficha tiene una vecina de igual valor** (todas las vecinas están en algún eje). Se puede usar como optimización | Consecuencia | ✅ |
 
@@ -92,7 +92,7 @@ Partida **sin fin**, estilo 2048. El jugador desliza el tablero en una de las di
 | RN-HM-80 | Se puede deshacer **solo el último** movimiento válido: vuelven el tablero, el puntaje, la ficha nueva (desaparece) y el **estado del generador** (RN-COM-42) | Enunciado §1.5, HU HM-04 | ✅ |
 | RN-HM-81 | Después de deshacer, el botón queda **deshabilitado** hasta el próximo movimiento válido. Al inicio de la partida también está deshabilitado | HU HM-04 | ✅ |
 | RN-HM-82 | Como se restaura el generador, repetir el mismo movimiento después de deshacer produce **la misma ficha nueva** en la misma celda (deshacer no sirve para "volver a tirar los dados") | Diseño | 🟡 |
-| RN-HM-83 | No se puede deshacer después de la derrota (RN-COM-63). Sí se puede mientras se sigue jugando tras la victoria | RN-COM-63 | 🟡 |
+| RN-HM-83 | No se puede deshacer después de la derrota (RN-COM-63). Sí se puede mientras se sigue jugando tras la victoria, **incluida la jugada ganadora**: deshacerla vuelve al estado anterior a la victoria | RN-COM-63, D-115 | 🟡 |
 
 ## 11. Notificaciones
 

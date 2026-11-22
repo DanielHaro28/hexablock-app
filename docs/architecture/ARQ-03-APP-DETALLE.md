@@ -85,7 +85,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 | `ApplyMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `MoveResult<C, TState>` | `ISavedGameRepository` (guardado tras cada turno, D-37) | RF-10, RN-COM-20 a 25, 33 |
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
 | `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (`flush` al pausar) | RF-05, RN-COM-32 |
-| `ContinuePlayingUseCase<…>` | `()` → `GamePhase` (Hexa Merge tras la victoria) | — | RN-COM-31, RN-HM-51 |
+| `ContinuePlayingUseCase<…>` | `()` → `GamePhase` (Hexa Merge tras la victoria) | `ISavedGameRepository` (guarda el turno de la victoria al elegir seguir, D-112) | RN-COM-31, RN-HM-51 |
 | `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-60, RN-COM-80, 83 |
 | `SyncProgressUseCase` | `()` → `SyncReport` | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `IProfileRepository` | RF-63, RF-72, RN-COM-86. Cubre también el `SyncLeaderboardUseCase` del enunciado: los mejores intentos viajan en el progreso |
 | `LoadLevelsUseCase` | `GameKey` → `List<LevelSummary>` | `ILevelRepository`, `IProgressRepository` | RF-61, RF-83, RN-COM-73 |
@@ -109,15 +109,25 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
   @override
   Future<MoveResult<C, TState>> execute(TMove move) async {
     final result = _session.engine.submit(move); // synchronous, < 1 ms (D-32)
-    if (result is AcceptedMove<C, TState>) {
-      _savedGames.scheduleSave(_key, _session.snapshot()); // does not wait (D-37)
+    switch (result) {
+      case AcceptedMove(outcome: Ongoing()):
+        // After submit returned, so the history has the turn (D-113).
+        _savedGames.scheduleSave(_key, _session.snapshot()); // does not wait (D-37)
+      case AcceptedMove(outcome: Defeat() || Victory(canContinue: false)):
+        _savedGames.delete(_key); // a finished game is never saved (D-110, RN-COM-35)
+      case AcceptedMove(outcome: Victory(canContinue: true)):
+        break; // ContinuePlayingUseCase saves it if the player goes on (D-112)
+      case RejectedMove():
+        break; // nothing changed (RN-COM-21)
     }
     return result;
   }
 }
 ```
 
-`scheduleSave` no espera la escritura: el repositorio (capa 3) la encola, conserva solo la última y escribe en una transacción. `flush()` fuerza la escritura y lo llama `PauseGameUseCase` cuando la app pasa a segundo plano. Así el guardado nunca retrasa la pantalla y un cierre inesperado pierde, como mucho, el turno que se estaba escribiendo.
+`scheduleSave` no espera la escritura: el repositorio (capa 3) la encola, conserva solo la última y escribe en una transacción. `delete` pasa por la **misma cola** y descarta el guardado pendiente, así que la última operación gana y una partida terminada nunca reaparece (D-110). `flush()` fuerza la escritura y lo llama `PauseGameUseCase` cuando la app pasa a segundo plano. Así el guardado nunca retrasa la pantalla y un cierre inesperado pierde, como mucho, el turno que se estaba escribiendo.
+
+**Qué se guarda y cuándo (D-110, D-112, D-113).** Lo guardado es el `SessionSnapshot<TState>` de `GameSession.snapshot()`: estado, historial de deshacer y tiempo activo. Se toma siempre después de que `submit`, `undo` o `redo` devolvieron, nunca desde un oyente del motor. Guardan `ApplyMoveUseCase` (turno en curso), `UndoMoveUseCase` y `RedoMoveUseCase` (después de restaurar) y `ContinuePlayingUseCase` (el turno de la victoria de Merge, al elegir seguir). Para **continuar**, `StartGameUseCase` pide a la fábrica de la variante la sesión armada con `GameEngine.paused(rules, saved.state)`, `UndoHistory(…, from: saved.undo)` y `ActiveTimer(…, elapsed: saved.activeTime)`: la partida vuelve en pausa (RN-COM-34, D-111).
 
 ## 4. Puertos (capa 2) y adaptadores (capa 3)
 
@@ -125,7 +135,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|
 | `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift |
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift |
-| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)`, `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
+| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SessionSnapshot<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
 | `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |
 | `IProgressGateway` | `push(GameKey, VariantProgress) → VariantProgress` (consolidado), `pullAll()` | `HttpProgressGateway` → dio |

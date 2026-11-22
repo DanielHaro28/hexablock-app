@@ -34,6 +34,13 @@ package "Capa 1 · Entidades · hexa_engine" {
     + engine: GameEngine<C, TCell, TMove, TState>
     + undo: IUndoable?
     + timer: ITimed?
+    + GameSession(e: GameEngine, undo: UndoHistory?, timer: ActiveTimer?)
+    + snapshot(): SessionSnapshot<TState>
+  }
+  class SessionSnapshot<TState> <<Memento>> {
+    + state: TState
+    + undo: UndoSnapshot<TState>?
+    + activeTime: Duration?
   }
 
   class GameEngine<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
@@ -42,6 +49,7 @@ package "Capa 1 · Entidades · hexa_engine" {
     + syncEvents: Stream<GameEvent<C>>
     + events: Stream<GameEvent<C>>
     + GameEngine(rules: IGameRules, initialState: TState)
+    + GameEngine.paused(rules: IGameRules, savedState: TState)
     + submit(m: TMove): MoveResult<C, TState>
     + pause(): void
     + resume(): void
@@ -245,6 +253,8 @@ IPieceSource ..> Xorshift32 : recibe y devuelve
 GameSession *-- GameEngine
 GameSession o-- IUndoable
 GameSession o-- ITimed
+GameSession ..> SessionSnapshot : da (D-113)
+SessionSnapshot o-- UndoSnapshot
 
 ' ===== Motor =====
 GameEngine --> IGameRules : usa (Strategy)

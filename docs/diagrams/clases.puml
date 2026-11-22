@@ -40,7 +40,7 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
   }
   class DriftSavedGameRepository<TState> <<Adapter>> {
     - db: AppDatabase
-    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
+    + scheduleSave(k: SavedGameKey, g: SessionSnapshot<TState>): void
   }
   class DriftProgressRepository <<Adapter>> {
     - db: AppDatabase
@@ -76,7 +76,7 @@ package "Capa 2 · Casos de uso (hexa_application)" {
     + execute(): Future<SyncReport>
   }
   interface ISavedGameRepository<TState> <<interface>> {
-    + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
+    + scheduleSave(k: SavedGameKey, g: SessionSnapshot<TState>): void
     + flush(): Future<void>
   }
   interface IProgressRepository <<interface>> {

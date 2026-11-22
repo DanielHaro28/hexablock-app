@@ -16,6 +16,16 @@ sealed class GamePhase {
   /// Whether a move can be submitted now (RN-COM-24).
   bool get acceptsMoves => false;
 
+  /// Whether a turn can be undone or redone now (D-31). Only while playing:
+  /// never after a defeat or a victory (RN-COM-63), nor while paused or
+  /// resolving. After a victory that lets the player keep playing, undo is
+  /// back as soon as the game is playing again.
+  bool get allowsUndo => false;
+
+  /// Whether the active time runs now (RN-COM-52, D-106): while playing and
+  /// while a turn is resolved, never while paused or once the game is over.
+  bool get countsActiveTime => false;
+
   /// The phase while a submitted move is being played.
   GamePhase onTurnStarted() => this;
 
@@ -48,6 +58,12 @@ final class PlayingPhase extends GamePhase {
   bool get acceptsMoves => true;
 
   @override
+  bool get allowsUndo => true;
+
+  @override
+  bool get countsActiveTime => true;
+
+  @override
   GamePhase onTurnStarted() => const ResolvingPhase();
 
   @override
@@ -62,6 +78,9 @@ final class PlayingPhase extends GamePhase {
 /// to the view (ARQ-02 §8).
 final class ResolvingPhase extends GamePhase {
   const ResolvingPhase();
+
+  @override
+  bool get countsActiveTime => true;
 
   @override
   GamePhase onTurnFinished(GameOutcome outcome) => switch (outcome) {

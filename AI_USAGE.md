@@ -592,6 +592,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió tomar Hexa Lines |
 | Lecciones | (1) G-05 parecía hecho porque el archivo existía; solo al consultar la API de GitHub se vio que el botón que el archivo indica no estaba activo. (2) G-07 pide `commitlint`, que es de Node, en un repo de Dart, y en `hexablock-api` todavía no hay `package.json` (T-04 está abierto); como obliga a decidir algo, se propusieron opciones antes de escribir código |
 
+### IA-53 · Orden de los Issues pendientes, Dependabot y aprobación de workflows de forks (G-03, G-06) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Ok ya estoy listo para los Issue que me quedan, hazme un lista de cuales son". Después: "Ok perfecto, ahora dime en que orden deberiamos hacerlo" y "Cerremos primero la rama actual, G1 ya esta listo, y vamos con la Fase 1." |
+| Resultado | Lista de los 26 Issues abiertos del usuario en los dos repos y un orden en cuatro fases según los milestones y sus dependencias (G-10 después de TEC-04, TEC-02 después de las 4 variantes, R-05 después del APK firmado). Rama `docs/ec2-launch-decisions`: PR app #109 y api #43 con el CI en verde, a la espera de la revisión de otra área (D-62); el cambio de `clases-motor.puml` se guardó en un *stash* para R-04 (#23). G-06 (#18): la aprobación de workflows de forks pasó de "primeros contribuidores" a "todos los colaboradores externos" en los dos repos, como pide SECURITY-BASELINE §7. G-03 (#16): secret scanning y push protection ya estaban activos; se activaron las alertas y las actualizaciones de seguridad de Dependabot en los dos repos, y la rama `ci/dependabot-version-updates` agrega `.github/dependabot.yml` (app: `pub` en la raíz del workspace y `github-actions`; api: `npm`, `docker` y `github-actions`), con prefijos de commit que pasan el chequeo de título Conventional Commits |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | (1) SECURITY-BASELINE §7 pide aprobación para todos los colaboradores externos, pero los repos tenían el valor por defecto de GitHub (solo primeros contribuidores); se vio al consultar la API, no en la interfaz. (2) Los títulos por defecto de Dependabot ("Bump x from a to b") no pasan el job `pr-title`; por eso `commit-message.prefix`. (3) En `hexablock-api` aún no hay `package.json` ni `Dockerfile` (T-04, api #41), así que Dependabot marcará error en `npm` y `docker` hasta que se integre. (4) El modo automático bloqueó cerrar G-01 (#83) desde la terminal; lo cierra el usuario |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

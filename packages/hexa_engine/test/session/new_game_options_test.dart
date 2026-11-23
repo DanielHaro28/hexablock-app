@@ -16,7 +16,7 @@ void main() {
 
     test('should_keep_the_seed_when_it_is_the_largest_32_bit_value', () {
       // Arrange
-      const seed = 0xFFFFFFFF;
+      const seed = Xorshift32.maxSeed;
 
       // Act
       final options = NewGameOptions(seed: seed);
@@ -33,18 +33,24 @@ void main() {
       NewGameOptions build() => NewGameOptions(seed: seed);
 
       // Assert
-      expect(build, throwsArgumentError);
+      expect(
+        build,
+        throwsA(isA<ArgumentError>().having((e) => e.name, 'name', 'seed')),
+      );
     });
 
     test('should_throw_when_the_seed_does_not_fit_in_32_bits', () {
       // Arrange
-      const seed = 0x100000000;
+      const seed = Xorshift32.maxSeed + 1;
 
       // Act
       NewGameOptions build() => NewGameOptions(seed: seed);
 
       // Assert
-      expect(build, throwsArgumentError);
+      expect(
+        build,
+        throwsA(isA<ArgumentError>().having((e) => e.name, 'name', 'seed')),
+      );
     });
 
     test('should_be_equal_when_the_seeds_are_equal', () {

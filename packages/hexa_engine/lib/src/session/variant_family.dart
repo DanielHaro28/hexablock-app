@@ -18,8 +18,8 @@ import 'saved_game.dart';
 /// [createSession] or [continueSession] without knowing which variant it is
 /// (RNF-07), so this interface lives in the engine.
 ///
-/// Every implementation passes `checkVariantFamilyContract` from
-/// `hexa_test_support` (D-116).
+/// Every implementation must pass `checkVariantFamilyContract` from
+/// `hexa_test_support`, written with the first concrete factory (D-116).
 ///
 /// Type constraints: the same as `GameEngine` (ARQ-02 §4.3).
 abstract interface class VariantFamily<
@@ -29,7 +29,8 @@ abstract interface class VariantFamily<
   TState extends GameState<C, TCell>
 > {
   /// The rules of the variant, with their strategies and decorators wired
-  /// (D-96, D-100). A rule change in the defense is one line here.
+  /// (D-96, D-100). A rule change in the defense is one line in the
+  /// concrete factory's `createRules()`.
   IGameRules<C, TCell, TMove, TState> createRules();
 
   /// A new game: the initial state built from [options] (D-93), an engine

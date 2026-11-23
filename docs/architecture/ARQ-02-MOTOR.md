@@ -115,6 +115,7 @@ classDiagram
     GameEngine --> IGameRules : Strategy
     GameEngine --> GamePhase : State
     VariantFamily ..> IGameRules : crea
+    VariantFamily ..> GameSession : crea
 ```
 
 ```mermaid
@@ -207,9 +208,11 @@ final class HexaLinesModule implements VariantModule {
   @override
   Widget open<C extends Coord>(TopologyEntry<C> entry, StartOptions options) {
     final family = HexaLinesFactory<C>(entry.topology, config.linesFor(entry.topology.id));
-    final session = family.createSession(options.newGame); // NewGameOptions (D-124)
+    // StartGameUseCase calls family.createSession(options.newGame) or
+    // family.continueSession(saved) (D-116, D-124), wrapped by AspectChain (ARQ-03)
+    final startGame = aspects.wrap(StartGameUseCase(family, savedGames, key), name: 'StartGame');
     return GamePage<C, PieceColor, LinesMove<C>, LinesState<C>>(
-      cubit: GameCubit(applyMove: ApplyMoveUseCase(session, savedGames, key), /* ... */),
+      cubit: GameCubit(startGame: startGame, options: options, /* ApplyMoveUseCase, ... */),
       painter: const LinesCellPainter(),
       layout: entry.layout,
     );
@@ -824,6 +827,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 | La covarianza de Dart permite pasar una `HexCoord` a una topología de cuadrados guardada como `GridTopology<Coord>` (error en ejecución) | Del registro solo se llama a `accept`; toda operación geométrica ocurre ya dentro del visitante, con `C` concreto. Lo comprueban las pruebas `D-29` de `hexa_engine/test/board/grid_topology_test.dart` |
 | Copiar el estado en cada turno es lento | El tablero más grande tiene 64 celdas; se mide con el aspecto de métricas (ARQ-A-05) en la cascada de Sort y en la búsqueda de movimientos de Lines |
 | En Merge, deshacer la jugada que ganó y repetirla vuelve a anunciar la victoria, porque el estado restaurado no la tenía anunciada | Es coherente con "deshacer restaura todo" (RN-COM-61). Si el equipo prefiere no repetir el anuncio, se agrega una regla a `02-RN-HEXA-MERGE.md` |
+| La covarianza de Dart también permite guardar una `VariantFamily` con tipos más amplios (`VariantFamily<Coord, Object, Object?, …>`): `continueSession` recibe `SavedGame<TState>`, así que un estado de otra variante fallaría en ejecución | Nunca se guarda una `VariantFamily` con tipos más amplios: `VariantModule` y `StartGameUseCase<C, TCell, TMove, TState>` trabajan con los tipos concretos (D-124) |
 | Demasiados patrones para explicar en la defensa | Cada uno tiene su fila en §9 con el problema que resuelve; los ensayos F-09 y F-10 recorren esta tabla |
 
 ## 12. Decisiones de este documento

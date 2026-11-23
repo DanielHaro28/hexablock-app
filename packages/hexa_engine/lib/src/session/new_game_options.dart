@@ -1,3 +1,5 @@
+import '../random/xorshift32.dart';
+
 /// What a new game needs to start, whatever the variant (D-124): the
 /// argument of `VariantFamily.createSession`.
 ///
@@ -7,9 +9,9 @@
 /// besides whether to continue or start anew; continuing does not need it,
 /// because a saved game already has its generator (D-116).
 ///
-/// A field that only some variants read (for example, the level of Hexa Fit
-/// and Hexa Sort) is added here when that variant needs it, so no factory
-/// changes its signature.
+/// A new field is added here, not as a parameter of `createSession`, so no
+/// factory changes its signature. Where the level of a level-based game
+/// goes is still open (D-125, `docs/PENDIENTES.md`).
 final class NewGameOptions {
   /// Options for a game that starts from [seed].
   ///
@@ -17,16 +19,14 @@ final class NewGameOptions {
   /// gives none, the use case draws a new one and the state records it, so
   /// the game can be replayed (RN-COM-45).
   ///
-  /// Throws an [ArgumentError] if [seed] does not fit in 32 bits (0 to
-  /// 4294967295, the range of `Xorshift32` and of the level contract), so a
-  /// bad seed fails where it is chosen and not inside a factory.
+  /// Throws an [ArgumentError] if [seed] is not between 0 and
+  /// [Xorshift32.maxSeed], so a bad seed fails where it is chosen and not
+  /// inside a factory.
   NewGameOptions({required this.seed}) {
-    if (seed < 0 || seed > _maxSeed) {
+    if (seed < 0 || seed > Xorshift32.maxSeed) {
       throw ArgumentError.value(seed, 'seed', 'must fit in 32 bits');
     }
   }
-
-  static const int _maxSeed = 0xFFFFFFFF;
 
   /// The seed of the game's generator (RN-COM-41 to 43).
   final int seed;

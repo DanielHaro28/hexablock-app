@@ -1,0 +1,13 @@
+{
+  "name": "hexablock-app-tooling",
+  "private": true,
+  "description": "Development tooling only (D-123): Conventional Commits checked by commitlint in a lefthook commit-msg hook and in CI. The app itself is Flutter and does not use Node.",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "lefthook": "2.2.2"
+  }
+}

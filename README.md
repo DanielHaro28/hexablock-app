@@ -10,12 +10,14 @@ Exact versions used by the team and by CI (R-01). Upgrading any of them is a PR 
 | Flutter | 3.50.0 (stable) | `FLUTTER_VERSION` in `.github/workflows/ci.yml` and `release.yml`; `environment.flutter` in `app/pubspec.yaml` |
 | Dart | 3.14.0 (bundled with Flutter) | `environment.sdk: ^3.14.0` in every `pubspec.yaml` |
 | Android build | JDK 17, compile and target SDK from Flutter 3.50.0 | `app/android/app/build.gradle.kts` |
+| Node.js (commit tooling only) | 22.12 or later; CI uses 26 LTS | `engines` in `package.json`; `node-version` in the `pr-title` job of `ci.yml` |
 
 The backend versions (Node.js, NestJS, Prisma, PostgreSQL) are in the README of [hexablock-api](https://github.com/DanielHaro28/hexablock-api#versions).
 
 ## Getting started
 
 ```bash
+npm ci                   # commit tooling only: installs the commitlint hook (D-123)
 flutter pub get          # resolves the whole workspace (one pubspec.lock)
 dart analyze --fatal-infos
 cd app && flutter test
@@ -46,6 +48,7 @@ Every constraint on a type parameter is there for a reason (RNF-05, ARQ-02 §4.3
 
 ## Continuous integration and releases
 
+- Commit messages follow Conventional Commits in English: `npm ci` installs a `commit-msg` hook (`lefthook.yml`) that runs `commitlint` (`commitlint.config.mjs`), and CI checks the PR title with the same rules, because squash merges use it as the commit on `main`.
 - Every pull request runs `.github/workflows/ci.yml` (title in Conventional Commits, format, analysis, architecture checks, tests with coverage, debug APK) and `.github/workflows/docs-check.yml`.
 - Pushing a tag `vX.Y.Z` on a commit of `main` runs `.github/workflows/release.yml`, which publishes the signed APK in a GitHub Release.
 

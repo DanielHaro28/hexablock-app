@@ -592,6 +592,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió tomar Hexa Lines |
 | Lecciones | (1) G-05 parecía hecho porque el archivo existía; solo al consultar la API de GitHub se vio que el botón que el archivo indica no estaba activo. (2) G-07 pide `commitlint`, que es de Node, en un repo de Dart, y en `hexablock-api` todavía no hay `package.json` (T-04 está abierto); como obliga a decidir algo, se propusieron opciones antes de escribir código |
 
+### IA-54 · `commitlint` y `lefthook` en la app (G-07, D-123) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Continuación de IA-53 ("vamos con la Fase 1"). Claude propuso tres opciones para instalar `commitlint` en un repo de Dart y dos para la mitad de la API; el usuario eligió "package.json solo de dev" y "PR aparte tras #41" |
+| Resultado | D-123 en `DECISIONES.md`. `package.json` privado con `@commitlint/cli` 21.2.4, `@commitlint/config-conventional` 21.2.4 y `lefthook` 2.2.2 (verificados en npm: licencia MIT, repositorios oficiales y más de 10 millones de descargas por semana; SEC-AGT-04), y `package-lock.json`. `commitlint.config.mjs` (Conventional Commits y *scope* en `kebab-case`, como la regex anterior), `lefthook.yml` con el hook `commit-msg`, el job `pr-title` de `ci.yml` con el mismo `commitlint` en vez de la regex, y el README (versión de Node y `npm ci`). La mitad de `hexablock-api` queda para cuando se integre T-04 (api #41) |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | (1) `config-conventional` no exige el *scope* en minúsculas que exigía la regex del CI (`fix(Engine)` pasaba); se agregó `scope-case`. (2) En cambio, sí rechaza un asunto que empieza con mayúscula (`feat: Add thing`), que la regex aceptaba; de los 38 títulos de `main` solo falla `Initial commit`, anterior a la regla. (3) Se leyó el `postinstall` de `lefthook` antes de ejecutarlo: solo corre `lefthook install` y no lo hace en CI; el CI instala con `--ignore-scripts` |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

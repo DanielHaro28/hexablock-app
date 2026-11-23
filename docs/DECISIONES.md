@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-22
+> **Última actualización:** 2026-11-23
 
 ---
 
@@ -21,6 +21,7 @@
 | D-01 | Los repos están en la cuenta de **DanielHaro28**, que los creó y los administra | ADR-001 §2.4 | Ambos | 11-11 |
 | D-03 | **Registro con un correo ya usado: 409 `email-taken`** (riesgo aceptado). Permite saber si un correo está registrado; se acepta por usabilidad y se mitiga con el límite de 5 intentos por minuto por IP (SEC-API-04) y un login con mensaje genérico y en tiempo constante. La alternativa de OWASP (mensaje genérico + verificación por correo) exige enviar correos y queda fuera del alcance | SECURITY §3; API-01; ARQ-03-API §2 | Ambos | 20-11 |
 | D-24 | La protección de `main` exige PR y CI en verde, pero **no** la aprobación de otra persona; autorrevisión con la plantilla de PR y revisión de un compañero recomendada | ADR-001 §2.4, SECURITY §7, SEC-AGT-05, 07 | Ambos | 11-11 |
+| D-123 | **`commitlint` y `lefthook` se instalan con un `package.json` solo de desarrollo (opción A):** en `hexablock-app`, un `package.json` privado en la raíz con `@commitlint/cli`, `@commitlint/config-conventional` y `lefthook` como `devDependencies` con versión exacta, y su `package-lock.json`. `npm ci` instala el hook `commit-msg` (el `postinstall` de `lefthook` corre `lefthook install`), y el job `pr-title` del CI valida el título del PR con el mismo `commitlint`, así que hay una sola regla. Node ya era requisito por los hooks de `.claude/`. En `hexablock-api` se agregan las mismas `devDependencies` a su `package.json` en un PR aparte, cuando se integre T-04. Se descartaron B (instalar `lefthook` a mano y correr `commitlint` con `npx` sin lockfile: versiones sin fijar en cada máquina, contra SEC-AGT-04) y C (un hook con la regex del CI, sin `commitlint`: contradice ADR-001) | ADR-001 §2.4; `package.json`, `commitlint.config.mjs`, `lefthook.yml`, `ci.yml`; G-07 | Ambos | 23-11 |
 
 ### Cuenta, progreso y ranking
 

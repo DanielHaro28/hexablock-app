@@ -81,7 +81,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 
 | Caso de uso | Entrada → salida | Puertos | Requisitos |
 |---|---|---|---|
-| `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, nivel, semilla) → `GameSession<C, TCell, TMove, TState>`, con `VariantFamily.createSession` o `continueSession` (D-116) | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
+| `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, nivel y un `NewGameOptions` con la semilla, D-124) → `GameSession<C, TCell, TMove, TState>`, con `VariantFamily.createSession(newGame)` o `continueSession(saved)` (D-116) | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
 | `ApplyMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `MoveResult<C, TState>` | `ISavedGameRepository` (guardado tras cada turno, D-37) | RF-10, RN-COM-20 a 25, 33 |
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
 | `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (al pausar: guarda un `snapshot()` nuevo, con el tiempo activo, y hace `flush`) | RF-05, RN-COM-32, 33 |

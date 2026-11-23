@@ -20,6 +20,21 @@ updates:
       pub:
         update-types: [minor, patch]
 
+  # Commit tooling only (commitlint and lefthook, D-123). Until #111 brings
+  # package.json, Dependabot reports "dependency file not found" here.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      npm:
+        update-types: [minor, patch]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:

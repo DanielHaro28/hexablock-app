@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-22
+> **Última actualización:** 2026-11-23
 
 ---
 
@@ -200,6 +200,15 @@
 | ID | Decisión | Dónde quedó | Repos | Fecha |
 |---|---|---|---|---|
 | D-108 | **Región de AWS: `us-east-2` (Ohio)**, en lugar de la `us-east-1` del ADR. La cuenta usa la experiencia nueva de AWS (proyectos), que asigna la región según el país de la cuenta y no permite cambiarla. Para usar `us-east-1` había que activar las *advanced features*, lo que es irreversible, exige el plan pagado y quita el cierre de la cuenta al agotar los créditos, que es el control de costos del ADR. EC2, EBS y la IPv4 pública cuestan lo mismo en las dos regiones, así que el costo estimado no cambia. No se activan las *advanced features* | ADR-001 §2.3 (rev. 2.2); W-03 | Ambos | 22-11 |
+
+### Infraestructura: instancia EC2 (23-11)
+
+| ID | Decisión | Dónde quedó | Repos | Fecha |
+|---|---|---|---|---|
+| D-117 | **IP fija: una IP elástica** asociada a la instancia, en lugar de la IP pública automática. No cambia al detener y arrancar la instancia, así que no hay que tocar el registro de DuckDNS ni el certificado de Caddy. Mientras está asociada cuesta lo mismo que la automática (unos USD 3,6/mes en créditos), pero **se sigue cobrando aunque la instancia esté detenida o borrada**, así que se libera al terminar el proyecto | ADR-001 §2.3; W-02, W-03; `docs/ops/DEPLOY.md` (W-05) | API | 23-11 |
+| D-118 | **La clave SSH es solo del CI, y la instancia se administra por EC2 Instance Connect.** El par `hexablock-deploy` (ED25519) se creó al lanzar la instancia, se guardó únicamente en el secreto `EC2_SSH_KEY` del Environment `production` y se borró de la máquina local. Para administrar se usa EC2 Instance Connect desde la consola: envía una clave temporal y no deja ninguna guardada, así que se cumple A-02 sin perder el acceso. Se descartó Session Manager porque exige un rol IAM en la instancia, y SEC-WEB-01 pide que no lo tenga | SECURITY SEC-WEB-01, SEC-AGT-03; W-04, W-06; A-02 | Ambos | 23-11 |
+| D-119 | **Créditos de CPU de la `t3.small`: `standard`**, en lugar del `unlimited` que AWS pone por defecto. Con `unlimited`, AWS cobra aparte si la CPU pasa del 20 % durante mucho tiempo. Con `standard`, al agotar los créditos la instancia baja al 20 % de CPU, pero no hay cargos extra. Responde al control de costos del ADR | ADR-001 §2.3; W-03 | API | 23-11 |
+| D-120 | **Sistema operativo: Ubuntu Server 24.04 LTS** (x86_64), no la 26.04 que la consola ofrece por defecto. Lleva más tiempo probada con Docker y Caddy, tiene soporte estándar hasta 2029 y trae `unattended-upgrades` (SEC-WEB-01). `Prompt=never` en `/etc/update-manager/release-upgrades`, para que nadie la pase a 26.04 por error | W-03, W-04; `docs/ops/DEPLOY.md` (W-05) | API | 23-11 |
 
 ## 2. Respuestas del profesor y del enunciado
 

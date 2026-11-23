@@ -592,6 +592,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió tomar Hexa Lines |
 | Lecciones | (1) G-05 parecía hecho porque el archivo existía; solo al consultar la API de GitHub se vio que el botón que el archivo indica no estaba activo. (2) G-07 pide `commitlint`, que es de Node, en un repo de Dart, y en `hexablock-api` todavía no hay `package.json` (T-04 está abierto); como obliga a decidir algo, se propusieron opciones antes de escribir código |
 
+### IA-52 · Instancia EC2 lanzada y endurecida, y sus decisiones (W-01 a W-06, D-117 a D-122) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "que me quedan de mi issue de AWS?". Después: "W-01 esta listo, W-03 que tengo que hacer por que ya tengo el dominio de duckdns pero no el IP todavia", "no pienso pagar mas dinero por el proyecto", "vamos a usar la IP elastica no quiero estar cambiando lo del dns", "nunca e lanzado una EC2 [...] tienes que explicarme paso a paso", "vamos a hacer W04", "subir esa clave ahi no es malo?" y "agrega esas 2 cosas y sigamos con W06 paso a paso". El usuario envió capturas de la consola de AWS, de GitHub y de las terminales en cada paso |
+| Resultado | Guía paso a paso, revisando cada captura, para lanzar la `t3.small` (`i-0b8ac57d2e03c2f4a`, Ubuntu 24.04, 20 GiB gp3, IMDSv2, sin rol IAM, créditos `standard`) con la IP elástica `16.59.192.154` y `hexablock.duckdns.org`; endurecer SSH (`PermitRootLogin no`, solo clave) y verificar `unattended-upgrades` por EC2 Instance Connect; y crear el Environment `production` con `EC2_HOST` y `EC2_SSH_KEY`. Issues cerrados con su resumen: W-01 a W-04 y W-06 (api #19 a #22 y #24). Casilla de @DanielHaro28 en A-02 (app #74). Notas en TEC-10 (api #16) y W-05 (api #23). Rama `docs/ec2-launch-decisions` en los dos repos: D-117 a D-120 en los dos `DECISIONES.md`, y D-121 y D-122 abiertas en `PENDIENTES.md` |
+| Modificaciones del equipo | Claude recomendó primero una IP elástica y después la automática, cuando el usuario dijo que no quería gastar más. El usuario eligió la elástica para no tener que actualizar DuckDNS (D-117). El usuario preguntó si subir la clave a GitHub era un riesgo; aceptó la explicación y pidió registrar las dos mitigaciones propuestas (D-121 y D-122). Aceptó las recomendaciones de D-118 y D-119. ⚠️ El equipo confirma D-117 a D-120 en la revisión del PR |
+| Lecciones | (1) Varios valores por defecto de la consola contradecían el ADR o SEC-WEB-01: Ubuntu 26.04, disco de 8 GiB, créditos `Unlimited` ("Additional charges apply") y un Security Group sin HTTP ni HTTPS. Se detectaron porque el usuario mandó una captura antes de cada clic importante. (2) Claude anticipó que `sshd -T` mostraría el `AuthorizedKeysCommand` de EC2 Instance Connect, pero mostró `none`, porque Instance Connect pasa esa opción al arrancar el servicio. Abrir una segunda sesión de Instance Connect antes de cerrar la primera confirmó que no se había perdido el acceso. (3) El agente nunca vio la clave: las reglas le impiden leer `*.pem` y ejecutar `ssh` y `aws`. El usuario la copió del archivo a GitHub, la borró y comprobó que no quedaran copias ni `~/.aws`. Claude verificó con la API de GitHub solo los nombres de los secretos. (4) La API de GitHub mostró que el Environment quedó como `Production`; los nombres de Environment no distinguen mayúsculas, así que funciona igual. (5) `/ai-usage` solo lo puede invocar el usuario |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -636,6 +647,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Deshacer restauraba el estado entero, también la cuenta de movimientos de Fit, contra RN-HF-61 (D-10) | Pregunta del usuario sobre cómo se cuentan los movimientos para el ranking (IA-48) | `UndoHistory` conserva lo que pide la variante con `carryOver` (D-109); RN-COM-61 precisado |
 | Dos pruebas de D-109 (rehacer y *snapshot*) pasaban aunque el código no hiciera lo que comprobaban | Segunda revisión del subagente `architecture-reviewer` (IA-48) | Reescritas; la de rehacer se verificó con una mutación del código |
 | El plan del setup de AWS suponía la consola clásica (elegir `us-east-1`, usuario root e IAM), pero la cuenta usa la experiencia nueva, que asigna la región | Captura de la consola enviada por el usuario y documentación de AWS (IA-49) | D-108: región `us-east-2`; plan ajustado a AWS Builder ID y MFA en AWS Settings |
+| Claude anticipó que `sshd -T` mostraría el `AuthorizedKeysCommand` de EC2 Instance Connect, pero mostró `none` | Salida que envió el usuario, y una segunda sesión de Instance Connect abierta antes de cerrar la primera (IA-52) | Se explicó que Instance Connect pasa la opción al arrancar el servicio; el acceso se comprobó con la segunda sesión |
 
 ### 4.3 Reflexión del equipo
 

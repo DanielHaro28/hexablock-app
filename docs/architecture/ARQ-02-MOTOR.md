@@ -242,10 +242,10 @@ Opciones consideradas: Anexo A.3.2.
 
 | | Hexa Lines | Hexa Fit | Hexa Sort | Hexa Merge |
 |---|---|---|---|---|
-| **`TCell`** | `PieceColor` (solo visual, RN-HL-01) | `PieceId` (*extension type* sobre `int`, RN-HF-01) | `ColorStack` (lista inmutable de colores, de abajo arriba; bloque de cima, RN-HS-02) | `Tile` (valor potencia de 2) que implementa `Mergeable<Tile>` |
+| **`TCell`** | `PieceColor` (solo visual, RN-HL-01; fijo por familia, D-131) | `PieceId` (*extension type* sobre `int`, RN-HF-01) | `ColorStack` (lista inmutable de colores, de abajo arriba; bloque de cima, RN-HS-02) | `Tile` (valor potencia de 2) que implementa `Mergeable<Tile>` |
 | **`TMove`** | `PlacePiece<C>(trayIndex, anchor)` | *sealed* `FitMove<C>`: `PlaceFitPiece`, `MoveFitPiece`, `RemoveFitPiece`, `RotateFitPiece` (este no cuenta como movimiento, RN-HF-61) | `PlaceStack<C>(cell)` | `Slide(direction)` |
-| **`TState`** | Tablero, bandeja (≤ 3 piezas), generador (`Xorshift32`), puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, generador, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, generador, ficha objetivo, victoria ya anunciada, semilla |
-| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color) | Sin fuente: las piezas del nivel están en la bandeja desde el inicio (RN-HF-20, 21; D-97) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4; la celda la eligen las reglas con el mismo generador, RN-HM-21) |
+| **`TState`** | Tablero, bandeja de 3 casillas fijas (`null` si ya se colocó, D-133), generador (`Xorshift32`), puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, generador, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, generador, ficha objetivo, victoria ya anunciada, semilla |
+| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color de su familia); el catálogo es `LinesConfig<C>`, con la forma base de cada familia, y las orientaciones las da la topología (D-132) | Sin fuente: las piezas del nivel están en la bandeja desde el inicio (RN-HF-20, 21; D-97) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4; la celda la eligen las reglas con el mismo generador, RN-HM-21) |
 | **Aplicar** | Ocupar las celdas | Colocar, mover, retirar o rotar | Poner la pila | Deslizar sin fusionar |
 | **Resolver** | Vaciar las líneas completas de todos los ejes (un paso, RN-HL-43) | — (RN-HF-40) | Cascada con cola y desempate horario (RN-HS-42, 43) | Fusionar una vez por ficha desde el frente y compactar (RN-HM-41, 42) |
 | **Después de resolver** | Bandeja nueva si quedó vacía (RN-HL-21) | — | Pila nueva en la bandeja (RN-HS-20) | Ficha nueva (RN-HM-20, 21) |
@@ -832,7 +832,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116 y D-124, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124 y D-131 a D-133, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

@@ -7,7 +7,7 @@ import '../../theme/app_sizes.dart';
 import '../board/cells_painter.dart';
 import '../board/shape_view.dart';
 import 'lines_cell_painter.dart';
-import 'piece_drag.dart';
+import 'lines_drag.dart';
 
 /// The tray of Hexa Lines: its three fixed slots side by side (RN-HL-20,
 /// D-133). A slot whose piece was already placed stays, empty, so the

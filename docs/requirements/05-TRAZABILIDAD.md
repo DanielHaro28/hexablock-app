@@ -141,7 +141,7 @@ Cada ejemplo de las reglas de negocio debe tener al menos una prueba automatizad
 | E-CUB-1 | RN-TOPOLOGIAS | 24 orientaciones del cubo | Dominio | |
 | E-HL-1 | RN-HEXA-LINES | Una línea, 27 puntos | Dominio | |
 | E-HL-2 | RN-HEXA-LINES | Dos líneas cruzadas, celda compartida, 101 / 151 puntos | Dominio | |
-| E-HL-3 | RN-HEXA-LINES | Colocaciones inválidas | Dominio | `hexa_variants/test/hexa_lines/hexa_lines_rules_test.dart` |
+| E-HL-3 | RN-HEXA-LINES | Colocaciones inválidas | Dominio y widget | `hexa_variants/test/hexa_lines/hexa_lines_rules_test.dart`; al soltar la pieza: `app/test/frameworks/ui/hexa_lines/lines_drag_test.dart` |
 | E-HL-4 | RN-HEXA-LINES | Fin de partida y continuación con un mono | Dominio | |
 | E-HF-NIVEL | RN-NIVELES (compartido) | Nivel válido y sus 3 variaciones inválidas, incluida la geométrica (f) | Dominio | |
 | E-HF-1 | RN-HEXA-FIT | Partida completa, conteo de movimientos, 2★ por estrellas independientes | Dominio | |

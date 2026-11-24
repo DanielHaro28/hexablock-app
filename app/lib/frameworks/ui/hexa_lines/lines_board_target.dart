@@ -3,7 +3,7 @@ import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 
 import '../board/board_geometry.dart';
-import 'piece_drag.dart';
+import 'lines_drag.dart';
 
 /// The board of Hexa Lines as the target of a dragged piece (HL-02).
 ///
@@ -54,7 +54,6 @@ final class _LinesBoardTargetState<C extends Coord>
 
   @override
   Widget build(BuildContext context) => DragTarget<LinesDragged<C>>(
-    onWillAcceptWithDetails: (_) => true,
     onMove: (details) => _show(_moveOf(details)),
     onLeave: (_) => _show(null),
     onAcceptWithDetails: (details) {

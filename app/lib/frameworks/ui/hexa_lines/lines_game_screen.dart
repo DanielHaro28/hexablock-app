@@ -9,9 +9,9 @@ import '../board/topology_layout.dart';
 import '../game/game_page.dart';
 import 'lines_board_target.dart';
 import 'lines_cell_painter.dart';
+import 'lines_drag.dart';
 import 'lines_preview.dart';
 import 'lines_tray.dart';
-import 'piece_drag.dart';
 
 /// The game screen of Hexa Lines: the common [GamePage] with its painter,
 /// its tray and dragging a piece to the board (HL-02).
@@ -36,6 +36,12 @@ final class _LinesGameScreenState<C extends Coord>
 
   LinesDragContext<C> _dragOn(LinesState<C> state) =>
       _drag ??= LinesDragContext(widget.layout, state.board.topology);
+
+  @override
+  void didUpdateWidget(LinesGameScreen<C> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.layout != widget.layout) _drag = null;
+  }
 
   @override
   Widget build(BuildContext context) {

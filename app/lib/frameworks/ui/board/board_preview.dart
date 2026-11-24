@@ -28,6 +28,18 @@ final class BoardPreview<C extends Coord, TCell extends Object> {
 
   /// Whether the move would be played.
   final bool valid;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BoardPreview<C, TCell> &&
+      other.content == content &&
+      other.valid == valid &&
+      other.cells.length == cells.length &&
+      other.cells.containsAll(cells);
+
+  @override
+  int get hashCode =>
+      Object.hash(content, valid, Object.hashAllUnordered(cells));
 }
 
 /// Paints a [BoardPreview] over the board: the piece, lighter, where it
@@ -55,6 +67,7 @@ final class PreviewPainter<C extends Coord, TCell extends Object>
     for (final cell in preview.cells) {
       final outline = geometry.outlineOf(cell, gap: CellsPainter.gap);
       if (preview.valid) {
+        // A layer only takes the alpha of its paint: the color is not drawn.
         final light = Paint()
           ..color = const Color(0xFF000000)
               .withValues(alpha: AppColors.previewOpacity);
@@ -69,5 +82,7 @@ final class PreviewPainter<C extends Coord, TCell extends Object>
 
   @override
   bool shouldRepaint(PreviewPainter<C, TCell> oldDelegate) =>
-      oldDelegate.preview != preview || oldDelegate.geometry != geometry;
+      oldDelegate.preview != preview ||
+      oldDelegate.geometry != geometry ||
+      oldDelegate.painter != painter;
 }

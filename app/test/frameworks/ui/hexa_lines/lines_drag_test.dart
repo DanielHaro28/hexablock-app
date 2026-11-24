@@ -10,8 +10,9 @@ import 'package:hexablock_app/adapters/presentation/game/game_cubit.dart';
 import 'package:hexablock_app/frameworks/ui/board/board_geometry.dart';
 import 'package:hexablock_app/frameworks/ui/board/board_view.dart';
 import 'package:hexablock_app/frameworks/ui/board/hex_layout.dart';
+import 'package:hexablock_app/frameworks/ui/board/piece_drag.dart';
+import 'package:hexablock_app/frameworks/ui/hexa_lines/lines_drag.dart';
 import 'package:hexablock_app/frameworks/ui/hexa_lines/lines_game_screen.dart';
-import 'package:hexablock_app/frameworks/ui/hexa_lines/piece_drag.dart';
 import 'package:hexablock_app/frameworks/ui/hexablock_app.dart';
 
 typedef _Cubit =
@@ -70,6 +71,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Enough of a move for the drag to start.
+  const dragStart = Offset(0, -30);
+
   _Board boardView(WidgetTester tester) =>
       tester.widget<_Board>(find.byType(_Board));
 
@@ -97,7 +101,7 @@ void main() {
     final gesture = await tester.startGesture(
       tester.getCenter(pieces().at(slot)),
     );
-    await gesture.moveBy(const Offset(0, -30));
+    await gesture.moveBy(dragStart);
     await tester.pump();
     await gesture.moveTo(target);
     await tester.pump();

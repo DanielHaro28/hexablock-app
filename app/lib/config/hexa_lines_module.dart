@@ -53,6 +53,8 @@ final class HexaLinesModule implements VariantModule {
         options: options,
         applyMoveFor: (session) =>
             ErrorHandlingAspect(ApplyMoveUseCase(session, savedGames, key)),
+        checkMoveFor: (session) =>
+            ErrorHandlingAspect(CheckMoveUseCase(session)),
       )..start(),
       child: GamePage<C, PieceColor, PlacePiece<C>, LinesState<C>>(
         titleOf: (texts) => texts.gameTitleHexaLines,

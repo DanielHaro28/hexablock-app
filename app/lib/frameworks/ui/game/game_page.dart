@@ -76,7 +76,7 @@ final class GamePage<
           child:
               BlocBuilder<
                 GameCubit<C, TCell, TMove, TState>,
-                GameScreenState<C, TState>
+                GameScreenState<C, TMove, TState>
               >(
                 builder: (context, screen) => switch (screen) {
                   GameLoading() => _Message(texts.gameLoading),

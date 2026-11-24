@@ -10,10 +10,9 @@ typedef ApplyMoveFor<
   TCell extends Object,
   TMove,
   TState extends GameState<C, TCell>
-> =
-    UseCase<TMove, Result<MoveResult<C, TState>>> Function(
-      GameSession<C, TCell, TMove, TState> session,
-    );
+> = UseCase<TMove, Result<MoveResult<C, TState>>> Function(
+  GameSession<C, TCell, TMove, TState> session,
+);
 
 /// The presenter of the game screen: one for the four variants
 /// (ARQ-A-08, ARQ-03 §4).

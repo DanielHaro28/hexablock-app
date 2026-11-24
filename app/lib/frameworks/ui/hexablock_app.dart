@@ -7,7 +7,7 @@ import '../theme/app_text_styles.dart';
 /// Root widget of the app.
 ///
 /// It sets the localized texts (es and en, RNF-50) and the base text style,
-/// and shows [home]. It only uses `package:flutter/widgets.dart`: since
+/// and shows [home] as the first route. It only uses `package:flutter/widgets.dart`: since
 /// Flutter 3.47 Material lives in its own package, and adding it is a
 /// decision for the interface stories. Navigation comes with NAV-01.
 class HexaBlockApp extends StatelessWidget {
@@ -25,6 +25,12 @@ class HexaBlockApp extends StatelessWidget {
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     textStyle: AppTextStyles.body,
-    builder: (_, _) => home,
+    // A route, not a builder: the Navigator brings the Overlay that a
+    // dragged piece floats on (HL-02).
+    home: home,
+    pageRouteBuilder: <T>(settings, builder) => PageRouteBuilder<T>(
+      settings: settings,
+      pageBuilder: (context, _, _) => builder(context),
+    ),
   );
 }

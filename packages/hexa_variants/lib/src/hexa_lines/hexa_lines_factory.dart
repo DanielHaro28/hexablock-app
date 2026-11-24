@@ -20,16 +20,23 @@ final class HexaLinesFactory<C extends Coord>
   /// shape, so a bad configuration fails where the factory is registered.
   HexaLinesFactory(GridTopology<C> topology, LinesConfig<C> config)
     : _source = LinesPieceSource(topology, config.catalog),
-      _emptyBoard = Board.of(topology, config.board);
+      _emptyBoard = Board.of(topology, config.board),
+      _scoring = _createScoring(config.scoring);
 
   final IPieceSource<LinesPiece<C>> _source;
   final Board<C, PieceColor> _emptyBoard;
 
-  /// The scoring of RN-HL-60 to 64: the streak multiplies only the line
-  /// bonus, so it rounds once (D-101). Another policy is one line here
-  /// (ARQ-02 §10).
-  final IScoringPolicy<LinesState<C>, LinesEvent<C>> _scoring = LinesScoring<C>(
-    StreakMultiplier<C>(LineBonus<C>()),
+  final IScoringPolicy<LinesState<C>, LinesEvent<C>> _scoring;
+
+  /// The scoring of RN-HL-60 to 64 with the configured [values] (RNF-11,
+  /// D-139): the streak multiplies only the line bonus, so it rounds once
+  /// (D-101). Another policy is one line here (ARQ-02 §10).
+  static IScoringPolicy<LinesState<C>, LinesEvent<C>>
+  _createScoring<C extends Coord>(LinesScoringConfig values) => LinesScoring<C>(
+    StreakMultiplier<C>(
+      LineBonus<C>(values.pointsPerLineCell),
+      maxMultiplier: values.maxStreakMultiplier,
+    ),
   );
 
   /// Not `const`: a constant cannot use the type variable `C`, so Dart

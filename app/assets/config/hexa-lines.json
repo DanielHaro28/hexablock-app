@@ -1,5 +1,6 @@
 {
   "gameId": "hexa-lines",
+  "scoring": { "pointsPerLineCell": 5, "maxStreakMultiplier": 3 },
   "topologies": {
     "hex": {
       "board": { "kind": "hexagon", "size": [4] },

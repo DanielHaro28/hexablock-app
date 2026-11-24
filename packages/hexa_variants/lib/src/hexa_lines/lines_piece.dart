@@ -88,16 +88,61 @@ final class LinesFamily<C extends Coord> {
 }
 
 /// What Hexa Lines reads from the configuration for one topology
-/// (RN-COM-04, RNF-11, D-132): the board and the piece catalog.
+/// (RN-COM-04, RNF-11, D-132, D-139): the board, the piece catalog and the
+/// scoring values.
 final class LinesConfig<C extends Coord> {
-  /// A configuration with the [board] shape (RN-HL-10) and the [catalog]
-  /// families, in the order of the table (RN-HL-23).
-  LinesConfig({required this.board, required List<LinesFamily<C>> catalog})
-    : catalog = List.unmodifiable(catalog);
+  /// A configuration with the [board] shape (RN-HL-10), the [catalog]
+  /// families, in the order of the table (RN-HL-23), and the [scoring]
+  /// values (RN-HL-61, 63).
+  LinesConfig({
+    required this.board,
+    required List<LinesFamily<C>> catalog,
+    required this.scoring,
+  }) : catalog = List.unmodifiable(catalog);
 
   /// The shape of the board.
   final ShapeSpec board;
 
   /// The families of the catalog, in their order.
   final List<LinesFamily<C>> catalog;
+
+  /// The values of the scoring formula.
+  final LinesScoringConfig scoring;
+}
+
+/// The values of the Hexa Lines scoring formula that the configuration
+/// gives (RNF-11, D-139); the formula itself is the policy (RN-HL-60 to 64).
+final class LinesScoringConfig {
+  /// [pointsPerLineCell] for each cell of a cleared line (RN-HL-61; 5 in
+  /// D-09) and the [maxStreakMultiplier] of the streak (RN-HL-63; 3 in
+  /// D-09).
+  ///
+  /// Throws an [ArgumentError] if [pointsPerLineCell] is not positive or
+  /// [maxStreakMultiplier] is below 1, so a bad configuration fails where
+  /// it is read.
+  LinesScoringConfig({
+    required this.pointsPerLineCell,
+    required this.maxStreakMultiplier,
+  }) {
+    if (pointsPerLineCell <= 0) {
+      throw ArgumentError.value(
+        pointsPerLineCell,
+        'pointsPerLineCell',
+        'must be positive',
+      );
+    }
+    if (maxStreakMultiplier < 1) {
+      throw ArgumentError.value(
+        maxStreakMultiplier,
+        'maxStreakMultiplier',
+        'must be at least 1',
+      );
+    }
+  }
+
+  /// The points of each cell of a cleared line.
+  final int pointsPerLineCell;
+
+  /// The largest streak multiplier.
+  final int maxStreakMultiplier;
 }

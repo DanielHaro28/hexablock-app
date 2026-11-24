@@ -6,12 +6,14 @@ import 'coord_of.dart';
 /// Reads the configuration of Hexa Lines for one topology from
 /// `assets/config/hexa-lines.json` (D-132, RN-COM-04, RNF-11).
 ///
-/// The file has one entry per topology id, with the board shape (RN-HL-10)
+/// The file has the scoring values, shared by every topology (RN-HL-61, 63,
+/// D-139), and one entry per topology id, with the board shape (RN-HL-10)
 /// and the catalog families in the order of the table (RN-HL-23). Each
 /// family has only its base shape; the topology gives the orientations
 /// (RN-COM-14). A file that does not have this shape fails with a
-/// [FormatException], so a bad configuration fails when the game opens and
-/// not in the middle of it.
+/// [FormatException], and a value out of range with the [ArgumentError] of
+/// the domain, so a bad configuration fails when the game opens and not in
+/// the middle of it.
 final class LinesConfigMapper {
   /// The mapper.
   const LinesConfigMapper();
@@ -30,6 +32,7 @@ final class LinesConfigMapper {
       },
       _ => throw const FormatException('no topologies in the configuration'),
     };
+    final scoring = _scoring(json['scoring']);
     return switch (entry) {
       {
         'board': {'kind': final String kind, 'size': final List<Object?> size},
@@ -38,10 +41,23 @@ final class LinesConfigMapper {
         LinesConfig(
           board: ShapeSpec(kind, _ints(size)),
           catalog: [for (final family in catalog) _family(family, coordOf)],
+          scoring: scoring,
         ),
       _ => throw FormatException('malformed entry for $topologyId', entry),
     };
   }
+
+  LinesScoringConfig _scoring(Object? json) => switch (json) {
+    {
+      'pointsPerLineCell': final int pointsPerLineCell,
+      'maxStreakMultiplier': final int maxStreakMultiplier,
+    } =>
+      LinesScoringConfig(
+        pointsPerLineCell: pointsPerLineCell,
+        maxStreakMultiplier: maxStreakMultiplier,
+      ),
+    _ => throw FormatException('malformed scoring', json),
+  };
 
   LinesFamily<C> _family<C extends Coord>(Object? json, CoordOf<C> coordOf) =>
       switch (json) {

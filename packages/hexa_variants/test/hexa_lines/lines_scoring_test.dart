@@ -32,7 +32,7 @@ void main() {
   group('RN-HL-61', () {
     test('should_give_5_points_per_cell_of_each_line_when_lines_clear', () {
       // Arrange
-      const policy = LineBonus<HexCoord>();
+      const policy = LineBonus<HexCoord>(5);
 
       // Act
       final points = policy.pointsFor(stateWith(), [
@@ -45,7 +45,7 @@ void main() {
 
     test('should_give_nothing_when_no_line_is_cleared', () {
       // Arrange
-      const policy = LineBonus<HexCoord>();
+      const policy = LineBonus<HexCoord>(5);
 
       // Act
       final points = policy.pointsFor(stateWith(), [placed]);
@@ -58,7 +58,7 @@ void main() {
   group('RN-HL-62', () {
     test('should_multiply_the_bonus_by_the_number_of_lines_when_3_clear', () {
       // Arrange
-      const policy = LineBonus<HexCoord>();
+      const policy = LineBonus<HexCoord>(5);
 
       // Act: (25 + 30 + 45) × 3.
       final points = policy.pointsFor(stateWith(), [
@@ -76,7 +76,10 @@ void main() {
       test('should_give_${expected}_for_a_bonus_of_25_when_the_streak_is_'
           '$streak', () {
         // Arrange
-        const policy = StreakMultiplier<HexCoord>(LineBonus());
+        const policy = StreakMultiplier<HexCoord>(
+          LineBonus(5),
+          maxMultiplier: 3,
+        );
 
         // Act
         final points = policy.pointsFor(stateWith(streak: streak), [
@@ -90,7 +93,7 @@ void main() {
 
     test('should_give_nothing_when_the_wrapped_policy_gives_nothing', () {
       // Arrange
-      const policy = StreakMultiplier<HexCoord>(LineBonus());
+      const policy = StreakMultiplier<HexCoord>(LineBonus(5), maxMultiplier: 3);
 
       // Act
       final points = policy.pointsFor(stateWith(streak: 3), [placed]);
@@ -103,7 +106,7 @@ void main() {
   group('RN-HL-64', () {
     test('should_round_down_once_when_the_multiplier_has_a_half', () {
       // Arrange: ⌊(25 + 30) × 2 × 3 / 2⌋ = 165, an odd bonus × L.
-      const policy = StreakMultiplier<HexCoord>(LineBonus());
+      const policy = StreakMultiplier<HexCoord>(LineBonus(5), maxMultiplier: 3);
 
       // Act
       final points = policy.pointsFor(stateWith(streak: 2), [
@@ -118,7 +121,7 @@ void main() {
   group('RN-HL-60', () {
     test('should_give_one_point_per_placed_cell_when_a_piece_is_placed', () {
       // Arrange
-      const policy = LinesScoring<HexCoord>(LineBonus());
+      const policy = LinesScoring<HexCoord>(LineBonus(5));
       final piece = PiecePlaced<HexCoord>(0, {
         const HexCoord(0, 0),
         const HexCoord(1, 0),
@@ -134,7 +137,7 @@ void main() {
 
     test('should_add_the_wrapped_line_bonus_when_lines_clear', () {
       // Arrange
-      const policy = LinesScoring<HexCoord>(LineBonus());
+      const policy = LinesScoring<HexCoord>(LineBonus(5));
 
       // Act
       final points = policy.pointsFor(stateWith(), [
@@ -143,6 +146,52 @@ void main() {
 
       // Assert
       expect(points, 25);
+    });
+  });
+
+  group('RNF-11', () {
+    test('should_use_the_configured_points_per_cell_when_lines_clear', () {
+      // Arrange
+      const policy = LineBonus<HexCoord>(7);
+
+      // Act
+      final points = policy.pointsFor(stateWith(), [
+        cleared([5]),
+      ]);
+
+      // Assert
+      expect(points, 35);
+    });
+
+    test('should_stop_at_the_configured_multiplier_when_the_streak_grows', () {
+      // Arrange: ×2 at most, reached at k = 3.
+      const policy = StreakMultiplier<HexCoord>(LineBonus(5), maxMultiplier: 2);
+
+      // Act
+      final points = policy.pointsFor(stateWith(streak: 9), [
+        cleared([5], streak: 9),
+      ]);
+
+      // Assert
+      expect(points, 50);
+    });
+
+    test('should_throw_when_the_points_per_cell_are_not_positive', () {
+      // Act
+      LinesScoringConfig build() =>
+          LinesScoringConfig(pointsPerLineCell: 0, maxStreakMultiplier: 3);
+
+      // Assert
+      expect(build, throwsArgumentError);
+    });
+
+    test('should_throw_when_the_largest_multiplier_is_below_1', () {
+      // Act
+      LinesScoringConfig build() =>
+          LinesScoringConfig(pointsPerLineCell: 5, maxStreakMultiplier: 0);
+
+      // Assert
+      expect(build, throwsArgumentError);
     });
   });
 }

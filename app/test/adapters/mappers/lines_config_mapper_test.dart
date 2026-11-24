@@ -81,6 +81,45 @@ void main() {
     });
   });
 
+  group('RNF-11', () {
+    test('should_read_the_scoring_values_of_rn_hl_61_and_63', () {
+      // Arrange
+      final json = _asset();
+
+      // Act
+      final scoring = mapper.fromJson(json, 'hex', _hex).scoring;
+
+      // Assert
+      expect(scoring.pointsPerLineCell, 5);
+      expect(scoring.maxStreakMultiplier, 3);
+    });
+
+    test('should_throw_a_format_exception_when_the_scoring_is_missing', () {
+      // Arrange
+      final json = {..._asset()}..remove('scoring');
+
+      // Act
+      LinesConfig<HexCoord> read() => mapper.fromJson(json, 'hex', _hex);
+
+      // Assert
+      expect(read, throwsFormatException);
+    });
+
+    test('should_throw_an_argument_error_when_a_scoring_value_is_invalid', () {
+      // Arrange
+      final json = {
+        ..._asset(),
+        'scoring': {'pointsPerLineCell': 0, 'maxStreakMultiplier': 3},
+      };
+
+      // Act
+      LinesConfig<HexCoord> read() => mapper.fromJson(json, 'hex', _hex);
+
+      // Assert
+      expect(read, throwsArgumentError);
+    });
+  });
+
   group('D-132', () {
     test('should_throw_a_format_exception_when_the_topology_is_missing', () {
       // Arrange

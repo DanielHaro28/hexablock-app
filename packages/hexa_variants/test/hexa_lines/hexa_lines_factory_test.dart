@@ -27,6 +27,7 @@ void main() {
       final config = LinesConfig(
         board: ShapeSpec(HexTopology.hexagon, [2]),
         catalog: hexCatalog,
+        scoring: hexScoring,
       );
 
       // Act
@@ -44,6 +45,7 @@ void main() {
       final config = LinesConfig(
         board: ShapeSpec('rectangle', [3, 3]),
         catalog: hexCatalog,
+        scoring: hexScoring,
       );
 
       // Act
@@ -129,6 +131,41 @@ void main() {
       expect(result, isA<AcceptedMove<HexCoord, LinesState<HexCoord>>>());
       expect(session.engine.state.tray.first, isNull);
       expect(session.engine.state.tray.skip(1), before.tray.skip(1));
+    });
+  });
+
+  group('RNF-11', () {
+    test('should_score_with_the_configured_values_when_lines_clear', () {
+      // Arrange: E-HL-1 with 10 points per line cell instead of 5.
+      final config = LinesConfig(
+        board: hexRadius4,
+        catalog: hexCatalog,
+        scoring: LinesScoringConfig(
+          pointsPerLineCell: 10,
+          maxStreakMultiplier: 3,
+        ),
+      );
+      final rules = HexaLinesFactory(hexTopology, config).createRules();
+      final state = LinesState(
+        board: Board<HexCoord, PieceColor>.of(hexTopology, hexRadius4)
+            .withCells({
+              for (final q in [0, 1, 2])
+                HexCoord(q, -4): const PieceColor('red'),
+            }),
+        tray: [
+          LinesPiece(shapeOf([(0, 0), (1, 0)]), const PieceColor('red')),
+          null,
+          null,
+        ],
+        random: Xorshift32(7),
+        seed: 7,
+      );
+
+      // Act
+      final turn = rules.playTurn(state, const PlacePiece(0, HexCoord(3, -4)));
+
+      // Assert: 2 + ⌊50 × 1 × 2 / 2⌋.
+      expect(turn.state.score, 52);
     });
   });
 }

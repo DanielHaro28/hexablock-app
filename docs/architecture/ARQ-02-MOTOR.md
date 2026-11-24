@@ -450,9 +450,10 @@ final class NotAcceptingMoves extends RejectionReason { const NotAcceptingMoves.
 sealed class LinesEvent<C extends Coord> extends GameEvent<C> { const LinesEvent(); }
 
 final class LinesCleared<C extends Coord> extends LinesEvent<C> {
-  const LinesCleared(this.lines, this.clearedCells);
-  final List<List<C>> lines;  // each line counts for scoring (RN-HL-42)
+  LinesCleared(this.lines, this.clearedCells, {required this.streak});
+  final List<List<C>> lines;  // each line counts for scoring (RN-HL-42); the combo is lines.length
   final Set<C> clearedCells;  // each cell is emptied once
+  final int streak;           // k after the turn (RN-HL-63), for the notification of RN-HL §11
 }
 ```
 

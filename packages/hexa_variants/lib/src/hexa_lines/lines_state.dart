@@ -8,22 +8,28 @@ import 'lines_piece.dart';
 /// The tray has [traySize] fixed slots (D-133): placing a piece leaves its
 /// slot `null`, so the other pieces keep their index. The generator is part
 /// of the state (RN-COM-42), and [seed] is the one the game started with
-/// (RN-COM-45).
+/// (RN-COM-45). The [streak] lives here too, because it spans turns
+/// (RN-HL-63).
 final class LinesState<C extends Coord>
     implements GameState<C, PieceColor>, IRandomSeeded {
   /// A state with [board], [tray], the generator [random], the [seed] the
-  /// game started with and [score].
+  /// game started with, [score] and [streak].
   ///
-  /// Throws an [ArgumentError] if [tray] does not have [traySize] slots.
+  /// Throws an [ArgumentError] if [tray] does not have [traySize] slots or
+  /// [streak] is negative.
   LinesState({
     required this.board,
     required List<LinesPiece<C>?> tray,
     required this.random,
     required this.seed,
     this.score = 0,
+    this.streak = 0,
   }) : tray = List.unmodifiable(tray) {
     if (tray.length != traySize) {
       throw ArgumentError.value(tray, 'tray', 'must have $traySize slots');
+    }
+    if (streak < 0) {
+      throw ArgumentError.value(streak, 'streak', 'must not be negative');
     }
   }
 
@@ -45,18 +51,24 @@ final class LinesState<C extends Coord>
   @override
   final int score;
 
+  /// The streak `k`: how many turns in a row, up to the last one, cleared
+  /// at least one line; 0 after a turn that cleared none (RN-HL-63).
+  final int streak;
+
   /// This state with the given changes.
   LinesState<C> copyWith({
     Board<C, PieceColor>? board,
     List<LinesPiece<C>?>? tray,
     Xorshift32? random,
     int? score,
+    int? streak,
   }) => LinesState(
     board: board ?? this.board,
     tray: tray ?? this.tray,
     random: random ?? this.random,
     seed: seed,
     score: score ?? this.score,
+    streak: streak ?? this.streak,
   );
 
   @override
@@ -66,6 +78,7 @@ final class LinesState<C extends Coord>
       other.random == random &&
       other.seed == seed &&
       other.score == score &&
+      other.streak == streak &&
       _sameTray(other.tray);
 
   bool _sameTray(List<LinesPiece<C>?> others) {
@@ -77,11 +90,12 @@ final class LinesState<C extends Coord>
 
   @override
   int get hashCode =>
-      Object.hash(board, Object.hashAll(tray), random, seed, score);
+      Object.hash(board, Object.hashAll(tray), random, seed, score, streak);
 
   @override
   String toString() =>
-      'LinesState(score: $score, seed: $seed, tray: $tray, $board)';
+      'LinesState(score: $score, streak: $streak, seed: $seed, tray: $tray, '
+      '$board)';
 }
 
 /// The only Hexa Lines move: put the piece of tray slot [trayIndex] with
@@ -138,4 +152,62 @@ final class PiecePlaced<C extends Coord> extends LinesEvent<C> {
 
   @override
   String toString() => 'PiecePlaced($trayIndex, $cells)';
+}
+
+/// The complete [lines] of a turn were emptied at once (RN-HL-40 to 42):
+/// what the screen animates and the line bonus scores.
+///
+/// A cell on several lines appears in each of them, because it counts for
+/// each one (RN-HL-42), but only once in [clearedCells], because it is
+/// emptied once. The combo is the number of [lines] (RN-HL-62), and
+/// [streak] is the `k` of the state after the turn (RN-HL-63), so a
+/// listener of the asynchronous stream does not read a later state
+/// (RN-HL §11).
+final class LinesCleared<C extends Coord> extends LinesEvent<C> {
+  /// The [lines] were cleared, emptying [clearedCells], with streak
+  /// [streak].
+  LinesCleared(List<List<C>> lines, Set<C> clearedCells, {required this.streak})
+    : lines = List.unmodifiable([
+        for (final line in lines) List<C>.unmodifiable(line),
+      ]),
+      clearedCells = Set.unmodifiable(clearedCells);
+
+  /// Each cleared line, in the board's order (RN-COM-12).
+  final List<List<C>> lines;
+
+  /// The cells emptied, each one once.
+  final Set<C> clearedCells;
+
+  /// The streak `k` after this turn.
+  final int streak;
+
+  @override
+  bool operator ==(Object other) =>
+      other is LinesCleared<C> &&
+      other.streak == streak &&
+      other.clearedCells.length == clearedCells.length &&
+      other.clearedCells.containsAll(clearedCells) &&
+      _sameLines(other.lines);
+
+  bool _sameLines(List<List<C>> others) {
+    if (others.length != lines.length) return false;
+    for (var i = 0; i < lines.length; i++) {
+      final (a, b) = (lines[i], others[i]);
+      if (a.length != b.length) return false;
+      for (var j = 0; j < a.length; j++) {
+        if (a[j] != b[j]) return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    streak,
+    Object.hashAllUnordered(clearedCells),
+    Object.hashAll(lines.map(Object.hashAll)),
+  );
+
+  @override
+  String toString() => 'LinesCleared($lines, streak: $streak)';
 }

@@ -8,4 +8,5 @@ export 'src/hexa_lines/hexa_lines_factory.dart';
 export 'src/hexa_lines/hexa_lines_rules.dart';
 export 'src/hexa_lines/lines_piece.dart';
 export 'src/hexa_lines/lines_piece_source.dart';
+export 'src/hexa_lines/lines_scoring.dart';
 export 'src/hexa_lines/lines_state.dart';

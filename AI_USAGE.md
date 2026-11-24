@@ -779,6 +779,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió el merge de `main` entre las tres opciones de Claude (merge, rama y PR nuevos, o que el usuario hiciera el *force push* a mano) y pidió precisar D-137 en los dos repos. Claude lo escribió como precisión de D-137 y no como una decisión nueva, para no reabrirla |
 | Lecciones | (1) D-137 se escribió (IA-63) con un paso que su propia configuración de seguridad prohíbe: ninguna revisión cruzó la decisión con los *hooks*, y apareció la primera vez que se integró un PR apilado. (2) El sistema de permisos rechazó un `git reset --hard` para descartar el rebase local; se hizo el merge en una rama local nueva desde la versión remota y se subió como avance normal, sin borrar nada. La rama local rebasada quedó desalineada y se dejó para que el usuario decida |
 
+### IA-69 · Eliminar líneas completas y puntuarlas con la racha (HL-03, parte 1 de 2) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | `/implement-story HL-03`; después del plan: "ok, adelante" |
+| Resultado | Issue #34, primera subtarea (rama `feat/hl-03-clear-lines`). En la capa 1 (`hexa_variants`, el motor no cambia): `LinesState.streak` (la racha `k`), el evento `LinesCleared` (líneas, celdas vaciadas y racha, como pide RN-HL §11), el paso `resolve` de `HexaLinesRules`, que vacía a la vez todas las líneas completas de todos los ejes y cada celda compartida una sola vez (RN-HL-40 a 43), y las políticas `LinesScoring`, `LineBonus` y `StreakMultiplier`, que la fábrica conecta y las reglas reciben en el constructor (D-98, D-100, D-101). Pruebas: E-HL-1 y E-HL-2 (27, 101 y 151 puntos), RN-HL-40 a 43, 60 a 64 y la racha con su tope, el estado y la eliminación en una figura con dos tipos de celda (RNF-04). Documentos: el esbozo de `LinesCleared` en ARQ-02, la trazabilidad de RF-22 y `tool/examples_pending.txt` |
+| Modificaciones del equipo | El usuario aceptó el plan de Claude, que agregó la racha al evento (RN-HL §11) y no aplicó RN-HL-44 como optimización. El `architecture-reviewer` no encontró bloqueantes. Claude aplicó dos de sus sugerencias: probar la eliminación en otra figura y quitar un *cast* de una prueba. Como el cambio pasaba de las ~600 líneas de D-137, Claude lo dividió en 2 PR apilados. Las pruebas las escribió Claude y las tiene que revisar una persona (D-59): ⚠️ completar |
+| Lecciones | (1) `resolve` solo ve el estado, no el movimiento, así que no sabe qué celdas se colocaron. Revisar todas las líneas da el mismo resultado que RN-HL-44 y no obliga a guardar en el estado un dato de un solo turno (D-98). (2) Dos ediciones en lote con un script fallaron porque el *hook* de formato había cambiado el texto que buscaban. El script se detenía con un `assert` en lugar de escribir a medias, y se rehicieron sobre el archivo actual |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

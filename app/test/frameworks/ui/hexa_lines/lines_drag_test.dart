@@ -52,7 +52,12 @@ void main() {
   Future<void> pumpGame(WidgetTester tester, LinesState<HexCoord> state) async {
     final saved = FakeSavedGameRepository<LinesState<HexCoord>>();
     final cubit = _Cubit(
-      startGame: StubStartGame(const HexaLinesRules<HexCoord>(), state),
+      startGame: StubStartGame(
+        const HexaLinesRules<HexCoord>(
+          LinesScoring(StreakMultiplier(LineBonus())),
+        ),
+        state,
+      ),
       options: StartNew(NewGameOptions(seed: 7)),
       applyMoveFor: (session) =>
           ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),

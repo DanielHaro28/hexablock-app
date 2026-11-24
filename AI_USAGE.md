@@ -790,6 +790,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó el plan de Claude, que agregó la racha al evento (RN-HL §11) y no aplicó RN-HL-44 como optimización. El `architecture-reviewer` no encontró bloqueantes. Claude aplicó dos de sus sugerencias: probar la eliminación en otra figura y quitar un *cast* de una prueba. Como el cambio pasaba de las ~600 líneas de D-137, Claude lo dividió en 2 PR apilados. Las pruebas las escribió Claude y las tiene que revisar una persona (D-59): ⚠️ completar |
 | Lecciones | (1) `resolve` solo ve el estado, no el movimiento, así que no sabe qué celdas se colocaron. Revisar todas las líneas da el mismo resultado que RN-HL-44 y no obliga a guardar en el estado un dato de un solo turno (D-98). (2) Dos ediciones en lote con un script fallaron porque el *hook* de formato había cambiado el texto que buscaban. El script se detenía con un `assert` en lugar de escribir a medias, y se rehicieron sobre el archivo actual |
 
+### IA-70 · Valores del puntaje de Hexa Lines en configuración (HL-03, parte 2 de 2, D-139) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Pregunta de Claude sobre RNF-11 con tres opciones; el usuario eligió "Parámetros en JSON (Recommended)" |
+| Resultado | Issue #34, segunda subtarea (rama `feat/hl-03-scoring-config`, sobre la de la primera). `LinesScoringConfig` (puntos por celda de línea y tope de la racha, validados) dentro de `LinesConfig`. `LineBonus` y `StreakMultiplier` reciben los valores, y `HexaLinesFactory._createScoring` arma la política con ellos. En `hexa-lines.json`, una sección `scoring` con 5 y 3 (D-09), que `LinesConfigMapper` lee. Pruebas: 4 de las políticas y de la validación, 1 de la fábrica (E-HL-1 con 10 puntos por celda da 52) y 3 del *mapper*. Documentos: D-139, ARQ-02 §9.7 y §10, `EXTENSIBILITY.md` §3 y la trazabilidad de RF-22 |
+| Modificaciones del equipo | El `architecture-reviewer` vio que RNF-11 (Must) pide leer las fórmulas de puntaje de la configuración y que la primera parte dejaba los valores como constantes. Claude no lo resolvió por su cuenta: planteó tres opciones (valores en el JSON, precisar RNF-11 o aplazarlo) y el usuario eligió la recomendada. Claude propuso que un valor fuera de rango lance el `ArgumentError` del dominio, como pasa con los pesos del catálogo, y no un `FormatException`. Las pruebas las escribió Claude y las tiene que revisar una persona (D-59): ⚠️ completar |
+| Lecciones | (1) El plan de HL-03 no revisó los requisitos no funcionales, solo las reglas de la historia, y RNF-11 apareció en la revisión de arquitectura. (2) ARQ-02 §10 y RNF-11 parecían contradecirse. D-139 los concilia: la forma de la fórmula es una clase y sus valores son configuración |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -850,6 +861,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | D-138 citaba "ARQ-02 §3.3", una sección que no existe, y `GameEngine.check` respondía aunque el motor estuviera cerrado (IA-66) | `architecture-reviewer` antes del PR | Cita corregida a §2 y §9.6; `check` lanza `StateError` con el motor cerrado, con su prueba |
 | La pantalla de TEC-11 mostraba su contenido con `WidgetsApp.builder`, sin `Navigator` ni `Overlay`, así que arrastrar una pieza fallaba también en la app (IA-62, IA-67) | La primera prueba de widget del arrastre de HL-02 | `HexaBlockApp` muestra la primera pantalla como ruta, con `home` y `pageRouteBuilder` |
 | D-137 pedía rebasar la rama del siguiente PR apilado, lo que exige un *force push* que SEC-AGT-02 prohíbe (IA-63, IA-68) | El *hook* de git bloqueó el *force push* al integrar la primera parte de HL-02 | Precisión de D-137 en los dos repos: merge de `main` en vez de rebase |
+| El plan de HL-03 dejaba los valores del puntaje (5 puntos por celda, tope ×3) como constantes en el código, aunque RNF-11 pide leerlos de la configuración (IA-69, IA-70) | `architecture-reviewer` antes del PR | D-139: los valores pasan a `hexa-lines.json` y la fábrica se los da a las políticas |
 
 ### 4.3 Reflexión del equipo
 

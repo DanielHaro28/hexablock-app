@@ -18,6 +18,7 @@ void main() {
       LinesFamily(shape: shapeOf([(0, 0)]), weight: 50, color: color),
       LinesFamily(shape: shapeOf([(0, 0), (1, 0)]), weight: 50, color: color),
     ],
+    scoring: LinesScoringConfig(pointsPerLineCell: 5, maxStreakMultiplier: 3),
   );
 
   HexaLinesFactory<FakeCoord> factory() => HexaLinesFactory(topology, config);

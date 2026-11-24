@@ -38,11 +38,12 @@ final class LinesScoring<C extends Coord>
 /// and rounds once (RN-HL-64).
 final class LineBonus<C extends Coord>
     implements IScoringPolicy<LinesState<C>, LinesEvent<C>> {
-  /// The line bonus.
-  const LineBonus();
+  /// The line bonus with [pointsPerCell] for each cell of a cleared line,
+  /// read from the configuration (RNF-11, D-139).
+  const LineBonus(this.pointsPerCell);
 
-  /// The points per cell of a cleared line (RN-HL-61, D-09).
-  static const int pointsPerCell = 5;
+  /// The points of each cell of a cleared line.
+  final int pointsPerCell;
 
   @override
   int pointsFor(LinesState<C> state, Iterable<LinesEvent<C>> events) =>
@@ -68,14 +69,16 @@ final class LineBonus<C extends Coord>
 ///
 /// `k` is the streak of the state the step left, so in `resolve` it already
 /// counts the current turn. It works in halves to stay in integers:
-/// ⌊points × min(k + 1, 6) / 2⌋.
+/// ⌊points × min(k + 1, 2 × [maxMultiplier]) / 2⌋, which is RN-HL-64 with
+/// the ×3 of D-09.
 final class StreakMultiplier<C extends Coord>
     implements IScoringPolicy<LinesState<C>, LinesEvent<C>> {
-  /// The streak multiplier over [inner].
-  const StreakMultiplier(this._inner);
+  /// The streak multiplier over [inner], up to [maxMultiplier], read from
+  /// the configuration (RNF-11, D-139).
+  const StreakMultiplier(this._inner, {required this.maxMultiplier});
 
-  /// The largest multiplier, reached at k = 5 (RN-HL-63, D-09).
-  static const int maxMultiplier = 3;
+  /// The largest multiplier, reached at k = 2 × [maxMultiplier] − 1.
+  final int maxMultiplier;
 
   final IScoringPolicy<LinesState<C>, LinesEvent<C>> _inner;
 

@@ -39,7 +39,17 @@ final hexCatalog = [
 ];
 
 /// The configuration of Hexa Lines on hexagons.
-final hexConfig = LinesConfig(board: hexRadius4, catalog: hexCatalog);
+/// The scoring values of RN-HL-61 and 63: 5 points per cell, at most ×3.
+final hexScoring = LinesScoringConfig(
+  pointsPerLineCell: 5,
+  maxStreakMultiplier: 3,
+);
+
+final hexConfig = LinesConfig(
+  board: hexRadius4,
+  catalog: hexCatalog,
+  scoring: hexScoring,
+);
 
 /// Every orientation of RN-HL-23, family by family, as the table lists them.
 final hexOrientationTable = <List<List<(int, int)>>>[

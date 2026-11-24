@@ -54,7 +54,7 @@ void main() {
     final cubit = _Cubit(
       startGame: StubStartGame(
         const HexaLinesRules<HexCoord>(
-          LinesScoring(StreakMultiplier(LineBonus())),
+          LinesScoring(StreakMultiplier(LineBonus(5), maxMultiplier: 3)),
         ),
         state,
       ),

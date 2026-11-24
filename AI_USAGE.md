@@ -614,6 +614,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario confirmó las recomendaciones del plan, eligió escribir los casos de prueba uno por uno con confirmación cuando el sistema de permisos rechazó crearlos con un script, y aprobó las tres correcciones de la primera iteración. ⚠️ completar con lo que ajuste quien revise las pruebas del script (D-59) |
 | Lecciones | (1) Las primeras corridas de la skill anterior usaron `next_id.py` porque el repo de juguete ya lo tenía: la línea base no era justa y se repitió sin el script. (2) Sin el script, la skill anterior eligió un ID repetido en una corrida y acertó en la otra: con una corrida por caso, la diferencia apenas se ve en el promedio. (3) En la primera iteración la skill nueva editó código (`shuffle.dart`) porque leyó una frase como una orden, y dejó pendiente el número de PR en las tres corridas; se corrigió y la segunda iteración lo confirmó. (4) El propio script contaba como usados los IDs de ejemplo: primero uno en su comentario y después otro en la nueva `SKILL.md`; ahora solo cuenta Markdown fuera de `.claude/`. (5) El calificador castigaba dos veces el mismo ID equivocado; se corrigió antes de comparar |
 
+### IA-58 · `/new-variant`: los pasos que faltaban y las listas fijas de variantes — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "sigue con el número 2" (corregir `/new-variant` según la lista de skills acordada el 23-11) |
+| Resultado | `/new-variant` reescrita: el paso del backend, el contrato (el `enum` de `gameId` en `common.schema.json`, que la guía no menciona), las herramientas con la lista de variantes fija (`check_architecture.dart`, `check_ids.py`, `levelcheck.py`, `check_examples.py`), los textos es/en, el diseño, los niveles y su copia en la API, el diagrama de clases, la trazabilidad y una comprobación final con `git diff` que también cubre las otras 4 variantes. Dos casos de prueba de `skill-creator` que evalúan el plan del paso 0 sobre clones de los dos repos: la skill nueva sacó 13 de 14 y la anterior 10 de 14 (le faltaron el diagrama, los prefijos de `check_ids.py` y la copia de los niveles). Sin Issue |
+| Modificaciones del equipo | Ninguna sobre la skill. El usuario decidió no seguir evaluando cada skill por el costo y reducir la lista |
+| Lecciones | (1) La guía `EXTENSIBILITY.md` promete menos cambios de los reales: una 5ª variante también cambia el contrato, cuatro herramientas, una regla común cerrada y varios documentos; queda como decisión del equipo. (2) La skill anterior encontró sola la mayor parte porque el modelo lee el código; la diferencia estuvo en lo que omitió. (3) Una afirmación de la evaluación pedía reutilizar un modelo de récord que todavía no existe en `main`; se reescribió. (4) Cada skill evaluada con línea base y dos iteraciones costó entre 6 y 9 corridas completas: demasiado para el tiempo que queda |
+
 ### IA-59 · Lista de skills reducida, revisor de arquitectura ampliado y ensayo de la defensa (D-129, T-08) — compartido
 
 | Campo | Contenido |

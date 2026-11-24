@@ -713,6 +713,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió una opción "Other" sin texto en la primera pregunta (se le volvió a preguntar), aceptó crear TEC-11 asignado a sí mismo con @dicpc de revisor, y eligió: que `main` abra Lines hasta NAV-01 (después de pedir una explicación más clara de las dos opciones), el puerto de partidas guardadas con un adaptador en memoria, `Result` con `ErrorHandlingAspect` desde ya, y dejar anotado que no se puede continuar una partida hasta PRG-03 en lugar de adelantar el codec. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59), que las aprobó sin cambios |
 | Lecciones | (1) La historia citaba una decisión (D-134) que daba por hecho una pantalla inexistente; leer el código antes de planear evitó empezar HL-02 sobre nada. (2) Dentro de un mapa `Map<String, TopologyEntry<Coord>>`, Dart infiere `TopologyEntry<Coord>` y la partida se abría con `C = Coord`, sin error de compilación; lo detectó la prueba de widget y se cambió por un registro con `add<C>()`, con una prueba propia. (3) El `GameCubit` y su estado se escribieron antes que sus pruebas, contra la regla de pruebas primero; el resto de la rama sí fue pruebas primero. (4) La revisión de arquitectura encontró que `StartGameUseCase` borraba la partida guardada antes de crear la nueva, tamaños fijos en las pantallas y un tipo común que dependía del mapper de Lines; se corrigieron en la misma rama. (5) `flutter pub add` quedó colgado en el sandbox sin acceso a pub.dev y hubo que lanzarlo con red |
 
+### IA-63 · División de historias grandes en PR apilados (D-137) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Pregunta relaciona Es normal meter tantos commits en un solo PR o seria mejor hacer varios PR con menos commits ya que estoy viendo que son muchos cambios no?". Después: "agregaa la propuesta a desiciones con la desicion que se divide PR apilados con subtareas del issue" |
+| Resultado | D-137 en `docs/DECISIONES.md` de los dos repos, con el mismo texto: una historia o tarea de más de unas 8 h, o de más de unas 600 líneas previstas, lleva subtareas en su Issue y cada una va en su propio PR, apilado sobre el anterior; cómo se rebasa e integra cada uno, y que solo el último cierra el Issue. Sin Issue (una decisión del flujo de trabajo) |
+| Modificaciones del equipo | Claude explicó que la cantidad de commits no era el problema (se integra con *squash*), sino el tamaño del PR de TEC-11 (unas 3.000 líneas), y propuso dividir las historias grandes en PR apilados. El usuario la tomó como decisión cerrada y eligió que las partes sean subtareas del mismo Issue en lugar de Issues nuevos. Los umbrales de 8 h y 600 líneas son la propuesta de Claude, aceptada sin cambios |
+| Lecciones | (1) La regla "un Issue por PR" ataba el tamaño de un PR al de su Issue; el problema apareció recién con el primer PR grande (#123). (2) La línea de CLAUDE.md que dice "Un Issue por PR" queda desactualizada hasta que se cambie; es configuración del agente (SEC-AGT-05) y no se tocó sin el visto bueno del usuario |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

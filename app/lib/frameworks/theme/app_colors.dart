@@ -25,6 +25,17 @@ abstract final class AppColors {
   /// The accent of Hexa Lines (blue, REVISION-DISENO).
   static const hexaLines = Color(0xFF9CC3EA);
 
+  /// The cells of a piece over a position where it does not fit (HL-02).
+  /// The design does not draw it yet: @dicpc confirms it (D-66, D-138).
+  static const invalidPreview = Color(0xB3E5675C);
+
+  /// How opaque the cells of a piece over a valid position are (HL-02): the
+  /// piece's own color, lighter, so the board shows through.
+  static const double previewOpacity = 0.55;
+
+  /// The outline of an empty tray slot while its piece is being dragged.
+  static const draggedSlot = inkMuted;
+
   /// A piece color whose name the palette does not know.
   static const unknownPiece = Color(0xFFB8B2AC);
 

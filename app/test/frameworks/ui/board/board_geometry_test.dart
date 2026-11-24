@@ -68,4 +68,45 @@ void main() {
       expect(read, isNull);
     });
   });
+
+  group('HL-02', () {
+    test(
+      'should_start_the_cells_at_the_top_left_corner_when_laid_at_a_scale',
+      () {
+        // Arrange
+        final cells = {const HexCoord(0, 0), const HexCoord(1, 0)};
+
+        // Act
+        final geometry = BoardGeometry.atScale(const HexLayout(), cells, 20);
+
+        // Assert
+        expect(geometry.scale, 20);
+        expect(geometry.bounds.topLeft.dx, closeTo(0, 1e-6));
+        expect(geometry.bounds.topLeft.dy, closeTo(0, 1e-6));
+        expect(
+          geometry.cellAt(geometry.centerOf(const HexCoord(1, 0))),
+          const HexCoord(1, 0),
+        );
+      },
+    );
+
+    test('should_draw_a_cell_as_large_as_the_board_when_given_its_scale', () {
+      // Arrange
+      final board = BoardGeometry.fit(const HexLayout(), radius4, size);
+      final piece = {const HexCoord(0, 0)};
+
+      // Act
+      final geometry = BoardGeometry.atScale(
+        const HexLayout(),
+        piece,
+        board.scale,
+      );
+
+      // Assert
+      final onBoard = board.outlineOf(const HexCoord(0, 0)).getBounds();
+      // A Path keeps its points in single precision.
+      expect(geometry.bounds.width, closeTo(onBoard.width, 1e-3));
+      expect(geometry.bounds.height, closeTo(onBoard.height, 1e-3));
+    });
+  });
 }

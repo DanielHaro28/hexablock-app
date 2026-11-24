@@ -40,6 +40,22 @@ final class BoardGeometry<C extends Coord> {
     return BoardGeometry._(layout, all, scale, origin);
   }
 
+  /// The [cells] of [layout] at [scale] pixels per layout unit, with the
+  /// top left corner of their [bounds] at the origin: a piece drawn as large
+  /// as the board's cells (HL-02).
+  ///
+  /// Throws an [ArgumentError] if [cells] is empty.
+  factory BoardGeometry.atScale(
+    TopologyLayout<C> layout,
+    Iterable<C> cells,
+    double scale,
+  ) {
+    final all = Set<C>.unmodifiable(cells);
+    if (all.isEmpty) throw ArgumentError.value(cells, 'cells', 'is empty');
+    final extent = _extentOf(layout, all);
+    return BoardGeometry._(layout, all, scale, -extent.topLeft * scale);
+  }
+
   final TopologyLayout<C> _layout;
   final Set<C> _cells;
   final Offset _origin;

@@ -7,15 +7,12 @@ import 'package:hexa_variants/hexa_variants.dart';
 import '../adapters/mappers/lines_config_mapper.dart';
 import '../adapters/presentation/game/game_cubit.dart';
 import '../adapters/repositories/memory_saved_game_repository.dart';
-import '../frameworks/theme/app_colors.dart';
-import '../frameworks/ui/game/game_page.dart';
-import '../frameworks/ui/hexa_lines/lines_cell_painter.dart';
-import '../frameworks/ui/hexa_lines/lines_tray.dart';
+import '../frameworks/ui/hexa_lines/lines_game_screen.dart';
 import 'topology_entry.dart';
 import 'variant_module.dart';
 
-/// Hexa Lines in the app: its configuration, its factory, its painter and
-/// its tray (ARQ-02 §3.1).
+/// Hexa Lines in the app: its configuration, its factory, its use cases and
+/// its screen (ARQ-02 §3.1).
 final class HexaLinesModule implements VariantModule {
   /// The module, with the decoded `assets/config/hexa-lines.json`.
   const HexaLinesModule(this._config);
@@ -56,14 +53,7 @@ final class HexaLinesModule implements VariantModule {
         checkMoveFor: (session) =>
             ErrorHandlingAspect(CheckMoveUseCase(session)),
       )..start(),
-      child: GamePage<C, PieceColor, PlacePiece<C>, LinesState<C>>(
-        titleOf: (texts) => texts.gameTitleHexaLines,
-        accent: AppColors.hexaLines,
-        layout: entry.layout,
-        cellPainter: const LinesCellPainter(),
-        trayOf: (context, state) =>
-            LinesTray<C>(tray: state.tray, layout: entry.layout),
-      ),
+      child: LinesGameScreen<C>(layout: entry.layout),
     );
   }
 }

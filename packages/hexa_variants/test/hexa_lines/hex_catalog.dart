@@ -1,13 +1,16 @@
-import 'package:hexa_engine/hexa_engine.dart';
-import 'package:hexa_topologies/hexa_topologies.dart';
-import 'package:hexa_variants/hexa_variants.dart';
-
 /// Test data: the Hexa Lines catalog for hexagons (RN-HL-23) and its default
 /// board (RN-HL-10), written the way the configuration will give them.
 ///
 /// Each family has only its base shape (the first orientation of the
 /// table); the source derives the rest with the topology. The colors are
 /// test data: RN-HL-01 makes them visual only and the rules do not fix them.
+library;
+
+import 'package:hexa_engine/hexa_engine.dart';
+import 'package:hexa_topologies/hexa_topologies.dart';
+import 'package:hexa_variants/hexa_variants.dart';
+
+/// The topology of every example of 02-RN-HEXA-LINES.
 const hexTopology = HexTopology();
 
 /// The board of RN-HL-10 for hexagons: radius 4, 61 cells.
@@ -81,3 +84,10 @@ final hexOrientationTable = <List<List<(int, int)>>>[
     [(0, 0), (-1, 1), (-2, 2), (-3, 3), (-4, 4)],
   ],
 ];
+
+/// Orientation [orientation] of family [family] (both from 0) of RN-HL-23,
+/// with the family's color.
+LinesPiece<HexCoord> tablePiece(int family, int orientation) => LinesPiece(
+  shapeOf(hexOrientationTable[family][orientation]),
+  hexCatalog[family].color,
+);

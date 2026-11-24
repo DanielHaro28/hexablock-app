@@ -21,12 +21,6 @@ void main() {
     return pieces;
   }
 
-  /// Orientation [orientation] of family [family] (both from 0) of RN-HL-23.
-  LinesPiece<HexCoord> tablePiece(int family, int orientation) => LinesPiece(
-    shapeOf(hexOrientationTable[family][orientation]),
-    hexCatalog[family].color,
-  );
-
   group('RN-HL-23', () {
     test('should_list_the_orientations_of_the_table_when_built_from_the_'
         'base_shapes', () {
@@ -37,7 +31,7 @@ void main() {
       ];
 
       // Act
-      final orientations = source().orientations;
+      final orientations = source().piecesByFamily;
 
       // Assert
       expect([
@@ -51,7 +45,7 @@ void main() {
       final catalog = source();
 
       // Act
-      final count = catalog.orientations.fold(0, (sum, f) => sum + f.length);
+      final count = catalog.piecesByFamily.fold(0, (sum, f) => sum + f.length);
 
       // Assert
       expect(count, 24);
@@ -65,7 +59,7 @@ void main() {
 
         // Act
         final colors = [
-          for (final family in catalog.orientations)
+          for (final family in catalog.piecesByFamily)
             {for (final piece in family) piece.color},
         ];
 

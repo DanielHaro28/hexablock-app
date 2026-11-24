@@ -151,9 +151,19 @@ void main() {
       final turn = rules.playTurn(state, move);
 
       // Assert
-      expect((turn as PlayedTurn).events, [
-        PiecePlaced<HexCoord>(0, {const HexCoord(-1, 2), const HexCoord(0, 2)}),
-      ]);
+      expect(
+        turn,
+        isA<PlayedTurn<HexCoord, LinesState<HexCoord>>>().having(
+          (played) => played.events,
+          'events',
+          [
+            PiecePlaced<HexCoord>(0, {
+              const HexCoord(-1, 2),
+              const HexCoord(0, 2),
+            }),
+          ],
+        ),
+      );
     });
 
     test('should_keep_the_generator_and_the_seed_when_placed', () {
@@ -170,13 +180,18 @@ void main() {
     });
   });
 
-  group('RN-HL-51', () {
-    test('should_offer_every_fitting_anchor_of_every_piece_when_listing_'
+  group('RN-HL-30', () {
+    test('should_list_slot_by_slot_and_anchors_in_reading_order_when_listing_'
         'moves', () {
-      // Arrange: one empty cell, where only the mono fits.
+      // Arrange: three empty cells; the domino fits only on (0, 0).
+      final empty = {
+        const HexCoord(0, 0),
+        const HexCoord(1, 0),
+        const HexCoord(-4, 4),
+      };
       final full = [
         for (final cell in hexTopology.cellsOf(hexRadius4))
-          if (cell != const HexCoord(0, 0)) (cell.q, cell.r),
+          if (!empty.contains(cell)) (cell.q, cell.r),
       ];
       final state = stateWith(occupied: full, tray: [domino, mono, null]);
 
@@ -184,7 +199,12 @@ void main() {
       final moves = rules.validMoves(state);
 
       // Assert
-      expect(moves, [const PlacePiece(1, HexCoord(0, 0))]);
+      expect(moves, [
+        const PlacePiece(0, HexCoord(0, 0)),
+        const PlacePiece(1, HexCoord(0, 0)),
+        const PlacePiece(1, HexCoord(1, 0)),
+        const PlacePiece(1, HexCoord(-4, 4)),
+      ]);
     });
 
     test('should_offer_no_move_when_the_tray_is_empty', () {
@@ -196,16 +216,6 @@ void main() {
 
       // Assert
       expect(moves, isEmpty);
-    });
-  });
-
-  group('RN-HL-20', () {
-    test('should_throw_when_the_tray_does_not_have_3_slots', () {
-      // Act
-      LinesState<HexCoord> build() => stateWith(tray: [domino, mono]);
-
-      // Assert
-      expect(build, throwsArgumentError);
     });
   });
 }

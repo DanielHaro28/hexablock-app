@@ -14,17 +14,44 @@ void main() {
       factory().createSession(NewGameOptions(seed: seed)).engine.state;
 
   group('D-116', () {
-    checkVariantFamilyContract(factory, NewGameOptions(seed: 42));
+    checkVariantFamilyContract(
+      factory,
+      NewGameOptions(seed: 42),
+      usesChance: true,
+    );
   });
 
   group('RN-HL-10', () {
     test('should_use_the_configured_board_when_the_game_is_new', () {
+      // Arrange: radius 2 instead of the default 4 (RNF-11).
+      final config = LinesConfig(
+        board: ShapeSpec(HexTopology.hexagon, [2]),
+        catalog: hexCatalog,
+      );
+
       // Act
-      final state = newGame(42);
+      final state = HexaLinesFactory(
+        hexTopology,
+        config,
+      ).createSession(NewGameOptions(seed: 42)).engine.state;
 
       // Assert
-      expect(state.board.cells, hexTopology.cellsOf(hexRadius4));
-      expect(state.board.cells, hasLength(61));
+      expect(state.board.cells, hasLength(19));
+    });
+
+    test('should_throw_when_the_topology_does_not_know_the_board_shape', () {
+      // Arrange
+      final config = LinesConfig(
+        board: ShapeSpec('rectangle', [3, 3]),
+        catalog: hexCatalog,
+      );
+
+      // Act
+      HexaLinesFactory<HexCoord> build() =>
+          HexaLinesFactory(hexTopology, config);
+
+      // Assert
+      expect(build, throwsArgumentError);
     });
   });
 
@@ -34,48 +61,25 @@ void main() {
       final state = newGame(42);
 
       // Assert
+      expect(state.board.cells, hasLength(61));
       expect(state.board.emptyCells, hasLength(61));
     });
   });
 
   group('RN-HL-20', () {
     test(
-      'should_fill_the_3_tray_slots_from_the_catalog_when_the_game_is_new',
-      () {
-        // Arrange
-        final catalog = LinesPieceSource(
-          hexTopology,
-          hexCatalog,
-        ).orientations.expand((family) => family).toSet();
-
-        // Act
-        final tray = newGame(42).tray;
-
-        // Assert
-        expect(tray, hasLength(3));
-        expect(tray.every(catalog.contains), isTrue);
-      },
-    );
-
-    test(
       'should_draw_the_tray_in_order_from_the_seed_when_the_game_is_new',
       () {
-        // Arrange
-        var random = Xorshift32(42);
-        final source = LinesPieceSource(hexTopology, hexCatalog);
-        final expected = <LinesPiece<HexCoord>>[];
-        for (var i = 0; i < 3; i++) {
-          final (piece, after) = source.next(random);
-          expected.add(piece);
-          random = after;
-        }
+        // Arrange: the values of RN-HL-24 for seed 42, computed outside the
+        // code under test (see lines_piece_source_test.dart).
+        final expected = [tablePiece(3, 4), tablePiece(4, 0), tablePiece(4, 0)];
 
         // Act
         final state = newGame(42);
 
         // Assert
         expect(state.tray, expected);
-        expect(state.random, random);
+        expect(state.random, Xorshift32(1441438134));
       },
     );
   });

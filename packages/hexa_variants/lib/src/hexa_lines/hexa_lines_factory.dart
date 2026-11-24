@@ -15,14 +15,18 @@ final class HexaLinesFactory<C extends Coord>
   /// The factory for [topology] with its [config] (D-132).
   ///
   /// Throws an [ArgumentError] if the catalog weights do not add up to
-  /// [LinesPieceSource.totalWeight].
-  HexaLinesFactory(this._topology, this._config)
-    : _source = LinesPieceSource(_topology, _config.catalog);
+  /// [LinesPieceSource.totalWeight] or [topology] does not know the board
+  /// shape, so a bad configuration fails where the factory is registered.
+  HexaLinesFactory(GridTopology<C> topology, LinesConfig<C> config)
+    : _source = LinesPieceSource(topology, config.catalog),
+      _emptyBoard = Board.of(topology, config.board);
 
-  final GridTopology<C> _topology;
-  final LinesConfig<C> _config;
-  final LinesPieceSource<C> _source;
+  final IPieceSource<LinesPiece<C>> _source;
+  final Board<C, PieceColor> _emptyBoard;
 
+  /// Not `const`: a constant cannot use the type variable `C`, so Dart
+  /// would infer `HexaLinesRules<Never>`, which covariance lets through and
+  /// fails only when a state is passed in.
   @override
   HexaLinesRules<C> createRules() => HexaLinesRules<C>();
 
@@ -32,15 +36,13 @@ final class HexaLinesFactory<C extends Coord>
   GameSession<C, PieceColor, PlacePiece<C>, LinesState<C>> createSession(
     NewGameOptions options,
   ) {
-    var random = Xorshift32(options.seed);
-    final tray = <LinesPiece<C>>[];
-    for (var i = 0; i < LinesState.traySize; i++) {
-      final (piece, after) = _source.next(random);
-      tray.add(piece);
-      random = after;
-    }
+    final (tray, random) = drawTray(
+      _source,
+      Xorshift32(options.seed),
+      LinesState.traySize,
+    );
     final state = LinesState(
-      board: Board<C, PieceColor>.of(_topology, _config.board),
+      board: _emptyBoard,
       tray: tray,
       random: random,
       seed: options.seed,

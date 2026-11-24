@@ -18,7 +18,7 @@ final class LinesPieceSource<C extends Coord>
   /// add up to [totalWeight].
   LinesPieceSource(GridTopology<C> topology, List<LinesFamily<C>> catalog)
     : _families = List.unmodifiable(catalog),
-      orientations = List.unmodifiable([
+      piecesByFamily = List.unmodifiable([
         for (final family in catalog)
           List<LinesPiece<C>>.unmodifiable([
             for (final shape in topology.orientations(family.shape))
@@ -43,13 +43,13 @@ final class LinesPieceSource<C extends Coord>
 
   /// The pieces each family can give, family by family in the catalog order
   /// and each in the order of its orientations (RN-HL-23).
-  final List<List<LinesPiece<C>>> orientations;
+  final List<List<LinesPiece<C>>> piecesByFamily;
 
   @override
   (LinesPiece<C> piece, Xorshift32 after) next(Xorshift32 random) {
     final (roll, afterFamily) = random.nextInt(totalWeight);
     final family = _familyAt(roll);
-    final pieces = orientations[family];
+    final pieces = piecesByFamily[family];
     final (orientation, after) = afterFamily.nextInt(pieces.length);
     return (pieces[orientation], after);
   }
@@ -64,4 +64,21 @@ final class LinesPieceSource<C extends Coord>
     // Unreachable: the weights add up to totalWeight and roll is below it.
     throw StateError('roll $roll beyond the weights');
   }
+}
+
+/// A full tray of [size] pieces drawn in order from [source] with [random],
+/// and the generator after the last draw (RN-HL-20, 21).
+(List<LinesPiece<C>> tray, Xorshift32 after) drawTray<C extends Coord>(
+  IPieceSource<LinesPiece<C>> source,
+  Xorshift32 random,
+  int size,
+) {
+  final tray = <LinesPiece<C>>[];
+  var current = random;
+  for (var i = 0; i < size; i++) {
+    final (piece, after) = source.next(current);
+    tray.add(piece);
+    current = after;
+  }
+  return (List.unmodifiable(tray), current);
 }

@@ -57,8 +57,9 @@ final class LinesFamily<C extends Coord> {
   /// A family with the base [shape], a [weight] out of 100 (RN-HL-24) and
   /// the [color] of all its pieces.
   ///
-  /// Throws an [ArgumentError] if [weight] is not positive or [shape] does
-  /// not have from [minCells] to [maxCells] cells (RN-HL-22).
+  /// Throws an [ArgumentError] if [weight] is not positive or [shape] has
+  /// more than [maxCells] cells (RN-HL-22). The lower bound of one cell is
+  /// already a [Shape]'s own.
   LinesFamily({
     required this.shape,
     required this.weight,
@@ -68,17 +69,10 @@ final class LinesFamily<C extends Coord> {
       throw ArgumentError.value(weight, 'weight', 'must be positive');
     }
     final cells = shape.cells.length;
-    if (cells < minCells || cells > maxCells) {
-      throw ArgumentError.value(
-        cells,
-        'shape',
-        'must have from $minCells to $maxCells cells',
-      );
+    if (cells > maxCells) {
+      throw ArgumentError.value(cells, 'shape', 'at most $maxCells cells');
     }
   }
-
-  /// The fewest cells a piece can have (RN-HL-22).
-  static const int minCells = 1;
 
   /// The most cells a piece can have (RN-HL-22).
   static const int maxCells = 5;

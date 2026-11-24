@@ -50,4 +50,33 @@ void main() {
       expect(other, isNot(state));
     });
   });
+
+  group('RN-HL-63', () {
+    LinesState<HexCoord> withStreak(int streak) => LinesState(
+      board: Board<HexCoord, PieceColor>.of(hexTopology, hexRadius4),
+      tray: [mono, mono, mono],
+      random: Xorshift32(7),
+      seed: 7,
+      streak: streak,
+    );
+
+    test('should_throw_when_the_streak_is_negative', () {
+      // Act
+      LinesState<HexCoord> build() => withStreak(-1);
+
+      // Assert
+      expect(build, throwsArgumentError);
+    });
+
+    test('should_differ_when_the_streak_differs', () {
+      // Arrange
+      final state = withStreak(1);
+
+      // Act
+      final other = withStreak(2);
+
+      // Assert
+      expect(other, isNot(state));
+    });
+  });
 }

@@ -3,10 +3,11 @@ import 'package:hexa_engine/hexa_engine.dart';
 import 'hexa_lines_rules.dart';
 import 'lines_piece.dart';
 import 'lines_piece_source.dart';
+import 'lines_scoring.dart';
 import 'lines_state.dart';
 
 /// The family of Hexa Lines (Abstract Factory, D-35, D-100): its rules, its
-/// piece source and its sessions, for any cell shape (D-25).
+/// piece source, its scoring and its sessions, for any cell shape (D-25).
 ///
 /// A game is endless, has no undo (RN-HL-80) and no timer, so its session
 /// is the engine alone (D-33).
@@ -24,11 +25,18 @@ final class HexaLinesFactory<C extends Coord>
   final IPieceSource<LinesPiece<C>> _source;
   final Board<C, PieceColor> _emptyBoard;
 
+  /// The scoring of RN-HL-60 to 64: the streak multiplies only the line
+  /// bonus, so it rounds once (D-101). Another policy is one line here
+  /// (ARQ-02 §10).
+  final IScoringPolicy<LinesState<C>, LinesEvent<C>> _scoring = LinesScoring<C>(
+    StreakMultiplier<C>(LineBonus<C>()),
+  );
+
   /// Not `const`: a constant cannot use the type variable `C`, so Dart
   /// would infer `HexaLinesRules<Never>`, which covariance lets through and
   /// fails only when a state is passed in.
   @override
-  HexaLinesRules<C> createRules() => HexaLinesRules<C>();
+  HexaLinesRules<C> createRules() => HexaLinesRules<C>(_scoring);
 
   /// An empty board (RN-HL-10, 11) and a tray of pieces drawn from
   /// `options.seed` (RN-HL-20, RN-COM-41).

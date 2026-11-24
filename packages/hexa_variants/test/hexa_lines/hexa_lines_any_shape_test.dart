@@ -67,4 +67,32 @@ void main() {
       expect(reason, isNull);
     });
   });
+
+  group('RN-HL-40', () {
+    test('should_clear_and_score_a_row_when_it_is_complete_on_any_shape', () {
+      // Arrange: row y = 0 of the 4 × 4 board but its last two cells.
+      final state = LinesState(
+        board: Board<FakeCoord, PieceColor>.of(topology, config.board)
+            .withCells({
+              const FakeCoord(0, 0): color,
+              const FakeCoord(1, 0): color,
+            }),
+        tray: [
+          LinesPiece(shapeOf([(0, 0), (1, 0)]), color),
+          null,
+          null,
+        ],
+        random: Xorshift32(1),
+        seed: 1,
+      );
+      const move = PlacePiece(0, FakeCoord(2, 0)); // even, like (0, 0)
+
+      // Act
+      final turn = factory().createRules().playTurn(state, move);
+
+      // Assert: 2 cells + ⌊5 × 4 × 1 × 2 / 2⌋.
+      expect(turn.state.board.contents, isEmpty);
+      expect(turn.state.score, 22);
+    });
+  });
 }

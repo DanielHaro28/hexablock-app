@@ -38,11 +38,14 @@ void main() {
     streak: streak,
   );
 
+  /// The turn of [move] on [state]; fails the test if it is rejected.
   PlayedTurn<HexCoord, LinesState<HexCoord>> play(
     LinesState<HexCoord> state,
     PlacePiece<HexCoord> move,
-  ) =>
-      rules.playTurn(state, move) as PlayedTurn<HexCoord, LinesState<HexCoord>>;
+  ) => switch (rules.playTurn(state, move)) {
+    PlayedTurn<HexCoord, LinesState<HexCoord>>() && final played => played,
+    RejectedTurn(:final reason) => fail('$move was rejected: $reason'),
+  };
 
   /// The row r = −4, the line of E-HL-1 and E-HL-2.
   final rowMinus4 = cellsOf([(0, -4), (1, -4), (2, -4), (3, -4), (4, -4)]);

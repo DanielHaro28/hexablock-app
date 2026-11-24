@@ -791,7 +791,8 @@ return Step(state.copyWith(board: /* tile on empty[index] */, random: r2), [Tile
 
 // hexa_variants/lines: each step scores its own events; LinesEvent is sealed, so the switch is exhaustive.
 // The streak multiplies only the line bonus (RN-HL-63, 64), so the decorator wraps LineBonus, not
-// the whole policy: the factory wires LinesScoring(StreakMultiplier(LineBonus())).
+// the whole policy: the factory wires LinesScoring(StreakMultiplier(LineBonus(5), maxMultiplier: 3)),
+// with the values read from hexa-lines.json (RNF-11, D-139).
 final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C>, LinesEvent<C>> {
   const LinesScoring(this._lineBonus);
   final IScoringPolicy<LinesState<C>, LinesEvent<C>> _lineBonus;
@@ -822,6 +823,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 |---|---|---|
 | Otro tamaño de tablero | Configuración (`assets/config/<gameId>.json`) → `GridTopology.cellsOf` | Sin cambios |
 | Otra política de puntuación | Una clase `IScoringPolicy` nueva o un decorador, conectado en la fábrica de la variante | Sin cambios |
+| Otros valores del puntaje (p. ej., puntos por celda de línea) | Configuración (`hexa-lines.json`, sección `scoring`, D-139) | Sin cambios |
 | Una forma de pieza nueva | El catálogo en configuración (Lines) o el nivel (Fit) | Sin cambios |
 | Un cambio de regla (p. ej., límite de movimientos) | Un decorador que extiende `GameRules` (D-96, §9.6), conectado en `createRules()` de la fábrica | Sin cambios |
 | Una 5ª variante | Una carpeta en `hexa_variants` (`VariantFamily` + reglas + eventos) y su `VariantModule` registrado en `app/lib/config/` | Sin cambios |

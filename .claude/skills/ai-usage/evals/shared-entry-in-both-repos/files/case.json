@@ -1,0 +1,28 @@
+{
+  "repos": {
+    "app": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"], [2, "Motor", "solo app"], [3, "Topologías", "solo app"]],
+      "main_d": [1, 2, 3],
+      "local_branches": [{"name": "feat/hs-01-sort", "ia": [[4, "Hexa Sort", "solo app"]]}],
+      "current": {
+        "name": "docs/glossary-cell",
+        "message": "docs(glossary): define cell and board",
+        "files": {
+          "docs/requirements/01-GLOSARIO.md": "# Glosario\n\n| Término | Definición |\n|---|---|\n| Celda | Una posición del tablero |\n| Tablero | El conjunto de celdas |\n"
+        }
+      }
+    },
+    "api": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"]],
+      "main_d": [1, 2, 3],
+      "local_branches": [{"name": "feat/api-03-ranking", "ia": [[5, "Ranking", "solo API"]]}],
+      "current": {
+        "name": "docs/glossary-cell",
+        "message": "docs(glossary): define cell and board",
+        "files": {
+          "docs/requirements/01-GLOSARIO.md": "# Glosario\n\n| Término | Definición |\n|---|---|\n| Celda | Una posición del tablero |\n| Tablero | El conjunto de celdas |\n"
+        }
+      }
+    }
+  }
+}

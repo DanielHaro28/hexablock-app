@@ -603,6 +603,50 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó las 5 recomendaciones (A en todas) y pidió pruebas bien hechas, un PR por Issue y que el diseño deje hacer las otras variantes. ⚠️ Completar con lo que ajuste quien revise las pruebas (D-59) |
 | Lecciones | (1) Un diseño documentado (D-100, D-116) no garantiza que el código exista: hay que buscarlo antes de planificar la historia que lo usa. (2) El `architecture-reviewer` encontró que la primera versión de D-124 prometía poner el nivel en `NewGameOptions`, que no puede llevar el nivel propio de cada variante sin un *cast* o un genérico más. Se dejó abierto como D-125 en vez de decidirlo sin el equipo. (3) Cambiar una firma obliga a revisar también los `.puml` y los esbozos de los documentos, no solo el código |
 
+### IA-56 · Skills de revisión de código y aprobación de `skill-creator` (D-126) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: el usuario preguntó si se podía hacer una skill de revisión de código después de implementar y otra que revise los PR, que hicieran su trabajo lo mejor posible, y pidió opciones. Después pidió revisar que el código no tuviera castings, valores fijos ni dependencia de una geometría particular, y también todo el código implementado hasta ese momento. Preguntó si había un plugin para hacer skills, y pidió: "registra la P-xx con la opción A". Por último: "por que en pendiente? si es una desicion y haz el commit mas PR" |
+| Resultado | Cuatro opciones para las skills de revisión (ligera, coordinada con verificación, sobre `/code-review`, en el CI), con la coordinada como recomendada. Qué cubren hoy `analysis_options.yaml` y `tool/check_architecture.dart` y qué falta para castings, valores fijos y geometría. Dos opciones para `skill-creator`. D-126 cerrada en `DECISIONES.md` de los dos repos y la sección "Ayudas para crear skills" en `docs/ai/APPROVED-TOOLS.md` (compartido), en dos PR enlazados. Revisión de las skills existentes con los criterios de `skill-creator` y lista ordenada de 15 skills y agentes, con D-127 cerrada y D-128 (horas en el tablero) abierta. Las skills todavía no se escriben |
+| Modificaciones del equipo | El usuario eligió la opción A y cerró la decisión directamente, sin dejarla abierta en `PENDIENTES.md`. Confirmó las recomendaciones de D-127 y corrigió el lugar de los casos de prueba (en el repo y no fuera, como decía la primera versión de D-126) |
+| Lecciones | (1) Claude llamó `P-xx` a la decisión, pero en este proyecto `P-*` son las preguntas al profesor; se registró como `D-126`. (2) Claude la dejó abierta en `PENDIENTES.md` aunque el usuario ya la había decidido; el usuario lo corrigió y se pasó a `DECISIONES.md`. (3) La rama de TEC-01, que todavía no se integra, ya usa la decisión y la entrada de este archivo que siguen a las de `main`: para no reutilizar IDs se revisaron todas las ramas de los dos repos, no solo `main`. (4) Una búsqueda rápida de `is` en el motor encontró 9 casos, todos dentro de `operator ==`: una regla que solo busque el patrón daría falsos positivos, y por eso la propuesta combina la herramienta con un revisor que tenga criterio |
+
+### IA-57 · `/ai-usage` sin IDs repetidos: `next_id.py` y evaluaciones con `skill-creator` — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: el usuario pidió revisar las skills existentes y las que quería crear "usando la nueva skill" (`skill-creator`), y que las reglas de los documentos guiaran qué agregar. Confirmó la lista ordenada de skills con "ok, confirmo los supuestos, empieza con el 1"; después de ver los resultados pidió "aplica las correcciones" y "sigamos" |
+| Resultado | `tools/docs-check/next_id.py`, que da el siguiente ID libre revisando todas las ramas locales y remotas de los dos repos y los archivos sin commit (solo Markdown fuera de `.claude/`), con 13 pruebas. `/ai-usage` reescrita en los dos repos: usa el script, corre `check_ids.py` antes del commit, no cita IDs de ramas sin integrar, agrega las fuentes de §5, lista los `⚠️` pendientes, solo cambia `AI_USAGE.md` y pone el Issue en vez del PR. Tres casos de prueba en `.claude/skills/ai-usage/evals/` con un generador de repos de juguete. Dos iteraciones de evaluación: la skill nueva pasó 18 de 18 y 20 de 20; la anterior, en un repo sin el script, 14 de 18 y 19 de 20. Sin Issue: es la primera tarea de la lista de skills acordada el 23-11 |
+| Modificaciones del equipo | El usuario confirmó las recomendaciones del plan, eligió escribir los casos de prueba uno por uno con confirmación cuando el sistema de permisos rechazó crearlos con un script, y aprobó las tres correcciones de la primera iteración. ⚠️ completar con lo que ajuste quien revise las pruebas del script (D-59) |
+| Lecciones | (1) Las primeras corridas de la skill anterior usaron `next_id.py` porque el repo de juguete ya lo tenía: la línea base no era justa y se repitió sin el script. (2) Sin el script, la skill anterior eligió un ID repetido en una corrida y acertó en la otra: con una corrida por caso, la diferencia apenas se ve en el promedio. (3) En la primera iteración la skill nueva editó código (`shuffle.dart`) porque leyó una frase como una orden, y dejó pendiente el número de PR en las tres corridas; se corrigió y la segunda iteración lo confirmó. (4) El propio script contaba como usados los IDs de ejemplo: primero uno en su comentario y después otro en la nueva `SKILL.md`; ahora solo cuenta Markdown fuera de `.claude/`. (5) El calificador castigaba dos veces el mismo ID equivocado; se corrigió antes de comparar |
+
+### IA-58 · `/new-variant`: los pasos que faltaban y las listas fijas de variantes — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "sigue con el número 2" (corregir `/new-variant` según la lista de skills acordada el 23-11) |
+| Resultado | `/new-variant` reescrita: el paso del backend, el contrato (el `enum` de `gameId` en `common.schema.json`, que la guía no menciona), las herramientas con la lista de variantes fija (`check_architecture.dart`, `check_ids.py`, `levelcheck.py`, `check_examples.py`), los textos es/en, el diseño, los niveles y su copia en la API, el diagrama de clases, la trazabilidad y una comprobación final con `git diff` que también cubre las otras 4 variantes. Dos casos de prueba de `skill-creator` que evalúan el plan del paso 0 sobre clones de los dos repos: la skill nueva sacó 13 de 14 y la anterior 10 de 14 (le faltaron el diagrama, los prefijos de `check_ids.py` y la copia de los niveles). Sin Issue |
+| Modificaciones del equipo | Ninguna sobre la skill. El usuario decidió no seguir evaluando cada skill por el costo y reducir la lista |
+| Lecciones | (1) La guía `EXTENSIBILITY.md` promete menos cambios de los reales: una 5ª variante también cambia el contrato, cuatro herramientas, una regla común cerrada y varios documentos; queda como decisión del equipo. (2) La skill anterior encontró sola la mayor parte porque el modelo lee el código; la diferencia estuvo en lo que omitió. (3) Una afirmación de la evaluación pedía reutilizar un modelo de récord que todavía no existe en `main`; se reescribió. (4) Cada skill evaluada con línea base y dos iteraciones costó entre 6 y 9 corridas completas: demasiado para el tiempo que queda |
+
+### IA-59 · Lista de skills reducida, revisor de arquitectura ampliado y ensayo de la defensa (D-129, T-08) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "vale la pena seguir haciendo estos skills ya se me fue el limite de laconversacion haciendo 2". Después: "Ok hagamos lo que ya esta esos que valen la pena y los demas en una lista si queda tiempo" |
+| Resultado | D-129 (precisa el orden de D-127): solo se hacen las skills que valen la pena para la entrega. `architecture-reviewer` revisa también castings, suposiciones de una geometría particular y valores fijos (lo que se quería de un `genericity-reviewer`). Skill nueva `/defense-rehearsal`: un cambio de regla con tiempo medido en un *worktree* desechable y preguntas de diseño comparadas con los documentos. El resto de la lista quedó en T-08 (#116). D-130 abierta: `EXTENSIBILITY.md` promete menos cambios de los reales para una 5ª variante. `CLAUDE.md` lista la skill nueva |
+| Modificaciones del equipo | El usuario decidió reducir la lista y dejar el resto para si sobra tiempo. ⚠️ completar con lo que ajuste quien revise el agente y la skill |
+| Lecciones | (1) Evaluar cada skill con línea base y dos iteraciones consumió la mayor parte de la conversación: las evaluaciones convienen cuando corrigen un error que ya pasó, como el ID repetido de `/ai-usage`. (2) Varias de las skills planeadas ya las cubren herramientas existentes (`/code-review` de Claude Code y los dos revisores del proyecto) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -649,6 +693,9 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | El plan del setup de AWS suponía la consola clásica (elegir `us-east-1`, usuario root e IAM), pero la cuenta usa la experiencia nueva, que asigna la región | Captura de la consola enviada por el usuario y documentación de AWS (IA-49) | D-108: región `us-east-2`; plan ajustado a AWS Builder ID y MFA en AWS Settings |
 | La primera versión de D-124 decía que el nivel de Fit y Sort se agregaría a `NewGameOptions`, un tipo del motor que no puede llevar el nivel propio de cada variante; el comentario del código además nombraba variantes dentro del motor | Subagente `architecture-reviewer` (IA-55) | El comentario es genérico y la pregunta quedó abierta como D-125, con una recomendación |
 | Los `.puml` de clases seguían con `createSession(o: StartOptions)`, y el esbozo de ARQ-02 §3.1 llamaba a `createSession` sin pasar por `StartGameUseCase` ni por los aspectos | Subagente `architecture-reviewer` (IA-55) | `createSession(o: NewGameOptions)` en los tres diagramas; el esbozo arma `StartGameUseCase` con `AspectChain` |
+| Llamó `P-xx` a una decisión nueva (D-126); en el proyecto `P-*` son las preguntas al profesor, y además la dejó abierta en `PENDIENTES.md` aunque el usuario ya la había decidido | El usuario (IA-56) | Se registró como D-126 y se cerró en `DECISIONES.md` |
+| `/ai-usage` nueva editó `shuffle.dart` y dejó pendiente el número de PR | Evaluación con `skill-creator`, primera iteración (IA-57) | Solo cambia `AI_USAGE.md` y usa el Issue; la segunda iteración lo confirmó |
+| `next_id.py` contaba como usados los IDs de ejemplo de su comentario y de una skill | Corriendo el script sobre los repos reales (IA-57) | Solo cuenta Markdown fuera de `.claude/`, con una prueba por caso |
 
 ### 4.3 Reflexión del equipo
 

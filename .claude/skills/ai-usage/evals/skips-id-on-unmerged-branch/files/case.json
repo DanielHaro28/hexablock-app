@@ -1,0 +1,22 @@
+{
+  "repos": {
+    "app": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"], [2, "Motor", "solo app"], [3, "Topologías", "solo app"]],
+      "main_d": [1, 2, 3],
+      "local_branches": [{"name": "feat/tec-02-topologies", "ia": [[4, "Topologías extra", "solo app"]]}],
+      "current": {
+        "name": "feat/hl-02-place-piece",
+        "message": "feat(hexa-lines): place a piece on the board",
+        "files": {
+          "packages/hexa_variants/lib/src/hexa_lines/place_piece.dart": "// Places a Hexa Lines piece on the board.\nclass PlacePiece {}\n",
+          "packages/hexa_variants/test/place_piece_test.dart": "// should_place_piece_when_cells_are_free\nvoid main() {}\n"
+        }
+      }
+    },
+    "api": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"]],
+      "main_d": [1, 2, 3],
+      "remote_branches": [{"name": "feat/api-02-progress", "ia": [[5, "Progreso en la API", "solo API"]]}]
+    }
+  }
+}

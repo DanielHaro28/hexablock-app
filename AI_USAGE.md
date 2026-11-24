@@ -691,6 +691,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción recomendada en las 4 decisiones que Claude volvió a proponer: color fijo por familia (D-131), HL-01 solo dominio con el JSON, el *mapper* y la pantalla para el Issue de la interfaz (D-132), bandeja de 3 casillas fijas (D-133) y la colocación incluida en HL-01 (D-134). El equipo revisó las pruebas (D-59) |
 | Lecciones | (1) IA-55 decía que el usuario había aceptado 5 decisiones para HL-01, pero solo D-124 llegó a `DECISIONES.md`: las otras 4 no estaban en ningún documento ni en la memoria y hubo que proponerlas de nuevo. Una decisión aceptada en la conversación se registra en el mismo PR (D-85). (2) Antes de confiar en que `topology.orientations()` diera el orden de la tabla de RN-HL-23 (del que depende RN-HL-24), Claude lo comprobó con un script aparte y después con una prueba. (3) Los valores esperados de RN-HL-24 se calcularon con un xorshift32 independiente en Python, para no repetir en la prueba el código que se prueba; dos mutaciones del código confirmaron que las pruebas fallan. (4) La revisión del `architecture-reviewer` mejoró sobre todo las pruebas y el contrato, pero una de sus sugerencias (hacer `const` las reglas) era un error que solo detectó el contrato al ejecutarse |
 
+### IA-61 · Integración de los PR abiertos y títulos de Dependabot en commitlint (D-135) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Resuelve mis PR y mergea"; a mitad del trabajo: "acuerdate de no borrar ramas". Después: "todavia queda un PR ahi que es eso?" y "dale con la B" |
+| Resultado | Se integraron con *squash* #118 (HL-01), #109 con api#43 (decisiones del EC2), #110 con api#44 (Dependabot) y #111 (`commitlint` y `lefthook`). Los conflictos estaban en `AI_USAGE.md` (las entradas IA-52 a IA-54 iban en el mismo lugar; se ordenaron por número con un script que parte de la versión de `main` y agrega solo lo de cada rama) y en `PENDIENTES.md` (se conservaron las dos fechas y todas las decisiones abiertas). El job `docs` de #109 fallaba porque clona la rama de la API con el mismo nombre, que estaba atrás de `main`: se actualizaron también las ramas gemelas de la API. El PR que quedaba era el #120, el primero de Dependabot, rechazado por `subject-case`; D-135 hace que `commitlint.config.mjs` ignore solo los títulos con la forma de Dependabot, probado con títulos del equipo y de Dependabot. Sin Issue (mantenimiento del CI y una decisión) |
+| Modificaciones del equipo | El usuario pidió no borrar las ramas y eligió la opción B de las tres que propuso Claude para los títulos de Dependabot (A: renombrar cada PR a mano; C: desactivar `subject-case`). Ninguno de los PR integrados tenía la revisión de otra área (D-62): ⚠️ completar con quién los revisó |
+| Lecciones | (1) Claude integró con `--delete-branch` y borró 5 ramas antes de que el usuario pidiera conservarlas; se restauraron desde el último commit de cada PR. (2) El CI de `docs` de un PR compartido depende de que la rama del otro repo esté al día, y un PR gemelo puede fallar solo por el orden en que se suben las dos ramas: se sube una, se espera y se vuelve a correr el otro. (3) `config-conventional` rechaza los títulos que genera Dependabot, algo que la regex anterior del CI aceptaba; se vio con el primer PR de Dependabot, no al revisar #111 |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -743,6 +754,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | `next_id.py` contaba como usados los IDs de ejemplo de su comentario y de una skill | Corriendo el script sobre los repos reales (IA-57) | Solo cuenta Markdown fuera de `.claude/`, con una prueba por caso |
 | El `architecture-reviewer` sugirió escribir `const HexaLinesRules()` en `createRules()`. Dentro de una clase genérica una constante no puede usar `C`, así que Dart infiere `HexaLinesRules<Never>`, que la covarianza deja pasar al compilar | `checkVariantFamilyContract` falló al ejecutarse ("`LinesState<HexCoord>` is not a subtype of `LinesState<Never>`") (IA-60) | `HexaLinesRules<C>()` sin `const`, con un comentario que explica por qué |
 | La primera versión de `checkVariantFamilyContract` guardaba la partida un turno después y sin tiempo, así que no detectaba una fábrica que olvide `saved.activeTime` o el historial de rehacer; dos pruebas de la fábrica repetían el bucle del código que probaban | Subagente `architecture-reviewer` (IA-60) | El contrato juega dos turnos, deshace uno si puede, guarda un tiempo distinto de cero y comprueba que la partida continuada vuelve a jugar; las pruebas usan valores calculados aparte y otra configuración de tablero |
+| Claude integró los PR con `gh pr merge --delete-branch` y borró las ramas, que el equipo conserva | El usuario lo pidió a mitad del trabajo (IA-61) | Las 5 ramas se volvieron a crear desde el último commit de cada PR; los merges siguientes no borran ramas |
 
 ### 4.3 Reflexión del equipo
 

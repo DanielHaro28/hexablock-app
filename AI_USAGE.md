@@ -603,6 +603,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción A y cerró la decisión directamente, sin dejarla abierta en `PENDIENTES.md`. Confirmó las recomendaciones de D-127 y corrigió el lugar de los casos de prueba (en el repo y no fuera, como decía la primera versión de D-126) |
 | Lecciones | (1) Claude llamó `P-xx` a la decisión, pero en este proyecto `P-*` son las preguntas al profesor; se registró como `D-126`. (2) Claude la dejó abierta en `PENDIENTES.md` aunque el usuario ya la había decidido; el usuario lo corrigió y se pasó a `DECISIONES.md`. (3) La rama de TEC-01, que todavía no se integra, ya usa la decisión y la entrada de este archivo que siguen a las de `main`: para no reutilizar IDs se revisaron todas las ramas de los dos repos, no solo `main`. (4) Una búsqueda rápida de `is` en el motor encontró 9 casos, todos dentro de `operator ==`: una regla que solo busque el patrón daría falsos positivos, y por eso la propuesta combina la herramienta con un revisor que tenga criterio |
 
+### IA-57 · `/ai-usage` sin IDs repetidos: `next_id.py` y evaluaciones con `skill-creator` — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: el usuario pidió revisar las skills existentes y las que quería crear "usando la nueva skill" (`skill-creator`), y que las reglas de los documentos guiaran qué agregar. Confirmó la lista ordenada de skills con "ok, confirmo los supuestos, empieza con el 1"; después de ver los resultados pidió "aplica las correcciones" y "sigamos" |
+| Resultado | `tools/docs-check/next_id.py`, que da el siguiente ID libre revisando todas las ramas locales y remotas de los dos repos y los archivos sin commit (solo Markdown fuera de `.claude/`), con 13 pruebas. `/ai-usage` reescrita en los dos repos: usa el script, corre `check_ids.py` antes del commit, no cita IDs de ramas sin integrar, agrega las fuentes de §5, lista los `⚠️` pendientes, solo cambia `AI_USAGE.md` y pone el Issue en vez del PR. Tres casos de prueba en `.claude/skills/ai-usage/evals/` con un generador de repos de juguete. Dos iteraciones de evaluación: la skill nueva pasó 18 de 18 y 20 de 20; la anterior, en un repo sin el script, 14 de 18 y 19 de 20. Sin Issue: es la primera tarea de la lista de skills acordada el 23-11 |
+| Modificaciones del equipo | El usuario confirmó las recomendaciones del plan, eligió escribir los casos de prueba uno por uno con confirmación cuando el sistema de permisos rechazó crearlos con un script, y aprobó las tres correcciones de la primera iteración. ⚠️ completar con lo que ajuste quien revise las pruebas del script (D-59) |
+| Lecciones | (1) Las primeras corridas de la skill anterior usaron `next_id.py` porque el repo de juguete ya lo tenía: la línea base no era justa y se repitió sin el script. (2) Sin el script, la skill anterior eligió un ID repetido en una corrida y acertó en la otra: con una corrida por caso, la diferencia apenas se ve en el promedio. (3) En la primera iteración la skill nueva editó código (`shuffle.dart`) porque leyó una frase como una orden, y dejó pendiente el número de PR en las tres corridas; se corrigió y la segunda iteración lo confirmó. (4) El propio script contaba como usados los IDs de ejemplo: primero uno en su comentario y después otro en la nueva `SKILL.md`; ahora solo cuenta Markdown fuera de `.claude/`. (5) El calificador castigaba dos veces el mismo ID equivocado; se corrigió antes de comparar |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -648,6 +659,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Dos pruebas de D-109 (rehacer y *snapshot*) pasaban aunque el código no hiciera lo que comprobaban | Segunda revisión del subagente `architecture-reviewer` (IA-48) | Reescritas; la de rehacer se verificó con una mutación del código |
 | El plan del setup de AWS suponía la consola clásica (elegir `us-east-1`, usuario root e IAM), pero la cuenta usa la experiencia nueva, que asigna la región | Captura de la consola enviada por el usuario y documentación de AWS (IA-49) | D-108: región `us-east-2`; plan ajustado a AWS Builder ID y MFA en AWS Settings |
 | Llamó `P-xx` a una decisión nueva (D-126); en el proyecto `P-*` son las preguntas al profesor, y además la dejó abierta en `PENDIENTES.md` aunque el usuario ya la había decidido | El usuario (IA-56) | Se registró como D-126 y se cerró en `DECISIONES.md` |
+| `/ai-usage` nueva editó `shuffle.dart` y dejó pendiente el número de PR | Evaluación con `skill-creator`, primera iteración (IA-57) | Solo cambia `AI_USAGE.md` y usa el Issue; la segunda iteración lo confirmó |
+| `next_id.py` contaba como usados los IDs de ejemplo de su comentario y de una skill | Corriendo el script sobre los repos reales (IA-57) | Solo cuenta Markdown fuera de `.claude/`, con una prueba por caso |
 
 ### 4.3 Reflexión del equipo
 

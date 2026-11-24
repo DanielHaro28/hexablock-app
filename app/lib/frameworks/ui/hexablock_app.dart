@@ -1,22 +1,29 @@
 import 'package:flutter/widgets.dart';
 
+import '../l10n/app_localizations.dart';
+import '../theme/app_colors.dart';
+
 /// Root widget of the app.
 ///
-/// Theme, navigation and localized texts (es and en) come with the interface
-/// stories; until then it shows an empty screen with no fixed texts. It only
-/// uses `package:flutter/widgets.dart`: since Flutter 3.47 Material lives in
-/// its own package, and adding it is a decision for the interface stories.
+/// It sets the localized texts (es and en, RNF-50) and the base text style,
+/// and shows [home]. It only uses `package:flutter/widgets.dart`: since
+/// Flutter 3.47 Material lives in its own package, and adding it is a
+/// decision for the interface stories. Navigation comes with NAV-01.
 class HexaBlockApp extends StatelessWidget {
-  /// Creates the root widget.
-  const HexaBlockApp({super.key});
+  /// The app showing [home].
+  const HexaBlockApp({required this.home, super.key});
 
-  static const Color _background = Color(0xFF000000);
+  /// The first screen.
+  final Widget home;
 
   @override
-  Widget build(BuildContext context) {
-    return WidgetsApp(
-      color: _background,
-      builder: (_, _) => const ColoredBox(color: _background),
-    );
-  }
+  Widget build(BuildContext context) => WidgetsApp(
+    color: AppColors.background,
+    onGenerateTitle: (context) =>
+        AppLocalizations.of(context).gameTitleHexaLines,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    textStyle: const TextStyle(color: AppColors.ink, fontSize: 16),
+    builder: (_, _) => home,
+  );
 }

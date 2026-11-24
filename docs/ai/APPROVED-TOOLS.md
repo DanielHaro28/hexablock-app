@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | Aprobado por el equipo (D-86, D-87, 20-11-2026) |
+| Estado | Aprobado por el equipo (D-86, D-87, 20-11-2026; D-126, 23-11-2026) |
 | Repositorio | **Compartido:** `docs/ai/` en los dos repos; las dos copias deben ser idénticas |
 | Control | SEC-AGT-04 (cadena de suministro agéntica) |
 
@@ -60,3 +60,11 @@ Cada carpeta lleva el `LICENSE` (BSD-3) de su repo de origen. Para actualizar un
 | `flutter-add-integration-test` | Flutter Driver; las pruebas en emulador se corren a mano y no en CI (estrategia de pruebas §10) |
 | `flutter-setup-localization` | Se usa una sola vez; esa configuración entra con la historia de textos en es y en |
 | `flutter-add-widget-preview`, `dart-build-cli-app`, `dart-setup-ffi-assets`, `dart-use-ffigen`, `dart-use-path-package`, `dart-use-doc-examples`, `dart-resolve-package-conflicts` | No aplican: el proyecto no tiene CLI, código nativo ni dependencias en el dominio |
+
+## Ayudas para crear skills
+
+Herramientas que ayudan a escribir y evaluar las skills del proyecto, pero que **no se copian al repo** (D-126). Al repo entra la skill que producen, con un PR revisado como cualquier otro cambio a `.claude/` (SEC-AGT-05).
+
+| Herramienta | Origen | Para qué | Riesgo y control |
+|---|---|---|---|
+| `skill-creator` | Anthropic; viene con la cuenta de Claude de cada integrante (`anthropic-skills:skill-creator`) | Redactar una skill y medirla con evaluaciones: corre los casos con y sin la skill en subagentes y compara los resultados | Los casos de prueba no llevan secretos ni datos reales (SEC-AGT-09). Los casos de prueba van en `evals/` dentro de cada skill, en el repo, para que se repitan igual; los resultados de cada corrida quedan fuera de los dos repos (`../skill-evals/`) y, si sirven de evidencia, se resumen en el PR o en `AI_USAGE.md` |

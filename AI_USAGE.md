@@ -614,6 +614,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario confirmó las recomendaciones del plan, eligió escribir los casos de prueba uno por uno con confirmación cuando el sistema de permisos rechazó crearlos con un script, y aprobó las tres correcciones de la primera iteración. ⚠️ completar con lo que ajuste quien revise las pruebas del script (D-59) |
 | Lecciones | (1) Las primeras corridas de la skill anterior usaron `next_id.py` porque el repo de juguete ya lo tenía: la línea base no era justa y se repitió sin el script. (2) Sin el script, la skill anterior eligió un ID repetido en una corrida y acertó en la otra: con una corrida por caso, la diferencia apenas se ve en el promedio. (3) En la primera iteración la skill nueva editó código (`shuffle.dart`) porque leyó una frase como una orden, y dejó pendiente el número de PR en las tres corridas; se corrigió y la segunda iteración lo confirmó. (4) El propio script contaba como usados los IDs de ejemplo: primero uno en su comentario y después otro en la nueva `SKILL.md`; ahora solo cuenta Markdown fuera de `.claude/`. (5) El calificador castigaba dos veces el mismo ID equivocado; se corrigió antes de comparar |
 
+### IA-59 · Lista de skills reducida, revisor de arquitectura ampliado y ensayo de la defensa (D-129, T-08) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "vale la pena seguir haciendo estos skills ya se me fue el limite de laconversacion haciendo 2". Después: "Ok hagamos lo que ya esta esos que valen la pena y los demas en una lista si queda tiempo" |
+| Resultado | D-129 (precisa el orden de D-127): solo se hacen las skills que valen la pena para la entrega. `architecture-reviewer` revisa también castings, suposiciones de una geometría particular y valores fijos (lo que se quería de un `genericity-reviewer`). Skill nueva `/defense-rehearsal`: un cambio de regla con tiempo medido en un *worktree* desechable y preguntas de diseño comparadas con los documentos. El resto de la lista quedó en T-08 (#116). D-130 abierta: `EXTENSIBILITY.md` promete menos cambios de los reales para una 5ª variante. `CLAUDE.md` lista la skill nueva |
+| Modificaciones del equipo | El usuario decidió reducir la lista y dejar el resto para si sobra tiempo. ⚠️ completar con lo que ajuste quien revise el agente y la skill |
+| Lecciones | (1) Evaluar cada skill con línea base y dos iteraciones consumió la mayor parte de la conversación: las evaluaciones convienen cuando corrigen un error que ya pasó, como el ID repetido de `/ai-usage`. (2) Varias de las skills planeadas ya las cubren herramientas existentes (`/code-review` de Claude Code y los dos revisores del proyecto) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

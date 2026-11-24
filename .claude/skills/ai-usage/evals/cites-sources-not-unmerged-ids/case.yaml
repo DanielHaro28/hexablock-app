@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: cites-sources-not-unmerged-ids
+expected_outcome: |
+  The new entry takes IA-05. Section 5 gets the Fisher-Yates (Durstenfeld) shuffle with its source, section 4.2 gets the off-by-one error and how a seeded test caught it, the entry describes D-04 without citing its ID because it only exists on an unmerged branch, check_ids.py passes, and the final message reminds the user that IA-02 still has a pending field.
+context:
+  scaffold_script: place-files.sh

@@ -9,7 +9,6 @@ E-HF-3
 E-HF-4
 E-HL-1
 E-HL-2
-E-HL-3
 E-HL-4
 E-HM-1
 E-HM-2

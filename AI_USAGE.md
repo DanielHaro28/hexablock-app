@@ -658,13 +658,24 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario decidió reducir la lista y dejar el resto para si sobra tiempo. ⚠️ completar con lo que ajuste quien revise el agente y la skill |
 | Lecciones | (1) Evaluar cada skill con línea base y dos iteraciones consumió la mayor parte de la conversación: las evaluaciones convienen cuando corrigen un error que ya pasó, como el ID repetido de `/ai-usage`. (2) Varias de las skills planeadas ya las cubren herramientas existentes (`/code-review` de Claude Code y los dos revisores del proyecto) |
 
+### IA-60 · Hexa Lines: empezar una partida sin fin (HL-01, #32, D-131 a D-134) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "/implement-story HL-01"; después de ver el plan: "Ok, pero commit 112 esta listo" (el PR #112 ya estaba integrado, así que la rama sale de `main` y no apilada). Antes, en la misma conversación: "usar nuvos skills para la HL-01 que esta en PR", "revisa el codigo del PR y ve si esta bien estructurado y si esta bien el el conetxto general" y "Resuelve con main y sube la rama" (revisión de #112 con el `architecture-reviewer` ampliado y conflicto con `main` resuelto) |
+| Resultado | Rama `feat/hl-01-endless-game` (Issue #32). En `hexa_variants/lib/src/hexa_lines/`: `PieceColor`, `LinesPiece`, `LinesFamily` y `LinesConfig` (catálogo con la forma base de cada familia; las orientaciones las da la topología), `LinesPieceSource` (RN-HL-24) y `drawTray`, `LinesState` con 3 casillas fijas, `PlacePiece`, `PiecePlaced`, `HexaLinesRules` (colocación: `rejectionOf`, `apply`, `validMoves`) y `HexaLinesFactory`. En `hexa_test_support`: `checkVariantFamilyContract` (D-116), que comprueba partida nueva, semilla, continuar en pausa, volver a jugar y la ida y vuelta de `snapshot()` con historial de deshacer y rehacer y tiempo activo. 50 pruebas en `hexa_variants/test/hexa_lines/`, entre ellas E-HL-3 y la variante sobre una topología falsa de dos tipos de celda (RNF-04); cobertura del dominio 95,7 %. D-131 a D-134 en `DECISIONES.md`; ARQ-02 §4.2 y §12 y `05-TRAZABILIDAD.md` (RF-20, RF-21, E-HL-3) actualizados; E-HL-3 sale de `tool/examples_pending.txt` |
+| Modificaciones del equipo | El usuario eligió la opción recomendada en las 4 decisiones que Claude volvió a proponer: color fijo por familia (D-131), HL-01 solo dominio con el JSON, el *mapper* y la pantalla para el Issue de la interfaz (D-132), bandeja de 3 casillas fijas (D-133) y la colocación incluida en HL-01 (D-134). El equipo revisó las pruebas (D-59) |
+| Lecciones | (1) IA-55 decía que el usuario había aceptado 5 decisiones para HL-01, pero solo D-124 llegó a `DECISIONES.md`: las otras 4 no estaban en ningún documento ni en la memoria y hubo que proponerlas de nuevo. Una decisión aceptada en la conversación se registra en el mismo PR (D-85). (2) Antes de confiar en que `topology.orientations()` diera el orden de la tabla de RN-HL-23 (del que depende RN-HL-24), Claude lo comprobó con un script aparte y después con una prueba. (3) Los valores esperados de RN-HL-24 se calcularon con un xorshift32 independiente en Python, para no repetir en la prueba el código que se prueba; dos mutaciones del código confirmaron que las pruebas fallan. (4) La revisión del `architecture-reviewer` mejoró sobre todo las pruebas y el contrato, pero una de sus sugerencias (hacer `const` las reglas) era un error que solo detectó el contrato al ejecutarse |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
 
 | Parte | Asistencia de IA |
 |---|---|
-| Código de la app | Motor (`hexa_engine`, desde IA-43; ciclo de turno en IA-45; generador, reloj y estrategias en IA-47; deshacer, cronómetro y sesión en IA-48; `VariantFamily` y `NewGameOptions` en IA-55) y topología hexagonal (`hexa_topologies`, IA-44): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
+| Código de la app | Motor (`hexa_engine`, desde IA-43; ciclo de turno en IA-45; generador, reloj y estrategias en IA-47; deshacer, cronómetro y sesión en IA-48; `VariantFamily` y `NewGameOptions` en IA-55), topología hexagonal (`hexa_topologies`, IA-44) y Hexa Lines (`hexa_variants`, desde IA-60): escritos con Claude Code, con el diseño y las decisiones del equipo. ⚠️ El equipo estima el porcentaje al cerrar M1 |
 | Documentación de planificación (`docs/`) | Redactada en su mayor parte con Claude; las decisiones (D-*) las tomó el equipo. ⚠️ El equipo estima el porcentaje al cerrar la revisión de los Pasos 1 y 2 |
 | Herramientas de verificación (`tools/reference-sim/`) | Escritas con Claude |
 
@@ -708,6 +719,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Llamó `P-xx` a una decisión nueva (D-126); en el proyecto `P-*` son las preguntas al profesor, y además la dejó abierta en `PENDIENTES.md` aunque el usuario ya la había decidido | El usuario (IA-56) | Se registró como D-126 y se cerró en `DECISIONES.md` |
 | `/ai-usage` nueva editó `shuffle.dart` y dejó pendiente el número de PR | Evaluación con `skill-creator`, primera iteración (IA-57) | Solo cambia `AI_USAGE.md` y usa el Issue; la segunda iteración lo confirmó |
 | `next_id.py` contaba como usados los IDs de ejemplo de su comentario y de una skill | Corriendo el script sobre los repos reales (IA-57) | Solo cuenta Markdown fuera de `.claude/`, con una prueba por caso |
+| El `architecture-reviewer` sugirió escribir `const HexaLinesRules()` en `createRules()`. Dentro de una clase genérica una constante no puede usar `C`, así que Dart infiere `HexaLinesRules<Never>`, que la covarianza deja pasar al compilar | `checkVariantFamilyContract` falló al ejecutarse ("`LinesState<HexCoord>` is not a subtype of `LinesState<Never>`") (IA-60) | `HexaLinesRules<C>()` sin `const`, con un comentario que explica por qué |
+| La primera versión de `checkVariantFamilyContract` guardaba la partida un turno después y sin tiempo, así que no detectaba una fábrica que olvide `saved.activeTime` o el historial de rehacer; dos pruebas de la fábrica repetían el bucle del código que probaban | Subagente `architecture-reviewer` (IA-60) | El contrato juega dos turnos, deshace uno si puede, guarda un tiempo distinto de cero y comprueba que la partida continuada vuelve a jugar; las pruebas usan valores calculados aparte y otra configuración de tablero |
 
 ### 4.3 Reflexión del equipo
 

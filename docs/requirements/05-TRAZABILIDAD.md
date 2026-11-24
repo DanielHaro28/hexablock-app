@@ -84,8 +84,8 @@
 | RF-10 | TEC-01, TEC-06 | RN-COM-10 a 25 | E-COM-1, E-HEX-1, E-TRI-1, E-TRI-2, E-SQR-1, E-CUB-1 | RN-COM-10 a 17: `hexa_engine/test/board/` (`board_test`, `grid_topology_test`, `shape_test`, `geometry_test`, `fake_topology_contract_test`); RN-HEX-01 a 08 y contrato común (`checkTopologyContract`): `hexa_topologies/test/hex/`; D-92 (`place`): `grid_topology_test`; RN-COM-20 a 25: `hexa_engine/test/game/` (`game_rules_test`, `game_engine_test`), con D-93 a D-95; E-COM-1 y RN-COM-41 a 44 (generador): `hexa_engine/test/random/xorshift32_test`; estrategias (D-97 a D-99): `hexa_engine/test/strategy/`; `FakeClock` (D-56): `hexa_test_support/test/fake_clock_test`; deshacer (D-31, D-102, D-103): `hexa_engine/test/undo/`, `game_engine_test`; sesión y capacidades (D-33): `hexa_engine/test/session/game_session_test`. RN-COM-51 y 83 se prueban con las variantes y la consolidación |
 | RF-11 | HL-02, HF-02, HS-02, HM-01 | RN-COM-21 | E-HL-3, E-HF-2, E-HS-6, E-HM-4 | |
 | RF-12 | TEC-01, HS-03 | RN-COM-25, RN-HS-45 | — | RN-COM-25 (orden de los eventos, D-94): `hexa_engine/test/game/game_rules_test`, `game_engine_test`, `game_event_test` |
-| RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | |
-| RF-21 | HL-02 | RN-HL-22, 30 a 32 | E-HL-3 | |
+| RF-20 | HL-01, HL-04 | RN-HL-10, 11, 20 a 25 | — | RN-HL-10, 11, 20, RN-COM-41 y 45 (partida nueva) y contrato de la fábrica (`checkVariantFamilyContract`, D-116): `hexa_variants/test/hexa_lines/hexa_lines_factory_test`; RN-HL-22 a 24 (catálogo y sorteo, D-131, D-132): `lines_piece_source_test`. RN-HL-21 (bandeja nueva) se prueba en HL-04 |
+| RF-21 | HL-01, HL-02 | RN-HL-22, 30 a 32 | E-HL-3 | E-HL-3 y RN-HL-30 a 32 (colocación en el dominio, adelantada a HL-01 por D-134): `hexa_variants/test/hexa_lines/hexa_lines_rules_test`. HL-02 agrega arrastrar y la vista previa |
 | RF-22 | HL-03 | RN-HL-40 a 44, 60 a 64 | E-HL-1, E-HL-2 | |
 | RF-23 | HL-05 | RN-HL-50 a 52 | E-HL-4 | |
 | RF-24 | HL-06 | RN-HL-70, 71 | — | |
@@ -141,7 +141,7 @@ Cada ejemplo de las reglas de negocio debe tener al menos una prueba automatizad
 | E-CUB-1 | RN-TOPOLOGIAS | 24 orientaciones del cubo | Dominio | |
 | E-HL-1 | RN-HEXA-LINES | Una línea, 27 puntos | Dominio | |
 | E-HL-2 | RN-HEXA-LINES | Dos líneas cruzadas, celda compartida, 101 / 151 puntos | Dominio | |
-| E-HL-3 | RN-HEXA-LINES | Colocaciones inválidas | Dominio | |
+| E-HL-3 | RN-HEXA-LINES | Colocaciones inválidas | Dominio | `hexa_variants/test/hexa_lines/hexa_lines_rules_test.dart` |
 | E-HL-4 | RN-HEXA-LINES | Fin de partida y continuación con un mono | Dominio | |
 | E-HF-NIVEL | RN-NIVELES (compartido) | Nivel válido y sus 3 variaciones inválidas, incluida la geométrica (f) | Dominio | |
 | E-HF-1 | RN-HEXA-FIT | Partida completa, conteo de movimientos, 2★ por estrellas independientes | Dominio | |

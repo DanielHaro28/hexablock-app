@@ -1,9 +1,7 @@
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 
-/// Reads one cell written as a list of integers (`[q, r]` for hexagons) as
-/// the coordinate of a topology. The topology's entry provides it.
-typedef CoordOf<C extends Coord> = C Function(List<int> cell);
+import 'coord_of.dart';
 
 /// Reads the configuration of Hexa Lines for one topology from
 /// `assets/config/hexa-lines.json` (D-132, RN-COM-04, RNF-11).

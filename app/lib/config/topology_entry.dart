@@ -1,6 +1,6 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
-import '../adapters/mappers/lines_config_mapper.dart';
+import '../adapters/mappers/coord_of.dart';
 import '../frameworks/ui/board/topology_layout.dart';
 
 /// A cell shape the app offers: the topology, the layout that draws it and

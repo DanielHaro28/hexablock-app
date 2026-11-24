@@ -9,14 +9,9 @@ import 'package:hexa_topologies/hexa_topologies.dart';
 
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';
+import 'registries.dart';
 import 'topology_entry.dart';
 import 'variant_module.dart';
-
-/// The cell shapes the app offers, by topology id (D-29).
-typedef TopologyRegistry = Map<String, TopologyEntry<Coord>>;
-
-/// The variants the app offers, by `gameId`.
-typedef VariantRegistry = Map<String, VariantModule>;
 
 /// Draws the seed of a new game when the player gives none (RN-COM-45).
 typedef SeedSource = int Function();
@@ -36,18 +31,11 @@ Future<void> registerDependencies(
 }) async {
   final linesConfig = await _json(bundle, HexaLinesModule.configAsset);
   getIt
-    ..registerSingleton<TopologyRegistry>({
-      // The type argument is required: inside this map, Dart would infer
-      // TopologyEntry<Coord> and the game would open with C = Coord.
-      'hex': const TopologyEntry<HexCoord>(
-        HexTopology(),
-        HexLayout(),
-        _hexCoord,
-      ),
-    })
-    ..registerSingleton<VariantRegistry>({
-      HexaLinesModule.id: HexaLinesModule(linesConfig),
-    })
+    ..registerSingleton(
+      TopologyRegistry()
+        ..add(const TopologyEntry(HexTopology(), HexLayout(), _hexCoord)),
+    )
+    ..registerSingleton(VariantRegistry()..add(HexaLinesModule(linesConfig)))
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
 }
 
@@ -56,8 +44,8 @@ Future<void> registerDependencies(
 /// Until NAV-01, `main` opens Hexa Lines with it directly (D-136); then the
 /// home screen calls it from the game cards.
 Widget openGame(GetIt getIt, String gameId) {
-  final entry = getIt<TopologyRegistry>()[defaultTopology]!;
-  final module = getIt<VariantRegistry>()[gameId]!;
+  final entry = getIt<TopologyRegistry>()[defaultTopology];
+  final module = getIt<VariantRegistry>()[gameId];
   final options = StartNew(NewGameOptions(seed: getIt<SeedSource>()()));
   return entry.accept(OpenGame(module, options));
 }

@@ -83,10 +83,11 @@ App móvil Flutter con un **motor de juego genérico** y cuatro variantes (Hexa 
 
 | Tipo | Nombre | Para qué |
 |---|---|---|
-| Subagente | `architecture-reviewer` | Revisar capas, genéricos, D-36 y extensibilidad antes de abrir un PR |
+| Subagente | `architecture-reviewer` | Revisar capas, genéricos y castings, D-36, extensibilidad, geometría particular y valores fijos antes de abrir un PR |
 | Subagente | `security-reviewer` | Revisar un cambio contra SECURITY-BASELINE |
 | Skill | `/implement-story <ID>` | Implementar una historia de punta a punta |
 | Skill | `/ai-usage` | Registrar el uso de IA del PR |
 | Skill | `/paired-change` | Cambiar un documento compartido o el contrato en los dos repos |
 | Skill | `/rule-change <RN>` | Cambiar una regla de juego (ensayo de la defensa) |
 | Skill | `/new-variant <nombre>` | Agregar una 5ª variante siguiendo `EXTENSIBILITY.md` |
+| Skill | `/defense-rehearsal [rondas]` | Ensayar la defensa: un cambio de regla con tiempo medido y preguntas de diseño |

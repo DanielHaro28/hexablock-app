@@ -592,6 +592,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió tomar Hexa Lines |
 | Lecciones | (1) G-05 parecía hecho porque el archivo existía; solo al consultar la API de GitHub se vio que el botón que el archivo indica no estaba activo. (2) G-07 pide `commitlint`, que es de Node, en un repo de Dart, y en `hexablock-api` todavía no hay `package.json` (T-04 está abierto); como obliga a decidir algo, se propusieron opciones antes de escribir código |
 
+### IA-57 · `/ai-usage` sin IDs repetidos: `next_id.py` y evaluaciones con `skill-creator` — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: el usuario pidió revisar las skills existentes y las que quería crear "usando la nueva skill" (`skill-creator`), y que las reglas de los documentos guiaran qué agregar. Confirmó la lista ordenada de skills con "ok, confirmo los supuestos, empieza con el 1"; después de ver los resultados pidió "aplica las correcciones" y "sigamos" |
+| Resultado | `tools/docs-check/next_id.py`, que da el siguiente ID libre revisando todas las ramas locales y remotas de los dos repos y los archivos sin commit (solo Markdown fuera de `.claude/`), con 13 pruebas. `/ai-usage` reescrita en los dos repos: usa el script, corre `check_ids.py` antes del commit, no cita IDs de ramas sin integrar, agrega las fuentes de §5, lista los `⚠️` pendientes, solo cambia `AI_USAGE.md` y pone el Issue en vez del PR. Tres casos de prueba en `.claude/skills/ai-usage/evals/` con un generador de repos de juguete. Dos iteraciones de evaluación: la skill nueva pasó 18 de 18 y 20 de 20; la anterior, en un repo sin el script, 14 de 18 y 19 de 20. Sin Issue: es la primera tarea de la lista de skills acordada el 23-11 |
+| Modificaciones del equipo | El usuario confirmó las recomendaciones del plan, eligió escribir los casos de prueba uno por uno con confirmación cuando el sistema de permisos rechazó crearlos con un script, y aprobó las tres correcciones de la primera iteración. ⚠️ completar con lo que ajuste quien revise las pruebas del script (D-59) |
+| Lecciones | (1) Las primeras corridas de la skill anterior usaron `next_id.py` porque el repo de juguete ya lo tenía: la línea base no era justa y se repitió sin el script. (2) Sin el script, la skill anterior eligió un ID repetido en una corrida y acertó en la otra: con una corrida por caso, la diferencia apenas se ve en el promedio. (3) En la primera iteración la skill nueva editó código (`shuffle.dart`) porque leyó una frase como una orden, y dejó pendiente el número de PR en las tres corridas; se corrigió y la segunda iteración lo confirmó. (4) El propio script contaba como usados los IDs de ejemplo: primero uno en su comentario y después otro en la nueva `SKILL.md`; ahora solo cuenta Markdown fuera de `.claude/`. (5) El calificador castigaba dos veces el mismo ID equivocado; se corrigió antes de comparar |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -636,6 +647,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Deshacer restauraba el estado entero, también la cuenta de movimientos de Fit, contra RN-HF-61 (D-10) | Pregunta del usuario sobre cómo se cuentan los movimientos para el ranking (IA-48) | `UndoHistory` conserva lo que pide la variante con `carryOver` (D-109); RN-COM-61 precisado |
 | Dos pruebas de D-109 (rehacer y *snapshot*) pasaban aunque el código no hiciera lo que comprobaban | Segunda revisión del subagente `architecture-reviewer` (IA-48) | Reescritas; la de rehacer se verificó con una mutación del código |
 | El plan del setup de AWS suponía la consola clásica (elegir `us-east-1`, usuario root e IAM), pero la cuenta usa la experiencia nueva, que asigna la región | Captura de la consola enviada por el usuario y documentación de AWS (IA-49) | D-108: región `us-east-2`; plan ajustado a AWS Builder ID y MFA en AWS Settings |
+| `/ai-usage` nueva editó `shuffle.dart` y dejó pendiente el número de PR | Evaluación con `skill-creator`, primera iteración (IA-57) | Solo cambia `AI_USAGE.md` y usa el Issue; la segunda iteración lo confirmó |
+| `next_id.py` contaba como usados los IDs de ejemplo de su comentario y de una skill | Corriendo el script sobre los repos reales (IA-57) | Solo cuenta Markdown fuera de `.claude/`, con una prueba por caso |
 
 ### 4.3 Reflexión del equipo
 

@@ -28,7 +28,7 @@ final class ContinueSaved extends StartOptions {
 /// Starts a game of any variant (RF-01, RNF-07).
 ///
 /// It sees the variant only as a [VariantFamily], so there is one use case
-/// for every game. A new game removes the saved one first (RN-COM-35); a
+/// for every game. A new game replaces the saved one (RN-COM-35); a
 /// saved game continues paused (RN-COM-34, D-111).
 final class StartGameUseCase<
   C extends Coord,
@@ -53,8 +53,10 @@ final class StartGameUseCase<
   ) async {
     switch (input) {
       case StartNew(:final newGame):
-        _savedGames.delete(_key); // RN-COM-35
-        return _family.createSession(newGame);
+        final session = _family.createSession(newGame);
+        // After creating it, so a failure keeps the saved game (RN-COM-35).
+        _savedGames.delete(_key);
+        return session;
       case ContinueSaved():
         final saved = await _savedGames.load(_key);
         if (saved == null) throw const RuleException(noSavedGame);

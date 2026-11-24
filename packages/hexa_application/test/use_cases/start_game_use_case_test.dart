@@ -61,6 +61,29 @@ void main() {
     });
   });
 
+  group('RN-COM-35', () {
+    test(
+      'should_keep_the_saved_game_when_the_new_game_cannot_be_created',
+      () async {
+        // Arrange: a board of zero cells cannot be built
+        final game = savedGame();
+        final saved = FakeSavedGameRepository({key: game});
+        final useCase = StartGameUseCase(
+          FakeVariantFamily(width: 0),
+          saved,
+          key,
+        );
+
+        // Act
+        final starting = useCase.execute(StartNew(NewGameOptions(seed: 7)));
+
+        // Assert
+        await expectLater(starting, throwsA(anything));
+        expect(saved.savedAt(key), same(game));
+      },
+    );
+  });
+
   group('RN-COM-34', () {
     test(
       'should_continue_the_saved_game_paused_when_asked_to_continue',

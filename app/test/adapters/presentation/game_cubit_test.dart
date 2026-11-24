@@ -29,6 +29,7 @@ final class _FailingStart
 
 void main() {
   const a = FakeCoord(0, 0);
+  const b = FakeCoord(1, 0);
   const key = SavedGameKey(ProfileId.guest, GameKey('fake-game', 'fake-shape'));
 
   /// The empty board of a new [FakeVariantFamily] game.
@@ -276,6 +277,73 @@ void main() {
           failure: const UnexpectedFailure(),
         ),
       ],
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_show_only_the_last_preview_when_one_overtakes_another',
+      build: cubitOf,
+      act: (cubit) async {
+        await cubit.start();
+        final first = cubit.preview(const FakeMove(a));
+        await cubit.preview(const FakeMove(b));
+        await first;
+      },
+      skip: 1,
+      expect: () => [
+        _Ready(
+          FakeState(emptyBoard),
+          const PlayingPhase(),
+          preview: const MovePreview(FakeMove(b)),
+        ),
+      ],
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_drop_the_answer_of_a_preview_when_a_move_overtakes_it',
+      build: cubitOf,
+      act: (cubit) async {
+        await cubit.start();
+        final pending = cubit.preview(const FakeMove(b));
+        await cubit.submit(const FakeMove(a));
+        await pending;
+      },
+      skip: 1,
+      verify: (cubit) {
+        final state = cubit.state as _Ready;
+        expect(state.preview, isNull);
+        expect(state.state.board.cell(a), const FakeCell('x'));
+      },
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_check_against_the_new_board_when_previewing_right_after_a_move',
+      build: cubitOf,
+      act: (cubit) async {
+        await cubit.start();
+        final played = cubit.submit(const FakeMove(a));
+        await cubit.preview(const FakeMove(a));
+        await played;
+      },
+      skip: 2,
+      verify: (cubit) {
+        final state = cubit.state as _Ready;
+        expect(state.state.board.cell(a), const FakeCell('x'));
+        expect(
+          state.preview,
+          const MovePreview(FakeMove(a), rejection: CellOccupied(a)),
+        );
+      },
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_emit_nothing_when_clearing_and_there_is_no_preview',
+      build: cubitOf,
+      act: (cubit) async {
+        await cubit.start();
+        cubit.clearPreview();
+      },
+      skip: 1,
+      expect: () => <_Screen>[],
     );
 
     blocTest<_Cubit, _Screen>(

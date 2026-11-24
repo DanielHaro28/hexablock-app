@@ -115,6 +115,14 @@ final class GameCubit<
   /// The game, its phase and its board stay as they are. The events, the
   /// rejection and the failure of the last move are not shown again, so the
   /// screen does not replay them.
+  ///
+  /// The answer is about the engine's state and is shown on the last state
+  /// emitted, and both agree: a [submit] started after this call drops its
+  /// answer, and the engine plays a [submit] started before it as soon as it
+  /// is called, whose state is emitted first because [ApplyMoveUseCase] only
+  /// takes microtasks (it does not wait for the save). An aspect that waits
+  /// for real work would break this; then the preview must be checked
+  /// against the emitted state.
   Future<void> preview(TMove move) async {
     final checkMove = _checkMove;
     if (checkMove == null) return;

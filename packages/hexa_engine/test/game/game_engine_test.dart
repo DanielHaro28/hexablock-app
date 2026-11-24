@@ -877,6 +877,21 @@ void main() {
       expect(reason, isA<NotAcceptingMoves>());
     });
 
+    test(
+      'should_throw_a_state_error_when_checking_on_a_closed_engine',
+      () async {
+        // Arrange
+        final engine = engineWith(FakeRules());
+        await engine.close();
+
+        // Act
+        RejectionReason? act() => engine.check(const FakeMove(a));
+
+        // Assert
+        expect(act, throwsStateError);
+      },
+    );
+
     test('should_change_and_publish_nothing_when_checking_a_move', () async {
       // Arrange
       var applied = 0;

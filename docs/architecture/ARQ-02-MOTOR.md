@@ -701,6 +701,10 @@ abstract base class GameRules<C extends Coord, TCell extends Object, TMove,
   }
 
   // Primitive operations
+  // rejectionOf is also in IGameRules: it only asks, so GameEngine.check can
+  // call it outside playTurn for a preview (D-138). playTurn is still the only
+  // way to play a turn, and it rejects exactly when rejectionOf is not null.
+  @override
   RejectionReason? rejectionOf(TState state, TMove move); // null = valid (D-95)
   Step<C, TState> apply(TState state, TMove move);
 
@@ -835,7 +839,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124 y D-131 a D-133, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124, D-131 a D-133 y D-138, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

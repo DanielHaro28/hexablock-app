@@ -28,8 +28,10 @@ abstract interface class IGameRules<
 
   /// Why [move] is rejected in [state], or `null` if it is valid (D-95).
   ///
-  /// It only asks: nothing changes. The engine uses it to tell the screen
-  /// whether a move would be valid before it is played (D-138).
+  /// It only asks: it must be pure and cheap, because the screen asks it on
+  /// every step of a drag through the engine (D-138). [playTurn] rejects
+  /// [move] exactly when this is not `null`, so the preview and the turn
+  /// always agree.
   RejectionReason? rejectionOf(TState state, TMove move);
 
   /// Plays [move] on [state]: the whole turn, or a rejection that leaves

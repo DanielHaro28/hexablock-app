@@ -198,4 +198,14 @@ void main() {
       expect(moves, isEmpty);
     });
   });
+
+  group('RN-HL-20', () {
+    test('should_throw_when_the_tray_does_not_have_3_slots', () {
+      // Act
+      LinesState<HexCoord> build() => stateWith(tray: [domino, mono]);
+
+      // Assert
+      expect(build, throwsArgumentError);
+    });
+  });
 }

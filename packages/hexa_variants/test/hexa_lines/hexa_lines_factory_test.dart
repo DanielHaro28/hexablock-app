@@ -119,7 +119,7 @@ void main() {
       final before = session.engine.state;
 
       // Act
-      final result = session.engine.submit(PlacePiece(0, const HexCoord(0, 0)));
+      final result = session.engine.submit(const PlacePiece(0, HexCoord(0, 0)));
 
       // Assert
       expect(result, isA<AcceptedMove<HexCoord, LinesState<HexCoord>>>());

@@ -1,5 +1,9 @@
 {
   "@@locale": "es",
+  "appTitle": "HexaBlock Suite",
+  "@appTitle": {
+    "description": "Name of the app, shown by the operating system."
+  },
   "gameTitleHexaLines": "Hexa Lines",
   "@gameTitleHexaLines": {
     "description": "Name of the Hexa Lines game, shown in the top bar of the game screen."

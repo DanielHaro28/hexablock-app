@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../l10n/app_localizations.dart';
 import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 /// Root widget of the app.
 ///
@@ -23,7 +24,7 @@ class HexaBlockApp extends StatelessWidget {
         AppLocalizations.of(context).gameTitleHexaLines,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    textStyle: const TextStyle(color: AppColors.ink, fontSize: 16),
+    textStyle: AppTextStyles.body,
     builder: (_, _) => home,
   );
 }

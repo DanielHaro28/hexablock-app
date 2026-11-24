@@ -3,6 +3,7 @@ import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 
 import '../../theme/app_colors.dart';
+import '../../theme/app_sizes.dart';
 import '../board/shape_view.dart';
 import '../board/topology_layout.dart';
 import 'lines_cell_painter.dart';
@@ -24,7 +25,7 @@ final class LinesTray<C extends Coord> extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       for (final (index, piece) in tray.indexed) ...[
-        if (index > 0) const SizedBox(width: 8),
+        if (index > 0) const SizedBox(width: AppSizes.gapSmall),
         Expanded(
           child: _Slot(piece: piece, layout: layout),
         ),
@@ -48,7 +49,7 @@ final class _Slot<C extends Coord> extends StatelessWidget {
     child: DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
       ),
       child: switch (piece) {
         null => const SizedBox.expand(),

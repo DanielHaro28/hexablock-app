@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+  "appTitle": "HexaBlock Suite",
   "gameTitleHexaLines": "Hexa Lines",
   "scoreLabel": "SCORE",
   "gameLoading": "Getting the game ready…",

@@ -6,6 +6,8 @@ import '../../../adapters/presentation/game/game_cubit.dart';
 import '../../../adapters/presentation/game/game_screen_state.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
+import '../../theme/app_sizes.dart';
+import '../../theme/app_text_styles.dart';
 import '../board/board_view.dart';
 import '../board/cell_painter.dart';
 import '../board/topology_layout.dart';
@@ -70,7 +72,7 @@ final class GamePage<
       color: AppColors.background,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSizes.gapLarge),
           child:
               BlocBuilder<
                 GameCubit<C, TCell, TMove, TState>,
@@ -83,9 +85,9 @@ final class GamePage<
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _TopBar(title: titleOf(texts), accent: accent),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSizes.gapLarge),
                       _Marker(label: texts.scoreLabel, value: state.score),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSizes.gapLarge),
                       Expanded(
                         child: Semantics(
                           label: texts.boardLabel,
@@ -100,14 +102,14 @@ final class GamePage<
                         ),
                       ),
                       if (trayOf case final trayOf?) ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSizes.gapLarge),
                         Semantics(
                           label: texts.trayLabel,
                           child: _Panel(child: trayOf(context, state)),
                         ),
                       ],
                       if (actionsOf case final actionsOf?) ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSizes.gapLarge),
                         actionsOf(context, state),
                       ],
                     ],
@@ -132,13 +134,10 @@ final class _TopBar extends StatelessWidget {
     children: [
       DecoratedBox(
         decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
-        child: const SizedBox.square(dimension: 12),
+        child: const SizedBox.square(dimension: AppSizes.accentDot),
       ),
-      const SizedBox(width: 8),
-      Text(
-        title,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-      ),
+      const SizedBox(width: AppSizes.gapSmall),
+      Text(title, style: AppTextStyles.title),
     ],
   );
 }
@@ -154,19 +153,8 @@ final class _Marker extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: AppColors.inkMuted,
-          ),
-        ),
-        Text(
-          '$value',
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-        ),
+        Text(label, style: AppTextStyles.markerLabel),
+        Text('$value', style: AppTextStyles.markerValue),
       ],
     ),
   );
@@ -182,10 +170,15 @@ final class _Panel extends StatelessWidget {
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(24),
-      border: bordered ? Border.all(color: AppColors.ink, width: 2) : null,
+      borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+      border: bordered
+          ? Border.all(color: AppColors.ink, width: AppSizes.borderWidth)
+          : null,
     ),
-    child: Padding(padding: const EdgeInsets.all(12), child: child),
+    child: Padding(
+      padding: const EdgeInsets.all(AppSizes.gapMedium),
+      child: child,
+    ),
   );
 }
 

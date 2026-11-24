@@ -757,6 +757,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió las cuatro recomendaciones de Claude entre las opciones propuestas: la consulta genérica en el motor con caso de uso (se descartaron que el *widget* llamara a las reglas y precalcular los movimientos válidos), un color de error para la posición inválida hasta que @dicpc lo confirme, dividir HL-02 en 2 PR apilados y, para `CheckMove`, errores y métricas sin registro (lo planteó el `architecture-reviewer`). Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | (1) La historia decía "vista previa válida o inválida", pero ningún documento decía de dónde sale la validez sin jugar el movimiento; apareció al leer `GameEngine` antes de planear. (2) El `architecture-reviewer` encontró que D-138 citaba una sección de ARQ-02 que no existe, que `check` respondía con el motor cerrado y que faltaban casos de concurrencia de la vista previa; se corrigieron en la rama con 5 pruebas más. (3) Una prueba nueva del Cubit falló porque el doble lanzaba en `applyMoveFor`, que el Cubit llama al empezar: era un error de la prueba, no del código |
 
+### IA-68 · Merge de `main` en vez de rebase en los PR apilados (precisión de D-137) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Mergea el #127 y haz el rebase del #128"; ante el bloqueo del *force push*, eligió "Merge de main" entre las opciones; después: "sí, haz el paired-change de D-137" |
+| Resultado | Se integró app #127 (la primera parte de HL-02) con *squash* y sin borrar la rama. El rebase de app #128 no se pudo subir: el *hook* de git bloquea el *force push* (SEC-AGT-02). Claude integró `main` en la rama de #128 con un merge (sus dos conflictos venían del *squash* de #127; se tomó la versión de la rama y se comprobó que el árbol no cambiaba), la subió sin *force* y cambió su base a `main`. Después, D-137 en `docs/DECISIONES.md` de los dos repos, con el mismo texto: la rama del siguiente PR apilado integra `main` con un merge en lugar de rebasarse, con el motivo y qué hacer ante un conflicto con el *squash* anterior. Sin Issue (precisa una decisión cerrada) |
+| Modificaciones del equipo | El usuario eligió el merge de `main` entre las tres opciones de Claude (merge, rama y PR nuevos, o que el usuario hiciera el *force push* a mano) y pidió precisar D-137 en los dos repos. Claude lo escribió como precisión de D-137 y no como una decisión nueva, para no reabrirla |
+| Lecciones | (1) D-137 se escribió (IA-63) con un paso que su propia configuración de seguridad prohíbe: ninguna revisión cruzó la decisión con los *hooks*, y apareció la primera vez que se integró un PR apilado. (2) El sistema de permisos rechazó un `git reset --hard` para descartar el rebase local; se hizo el merge en una rama local nueva desde la versión remota y se subió como avance normal, sin borrar nada. La rama local rebasada quedó desalineada y se dejó para que el usuario decida |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -815,6 +826,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | La comprobación de paridad de ARB contaba las claves internas de los metadatos `@clave` (`description`) como mensajes (IA-62) | Falló `tool/check_architecture.dart` en local al agregar el primer ARB con metadatos | Lee el JSON y compara solo las claves de primer nivel |
 | Al editar en lote los cuerpos de 26 Issues, un corte de conexión dejó vacío el de #52 (HM-04): el script escribía aunque la lectura hubiera fallado (IA-65) | Verificación posterior del largo y del responsable de cada Issue | Texto restaurado desde el historial de ediciones de GitHub (GraphQL `userContentEdits`); los reintentos se negaban a escribir un cuerpo sin la forma esperada |
 | D-138 citaba "ARQ-02 §3.3", una sección que no existe, y `GameEngine.check` respondía aunque el motor estuviera cerrado (IA-66) | `architecture-reviewer` antes del PR | Cita corregida a §2 y §9.6; `check` lanza `StateError` con el motor cerrado, con su prueba |
+| D-137 pedía rebasar la rama del siguiente PR apilado, lo que exige un *force push* que SEC-AGT-02 prohíbe (IA-63, IA-68) | El *hook* de git bloqueó el *force push* al integrar la primera parte de HL-02 | Precisión de D-137 en los dos repos: merge de `main` en vez de rebase |
 
 ### 4.3 Reflexión del equipo
 

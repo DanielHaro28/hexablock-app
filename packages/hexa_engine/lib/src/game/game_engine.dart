@@ -151,6 +151,17 @@ final class GameEngine<
     }
   }
 
+  /// Why [move] would be rejected now, or `null` if it would be played: the
+  /// same answer [submit] would give, without playing it (D-138).
+  ///
+  /// It gives [NotAcceptingMoves] if the phase does not accept moves
+  /// (RN-COM-24) and otherwise asks the rules. Nothing changes and nothing
+  /// is published, so the screen can call it on every step of a drag.
+  RejectionReason? check(TMove move) {
+    if (!_phase.acceptsMoves) return const NotAcceptingMoves._();
+    return _rules.rejectionOf(_state, move);
+  }
+
   /// Pauses a game that is being played (RN-COM-31, RN-COM-32). In any other
   /// phase it does nothing.
   void pause() {

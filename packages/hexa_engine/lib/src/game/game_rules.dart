@@ -26,6 +26,12 @@ abstract interface class IGameRules<
   /// stops at the first one.
   Iterable<TMove> validMoves(TState state);
 
+  /// Why [move] is rejected in [state], or `null` if it is valid (D-95).
+  ///
+  /// It only asks: nothing changes. The engine uses it to tell the screen
+  /// whether a move would be valid before it is played (D-138).
+  RejectionReason? rejectionOf(TState state, TMove move);
+
   /// Plays [move] on [state]: the whole turn, or a rejection that leaves
   /// [state] unchanged (RN-COM-20, RN-COM-21).
   TurnResult<C, TState> playTurn(TState state, TMove move);
@@ -47,7 +53,8 @@ abstract interface class IGameRules<
 /// layer 1 cannot depend on `package:meta`, so D-36 protects it with a rule in
 /// the pull request template and a CI check that fails if a variant declares
 /// `playTurn`. The steps are meant to be called only by [playTurn], or by a
-/// rule decorator that delegates to the rules it wraps.
+/// rule decorator that delegates to the rules it wraps. The exception is
+/// [rejectionOf], which only asks and is part of [IGameRules] (D-138).
 ///
 /// A rule decorator (for example, a move limit) also extends [GameRules]: it
 /// wraps other [GameRules], delegates each step to them and adds its
@@ -83,11 +90,13 @@ abstract base class GameRules<
     );
   }
 
-  /// Why [move] is rejected in [state], or `null` if it is valid (D-95).
+  /// Why [move] is rejected in [state], or `null` if it is valid (D-95):
+  /// the validate step.
   ///
   /// Return `const InvalidMove()` when the reason does not matter, or a
   /// reason of the variant's own family when the screen should tell the
   /// player why.
+  @override
   RejectionReason? rejectionOf(TState state, TMove move);
 
   /// Whether [move] is valid in [state]: [rejectionOf] is `null`. Handy for

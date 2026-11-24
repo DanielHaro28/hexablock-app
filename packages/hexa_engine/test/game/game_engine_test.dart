@@ -839,4 +839,71 @@ void main() {
       expect(engine.phase, playing);
     });
   });
+
+  group('D-138', () {
+    test('should_find_no_reason_when_checking_a_valid_move', () {
+      // Arrange
+      final engine = engineWith(FakeRules());
+
+      // Act
+      final reason = engine.check(const FakeMove(a));
+
+      // Assert
+      expect(reason, isNull);
+    });
+
+    test(
+      'should_give_the_reason_of_the_rules_when_checking_a_rejected_move',
+      () {
+        // Arrange
+        final engine = engineWith(FakeRules())..submit(const FakeMove(a));
+
+        // Act
+        final reason = engine.check(const FakeMove(a));
+
+        // Assert
+        expect(reason, const CellOccupied(a));
+      },
+    );
+
+    test('should_give_not_accepting_moves_when_checking_while_paused', () {
+      // Arrange
+      final engine = engineWith(FakeRules())..pause();
+
+      // Act
+      final reason = engine.check(const FakeMove(a));
+
+      // Assert
+      expect(reason, isA<NotAcceptingMoves>());
+    });
+
+    test('should_change_and_publish_nothing_when_checking_a_move', () async {
+      // Arrange
+      var applied = 0;
+      final engine = engineWith(FakeRules(onApply: () => applied++));
+      final before = engine.state;
+      final sync = recordSync(engine);
+      final later = <GameEvent<FakeCoord>>[];
+      final commands = <MoveCommand<FakeMove, FakeState>>[];
+      final subscriptions = [
+        engine.events.listen(later.add),
+        engine.committedTurns.listen(commands.add),
+      ];
+      addTearDown(() => Future.wait(subscriptions.map((s) => s.cancel())));
+
+      // Act
+      engine
+        ..check(const FakeMove(a))
+        ..check(const FakeMove(FakeCoord(9, 9)));
+      await Future<void>.delayed(Duration.zero);
+
+      // Assert
+      expect(identical(engine.state, before), isTrue);
+      expect(engine.phase, playing);
+      expect(applied, 0);
+      expect(sync, isEmpty);
+      expect(later, isEmpty);
+      expect(commands, isEmpty);
+    });
+  });
 }

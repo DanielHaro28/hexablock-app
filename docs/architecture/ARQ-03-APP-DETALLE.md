@@ -166,8 +166,8 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 | Aspecto | Patrón | Qué hace | A qué casos de uso |
 |---|---|---|---|
-| `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos |
-| `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` (16 ms, RNF-31), `StartGame`, `Undo` |
+| `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
+| `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
 | `ErrorHandlingAspect<TIn, TOut>` | Decorator (convierte `UseCase<TIn, TOut>` en `UseCase<TIn, Result<TOut>>`) | Atrapa las excepciones, reintenta según una `RetryPolicy` (Strategy) y devuelve `Result` (D-39) | Todos; con reintentos (2, con espera de 0,5 s y 1 s), solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
 | `SessionAspect<TIn, TOut>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
@@ -244,6 +244,7 @@ final syncProgress = chain.wrap(SyncProgressUseCase(...),
 |---|---|---|---|---|---|
 | `StartGame`, `Undo`, `Redo`, `Pause`, `Resume`, `ContinuePlaying` | — | ✓ | — | ✓ | ✓ |
 | `ApplyMove` | — | ✓ | — | ✓ (16 ms) | ✓ (tablero en modo desarrollo) |
+| `CheckMove` | — | ✓ | — | ✓ (16 ms) | — (D-138) |
 | `SaveProgress`, `LoadLevels`, `Logout`, `GetSettings`, `UpdateSettings` | — | ✓ | — | — | ✓ |
 | `SyncProgress`, `ImportGuestProgress` | ✓ | ✓ | `SyncProgress` | — | ✓ |
 | `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` | — | ✓ | ✓ | — | ✓ (redactado) |

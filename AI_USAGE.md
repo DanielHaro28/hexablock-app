@@ -735,6 +735,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario pidió el cambio de `CLAUDE.md` en un PR aparte del de D-137, como propuso Claude por ser configuración del agente (SEC-AGT-05), pidió integrar los dos PR de D-137 y recordó no borrar ramas. El usuario avisó al equipo del cambio de `CLAUDE.md` antes de integrarlo (SEC-AGT-05) |
 | Lecciones | (1) `check_ids.py` recorría cualquier `.md` salvo `.git`, así que una instalación local de npm en `hexablock-api` metía los README de los paquetes y marcaba como no definidos textos de esos README con forma de ID; en el CI no pasaba porque ahí no hay `node_modules`. `check_tables.py` tenía el mismo hueco y pasaba de casualidad. (2) Un PR que cita una decisión tiene que salir de `main` después de que esa decisión se integre: si no, `check_ids.py` la marca como no definida. Por eso el cambio de `CLAUDE.md` esperó a #124 y #50. (3) En la API, el CI de un PR solo de documentos corre únicamente el job `docs` |
 
+### IA-65 · Cierre del reparto del equipo (D-78) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "Merge David y fit dicpc y dejame sort, progreso y caoss de uso dejamelos a mi por ahora. Lo del lado de APP de la cuenta en es la APP? R02 dejamelo a mi T08 a mi"; después: "Damelos a mi los de API, y estaria todo asignado" |
+| Resultado | D-78 cerrada en `docs/DECISIONES.md` de los dos repos y quitada de `docs/PENDIENTES.md`. Hexa Merge (HM-01 a HM-05) para @DavidCR20; Hexa Fit (HF-01 a HF-06) para @dicpc; Hexa Sort (HS-01 a HS-05), el progreso (PRG-03, PRG-04), los casos de uso (TEC-03, API-05, API-06, API-08, LVL-01), la parte de la app de la cuenta (API-03, API-07), R-02 y T-08 para @DanielHaro28. En GitHub se asignaron los 27 Issues y se cambió su línea "Responsable"; no queda ningún Issue abierto sin responsable en los dos repos. `PLAN-ENTREGA.md` (tabla del equipo y responsable de cada Issue), `.github/CODEOWNERS` (una línea por carpeta de variante; casos de uso y persistencia para @DanielHaro28) y `tools/planning/issues_created.json` siguen el mismo reparto. Sin Issue (una decisión del equipo) |
+| Modificaciones del equipo | El usuario decidió el reparto. Preguntó si la cuenta era de la app; Claude explicó que API-03 tiene su mitad del servidor (de @DavidCR20) y API-07 es solo de la app, y propuso API-03 para el usuario y API-07 para @dicpc; el usuario se quedó con los dos. Claude agregó a `CODEOWNERS` las carpetas de cada variante y pasó a @DanielHaro28 la persistencia del progreso, que tenía @DavidCR20 desde D-62 |
+| Lecciones | (1) `issues_created.json` estaba desactualizado: Hexa Lines figuraba sin responsable aunque en GitHub estaba asignado desde el 22-11, y T-08 no estaba en el archivo y tampoco tenía responsable en GitHub, aunque el plan lo nombraba. (2) `assign_pending.py` recorre los 87 Issues y no terminó en 5 minutos con la API lenta; se asignaron directamente solo los que cambiaban. (3) Un corte de conexión hizo que el script que editaba los cuerpos leyera un cuerpo vacío y lo escribiera así en #52 (HM-04); se detectó al verificar los 26 Issues después de editarlos y se restauró desde el historial de ediciones de GitHub. Un script que reescribe datos remotos tiene que negarse a escribir si lo que leyó no tiene la forma esperada |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -791,6 +802,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Dentro de un mapa de entradas `TopologyEntry<Coord>`, la entrada hexagonal se infería como `TopologyEntry<Coord>` y la partida se abría con `C = Coord` (IA-62) | Prueba de widget de la partida, que falló en ejecución | Registro con `add<C>()`, que toma `C` del argumento, y una prueba que comprueba el tipo visitado |
 | `StartGameUseCase` borraba la partida guardada antes de crear la nueva: si la creación fallaba, se perdía (IA-62) | Revisión con el subagente `architecture-reviewer` | Crea la sesión y después borra; prueba de RN-COM-35 para ese caso |
 | La comprobación de paridad de ARB contaba las claves internas de los metadatos `@clave` (`description`) como mensajes (IA-62) | Falló `tool/check_architecture.dart` en local al agregar el primer ARB con metadatos | Lee el JSON y compara solo las claves de primer nivel |
+| Al editar en lote los cuerpos de 26 Issues, un corte de conexión dejó vacío el de #52 (HM-04): el script escribía aunque la lectura hubiera fallado (IA-65) | Verificación posterior del largo y del responsable de cada Issue | Texto restaurado desde el historial de ediciones de GitHub (GraphQL `userContentEdits`); los reintentos se negaban a escribir un cuerpo sin la forma esperada |
 
 ### 4.3 Reflexión del equipo
 

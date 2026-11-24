@@ -73,178 +73,200 @@
  },
  "app:HL-01": {
   "number": 32,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-01 · Empezar una partida sin fin",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:HL-02": {
   "number": 33,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-02 · Colocar una pieza",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 8
  },
  "app:HL-03": {
   "number": 34,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-03 · Eliminar líneas completas",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 6
  },
  "app:HL-04": {
   "number": 35,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-04 · Recibir una nueva bandeja",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 3
  },
  "app:HL-05": {
   "number": 36,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-05 · Terminar cuando nada cabe",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 3
  },
  "app:HL-06": {
   "number": 37,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HL-06 · Ver mi puntaje y mi récord",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 3
  },
  "app:HF-01": {
   "number": 38,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-01 · Elegir un nivel",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 6
  },
  "app:HF-02": {
   "number": 39,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-02 · Colocar una pieza dentro de la figura",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 8
  },
  "app:HF-03": {
   "number": 40,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-03 · Rotar una pieza",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:HF-04": {
   "number": 41,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-04 · Retirar o mover una pieza",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:HF-05": {
   "number": 42,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-05 · Deshacer y rehacer sin límite",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 4
  },
  "app:HF-06": {
   "number": 43,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HF-06 · Completar el nivel y ganar estrellas",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "dicpc"
+  ],
   "hours": 5
  },
  "app:HS-01": {
   "number": 44,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HS-01 · Elegir un nivel",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:HS-02": {
   "number": 45,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HS-02 · Colocar una pila",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 5
  },
  "app:HS-03": {
   "number": 46,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HS-03 · Transferir fichas en cascada",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 10
  },
  "app:HS-04": {
   "number": 47,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HS-04 · Completar un bloque de 10",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:HS-05": {
   "number": 48,
-  "note": "falta asignar: DavidCR20, dicpc",
   "title": "HS-05 · Ganar o perder el nivel",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:HM-01": {
   "number": 49,
-  "note": "falta asignar: dicpc",
   "title": "HM-01 · Deslizar en seis direcciones",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 6
  },
  "app:HM-02": {
   "number": 50,
-  "note": "falta asignar: dicpc",
   "title": "HM-02 · Fusionar fichas iguales",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 5
  },
  "app:HM-03": {
   "number": 51,
-  "note": "falta asignar: dicpc",
   "title": "HM-03 · Aparición reproducible de fichas nuevas",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 3
  },
  "app:HM-04": {
   "number": 52,
-  "note": "falta asignar: dicpc",
   "title": "HM-04 · Deshacer un movimiento",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 3
  },
  "app:HM-05": {
   "number": 53,
-  "note": "falta asignar: dicpc",
   "title": "HM-05 · Ganar, perder y guardar el récord",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DavidCR20"
+  ],
   "hours": 4
  },
  "app:PRG-01": {
@@ -267,18 +289,20 @@
  },
  "app:PRG-03": {
   "number": 56,
-  "note": "falta asignar: DavidCR20",
   "title": "PRG-03 · Guardar el progreso en el dispositivo",
   "milestone": "M1",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 8
  },
  "app:PRG-04": {
   "number": 57,
-  "note": "falta asignar: DavidCR20",
   "title": "PRG-04 · Desbloquear niveles en orden",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 3
  },
  "app:API-01": {
@@ -301,50 +325,56 @@
  },
  "app:API-03": {
   "number": 10,
-  "note": "existía",
   "title": "API-03 · Sincronizar mi progreso por juego",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 8
  },
  "app:API-05": {
   "number": 60,
-  "note": "falta asignar: DavidCR20",
   "title": "API-05 · Jugar como invitado",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:API-06": {
   "number": 61,
-  "note": "falta asignar: DavidCR20",
   "title": "API-06 · Importar mi progreso de invitado",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 4
  },
  "app:API-07": {
   "number": 11,
-  "note": "existía",
   "title": "API-07 · Cerrar sesión",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 2
  },
  "app:API-08": {
   "number": 62,
-  "note": "falta asignar: DavidCR20",
   "title": "API-08 · Seguir jugando sin conexión",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 5
  },
  "app:LVL-01": {
   "number": 63,
-  "note": "falta asignar: DavidCR20",
   "title": "LVL-01 · Recibir niveles nuevos sin actualizar la app",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 5
  },
  "app:TEC-01": {
@@ -369,10 +399,11 @@
  },
  "app:TEC-03": {
   "number": 66,
-  "note": "falta asignar: DavidCR20",
   "title": "TEC-03 · Aspecto transversal sobre los casos de uso",
   "milestone": "M2",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 10
  },
  "app:TEC-04": {
@@ -575,10 +606,11 @@
  },
  "app:R-02": {
   "number": 76,
-  "note": "falta asignar: DavidCR20",
   "title": "R-02 · Citar las fuentes de los algoritmos (xorshift32, coordenadas hexagonales)",
   "milestone": "M3",
-  "assignees": [],
+  "assignees": [
+   "DanielHaro28"
+  ],
   "hours": 1
  },
  "app:R-03": {

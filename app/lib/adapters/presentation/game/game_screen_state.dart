@@ -5,26 +5,27 @@ import 'package:hexa_engine/hexa_engine.dart';
 ///
 /// `TState` is the variant's state: the board is read through `GameState`,
 /// and the variant's own widgets (its tray, its markers) read the rest.
-sealed class GameScreenState<C extends Coord, TState> {
+/// `TMove` is the variant's move, for the [MovePreview] of a drag.
+sealed class GameScreenState<C extends Coord, TMove, TState> {
   const GameScreenState();
 }
 
 /// The game is being created or loaded.
-final class GameLoading<C extends Coord, TState>
-    extends GameScreenState<C, TState> {
+final class GameLoading<C extends Coord, TMove, TState>
+    extends GameScreenState<C, TMove, TState> {
   /// The game is not ready yet.
   const GameLoading();
 
   @override
-  bool operator ==(Object other) => other is GameLoading<C, TState>;
+  bool operator ==(Object other) => other is GameLoading<C, TMove, TState>;
 
   @override
-  int get hashCode => (GameLoading<C, TState>).hashCode;
+  int get hashCode => (GameLoading<C, TMove, TState>).hashCode;
 }
 
 /// The game could not start, because of [failure].
-final class GameNotStarted<C extends Coord, TState>
-    extends GameScreenState<C, TState> {
+final class GameNotStarted<C extends Coord, TMove, TState>
+    extends GameScreenState<C, TMove, TState> {
   /// The game did not start because of [failure].
   const GameNotStarted(this.failure);
 
@@ -33,15 +34,15 @@ final class GameNotStarted<C extends Coord, TState>
 
   @override
   bool operator ==(Object other) =>
-      other is GameNotStarted<C, TState> && other.failure == failure;
+      other is GameNotStarted<C, TMove, TState> && other.failure == failure;
 
   @override
   int get hashCode => failure.hashCode;
 }
 
 /// A game on screen: its [state] and [phase], and what the last call did.
-final class GameReady<C extends Coord, TState>
-    extends GameScreenState<C, TState> {
+final class GameReady<C extends Coord, TMove, TState>
+    extends GameScreenState<C, TMove, TState> {
   /// A game in [state] and [phase].
   const GameReady(
     this.state,
@@ -49,6 +50,7 @@ final class GameReady<C extends Coord, TState>
     this.events = const [],
     this.rejection,
     this.failure,
+    this.preview,
   });
 
   /// The state of the game.
@@ -66,13 +68,18 @@ final class GameReady<C extends Coord, TState>
   /// What failed in the last move, or `null`; the game goes on (RNF-35).
   final AppFailure? failure;
 
+  /// The move the player is about to make, while they drag it (D-138), or
+  /// `null`.
+  final MovePreview<TMove>? preview;
+
   @override
   bool operator ==(Object other) =>
-      other is GameReady<C, TState> &&
+      other is GameReady<C, TMove, TState> &&
       other.state == state &&
       other.phase == phase &&
       other.rejection == rejection &&
       other.failure == failure &&
+      other.preview == preview &&
       _sameEvents(other.events);
 
   bool _sameEvents(List<GameEvent<C>> others) {
@@ -84,10 +91,46 @@ final class GameReady<C extends Coord, TState>
   }
 
   @override
-  int get hashCode =>
-      Object.hash(state, phase, rejection, failure, Object.hashAll(events));
+  int get hashCode => Object.hash(
+    state,
+    phase,
+    rejection,
+    failure,
+    preview,
+    Object.hashAll(events),
+  );
 
   @override
   String toString() =>
-      'GameReady($phase, rejection: $rejection, failure: $failure, $state)';
+      'GameReady($phase, rejection: $rejection, failure: $failure, '
+      'preview: $preview, $state)';
+}
+
+/// A move that is not played yet and whether it would be (D-138): what the
+/// screen shows while the player drags a piece (HL-02).
+final class MovePreview<TMove> {
+  /// The preview of [move], rejected because of [rejection] or valid if it is
+  /// `null`.
+  const MovePreview(this.move, {this.rejection});
+
+  /// The move the player would make.
+  final TMove move;
+
+  /// Why it would be rejected, or `null` if it would be played.
+  final RejectionReason? rejection;
+
+  /// Whether the move would be played.
+  bool get isValid => rejection == null;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MovePreview<TMove> &&
+      other.move == move &&
+      other.rejection == rejection;
+
+  @override
+  int get hashCode => Object.hash(move, rejection);
+
+  @override
+  String toString() => 'MovePreview($move, rejection: $rejection)';
 }

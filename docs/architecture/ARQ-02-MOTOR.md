@@ -30,6 +30,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica. Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94 |
 | Estado inicial | Lo crea la fábrica (o lo lee el codec al continuar) y se lo pasa a `GameEngine`; `IGameRules` no tiene `initialState` | §2 | D-93 |
 | Motivo de un rechazo | Jerarquía abierta `RejectionReason` (`InvalidMove`, `NotAcceptingMoves` y los de cada variante); las reglas validan con `rejectionOf` | §6, §9.6 | D-95 |
+| Vista previa | `IGameRules.rejectionOf` es público y `GameEngine.check(move)` da el motivo que daría `submit` (la fase o las reglas) sin jugar el movimiento ni publicar nada; la pantalla lo pide mientras se arrastra una pieza | §9.6 | D-138 |
 | Capacidades opcionales | Interfaces segregadas (`IUndoable`, `ITimed`, `IRandomSeeded`, `ILevelBased`) que la fábrica compone en una `GameSession`; `IMonotonicClock` en el dominio. `ILevelBased.levelId`; `ITimed.activeTime` es un `Duration`; `ActiveTimer` calcula el tiempo al leerlo, la fase dice si corre y deshacer no lo retrocede. `GameSession.snapshot()` da el estado, el historial y el tiempo que guarda la partida | §7 | D-33, D-104 a D-106, D-113 |
 | Fases | Patrón **State** con 5 fases *sealed*; `Victory(canContinue)` para Merge. Una partida guardada vuelve con `GameEngine.paused` | §8 | D-34, D-111 |
 | Patrones del dominio | 14: Abstract Factory, Builder, Factory Method; Bridge, Composite, Decorator; Strategy, Template Method, State, Observer, Command, Memento, Iterator, Visitor | §9 | D-35 |
@@ -79,12 +80,13 @@ classDiagram
     class IGameRules~C, TCell, TMove, TState~ {
       <<interface>>
       +validMoves(TState) Iterable~TMove~
+      +rejectionOf(TState, TMove) RejectionReason?
       +playTurn(TState, TMove) TurnResult
     }
     class GameRules~C, TCell, TMove, TState~ {
       <<abstract>>
       +playTurn(TState, TMove) TurnResult
-      #rejectionOf(TState, TMove) RejectionReason?
+      +rejectionOf(TState, TMove) RejectionReason?
       #apply(TState, TMove)
       #resolve(TState)
       #afterResolve(TState)
@@ -96,6 +98,7 @@ classDiagram
       +syncEvents Stream~GameEvent~
       +events Stream~GameEvent~
       +submit(TMove) MoveResult
+      +check(TMove) RejectionReason?
       +pause()
       +resume()
       +continuePlaying()
@@ -698,6 +701,10 @@ abstract base class GameRules<C extends Coord, TCell extends Object, TMove,
   }
 
   // Primitive operations
+  // rejectionOf is also in IGameRules: it only asks, so GameEngine.check can
+  // call it outside playTurn for a preview (D-138). playTurn is still the only
+  // way to play a turn, and it rejects exactly when rejectionOf is not null.
+  @override
   RejectionReason? rejectionOf(TState state, TMove move); // null = valid (D-95)
   Step<C, TState> apply(TState state, TMove move);
 
@@ -832,7 +839,7 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124 y D-131 a D-133, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124, D-131 a D-133 y D-138, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

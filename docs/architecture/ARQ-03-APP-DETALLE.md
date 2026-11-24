@@ -83,6 +83,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 |---|---|---|---|
 | `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, nivel —dónde llega a la fábrica está abierto, D-125— y un `NewGameOptions` con la semilla, D-124) → `GameSession<C, TCell, TMove, TState>`, con `VariantFamily.createSession(newGame)` o `continueSession(saved)` (D-116) | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
 | `ApplyMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `MoveResult<C, TState>` | `ISavedGameRepository` (guardado tras cada turno, D-37) | RF-10, RN-COM-20 a 25, 33 |
+| `CheckMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `RejectionReason?` (`null` = se jugaría), con `GameEngine.check`: no cambia la partida ni guarda nada | — | RF-21, D-138 |
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
 | `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (al pausar: guarda un `snapshot()` nuevo, con el tiempo activo, y hace `flush`) | RF-05, RN-COM-32, 33 |
 | `ContinuePlayingUseCase<…>` | `()` → `GamePhase` (Hexa Merge tras la victoria) | `ISavedGameRepository` (guarda el turno de la victoria al elegir seguir, D-112) | RN-COM-31, RN-HM-51 |
@@ -153,7 +154,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 | Componente | Responsabilidad |
 |---|---|
-| `GameCubit<C, TCell, TMove, TState>` | Uno para las 4 variantes. Recibe el `Result<MoveResult>` de `ApplyMoveUseCase`, convierte los eventos en animaciones y expone un estado de pantalla. Muestra deshacer solo si `session.undo != null` (D-33) |
+| `GameCubit<C, TCell, TMove, TState>` | Uno para las 4 variantes. Recibe el `Result<MoveResult>` de `ApplyMoveUseCase`, convierte los eventos en animaciones y expone un estado de pantalla. Muestra deshacer solo si `session.undo != null` (D-33). Mientras se arrastra una pieza, `preview(move)` pide a `CheckMoveUseCase` si se jugaría y deja en `GameReady` un `MovePreview`; `clearPreview()` y jugar el movimiento la quitan, y una respuesta adelantada por otra llamada se descarta (D-138) |
 | `HomeCubit`, `LevelSelectCubit`, `SettingsCubit`, `AccountCubit`, `LeaderboardCubit` | Una por tipo de pantalla |
 | `IGameStateCodec<TState>` (uno por variante: `LinesStateCodec`, …) | Serializa y deserializa el estado inmutable para la partida guardada (D-37). Es un puerto de la capa 2 que implementa cada variante en la capa 3 |
 | Mappers | Dominio ↔ DTO de la API (con los ejemplos de `docs/contracts/`, D-23) y dominio ↔ filas de Drift |
@@ -165,8 +166,8 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 | Aspecto | Patrón | Qué hace | A qué casos de uso |
 |---|---|---|---|
-| `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos |
-| `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` (16 ms, RNF-31), `StartGame`, `Undo` |
+| `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
+| `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
 | `ErrorHandlingAspect<TIn, TOut>` | Decorator (convierte `UseCase<TIn, TOut>` en `UseCase<TIn, Result<TOut>>`) | Atrapa las excepciones, reintenta según una `RetryPolicy` (Strategy) y devuelve `Result` (D-39) | Todos; con reintentos (2, con espera de 0,5 s y 1 s), solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
 | `SessionAspect<TIn, TOut>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
@@ -243,6 +244,7 @@ final syncProgress = chain.wrap(SyncProgressUseCase(...),
 |---|---|---|---|---|---|
 | `StartGame`, `Undo`, `Redo`, `Pause`, `Resume`, `ContinuePlaying` | — | ✓ | — | ✓ | ✓ |
 | `ApplyMove` | — | ✓ | — | ✓ (16 ms) | ✓ (tablero en modo desarrollo) |
+| `CheckMove` | — | ✓ | — | ✓ (16 ms) | — (D-138) |
 | `SaveProgress`, `LoadLevels`, `Logout`, `GetSettings`, `UpdateSettings` | — | ✓ | — | — | ✓ |
 | `SyncProgress`, `ImportGuestProgress` | ✓ | ✓ | `SyncProgress` | — | ✓ |
 | `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` | — | ✓ | ✓ | — | ✓ (redactado) |

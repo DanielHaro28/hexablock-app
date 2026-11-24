@@ -746,6 +746,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario decidió el reparto. Preguntó si la cuenta era de la app; Claude explicó que API-03 tiene su mitad del servidor (de @DavidCR20) y API-07 es solo de la app, y propuso API-03 para el usuario y API-07 para @dicpc; el usuario se quedó con los dos. Claude agregó a `CODEOWNERS` las carpetas de cada variante y pasó a @DanielHaro28 la persistencia del progreso, que tenía @DavidCR20 desde D-62 |
 | Lecciones | (1) `issues_created.json` estaba desactualizado: Hexa Lines figuraba sin responsable aunque en GitHub estaba asignado desde el 22-11, y T-08 no estaba en el archivo y tampoco tenía responsable en GitHub, aunque el plan lo nombraba. (2) `assign_pending.py` recorre los 87 Issues y no terminó en 5 minutos con la API lenta; se asignaron directamente solo los que cambiaban. (3) Un corte de conexión hizo que el script que editaba los cuerpos leyera un cuerpo vacío y lo escribiera así en #52 (HM-04); se detectó al verificar los 26 Issues después de editarlos y se restauró desde el historial de ediciones de GitHub. Un script que reescribe datos remotos tiene que negarse a escribir si lo que leyó no tiene la forma esperada |
 
+### IA-66 · Consulta de validez para la vista previa (HL-02, parte 1 de 2) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | `/implement-story HL-02`; después del plan: "Ok empieza" |
+| Resultado | Issue #33, primera subtarea (rama `feat/hl-02-check-move`). Claude vio que el dominio de la colocación ya estaba en `main` (D-134) y que la vista previa necesitaba preguntar si un movimiento es válido sin jugarlo, algo que el motor no ofrecía; propuso opciones y se registró D-138. En la capa 1, `IGameRules.rejectionOf` pasa a la interfaz y `GameEngine.check(move)` da el motivo que daría `submit` (la fase o las reglas) sin cambiar ni publicar nada. En la capa 2, `CheckMoveUseCase` genérico. En la capa 3, `GameScreenState` gana el parámetro `TMove`, `GameReady` lleva un `MovePreview` y `GameCubit` agrega `preview` y `clearPreview`, que descartan la respuesta de una consulta adelantada por otra llamada; `HexaLinesModule` lo conecta. Pruebas: 6 del motor, 3 del caso de uso y 11 del Cubit, todas del grupo D-138. Documentos: D-138, ARQ-02 (tabla, diagrama, §9.6, §12), ARQ-03 (§3, §4 y la matriz de aspectos) y la trazabilidad de RF-21. Se agregaron al Issue las dos subtareas de D-137 |
+| Modificaciones del equipo | El usuario eligió las cuatro recomendaciones de Claude entre las opciones propuestas: la consulta genérica en el motor con caso de uso (se descartaron que el *widget* llamara a las reglas y precalcular los movimientos válidos), un color de error para la posición inválida hasta que @dicpc lo confirme, dividir HL-02 en 2 PR apilados y, para `CheckMove`, errores y métricas sin registro (lo planteó el `architecture-reviewer`). Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
+| Lecciones | (1) La historia decía "vista previa válida o inválida", pero ningún documento decía de dónde sale la validez sin jugar el movimiento; apareció al leer `GameEngine` antes de planear. (2) El `architecture-reviewer` encontró que D-138 citaba una sección de ARQ-02 que no existe, que `check` respondía con el motor cerrado y que faltaban casos de concurrencia de la vista previa; se corrigieron en la rama con 5 pruebas más. (3) Una prueba nueva del Cubit falló porque el doble lanzaba en `applyMoveFor`, que el Cubit llama al empezar: era un error de la prueba, no del código |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -803,6 +814,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | `StartGameUseCase` borraba la partida guardada antes de crear la nueva: si la creación fallaba, se perdía (IA-62) | Revisión con el subagente `architecture-reviewer` | Crea la sesión y después borra; prueba de RN-COM-35 para ese caso |
 | La comprobación de paridad de ARB contaba las claves internas de los metadatos `@clave` (`description`) como mensajes (IA-62) | Falló `tool/check_architecture.dart` en local al agregar el primer ARB con metadatos | Lee el JSON y compara solo las claves de primer nivel |
 | Al editar en lote los cuerpos de 26 Issues, un corte de conexión dejó vacío el de #52 (HM-04): el script escribía aunque la lectura hubiera fallado (IA-65) | Verificación posterior del largo y del responsable de cada Issue | Texto restaurado desde el historial de ediciones de GitHub (GraphQL `userContentEdits`); los reintentos se negaban a escribir un cuerpo sin la forma esperada |
+| D-138 citaba "ARQ-02 §3.3", una sección que no existe, y `GameEngine.check` respondía aunque el motor estuviera cerrado (IA-66) | `architecture-reviewer` antes del PR | Cita corregida a §2 y §9.6; `check` lanza `StateError` con el motor cerrado, con su prueba |
 
 ### 4.3 Reflexión del equipo
 

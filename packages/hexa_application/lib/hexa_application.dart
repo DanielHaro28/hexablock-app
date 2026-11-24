@@ -10,4 +10,5 @@ export 'src/game_keys.dart';
 export 'src/ports/saved_game_repository.dart';
 export 'src/use_case.dart';
 export 'src/use_cases/apply_move_use_case.dart';
+export 'src/use_cases/check_move_use_case.dart';
 export 'src/use_cases/start_game_use_case.dart';

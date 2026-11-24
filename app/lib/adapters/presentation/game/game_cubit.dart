@@ -14,33 +14,53 @@ typedef ApplyMoveFor<
   GameSession<C, TCell, TMove, TState> session,
 );
 
+/// Builds the check use case of a session (D-138), already wrapped by its
+/// aspects.
+typedef CheckMoveFor<
+  C extends Coord,
+  TCell extends Object,
+  TMove,
+  TState extends GameState<C, TCell>
+> = UseCase<TMove, Result<RejectionReason?>> Function(
+  GameSession<C, TCell, TMove, TState> session,
+);
+
 /// The presenter of the game screen: one for the four variants
 /// (ARQ-A-08, ARQ-03 §4).
 ///
 /// It starts the game with [StartGameUseCase] and plays each move with the
 /// [ApplyMoveUseCase] of that session, built by `applyMoveFor` once the
-/// session exists. It shows what the use cases return and holds no rules.
+/// session exists. While the player drags a move, [preview] asks the
+/// [CheckMoveUseCase] built by `checkMoveFor` whether it would be played
+/// (D-138). It shows what the use cases return and holds no rules.
 final class GameCubit<
   C extends Coord,
   TCell extends Object,
   TMove,
   TState extends GameState<C, TCell>
 >
-    extends Cubit<GameScreenState<C, TState>> {
+    extends Cubit<GameScreenState<C, TMove, TState>> {
   /// A presenter that starts the game with `options`.
   GameCubit({
     required this._startGame,
     required this._options,
     required this._applyMoveFor,
-  }) : super(GameLoading<C, TState>());
+    required this._checkMoveFor,
+  }) : super(GameLoading<C, TMove, TState>());
 
   final UseCase<StartOptions, Result<GameSession<C, TCell, TMove, TState>>>
   _startGame;
   final StartOptions _options;
   final ApplyMoveFor<C, TCell, TMove, TState> _applyMoveFor;
+  final CheckMoveFor<C, TCell, TMove, TState> _checkMoveFor;
 
   GameSession<C, TCell, TMove, TState>? _session;
   UseCase<TMove, Result<MoveResult<C, TState>>>? _applyMove;
+  UseCase<TMove, Result<RejectionReason?>>? _checkMove;
+
+  /// Grows with every preview, clear and move, so the answer of a preview
+  /// that was overtaken is dropped.
+  int _previewVersion = 0;
 
   /// Starts or continues the game.
   Future<void> start() async {
@@ -53,6 +73,7 @@ final class GameCubit<
       case Success(value: final session):
         _session = session;
         _applyMove = _applyMoveFor(session);
+        _checkMove = _checkMoveFor(session);
         emit(GameReady(session.engine.state, session.engine.phase));
       case Failure(:final error):
         emit(GameNotStarted(error));
@@ -64,6 +85,7 @@ final class GameCubit<
     final session = _session;
     final applyMove = _applyMove;
     if (session == null || applyMove == null) return;
+    _previewVersion++;
     final result = await applyMove.execute(move);
     if (isClosed) return;
     final engine = session.engine;
@@ -85,6 +107,53 @@ final class GameCubit<
         failure: error,
       ),
     });
+  }
+
+  /// Shows whether [move] would be played, without playing it (D-138). It
+  /// does nothing before the game started.
+  ///
+  /// The game, its phase and its board stay as they are. The events, the
+  /// rejection and the failure of the last move are not shown again, so the
+  /// screen does not replay them.
+  ///
+  /// The answer is about the engine's state and is shown on the last state
+  /// emitted, and both agree: a [submit] started after this call drops its
+  /// answer, and the engine plays a [submit] started before it as soon as it
+  /// is called, whose state is emitted first because [ApplyMoveUseCase] only
+  /// takes microtasks (it does not wait for the save). An aspect that waits
+  /// for real work would break this; then the preview must be checked
+  /// against the emitted state.
+  Future<void> preview(TMove move) async {
+    final checkMove = _checkMove;
+    if (checkMove == null) return;
+    final version = ++_previewVersion;
+    final result = await checkMove.execute(move);
+    if (isClosed || version != _previewVersion) return;
+    final screen = state;
+    if (screen is! GameReady<C, TMove, TState>) return;
+    emit(switch (result) {
+      Success(value: final rejection) => GameReady(
+        screen.state,
+        screen.phase,
+        preview: MovePreview(move, rejection: rejection),
+      ),
+      Failure(:final error) => GameReady(
+        screen.state,
+        screen.phase,
+        failure: error,
+      ),
+    });
+  }
+
+  /// Stops showing the preview: the player let go of the move or took it
+  /// away from the board.
+  void clearPreview() {
+    _previewVersion++;
+    final screen = state;
+    if (screen is! GameReady<C, TMove, TState> || screen.preview == null) {
+      return;
+    }
+    emit(GameReady(screen.state, screen.phase));
   }
 
   @override

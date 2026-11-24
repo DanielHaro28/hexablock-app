@@ -67,4 +67,4 @@ Herramientas que ayudan a escribir y evaluar las skills del proyecto, pero que *
 
 | Herramienta | Origen | Para qué | Riesgo y control |
 |---|---|---|---|
-| `skill-creator` | Anthropic; viene con la cuenta de Claude de cada integrante (`anthropic-skills:skill-creator`) | Redactar una skill y medirla con evaluaciones: corre los casos con y sin la skill en subagentes y compara los resultados | Los casos de prueba no llevan secretos ni datos reales (SEC-AGT-09). Sus archivos de trabajo (casos, resultados) quedan fuera del repo; si una evaluación sirve de evidencia, se resume en el PR o en `AI_USAGE.md` |
+| `skill-creator` | Anthropic; viene con la cuenta de Claude de cada integrante (`anthropic-skills:skill-creator`) | Redactar una skill y medirla con evaluaciones: corre los casos con y sin la skill en subagentes y compara los resultados | Los casos de prueba no llevan secretos ni datos reales (SEC-AGT-09). Los casos de prueba van en `evals/` dentro de cada skill, en el repo, para que se repitan igual; los resultados de cada corrida quedan fuera de los dos repos (`../skill-evals/`) y, si sirven de evidencia, se resumen en el PR o en `AI_USAGE.md` |

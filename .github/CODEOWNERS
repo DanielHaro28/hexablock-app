@@ -1,12 +1,17 @@
-# Responsible per area (D-62, D-77; the rest is updated when D-78 closes). Owners are asked for a review; nobody is blocked,
+# Responsible per area (D-62, D-77, D-78). Owners are asked for a review; nobody is blocked,
 # and anyone can help in any area.
 *                                 @DanielHaro28
 /packages/                        @DavidCR20
 /packages/hexa_engine/            @DanielHaro28
 /packages/hexa_topologies/        @DanielHaro28
+/packages/hexa_application/       @DanielHaro28
+/packages/hexa_variants/**/hexa_lines/  @DanielHaro28
+/packages/hexa_variants/**/hexa_sort/   @DanielHaro28
+/packages/hexa_variants/**/hexa_fit/    @dicpc
+/packages/hexa_variants/**/hexa_merge/  @DavidCR20
 /tools/                           @DavidCR20
-/app/lib/adapters/repositories/   @DavidCR20
-/app/lib/frameworks/persistence/  @DavidCR20
+/app/lib/adapters/repositories/   @DanielHaro28
+/app/lib/frameworks/persistence/  @DanielHaro28
 /app/lib/adapters/presentation/   @dicpc
 /app/lib/frameworks/ui/           @dicpc
 /app/assets/                      @dicpc @DavidCR20

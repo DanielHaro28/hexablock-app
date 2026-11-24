@@ -625,6 +625,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Ninguna sobre la skill. El usuario decidió no seguir evaluando cada skill por el costo y reducir la lista |
 | Lecciones | (1) La guía `EXTENSIBILITY.md` promete menos cambios de los reales: una 5ª variante también cambia el contrato, cuatro herramientas, una regla común cerrada y varios documentos; queda como decisión del equipo. (2) La skill anterior encontró sola la mayor parte porque el modelo lee el código; la diferencia estuvo en lo que omitió. (3) Una afirmación de la evaluación pedía reutilizar un modelo de récord que todavía no existe en `main`; se reescribió. (4) Cada skill evaluada con línea base y dos iteraciones costó entre 6 y 9 corridas completas: demasiado para el tiempo que queda |
 
+### IA-59 · Lista de skills reducida, revisor de arquitectura ampliado y ensayo de la defensa (D-129, T-08) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "vale la pena seguir haciendo estos skills ya se me fue el limite de laconversacion haciendo 2". Después: "Ok hagamos lo que ya esta esos que valen la pena y los demas en una lista si queda tiempo" |
+| Resultado | D-129 (precisa el orden de D-127): solo se hacen las skills que valen la pena para la entrega. `architecture-reviewer` revisa también castings, suposiciones de una geometría particular y valores fijos (lo que se quería de un `genericity-reviewer`). Skill nueva `/defense-rehearsal`: un cambio de regla con tiempo medido en un *worktree* desechable y preguntas de diseño comparadas con los documentos. El resto de la lista quedó en T-08 (#116). D-130 abierta: `EXTENSIBILITY.md` promete menos cambios de los reales para una 5ª variante. `CLAUDE.md` lista la skill nueva |
+| Modificaciones del equipo | El usuario decidió reducir la lista y dejar el resto para si sobra tiempo. ⚠️ completar con lo que ajuste quien revise el agente y la skill |
+| Lecciones | (1) Evaluar cada skill con línea base y dos iteraciones consumió la mayor parte de la conversación: las evaluaciones convienen cuando corrigen un error que ya pasó, como el ID repetido de `/ai-usage`. (2) Varias de las skills planeadas ya las cubren herramientas existentes (`/code-review` de Claude Code y los dos revisores del proyecto) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

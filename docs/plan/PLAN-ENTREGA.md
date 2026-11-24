@@ -188,6 +188,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #68](https://github.com/DanielHaro28/hexablock-app/issues/68) | TEC-07 · Cuadrados y triángulos jugables | @DanielHaro28 | 16 |
 | [app #69](https://github.com/DanielHaro28/hexablock-app/issues/69) | TEC-08 · Cubos en el dominio | @DanielHaro28 | 10 |
 | [app #70](https://github.com/DanielHaro28/hexablock-app/issues/70) | TEC-09 · Vista 3D | @dicpc | 16 |
+| [app #116](https://github.com/DanielHaro28/hexablock-app/issues/116) | T-08 · Skills opcionales si sobra tiempo | @DanielHaro28 | 0 |
 
 **Asignación:** solo @DanielHaro28 tiene Issues asignados en GitHub. Los que dicen "por definir" se asignan cuando el equipo cierre D-78, y los de los tres, cuando todos acepten la invitación (G-01). `tools/planning/assign_pending.py` asigna lo que diga `tools/planning/issues_created.json`.
 

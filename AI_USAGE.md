@@ -724,6 +724,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Claude explicó que la cantidad de commits no era el problema (se integra con *squash*), sino el tamaño del PR de TEC-11 (unas 3.000 líneas), y propuso dividir las historias grandes en PR apilados. El usuario la tomó como decisión cerrada y eligió que las partes sean subtareas del mismo Issue en lugar de Issues nuevos. Los umbrales de 8 h y 600 líneas son la propuesta de Claude, aceptada sin cambios |
 | Lecciones | (1) La regla "un Issue por PR" ataba el tamaño de un PR al de su Issue; el problema apareció recién con el primer PR grande (#123). (2) La línea de CLAUDE.md que dice "Un Issue por PR" queda desactualizada hasta que se cambie; es configuración del agente (SEC-AGT-05) y no se tocó sin el visto bueno del usuario |
 
+### IA-64 · Regla de PR apilados en CLAUDE.md y arreglo de docs-check (D-137) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Literal: "sí, arregla el script y abre los PR"; después: "Hazlo en uno aparte, y haz mergue si puedes de los 2 que creaste" y "Acuerdate de no borrar ramas." |
+| Resultado | (1) `tools/docs-check/check_ids.py` y `check_tables.py` se saltan `node_modules/`; iba en los PR de D-137 (app #124 y api #50), que se integraron con *squash* cuando el CI pasó, sin borrar las ramas. (2) En una rama aparte, `CLAUDE.md` de los dos repos: la regla "Un Issue por PR" ahora dice que un PR nunca mezcla dos Issues, y una línea nueva remite a D-137 (umbral de 8 h o 600 líneas, subtareas en el Issue, PR apilados, `Refs #n` y solo el último cierra el Issue). Sin Issue (aplica una decisión) |
+| Modificaciones del equipo | El usuario pidió el cambio de `CLAUDE.md` en un PR aparte del de D-137, como propuso Claude por ser configuración del agente (SEC-AGT-05), pidió integrar los dos PR de D-137 y recordó no borrar ramas. ⚠️ completar: el aviso al equipo antes de integrar el cambio de `CLAUDE.md` |
+| Lecciones | (1) `check_ids.py` recorría cualquier `.md` salvo `.git`, así que una instalación local de npm en `hexablock-api` metía los README de los paquetes y marcaba como no definidos textos de esos README con forma de ID; en el CI no pasaba porque ahí no hay `node_modules`. `check_tables.py` tenía el mismo hueco y pasaba de casualidad. (2) Un PR que cita una decisión tiene que salir de `main` después de que esa decisión se integre: si no, `check_ids.py` la marca como no definida. Por eso el cambio de `CLAUDE.md` esperó a #124 y #50. (3) En la API, el CI de un PR solo de documentos corre únicamente el job `docs` |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

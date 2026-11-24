@@ -52,6 +52,29 @@ void main() {
       ),
       'unexpected': (StateError('bug'), const UnexpectedFailure()),
     };
+    test('should_give_equal_failures_the_same_hash_when_compared', () {
+      // Arrange
+      AppFailure copyOf(AppFailure failure) => switch (failure) {
+        NetworkFailure() => const NetworkFailure(),
+        SessionFailure(:final expired) => SessionFailure(expired: expired),
+        ConflictFailure(:final code) => ConflictFailure(code),
+        ValidationFailure(:final fields) => ValidationFailure({...fields}),
+        PersistenceFailure() => const PersistenceFailure(),
+        RuleFailure(:final code) => RuleFailure(code),
+        UnexpectedFailure() => const UnexpectedFailure(),
+      };
+      final failures = [for (final (_, failure) in cases.values) failure];
+
+      // Act
+      final copies = [for (final failure in failures) copyOf(failure)];
+
+      // Assert
+      for (final (index, failure) in failures.indexed) {
+        expect(copies[index], failure);
+        expect(copies[index].hashCode, failure.hashCode);
+      }
+    });
+
     for (final MapEntry(key: name, value: (error, failure)) in cases.entries) {
       test(
         'should_return_the_matching_failure_when_the_error_is_$name',

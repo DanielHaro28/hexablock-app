@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: skips-id-on-unmerged-branch
+expected_outcome: |
+  The new entry takes IA-06, because IA-04 is used on an unmerged local branch of the app and IA-05 on a remote branch of the API that only appears after git fetch. It is a solo app entry placed before section 4, committed as "docs(ai-usage): add IA-06", and check_ids.py still passes.
+context:
+  scaffold_script: place-files.sh

@@ -1,0 +1,20 @@
+{
+  "repos": {
+    "app": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"], [2, "Motor", "solo app", true], [3, "Topologías", "solo app"]],
+      "main_d": [1, 2, 3],
+      "local_branches": [{"name": "feat/tec-05-seeds", "ia": [[4, "Semillas", "solo app"]], "d": [4]}],
+      "current": {
+        "name": "feat/hs-02-generate-stacks",
+        "message": "feat(hexa-sort): shuffle the stack colors",
+        "files": {
+          "packages/hexa_variants/lib/src/hexa_sort/shuffle.dart": "// Fisher-Yates shuffle (Durstenfeld's version) over a seeded generator.\nList<T> shuffle<T>(List<T> items, int Function(int max) next) {\n  final out = [...items];\n  for (var i = out.length - 1; i > 0; i--) {\n    final j = next(i + 1);\n    final t = out[i];\n    out[i] = out[j];\n    out[j] = t;\n  }\n  return out;\n}\n"
+        }
+      }
+    },
+    "api": {
+      "main_ia": [[1, "Stack tecnológico", "compartido"]],
+      "main_d": [1, 2, 3]
+    }
+  }
+}

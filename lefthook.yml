@@ -1,0 +1,6 @@
+# Git hooks (ADR-001 §2.4, D-123). `npm ci` installs them: lefthook's
+# postinstall runs `lefthook install` (it skips that step when CI is set).
+commit-msg:
+  commands:
+    commitlint:
+      run: npx --no-install commitlint --edit {1}

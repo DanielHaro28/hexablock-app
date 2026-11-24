@@ -614,6 +614,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | ⚠️ completar |
 | Lecciones | (1) SECURITY-BASELINE §7 pide aprobación para todos los colaboradores externos, pero los repos tenían el valor por defecto de GitHub (solo primeros contribuidores); se vio al consultar la API, no en la interfaz. (2) Los títulos por defecto de Dependabot ("Bump x from a to b") no pasan el job `pr-title`; por eso `commit-message.prefix`. (3) En `hexablock-api` aún no hay `package.json` ni `Dockerfile` (T-04, api #41), así que Dependabot marcará error en `npm` y `docker` hasta que se integre. (4) El modo automático bloqueó cerrar G-01 (#83) desde la terminal; lo cierra el usuario. (5) El ruleset decía permitir los tres métodos de integración aunque el equipo había acordado solo *squash*; se vio al leer el ruleset por la API antes de agregarle los checks |
 
+### IA-54 · `commitlint` y `lefthook` en la app (G-07, D-123) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 23-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Continuación de la sesión de G-03, G-06 y G-10 ("vamos con la Fase 1"). Claude propuso tres opciones para instalar `commitlint` en un repo de Dart y dos para la mitad de la API; el usuario eligió "package.json solo de dev" y "PR aparte tras #41" |
+| Resultado | D-123 en `DECISIONES.md`. `package.json` privado con `@commitlint/cli` 21.2.4, `@commitlint/config-conventional` 21.2.4 y `lefthook` 2.2.2 (verificados en npm: licencia MIT, repositorios oficiales y más de 10 millones de descargas por semana; SEC-AGT-04), y `package-lock.json`. `commitlint.config.mjs` (Conventional Commits y *scope* en `kebab-case`, como la regex anterior), `lefthook.yml` con el hook `commit-msg`, el job `pr-title` de `ci.yml` con el mismo `commitlint` en vez de la regex, y el README (versión de Node y `npm ci`). La mitad de `hexablock-api` queda para cuando se integre T-04 (api #41) |
+| Modificaciones del equipo | ⚠️ completar |
+| Lecciones | (1) `config-conventional` no exige el *scope* en minúsculas que exigía la regex del CI (`fix(Engine)` pasaba); se agregó `scope-case`. (2) En cambio, sí rechaza un asunto que empieza con mayúscula (`feat: Add thing`), que la regex aceptaba; de los 38 títulos de `main` solo falla `Initial commit`, anterior a la regla. (3) Se leyó el `postinstall` de `lefthook` antes de ejecutarlo: solo corre `lefthook install` y no lo hace en CI; el CI instala con `--ignore-scripts` |
+
 ### IA-55 · Interfaz `VariantFamily` y `NewGameOptions` en el motor, antes de HL-01 (TEC-01, D-124) — solo app
 
 | Campo | Contenido |

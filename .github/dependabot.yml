@@ -1,0 +1,49 @@
+# Dependabot version updates (SECURITY-BASELINE §7, G-03).
+# Alerts and security updates are enabled in the repository settings; this file
+# adds the weekly version updates. Squash merges use the PR title as the commit
+# on main, so the prefixes keep Dependabot titles in Conventional Commits form
+# (the pr-title job in ci.yml), e.g. "chore(deps): bump ...".
+version: 2
+updates:
+  # Pub workspace root (D-21): one resolution and one pubspec.lock for the
+  # app and every package.
+  - package-ecosystem: pub
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      pub:
+        update-types: [minor, patch]
+
+  # Commit tooling only (commitlint and lefthook, D-123). Until #111 brings
+  # package.json, Dependabot reports "dependency file not found" here.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      npm:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]

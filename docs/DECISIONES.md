@@ -8,7 +8,7 @@
 > - Si un documento citado en *Dónde quedó* no está en este repo, está en `hexablock-api`.
 > - Una decisión cerrada solo se reabre si el equipo lo decide explícitamente. Los IDs nunca se reutilizan.
 >
-> **Última actualización:** 2026-11-22
+> **Última actualización:** 2026-11-23
 
 ---
 
@@ -194,6 +194,7 @@
 | D-87 | **Solo Claude Code** como herramienta de agente: nadie usa Cline, así que no hay `.clinerules` ni reglas duplicadas. Otra herramienta solo entra si el equipo la decide y la lista en `docs/ai/APPROVED-TOOLS.md` | ADR-001 §2.6 (rev. 2.0); SECURITY §6 | Ambos | 20-11 |
 | D-88 | **Skills de terceros: solo las oficiales de Flutter y Dart** (`flutter/agent-plugins`, `dart-lang/skills`), y únicamente las que no choquen con las decisiones del proyecto. Cada una se revisa (instrucciones, scripts y `allowed-tools`) y se copia a `.claude/skills/` de la app en una versión fija, con un PR que la agrega a `docs/ai/APPROVED-TOOLS.md`. No se instala el plugin completo ni skills de autores desconocidos. Se hace al empezar T-03 | `docs/ai/APPROVED-TOOLS.md`; T-03 | Ambos | 20-11 |
 | D-89 | **ORM del backend: Prisma ORM 7** (7.10.x; al empezar, 7.10.1), con `schema.prisma`, `PrismaClient` y Prisma Migrate como en ARQ-04-API. Se descartó Prisma ORM 8: todavía figura como *release candidate* y cambia la API de consultas, lo que obligaba a reescribir ARQ-04-API a tres semanas de la entrega. Prisma 7 sigue con correcciones y parches de seguridad 18 meses después de que salga la 8 | ADR-001 §2.2; README de `hexablock-api` (R-01) | API | 20-11 |
+| D-126 | **`skill-creator` de Anthropic, solo como ayuda para crear y evaluar skills (opción A).** La skill `anthropic-skills:skill-creator`, que viene con la cuenta de Claude de cada integrante, se puede usar para redactar las skills del proyecto y **medirlas con evaluaciones**: corre los casos con y sin la skill en subagentes y compara los resultados, por ejemplo con errores puestos a propósito para ver si un revisor los encuentra sin dar falsos positivos. **No se copia** a `.claude/skills/`: al repo entran las skills que produce, con un PR revisado como cualquier otro. Precisa D-88, que trata de las skills copiadas al repo; no la reabre. Se usa primero para las skills de revisión (`/review-local`, que revisa el diff o todo el código con `--all`, y `/review-pr`, que da un borrador de revisión del PR de otra área sin aprobarlo ni publicarlo solo). Se descartó B (escribirlas a mano y probarlas solo en una rama con errores puestos a propósito): las pruebas no se repiten igual cuando cambia la skill | `docs/ai/APPROVED-TOOLS.md` (Ayudas para crear skills) | Ambos | 23-11 |
 
 ### Infraestructura (22-11)
 

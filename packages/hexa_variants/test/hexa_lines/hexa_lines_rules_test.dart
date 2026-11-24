@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'hex_catalog.dart';
 
 void main() {
-  const rules = HexaLinesRules<HexCoord>();
+  final rules = HexaLinesFactory(hexTopology, hexConfig).createRules();
   const red = PieceColor('red');
   const blue = PieceColor('blue');
 

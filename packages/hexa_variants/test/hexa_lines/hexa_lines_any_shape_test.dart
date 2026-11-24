@@ -49,7 +49,7 @@ void main() {
       const move = PlacePiece(0, FakeCoord(1, 0)); // odd cell
 
       // Act
-      final reason = const HexaLinesRules<FakeCoord>().rejectionOf(state, move);
+      final reason = factory().createRules().rejectionOf(state, move);
 
       // Assert
       expect(reason, const InvalidMove());
@@ -61,7 +61,7 @@ void main() {
       const move = PlacePiece(0, FakeCoord(1, 1)); // even cell
 
       // Act
-      final reason = const HexaLinesRules<FakeCoord>().rejectionOf(state, move);
+      final reason = factory().createRules().rejectionOf(state, move);
 
       // Assert
       expect(reason, isNull);

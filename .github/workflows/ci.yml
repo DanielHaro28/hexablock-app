@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
           fetch-depth: 2 # the PR merge commit and the tip of main
@@ -121,7 +121,7 @@ jobs:
       # own branch; the cache that every PR reads is written by pushes to main.
       - name: Gradle cache
         if: steps.changes.outputs.android == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.gradle/caches

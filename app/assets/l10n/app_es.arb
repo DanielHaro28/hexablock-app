@@ -1,0 +1,27 @@
+{
+  "@@locale": "es",
+  "gameTitleHexaLines": "Hexa Lines",
+  "@gameTitleHexaLines": {
+    "description": "Name of the Hexa Lines game, shown in the top bar of the game screen."
+  },
+  "scoreLabel": "PUNTAJE",
+  "@scoreLabel": {
+    "description": "Label of the score marker on the game screen."
+  },
+  "gameLoading": "Preparando la partida…",
+  "@gameLoading": {
+    "description": "Shown while a game is being created or loaded."
+  },
+  "gameNotStarted": "No se pudo empezar la partida.",
+  "@gameNotStarted": {
+    "description": "Shown when a game could not start."
+  },
+  "boardLabel": "Tablero",
+  "@boardLabel": {
+    "description": "Accessibility label of the game board."
+  },
+  "trayLabel": "Bandeja de piezas",
+  "@trayLabel": {
+    "description": "Accessibility label of the tray of pieces."
+  }
+}

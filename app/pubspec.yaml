@@ -13,6 +13,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_localizations:
+    sdk: flutter
+  get_it: ^9.3.0
   hexa_application:
     path: ../packages/hexa_application
   hexa_engine:
@@ -21,9 +25,17 @@ dependencies:
     path: ../packages/hexa_topologies
   hexa_variants:
     path: ../packages/hexa_variants
+  intl: ^0.20.3
 
 dev_dependencies:
+  bloc_test: ^10.0.0
   flutter_test:
     sdk: flutter
   hexa_test_support:
     path: ../packages/hexa_test_support
+
+flutter:
+  # Generates AppLocalizations from assets/l10n (l10n.yaml, ADR-001).
+  generate: true
+  assets:
+    - assets/config/

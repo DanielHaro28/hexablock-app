@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "gameTitleHexaLines": "Hexa Lines",
+  "scoreLabel": "SCORE",
+  "gameLoading": "Getting the game ready…",
+  "gameNotStarted": "The game could not start.",
+  "boardLabel": "Board",
+  "trayLabel": "Piece tray"
+}

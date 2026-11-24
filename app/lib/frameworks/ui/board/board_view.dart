@@ -2,16 +2,26 @@ import 'package:flutter/widgets.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 
 import 'board_geometry.dart';
+import 'board_preview.dart';
 import 'cell_painter.dart';
 import 'cells_painter.dart';
 import 'topology_layout.dart';
+
+/// Wraps the drawn board, once it is laid out, with what a variant needs on
+/// top of it, such as the target of a drag (HL-02). [geometry] turns a point
+/// of [board] into a cell.
+typedef BoardDecorator<C extends Coord> = Widget Function(
+  BoardGeometry<C> geometry,
+  Widget board,
+);
 
 /// The board of any variant on any cell shape: the topology's [layout]
 /// times the variant's [painter] (ARQ-A-06, ARQ-02 §3.2).
 ///
 /// It takes all the space it is given. A tap on a cell reaches
 /// [onCellTap] as a typed cell `C`; a tap between or outside the cells is
-/// ignored.
+/// ignored. A [preview] is drawn over the cells, and [decorate] wraps the
+/// drawn board.
 final class BoardView<C extends Coord, TCell extends Object>
     extends StatelessWidget {
   /// The view of [board].
@@ -20,6 +30,8 @@ final class BoardView<C extends Coord, TCell extends Object>
     required this.layout,
     required this.painter,
     this.onCellTap,
+    this.preview,
+    this.decorate,
     super.key,
   });
 
@@ -35,12 +47,18 @@ final class BoardView<C extends Coord, TCell extends Object>
   /// Called with the cell the player tapped.
   final ValueChanged<C>? onCellTap;
 
+  /// The piece the player is dragging over the board, or `null`.
+  final BoardPreview<C, TCell>? preview;
+
+  /// Wraps the drawn board, or `null` to leave it as it is.
+  final BoardDecorator<C>? decorate;
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final size = constraints.biggest;
       final geometry = BoardGeometry.fit(layout, board.cells, size);
-      return GestureDetector(
+      final drawn = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: (details) {
           final cell = geometry.cellAt(details.localPosition);
@@ -54,8 +72,17 @@ final class BoardView<C extends Coord, TCell extends Object>
             contentOf: board.cell,
             painter: painter,
           ),
+          foregroundPainter: switch (preview) {
+            null => null,
+            final preview => PreviewPainter<C, TCell>(
+              preview: preview,
+              geometry: geometry,
+              painter: painter,
+            ),
+          },
         ),
       );
+      return decorate?.call(geometry, drawn) ?? drawn;
     },
   );
 }

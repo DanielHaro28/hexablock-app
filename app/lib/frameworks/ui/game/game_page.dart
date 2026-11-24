@@ -8,6 +8,8 @@ import '../../l10n/app_localizations.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_text_styles.dart';
+import '../board/board_geometry.dart';
+import '../board/board_preview.dart';
 import '../board/board_view.dart';
 import '../board/cell_painter.dart';
 import '../board/topology_layout.dart';
@@ -18,6 +20,19 @@ typedef SlotBuilder<TState> = Widget Function(
   TState state,
 );
 
+/// Turns the preview of the game screen into the cells the board draws
+/// (D-138), or `null` to draw nothing.
+typedef PreviewBuilder<C extends Coord, TCell extends Object, TMove, TState> =
+    BoardPreview<C, TCell>? Function(TState state, MovePreview<TMove> preview);
+
+/// Wraps the drawn board of a game in [state] (see `BoardDecorator`).
+typedef BoardDecoratorBuilder<C extends Coord, TState> = Widget Function(
+  BuildContext context,
+  TState state,
+  BoardGeometry<C> geometry,
+  Widget board,
+);
+
 /// The game screen, one for the four variants (D-66, page 26 of the design).
 ///
 /// It has five slots, top to bottom: the top bar (the game's name with its
@@ -25,7 +40,9 @@ typedef SlotBuilder<TState> = Widget Function(
 /// the score are the same for every variant; the variant's module fills the
 /// rest ([trayOf], [actionsOf]) and gives the [cellPainter] and the
 /// topology's [layout]. Nothing moves when a slot is empty: Hexa Merge has
-/// no tray and its board grows down to the actions.
+/// no tray and its board grows down to the actions. A variant that drags
+/// pieces onto the board also gives [previewOf] and [boardDecoratorOf]
+/// (HL-02).
 ///
 /// It reads the [GameCubit] above it. Pause and "how to play" (NAV-04,
 /// NAV-05) and the record (HL-06) come with their stories.
@@ -44,6 +61,8 @@ final class GamePage<
     required this.cellPainter,
     this.trayOf,
     this.actionsOf,
+    this.previewOf,
+    this.boardDecoratorOf,
     super.key,
   });
 
@@ -65,6 +84,13 @@ final class GamePage<
   /// The actions slot, or `null` if the variant has none yet.
   final SlotBuilder<TState>? actionsOf;
 
+  /// What the board draws for the preview of a move, or `null` if the
+  /// variant has none.
+  final PreviewBuilder<C, TCell, TMove, TState>? previewOf;
+
+  /// What wraps the drawn board, or `null` if nothing does.
+  final BoardDecoratorBuilder<C, TState>? boardDecoratorOf;
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
@@ -81,7 +107,7 @@ final class GamePage<
                 builder: (context, screen) => switch (screen) {
                   GameLoading() => _Message(texts.gameLoading),
                   GameNotStarted() => _Message(texts.gameNotStarted),
-                  GameReady(:final state) => Column(
+                  GameReady(:final state, :final preview) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _TopBar(title: titleOf(texts), accent: accent),
@@ -97,6 +123,22 @@ final class GamePage<
                               board: state.board,
                               layout: layout,
                               painter: cellPainter,
+                              preview: switch ((preview, previewOf)) {
+                                (final preview?, final previewOf?) => previewOf(
+                                  state,
+                                  preview,
+                                ),
+                                _ => null,
+                              },
+                              decorate: switch (boardDecoratorOf) {
+                                null => null,
+                                final decorate => (geometry, board) => decorate(
+                                  context,
+                                  state,
+                                  geometry,
+                                  board,
+                                ),
+                              },
                             ),
                           ),
                         ),

@@ -15,11 +15,16 @@ def cells(line):
     return line.strip().strip("|").count("|") + 1
 
 
+# Folders that are not the project's documents: git data and the npm
+# packages of a local install.
+SKIPPED = {".git", "node_modules"}
+
+
 def main(roots):
     errors = []
     for root in roots:
         for f in pathlib.Path(root).rglob("*.md"):
-            if ".git" in f.parts:
+            if SKIPPED.intersection(f.parts):
                 continue
             lines = f.read_text(encoding="utf-8").splitlines()
             in_code = False

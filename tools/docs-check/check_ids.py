@@ -32,8 +32,18 @@ ID_LIST_CELL = re.compile(r"\|\s*((?:" + ID + r")(?:(?:, | a | y )(?:" + ID + r"
 ISSUE_ROW = re.compile(r"\|\s*\[(?:app|api) #\d+\]\([^)]*\)\s*\|\s*(" + ID + r") ·")
 
 
+# Folders that are not the project's documents: git data and the npm
+# packages of a local install, whose READMEs cite things like "R-7".
+SKIPPED = {".git", "node_modules"}
+
+
 def main(roots):
-    files = [f for r in roots for f in pathlib.Path(r).rglob("*.md") if ".git" not in f.parts]
+    files = [
+        f
+        for r in roots
+        for f in pathlib.Path(r).rglob("*.md")
+        if not SKIPPED.intersection(f.parts)
+    ]
     defs = collections.defaultdict(set)
     cites = collections.defaultdict(set)
     for f in files:

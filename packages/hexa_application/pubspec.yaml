@@ -12,5 +12,7 @@ dependencies:
     path: ../hexa_engine
 
 dev_dependencies:
+  hexa_test_support:
+    path: ../hexa_test_support
   test: ^1.25.0
 

@@ -10,7 +10,11 @@ import 'topology_layout.dart';
 ///
 /// A cell's center is `(√3 · (q + r / 2), 3 / 2 · r)` and its corners are one
 /// unit away, at 30° + k · 60°. A point goes back to a cell by rounding its
-/// fractional cube coordinates (the usual method for axial hexagons).
+/// fractional cube coordinates.
+///
+/// Source of the pixel conversion and the cube rounding: A. Patel,
+/// "Hexagonal Grids", Red Blob Games (sections "Hex to pixel", "Pixel to
+/// hex" and "Rounding"), https://www.redblobgames.com/grids/hexagons/.
 final class HexLayout implements TopologyLayout<HexCoord> {
   /// The hexagonal layout.
   const HexLayout();

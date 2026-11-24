@@ -29,13 +29,17 @@ final class Xorshift32 {
   /// `tools/reference-sim/levelkit.py`.
   static const int zeroSeedState = 0x9E3779B9;
 
-  static const int _mask = 0xFFFFFFFF;
+  /// The largest seed, 4294967295: seeds go from 0 to this value, the
+  /// range of `seed` in the level contract.
+  static const int maxSeed = 0xFFFFFFFF;
+
+  static const int _mask = maxSeed;
 
   /// The 32-bit state, never 0. It is all that needs saving.
   final int state;
 
   static int _initialState(int seed) {
-    if (seed < 0 || seed > _mask) {
+    if (seed < 0 || seed > maxSeed) {
       throw ArgumentError.value(seed, 'seed', 'must fit in 32 bits');
     }
     return seed == 0 ? zeroSeedState : seed;

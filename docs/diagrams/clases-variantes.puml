@@ -36,7 +36,7 @@ package "Capa 1 · hexa_engine (detalle en clases-motor)" {
 package "Capa 1 · hexa_variants · hexa_lines" {
   class HexaLinesFactory<C extends Coord> {
     + createRules(): HexaLinesRules<C>
-    + createSession(o: StartOptions): GameSession
+    + createSession(o: NewGameOptions): GameSession
     + continueSession(saved: SavedGame): GameSession
   }
   class HexaLinesRules<C extends Coord> {

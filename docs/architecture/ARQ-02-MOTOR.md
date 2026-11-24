@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107 y D-109, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8); D-111, D-113 y D-116, el mismo día, en cómo se guarda y continúa una partida (§7, §8, §9.7) |
+| Estado | **Decidido (17-11-2026)**: el equipo adoptó todas las recomendaciones, con la mejora de D-32 (D-29 a D-35 en `docs/DECISIONES.md`). D-36 decidida el 20-11 (§9.6); D-93 a D-96, el 21-11 en el *spike* del ciclo de turno (§2, §6, §9.2, §9.6); D-97 a D-101, el mismo día, en las estrategias (§9.7); D-102 a D-107 y D-109, el 22-11, en deshacer, el cronómetro y la sesión (§5 a §8); D-111, D-113 y D-116, el mismo día, en cómo se guarda y continúa una partida (§7, §8, §9.7); D-124, el 23-11, en dónde vive `VariantFamily` y qué recibe una partida nueva (§9.1) |
 | Fecha | 2026-11-17 (revisión: D-32 con retorno síncrono a la pantalla; decidido el mismo día) |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-02-MOTOR.md`) |
 | Parte de | Responde las 6 preguntas del Paso 3 que dejó `ARQ-01-APP-GENERAL.md` |
@@ -13,7 +13,7 @@
 
 > **Los esbozos de código no están compilados.** En esta planificación no hay SDK de Dart disponible. Están escritos para Dart 3 (*sealed*, *records*, *extension types*, genéricos reificados) y se validan en el *spike* de TEC-01 antes de escribir las variantes. El código va en inglés.
 >
-> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer (`MoveCommand`, `UndoHistory`, `GameEngine.restore` y `committedTurns`), las capacidades, el cronómetro (`ActiveTimer`) y la sesión (`GameSession`) están en `packages/hexa_engine/lib/src/undo/`, `session/` y `time/` (D-102 a D-107 y D-109). Una diferencia con el esbozo de §7: `ActiveTimer` recibe del motor solo lo que necesita (`TimedEngine`: la fase y `syncEvents`), igual que `UndoHistory` con `UndoableEngine`.
+> **Avance del *spike* (21-11):** el tablero, la topología, `Shape` y el Visitor (§3.1, §4.3 `Coord`) ya compilan y tienen pruebas en `packages/hexa_engine/lib/src/board/`. La forma del tablero es `ShapeSpec` (D-90) y una coordenada fuera del tablero lanza un error (D-91). Una diferencia con el esbozo: Dart no obliga a una subclase de `Coord` a implementar `==` y `hashCode` (una redeclaración abstracta hereda igual la de `Object`), así que lo comprueban las pruebas de cada topología. El ciclo de turno también compila y tiene pruebas en `packages/hexa_engine/lib/src/game/` (reglas, motor, fases y eventos). El estado inicial lo crea la fábrica (D-93), el orden de los eventos del motor quedó fijado (D-94) y el motivo de un rechazo es una jerarquía abierta (D-95). Una diferencia con el esbozo de §8: `onTurnStarted` y `onTurnFinished` están en la base `GamePhase`, así el motor delega en la fase sin preguntar cuál es. El generador (`Xorshift32`, E-COM-1), el reloj (`IMonotonicClock`) y las tres estrategias (`IPieceSource`, `IScoringPolicy` e `IProgressModel`, D-97 a D-99, §9.7) están en `packages/hexa_engine/lib/src/random/`, `time/` y `strategy/`. Deshacer (`MoveCommand`, `UndoHistory`, `GameEngine.restore` y `committedTurns`), las capacidades, el cronómetro (`ActiveTimer`) y la sesión (`GameSession`) están en `packages/hexa_engine/lib/src/undo/`, `session/` y `time/` (D-102 a D-107 y D-109). Una diferencia con el esbozo de §7: `ActiveTimer` recibe del motor solo lo que necesita (`TimedEngine`: la fase y `syncEvents`), igual que `UndoHistory` con `UndoableEngine`. La interfaz `VariantFamily` y `NewGameOptions` (D-124) están en `session/`.
 
 ---
 
@@ -106,7 +106,7 @@ classDiagram
     class VariantFamily~C, TCell, TMove, TState~ {
       <<interface>>
       +createRules() IGameRules
-      +createSession(options) GameSession
+      +createSession(NewGameOptions) GameSession
       +continueSession(saved) GameSession
     }
     Board --> GridTopology : delega la geometría (Bridge)
@@ -115,6 +115,7 @@ classDiagram
     GameEngine --> IGameRules : Strategy
     GameEngine --> GamePhase : State
     VariantFamily ..> IGameRules : crea
+    VariantFamily ..> GameSession : crea
 ```
 
 ```mermaid
@@ -207,9 +208,11 @@ final class HexaLinesModule implements VariantModule {
   @override
   Widget open<C extends Coord>(TopologyEntry<C> entry, StartOptions options) {
     final family = HexaLinesFactory<C>(entry.topology, config.linesFor(entry.topology.id));
-    final session = family.createSession(options);
+    // StartGameUseCase calls family.createSession(options.newGame) or
+    // family.continueSession(saved) (D-116, D-124), wrapped by AspectChain (ARQ-03)
+    final startGame = aspects.wrap(StartGameUseCase(family, savedGames, key), name: 'StartGame');
     return GamePage<C, PieceColor, LinesMove<C>, LinesState<C>>(
-      cubit: GameCubit(applyMove: ApplyMoveUseCase(session, savedGames, key), /* ... */),
+      cubit: GameCubit(startGame: startGame, options: options, /* ApplyMoveUseCase, ... */),
       painter: const LinesCellPainter(),
       layout: entry.layout,
     );
@@ -239,10 +242,10 @@ Opciones consideradas: Anexo A.3.2.
 
 | | Hexa Lines | Hexa Fit | Hexa Sort | Hexa Merge |
 |---|---|---|---|---|
-| **`TCell`** | `PieceColor` (solo visual, RN-HL-01) | `PieceId` (*extension type* sobre `int`, RN-HF-01) | `ColorStack` (lista inmutable de colores, de abajo arriba; bloque de cima, RN-HS-02) | `Tile` (valor potencia de 2) que implementa `Mergeable<Tile>` |
+| **`TCell`** | `PieceColor` (solo visual, RN-HL-01; fijo por familia, D-131) | `PieceId` (*extension type* sobre `int`, RN-HF-01) | `ColorStack` (lista inmutable de colores, de abajo arriba; bloque de cima, RN-HS-02) | `Tile` (valor potencia de 2) que implementa `Mergeable<Tile>` |
 | **`TMove`** | `PlacePiece<C>(trayIndex, anchor)` | *sealed* `FitMove<C>`: `PlaceFitPiece`, `MoveFitPiece`, `RemoveFitPiece`, `RotateFitPiece` (este no cuenta como movimiento, RN-HF-61) | `PlaceStack<C>(cell)` | `Slide(direction)` |
-| **`TState`** | Tablero, bandeja (≤ 3 piezas), generador (`Xorshift32`), puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, generador, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, generador, ficha objetivo, victoria ya anunciada, semilla |
-| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color) | Sin fuente: las piezas del nivel están en la bandeja desde el inicio (RN-HF-20, 21; D-97) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4; la celda la eligen las reglas con el mismo generador, RN-HM-21) |
+| **`TState`** | Tablero, bandeja de 3 casillas fijas (`null` si ya se colocó, D-133), generador (`Xorshift32`), puntaje, racha `k`, semilla | Tablero (= figura), bandeja con orientaciones, piezas colocadas, movimientos | Tablero, pila de la bandeja, generador, metas cumplidas y objetivo, movimientos, puntaje, semilla | Tablero, puntaje, generador, ficha objetivo, victoria ya anunciada, semilla |
+| **`TPiece`** (de `IPieceSource`) | `LinesPiece<C>` (forma + color de su familia); el catálogo es `LinesConfig<C>`, con la forma base de cada familia, y las orientaciones las da la topología (D-132) | Sin fuente: las piezas del nivel están en la bandeja desde el inicio (RN-HF-20, 21; D-97) | `ColorStack` | `Tile` (la ficha nueva: 90 % de 2, 10 % de 4; la celda la eligen las reglas con el mismo generador, RN-HM-21) |
 | **Aplicar** | Ocupar las celdas | Colocar, mover, retirar o rotar | Poner la pila | Deslizar sin fusionar |
 | **Resolver** | Vaciar las líneas completas de todos los ejes (un paso, RN-HL-43) | — (RN-HF-40) | Cascada con cola y desempate horario (RN-HS-42, 43) | Fusionar una vez por ficha desde el frente y compactar (RN-HM-41, 42) |
 | **Después de resolver** | Bandeja nueva si quedó vacía (RN-HL-21) | — | Pila nueva en la bandeja (RN-HS-20) | Ficha nueva (RN-HM-20, 21) |
@@ -629,7 +632,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` (`createRules`, `createSession`, `continueSession`; D-100, D-116), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
+| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` en `hexa_engine` (`createRules`, `createSession(NewGameOptions)`, `continueSession`; D-100, D-116, D-124), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
 | **Builder** | `FitLevelBuilder<C>` y `SortLevelBuilder<C>` en `hexa_variants` | Arma un nivel paso a paso (figura, piezas, metas, umbrales) y lo **valida** al final (RN-HF-12, D-19). El *mapper* de JSON (capa 3) actúa como director; el validador de niveles del CI usa el mismo builder | §3.3 |
 | **Factory Method** | `GridTopology<C>.cellsOf(ShapeSpec)`: cada topología decide cómo crear las celdas de una forma de tablero (hexágono de radio R, rectángulo N × M, hexágono de triángulos de lado n, caja de cubos) | `Board` se crea sin conocer la figura: la topología concreta fabrica sus coordenadas a partir de la configuración (RNF-11) | — |
 
@@ -824,11 +827,12 @@ final class LinesScoring<C extends Coord> implements IScoringPolicy<LinesState<C
 | La covarianza de Dart permite pasar una `HexCoord` a una topología de cuadrados guardada como `GridTopology<Coord>` (error en ejecución) | Del registro solo se llama a `accept`; toda operación geométrica ocurre ya dentro del visitante, con `C` concreto. Lo comprueban las pruebas `D-29` de `hexa_engine/test/board/grid_topology_test.dart` |
 | Copiar el estado en cada turno es lento | El tablero más grande tiene 64 celdas; se mide con el aspecto de métricas (ARQ-A-05) en la cascada de Sort y en la búsqueda de movimientos de Lines |
 | En Merge, deshacer la jugada que ganó y repetirla vuelve a anunciar la victoria, porque el estado restaurado no la tenía anunciada | Es coherente con "deshacer restaura todo" (RN-COM-61). Si el equipo prefiere no repetir el anuncio, se agrega una regla a `02-RN-HEXA-MERGE.md` |
+| La covarianza de Dart también permite guardar una `VariantFamily` con tipos más amplios (`VariantFamily<Coord, Object, Object?, …>`): `continueSession` recibe `SavedGame<TState>`, así que un estado de otra variante fallaría en ejecución | Nunca se guarda una `VariantFamily` con tipos más amplios: `VariantModule` y `StartGameUseCase<C, TCell, TMove, TState>` trabajan con los tipos concretos (D-124) |
 | Demasiados patrones para explicar en la defensa | Cada uno tiene su fila en §9 con el problema que resuelve; los ensayos F-09 y F-10 recorren esta tabla |
 
 ## 12. Decisiones de este documento
 
-D-29 a D-36, D-90 a D-107, D-109, D-111, D-113 y D-116, en `docs/DECISIONES.md` (D-67).
+D-29 a D-36, D-90 a D-107, D-109, D-111, D-113, D-116, D-124 y D-131 a D-133, en `docs/DECISIONES.md` (D-67).
 
 ## Anexo A — Opciones consideradas (D-68)
 

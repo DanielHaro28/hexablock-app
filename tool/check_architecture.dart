@@ -5,6 +5,7 @@
 // what its pubspec declares). This script adds what pub cannot see:
 // identifiers in code, forbidden platform APIs, `playTurn` overrides and the
 // logger outside the aspects.
+import 'dart:convert';
 import 'dart:io';
 
 /// Identifiers that only a variant may use (RNF-02, RNF-07).
@@ -174,10 +175,13 @@ void _checkArbParity() {
     if (entity is! File || !path.endsWith('.arb') || path.contains('/build/')) {
       continue;
     }
-    final keys = RegExp(r'^\s*"([^"@][^"]*)"\s*:', multiLine: true)
-        .allMatches(entity.readAsStringSync())
-        .map((match) => match.group(1)!)
-        .toSet();
+    // Only the top-level messages count: the `@key` metadata gen-l10n reads
+    // has nested keys (`description`) that are not messages.
+    final keys = switch (jsonDecode(entity.readAsStringSync())) {
+      final Map<String, Object?> arb =>
+        arb.keys.where((key) => !key.startsWith('@')).toSet(),
+      _ => <String>{},
+    };
     byFolder.putIfAbsent(entity.parent.path, () => {})[path] = keys;
   }
   for (final files in byFolder.values) {

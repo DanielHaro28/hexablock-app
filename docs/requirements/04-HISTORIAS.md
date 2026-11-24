@@ -38,9 +38,9 @@
 | 6. Progreso local y resultados | PRG | 4 | Victoria, derrota, guardado local, desbloqueo |
 | 7. Cuenta, sincronización y ranking (parte app) | API | 7 | Registro, sesión, invitado, importar, cerrar sesión, offline, sync |
 | 8. Niveles remotos (parte app) | LVL | 1 | Descarga y validación de niveles |
-| 9. Historias técnicas (app) | TEC | 8 | Motor, extensibilidad, AOP, CI, topologías |
+| 9. Historias técnicas (app) | TEC | 9 | Motor, extensibilidad, AOP, CI, topologías, estructura de la partida |
 
-**Total en la app: 50 historias** (42 funcionales + 8 técnicas). En `hexablock-api`: 9 (6 funcionales + 3 técnicas), de las cuales 5 comparten ID con la app (API-01, API-02, API-03, LVL-01, TEC-04).
+**Total en la app: 51 historias** (42 funcionales + 9 técnicas). En `hexablock-api`: 9 (6 funcionales + 3 técnicas), de las cuales 5 comparten ID con la app (API-01, API-02, API-03, LVL-01, TEC-04).
 
 ---
 
@@ -476,3 +476,14 @@ Como jugador, quiero jugar al menos una variante con cubos, para ver el juego en
 - Es una nueva estrategia de presentación: no cambia el dominio.
 
 **Could** · RNF-04 · RN-TOP-04
+
+### TEC-11 · Estructura común de la partida _(nueva, D-136)_
+Como equipo de desarrollo, quiero una pantalla de partida genérica conectada al motor, para que cada variante solo aporte su módulo, su pintor de celdas y su bandeja.
+- `StartGameUseCase` y `ApplyMoveUseCase` son genéricos en `<C, TCell, TMove, TState>`, implementan `UseCase` y no nombran ninguna variante (RNF-07).
+- Un solo `GameCubit<C, TCell, TMove, TState>` expone el estado de la pantalla a partir del `MoveResult` (ARQ-03 §4).
+- `BoardView<C, TCell>` dibuja el tablero con el layout de la topología y el pintor de la variante, y convierte un punto de la pantalla en una celda `C` (ARQ-02 §3.2).
+- La partida se abre con `TopologyEntry` y `VariantModule` desde `app/lib/config/`, sin `switch` por variante ni castings (ARQ-02 §3.1).
+- Dado que abro Hexa Lines, entonces veo el tablero vacío de radio 4 y la bandeja con 3 piezas, leídos de `assets/config/hexa-lines.json` (D-132). Cierra el criterio visual de HL-01.
+- La pantalla sigue la estructura común de la página 26 del diseño (D-66), con los textos en es y en.
+
+**Must** · RF-20, RNF-02, RNF-07 · Va antes de HL-02, HF-02, HS-02 y HM-01

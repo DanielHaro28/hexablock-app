@@ -4,15 +4,18 @@ import 'package:hexablock_app/frameworks/ui/hexablock_app.dart';
 
 void main() {
   group('HexaBlockApp', () {
-    testWidgets('should_show_a_screen_when_the_app_starts', (tester) async {
+    testWidgets('should_show_the_home_screen_when_the_app_starts', (
+      tester,
+    ) async {
       // Arrange
-      const app = HexaBlockApp();
+      const app = HexaBlockApp(home: SizedBox.expand());
 
       // Act
       await tester.pumpWidget(app);
 
       // Assert
       expect(find.byType(WidgetsApp), findsOneWidget);
+      expect(find.byType(SizedBox), findsOneWidget);
     });
   });
 }

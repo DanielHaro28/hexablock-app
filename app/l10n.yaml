@@ -1,0 +1,10 @@
+# Localized texts (ADR-001: flutter_localizations + ARB with gen-l10n).
+# Spanish is the template; every key must also be in English (RNF-50, checked
+# by tool/check_architecture.dart).
+arb-dir: assets/l10n
+template-arb-file: app_es.arb
+output-dir: lib/frameworks/l10n
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+format: true

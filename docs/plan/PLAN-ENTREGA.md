@@ -11,7 +11,7 @@
 
 | Integrante | Área | Incluye |
 |---|---|---|
-| @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación. **Hexa Lines** (HL-01 a HL-06, D-78, asignada el 22-11) |
+| @DanielHaro28 | Motor y despliegue (D-77) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación. **Hexa Lines** (HL-01 a HL-06, D-78, asignada el 22-11) y la estructura común de la partida (TEC-11, D-136) |
 | @DavidCR20 | API (D-78, asignada el 20-11) | Backend NestJS: esqueleto (T-04), cuenta (API-01, API-02), sincronización (API-03), ranking (API-04), niveles (LVL-01, LVL-02) y errores y Swagger (TEC-05) |
 | @dicpc | Interfaz (D-78, asignada el 20-11) | Pantallas y navegación (NAV-01 a NAV-08), victoria y derrota (PRG-01, PRG-02), registro e inicio de sesión en la app (API-01, API-02), ajustes al diseño (T-05) y vista 3D (TEC-09) |
 | @dicpc y @DavidCR20 | Resto del frontend (D-77) | Hexa Fit, Hexa Sort y Hexa Merge, casos de uso y progreso de la app. **Cómo se lo reparten está por definir (D-78)** |
@@ -23,7 +23,7 @@ Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ay
 | Milestone | Fechas | Issues | Horas | Meta |
 |---|---|---|---|---|
 | M0 · Preparación | 20 al 23-11 | 16 | 33 | Repos listos, CI, AWS, Claude Code configurado |
-| M1 · Base jugable | 24 al 30-11 | 25 | 120.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
+| M1 · Base jugable | 24 al 30-11 | 26 | 134.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
 | M2 · Las otras tres variantes | 1 al 7-12 | 23 | 128 | Merge, Fit y Sort jugables con sus 25 niveles; progreso local; API completa |
 | M3 · Conectado y entregable | 8 al 12-12 | 20 | 80 | Conectado (sincronización, ranking, invitado), extensibilidad, documentación y APK firmado |
 | Sin milestone (solo si sobra tiempo) | — | 3 | 42 | Cuadrados, triángulos, cubos y vista 3D |
@@ -50,7 +50,7 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
 - **Proyecto:** [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (Project de usuario n.º 1, privado), vinculado a `hexablock-app` y `hexablock-api`. @dicpc y @DavidCR20 tienen permiso de escritura.
 - **Columnas (campo Status):** Backlog → Por Hacer → En Curso → En revision → Hecho. Backlog es el valor por defecto.
 - **Contenido:** los 87 Issues (86 del 20-11 y G-01, que se agregó al pasar las tareas a Issues, D-69). Los de M0 y M1 (41) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
-- **Campo numérico Estimación (h):** tiene las horas de la sección 5 en todos los Issues, 403.5 h en total.
+- **Campo numérico Estimación (h):** tiene las horas de la sección 5 en todos los Issues, 417.5 h en total.
 - **Vistas:**
   - **Tablero:** las columnas.
   - **Tabla:** agrupada por milestone, con la suma de Estimación (h) por grupo.
@@ -117,6 +117,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #26](https://github.com/DanielHaro28/hexablock-app/issues/26) | NAV-03 · Cambiar el idioma | @dicpc | 4 |
 | [app #27](https://github.com/DanielHaro28/hexablock-app/issues/27) | NAV-04 · Pausar una partida | @dicpc | 4 |
 | [app #32](https://github.com/DanielHaro28/hexablock-app/issues/32) | HL-01 · Empezar una partida sin fin | @DanielHaro28 | 4 |
+| [app #122](https://github.com/DanielHaro28/hexablock-app/issues/122) | TEC-11 · Estructura común de la partida | @DanielHaro28 | 14 |
 | [app #33](https://github.com/DanielHaro28/hexablock-app/issues/33) | HL-02 · Colocar una pieza | @DanielHaro28 | 8 |
 | [app #34](https://github.com/DanielHaro28/hexablock-app/issues/34) | HL-03 · Eliminar líneas completas | @DanielHaro28 | 6 |
 | [app #35](https://github.com/DanielHaro28/hexablock-app/issues/35) | HL-04 · Recibir una nueva bandeja | @DanielHaro28 | 3 |

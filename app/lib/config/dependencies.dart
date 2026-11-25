@@ -10,6 +10,8 @@ import 'package:hexa_topologies/hexa_topologies.dart';
 import '../adapters/repositories/memory_progress_repository.dart';
 import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
+import '../frameworks/ui/navigation/app_navigator.dart';
+import 'app_pages.dart';
 import 'hexa_lines_module.dart';
 import 'registries.dart';
 import 'topology_entry.dart';
@@ -25,8 +27,9 @@ const defaultTopology = 'hex';
 /// Registers what the app needs at startup in [getIt] (ARQ-03 §6): the
 /// topologies with their layouts, the clock, the progress repository (one
 /// for the whole app, in memory until PRG-03, D-142), the variant modules
-/// with their configuration read from [bundle], and the [newSeed] source (by
-/// default, a secure random seed).
+/// with their configuration read from [bundle], the [newSeed] source (by
+/// default, a secure random seed) and the [AppNavigator], which builds each
+/// screen with `pageFor` (D-149).
 Future<void> registerDependencies(
   GetIt getIt,
   AssetBundle bundle, {
@@ -45,13 +48,14 @@ Future<void> registerDependencies(
     ..registerSingleton(
       VariantRegistry()..add(HexaLinesModule(linesConfig, progress, clock)),
     )
-    ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
+    ..registerSingleton<SeedSource>(newSeed ?? _secureSeed)
+    ..registerSingleton(AppNavigator((route) => pageFor(getIt, route)));
 }
 
 /// The screen of a new game of [gameId] on the default cell shape.
 ///
-/// Until NAV-01, `main` opens Hexa Lines with it directly (D-136); then the
-/// home screen calls it from the game cards.
+/// The home screen opens it from the card of a game without levels
+/// (NAV-01), through `pageFor`.
 Widget openGame(GetIt getIt, String gameId) {
   final entry = getIt<TopologyRegistry>()[defaultTopology];
   final module = getIt<VariantRegistry>()[gameId];

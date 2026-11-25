@@ -35,5 +35,97 @@
   "gameOverTitle": "Sin movimientos",
   "@gameOverTitle": {
     "description": "Shown in place of the tray when the game is over because no move is left (HL-05)."
+  },
+  "gameTitleHexaFit": "Hexa Fit",
+  "@gameTitleHexaFit": {
+    "description": "Name of the Hexa Fit game."
+  },
+  "gameTitleHexaSort": "Hexa Sort",
+  "@gameTitleHexaSort": {
+    "description": "Name of the Hexa Sort game."
+  },
+  "gameTitleHexaMerge": "Hexa Merge",
+  "@gameTitleHexaMerge": {
+    "description": "Name of the Hexa Merge game."
+  },
+  "gameDescriptionHexaLines": "Completa líneas en 3 direcciones",
+  "@gameDescriptionHexaLines": {
+    "description": "One short sentence about Hexa Lines, on its home card."
+  },
+  "gameDescriptionHexaFit": "Encaja todas las piezas",
+  "@gameDescriptionHexaFit": {
+    "description": "One short sentence about Hexa Fit, on its home card."
+  },
+  "gameDescriptionHexaSort": "Apila fichas del mismo color",
+  "@gameDescriptionHexaSort": {
+    "description": "One short sentence about Hexa Sort, on its home card."
+  },
+  "gameDescriptionHexaMerge": "Desliza y fusiona números",
+  "@gameDescriptionHexaMerge": {
+    "description": "One short sentence about Hexa Merge, on its home card."
+  },
+  "homeTagline": "Rompecabezas para una tarde tranquila",
+  "@homeTagline": {
+    "description": "Tagline under the suite name on the home screen."
+  },
+  "homeAbiLabel": "Abi, la abejita, saludando",
+  "@homeAbiLabel": {
+    "description": "What a screen reader says for the mascot on the home screen."
+  },
+  "homeChooseGame": "ELIGE UN JUEGO",
+  "@homeChooseGame": {
+    "description": "Heading above the game cards, in upper case (label style)."
+  },
+  "homeSettings": "Ajustes",
+  "@homeSettings": {
+    "description": "Spoken name of the settings button on the home screen."
+  },
+  "homeRecord": "Récord {score}",
+  "@homeRecord": {
+    "description": "Footer of a game card with its record. The score is already formatted with homeNumberGroupSeparator.",
+    "placeholders": {
+      "score": {
+        "type": "String",
+        "example": "12 850"
+      }
+    }
+  },
+  "homeNew": "Nuevo",
+  "@homeNew": {
+    "description": "Badge of a game card that was never played."
+  },
+  "homeContinue": "Continuar",
+  "@homeContinue": {
+    "description": "Footer of a game card with a saved game; tapping the card resumes it."
+  },
+  "homeNewGame": "Nueva partida",
+  "@homeNewGame": {
+    "description": "Menu item of a game card with a saved game."
+  },
+  "homeMoreOptions": "Más opciones de {game}",
+  "@homeMoreOptions": {
+    "description": "Spoken name of the menu button of a game card.",
+    "placeholders": {
+      "game": {
+        "type": "String",
+        "example": "Hexa Lines"
+      }
+    }
+  },
+  "homeNumberGroupSeparator": " ",
+  "@homeNumberGroupSeparator": {
+    "description": "Thousands separator of scores: a non-breaking space in Spanish (12 850), a comma in English (12,850)."
+  },
+  "navigationBack": "Volver",
+  "@navigationBack": {
+    "description": "Spoken name of the back button of the top bar."
+  },
+  "settingsTitle": "Ajustes",
+  "@settingsTitle": {
+    "description": "Title of the settings screen."
+  },
+  "placeholderComingSoon": "Esta pantalla llega pronto. Vuelve atrás para elegir otro juego.",
+  "@placeholderComingSoon": {
+    "description": "Body of a temporary screen for a part of the app that is not ready yet."
   }
 }

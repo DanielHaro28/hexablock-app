@@ -53,4 +53,7 @@ final class VariantRegistry {
   VariantModule operator [](String gameId) =>
       _modules[gameId] ??
       (throw StateError('no variant registered as $gameId'));
+
+  /// Whether [gameId] has a registered module.
+  bool contains(String gameId) => _modules.containsKey(gameId);
 }

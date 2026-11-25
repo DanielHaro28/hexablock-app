@@ -812,6 +812,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó el plan sin cambios. El `architecture-reviewer` no encontró bloqueantes; Claude aplicó sus sugerencias (usar `LinesState.traySize` y `LinesPieceSource.totalWeight` en las pruebas, probar otra figura y decir el alcance de la prueba del orden de eventos). El desajuste entre RN-HL §11 y D-94 no lo resolvió Claude: planteó cuatro opciones y el usuario eligió registrarlo como D-140, con la recomendación de ajustar el texto de §11. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | (1) El orden de notificaciones de §11 y el de D-94 ya no coincidían, pero no se notaba hasta que hubo un evento de "después de resolver"; una prueba sobre los eventos de las reglas no ve los que agrega el motor. (2) Correr las pruebas antes de implementar mostró una que pasaba por casualidad |
 
+### IA-73 · Terminar la partida cuando nada cabe (HL-05) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | `/implement-story HL-05`. Ante el alcance de "voy a la pantalla de fin" (que es PRG-02), el usuario eligió "Aviso mínimo (Recomendado)"; después del plan: "ok, adelante" |
+| Resultado | Issue #36 (rama `feat/hl-05-game-over`). El dominio no cambió: `HexaLinesRules` ya terminaba la partida con el `evaluate` por defecto, evaluado con la bandeja nueva. Pruebas en `hexa_variants/test/hexa_lines/hexa_lines_game_over_test` (E-HL-4 con sus dos bandejas, RN-HL-51 con las piezas que quedan, RN-HL-50 con las líneas eliminadas antes de evaluar, RN-HL-52 con el tablero vacío sin victoria, y RN-HL §11 con el motor: el fin de partida es el último evento y después se rechazan los movimientos). Un doble nuevo en `hexa_test_support`, `StubPieceSource`, que entrega piezas fijas (una por estado del generador) con sus pruebas. En la app, `GamePage` reemplaza la bandeja por el aviso "Sin movimientos" / "No moves left" (título de las páginas 49 y 50 del diseño, `liveRegion`) cuando la fase es `GameOverPhase`, con pruebas de *widget* en es y en, y una prueba del `GameCubit`. Documentos: la decisión del aviso mínimo en `DECISIONES.md`, la trazabilidad de RF-23 y E-HL-4 fuera de `tool/examples_pending.txt` |
+| Modificaciones del equipo | El usuario eligió el alcance entre tres opciones (solo dominio, aviso mínimo o pantalla de derrota completa) y aceptó el plan sin cambios. El `architecture-reviewer` no encontró bloqueantes; Claude aplicó tres sugerencias (renombrar el parámetro de tipo del *stub*, documentar que las reglas deben sacar números solo a través de la fuente y usar `isA().having` en la prueba del *cubit*) y dejó opcional escribir la fase con un `switch`. ⚠️ completar: revisión humana de las pruebas escritas por Claude (D-59) |
+| Lecciones | (1) Como la regla ya existía, las pruebas pasaron desde el principio; para comprobar que detectan el error se rompió `evaluate` a propósito y fallaron las 4 de derrota. (2) La primera versión de la prueba "la partida continúa" de la pantalla jugaba un dominó que no cabía, así que el movimiento se rechazaba y no probaba nada; se cambió por una bandeja a la que le queda un mono. (3) Las celdas vacías de E-HL-4 se leyeron del dibujo y se comprobaron con un script (9 celdas, ninguna vecina de otra, ninguna línea completa) antes de usarlas |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Fuente visual | **Sistema de diseño** de @dicpc ([en línea](https://claude.ai/artifact/BpH2DMc1TY1HiA46vr6nw4); copia en `sistema/`): *tokens*, componentes, textos y medidas para Flutter. Propuesta en D-144 |
+| Fuente visual | **Sistema de diseño** de @dicpc ([en línea](https://claude.ai/artifact/BpH2DMc1TY1HiA46vr6nw4); copia en `sistema/`): *tokens*, componentes, textos y medidas para Flutter (D-144) |
 | Referencia de cada pantalla | **Prototipo** de @dicpc ([en línea](https://claude.ai/artifact/35wwuL6SEsooCibs35pm1h)), con una captura por pantalla en `pantallas/` (§1) |
 | Diseño inicial | "HexaBlock Suite — Diseño", 59 pantallas, de @dicpc (recibido el 20-11). Fue la base de DIS-01 a DIS-16 (§3) y queda como historial: `HexaBlock-Suite-Diseno-v1.pdf` en esta carpeta |
 | Fecha | 2026-11-20 (diseño inicial) · 2026-11-25 (sistema y prototipo) |
@@ -105,6 +105,6 @@ Cómo quedó cada propuesta aceptada en D-66. «Cumple» quiere decir que el sis
 | DIS-19 | Error de lectura con «Jugar sin guardar»; el diseño inicial decía «Jugar sin conexión». El sistema lo deja pendiente | Ni PRG-03 ni API-08 definen esa salida | Decisión abierta: D-145 |
 | DIS-20 | Ajustes › Accesibilidad: «Símbolos en las fichas: Mostrar / Ocultar» (`ajustes`) | No está en los requisitos; RNF-51 pide que los colores se distingan también por un símbolo | Decisión abierta: D-147. Hasta cerrarla, los símbolos siempre se ven |
 | DIS-21 | Chip «Racha ×2» en Hexa Lines (`lines`) | Con dos turnos seguidos (k = 2) el multiplicador es ×1,5 (RN-HL-63) | Pregunta para quien diseñó: si el chip muestra k o el multiplicador. No cambia la regla |
-| DIS-22 | El *handoff* sugiere `google_fonts`, `flutter_svg` y *widgets* de Material | `google_fonts` descarga las fuentes en línea (API-08); toda dependencia nueva se verifica antes (SEC-AGT-04) | Fuentes: decisión abierta D-146. `flutter_svg` y Material se verifican en el PR del tema |
+| DIS-22 | El *handoff* sugiere `google_fonts`, `flutter_svg` y *widgets* de Material | `google_fonts` descarga las fuentes en línea (API-08); toda dependencia nueva se verifica antes (SEC-AGT-04) | Fuentes empaquetadas (D-146); Material con `material_ui` (D-148) y `flutter_svg` (D-151), verificados en pub.dev |
 | DIS-23 | No hay pantalla de «Cómo jugar», que abre el «?» | NAV-05 (*Should*): resumen de reglas, victoria y derrota en el idioma del jugador | Falta diseñarla antes de NAV-05 |
 | DIS-24 | Diferencias internas menores: las piezas de la bandeja de Lines llevan símbolo y la guía de Piece dice que no; `error-lectura` no coincide con `sistema/pantalla-carga.md` (botón secundario y nota); el fondo de `victoria-sort` muestra otros datos; algunas hojas salen con una fuente con serifa en la captura | — | Las corrige quien diseñó; para el código vale el sistema (`sistema/`) |

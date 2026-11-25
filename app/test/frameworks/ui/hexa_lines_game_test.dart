@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,10 +20,15 @@ void main() {
 
   setUp(() async {
     getIt = GetIt.asNewInstance();
-    await registerDependencies(getIt, rootBundle, newSeed: () => 1);
+    await registerDependencies(
+      getIt,
+      rootBundle,
+      newSeed: () => 1,
+      databaseExecutor: NativeDatabase.memory(),
+    );
   });
 
-  tearDown(() => getIt.reset());
+  tearDown(() async => getIt.reset());
 
   /// Opens Hexa Lines the way main does and waits until it is ready.
   Future<void> openHexaLines(WidgetTester tester) async {
@@ -111,5 +120,59 @@ void main() {
         expect(find.text('1240'), findsOneWidget);
       },
     );
+  });
+
+  group('PRG-03', () {
+    testWidgets('should_keep_saved_record_when_app_reopens_offline', (
+      tester,
+    ) async {
+      // Arrange: save a record on a file-backed database, then reset the
+      // container to simulate closing the app completely.
+      final previousWarning =
+          driftRuntimeOptions.dontWarnAboutMultipleDatabases;
+      driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+      addTearDown(
+        () => driftRuntimeOptions.dontWarnAboutMultipleDatabases =
+            previousWarning,
+      );
+      final tempDir = Directory.systemTemp.createTempSync('prg03_widget_');
+      addTearDown(() => tempDir.deleteSync(recursive: true));
+      final dbFile = File('${tempDir.path}/hexablock.sqlite');
+      final reopenedSession = GetIt.asNewInstance();
+
+      await tester.runAsync(() async {
+        await getIt.reset();
+        final firstSession = GetIt.asNewInstance();
+        await registerDependencies(
+          firstSession,
+          rootBundle,
+          newSeed: () => 1,
+          databaseExecutor: NativeDatabase(dbFile),
+        );
+        await firstSession<IProgressRepository>().save(
+          ProfileId.guest,
+          const GameKey(HexaLinesModule.id, defaultTopology),
+          HighScoreProgress(1880, DateTime.utc(2026, 11, 25)),
+        );
+        await firstSession.reset();
+
+        await registerDependencies(
+          reopenedSession,
+          rootBundle,
+          newSeed: () => 1,
+          databaseExecutor: NativeDatabase(dbFile),
+        );
+      });
+      addTearDown(reopenedSession.reset);
+
+      // Act
+      await tester.pumpWidget(
+        HexaBlockApp(home: openGame(reopenedSession, HexaLinesModule.id)),
+      );
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('1880'), findsOneWidget);
+    });
   });
 }

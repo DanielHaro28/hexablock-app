@@ -96,7 +96,7 @@ Partida **sin fin**, estilo 2048. El jugador desliza el tablero en una de las di
 
 ## 11. Notificaciones
 
-**Deslizamiento** (dirección) → **fusiones** (celda, valor) × N → **ficha nueva** (celda, valor) → **puntaje actualizado** → **victoria** (solo la primera vez) / **derrota**. El puntaje va después de los eventos de las reglas porque lo publica el motor con el total del turno (D-94, D-140).
+**Deslizamiento** (dirección) → **fusiones** (celda, valor) × N → **ficha nueva** (celda, valor) → **puntaje actualizado** → **victoria** (solo la primera vez) / **derrota**. El puntaje va después de los eventos de las reglas porque el motor lo publica una vez por turno, con el total (D-94, D-140).
 
 ## 12. Casos borde
 

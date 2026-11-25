@@ -5,7 +5,7 @@
 > - Las decisiones **cerradas** están en `docs/DECISIONES.md` de cada repo. Al cerrar una, se pasa allí con su fecha y se borra de aquí.
 > - Las **tareas** no están aquí: son Issues de los dos repos, en el tablero [HexaBlock Suite](https://github.com/users/DanielHaro28/projects/1) (D-69). El plan y la hoja de ruta están en `docs/plan/PLAN-ENTREGA.md`.
 >
-> **Última actualización:** 2026-11-24 (D-140 abierta y cerrada con la opción A; D-78 cerrada: reparto completo) · 2026-11-23 (D-117 a D-120 cerradas; D-121 y D-122 abiertas; D-124 y D-129 cerradas; D-125 y D-130 abiertas; D-128 abierta) · 2026-11-22 (D-78: Hexa Lines asignada; D-102 a D-107, D-109 y D-110 a D-116 cerradas) · 2026-11-21 (D-97 a D-101 cerradas; D-93 a D-96 cerradas; D-90 a D-92 cerradas) · 2026-11-20 (D-03 cerrada; paso 8: D-79 a D-88 cerradas; D-77 cerrada y D-78 abierta; ARQ-S-02 y ARQ-S-03 confirmadas; D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
+> **Última actualización:** 2026-11-24 (D-140 y D-143 cerradas en HL-06; antes, D-140 abierta y D-78 cerrada: reparto completo) · 2026-11-23 (D-117 a D-120 cerradas; D-121 y D-122 abiertas; D-124 y D-129 cerradas; D-125 y D-130 abiertas; D-128 abierta) · 2026-11-22 (D-78: Hexa Lines asignada; D-102 a D-107, D-109 y D-110 a D-116 cerradas) · 2026-11-21 (D-97 a D-101 cerradas; D-93 a D-96 cerradas; D-90 a D-92 cerradas) · 2026-11-20 (D-03 cerrada; paso 8: D-79 a D-88 cerradas; D-77 cerrada y D-78 abierta; ARQ-S-02 y ARQ-S-03 confirmadas; D-02 y D-67 a D-75 cerradas; tareas pasadas a los Issues) · **Entrega:** lunes 14-12-2026
 
 ---
 

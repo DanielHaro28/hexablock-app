@@ -3,8 +3,10 @@
   "appTitle": "HexaBlock Suite",
   "gameTitleHexaLines": "Hexa Lines",
   "scoreLabel": "SCORE",
+  "recordLabel": "BEST",
   "gameLoading": "Getting the game ready…",
   "gameNotStarted": "The game could not start.",
   "boardLabel": "Board",
-  "trayLabel": "Piece tray"
+  "trayLabel": "Piece tray",
+  "gameOverTitle": "No moves left"
 }

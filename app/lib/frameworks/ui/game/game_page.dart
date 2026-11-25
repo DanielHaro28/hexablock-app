@@ -44,8 +44,16 @@ typedef BoardDecoratorBuilder<C extends Coord, TState> = Widget Function(
 /// pieces onto the board also gives [previewOf] and [boardDecoratorOf]
 /// (HL-02).
 ///
+/// When the game is over, a notice takes the place of the tray, so no piece
+/// can be dragged any more (HL-05, D-141); the defeat screen comes with
+/// PRG-02.
+///
+/// The markers are the score and, for a variant that keeps one
+/// ([showsRecord]), the saved record beside it (RN-HL-70, page 26 of the
+/// design); with no record saved yet, it reads 0.
+///
 /// It reads the [GameCubit] above it. Pause and "how to play" (NAV-04,
-/// NAV-05) and the record (HL-06) come with their stories.
+/// NAV-05) come with their stories.
 final class GamePage<
   C extends Coord,
   TCell extends Object,
@@ -63,6 +71,7 @@ final class GamePage<
     this.actionsOf,
     this.previewOf,
     this.boardDecoratorOf,
+    this.showsRecord = false,
     super.key,
   });
 
@@ -91,6 +100,9 @@ final class GamePage<
   /// What wraps the drawn board, or `null` if nothing does.
   final BoardDecoratorBuilder<C, TState>? boardDecoratorOf;
 
+  /// Whether the variant keeps a record, shown beside the score.
+  final bool showsRecord;
+
   @override
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
@@ -107,55 +119,66 @@ final class GamePage<
                 builder: (context, screen) => switch (screen) {
                   GameLoading() => _Message(texts.gameLoading),
                   GameNotStarted() => _Message(texts.gameNotStarted),
-                  GameReady(:final state, :final preview) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _TopBar(title: titleOf(texts), accent: accent),
-                      const SizedBox(height: AppSizes.gapLarge),
-                      _Marker(label: texts.scoreLabel, value: state.score),
-                      const SizedBox(height: AppSizes.gapLarge),
-                      Expanded(
-                        child: Semantics(
-                          label: texts.boardLabel,
-                          child: _Panel(
-                            bordered: true,
-                            child: BoardView<C, TCell>(
-                              board: state.board,
-                              layout: layout,
-                              painter: cellPainter,
-                              preview: switch ((preview, previewOf)) {
-                                (final preview?, final previewOf?) => previewOf(
-                                  state,
-                                  preview,
-                                ),
-                                _ => null,
-                              },
-                              decorate: switch (boardDecoratorOf) {
-                                null => null,
-                                final decorate => (geometry, board) => decorate(
-                                  context,
-                                  state,
-                                  geometry,
-                                  board,
-                                ),
-                              },
+                  GameReady(
+                    :final state,
+                    :final phase,
+                    :final preview,
+                    :final record,
+                  ) =>
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _TopBar(title: titleOf(texts), accent: accent),
+                        const SizedBox(height: AppSizes.gapLarge),
+                        _Markers(
+                          score: state.score,
+                          record: showsRecord ? record ?? 0 : null,
+                        ),
+                        const SizedBox(height: AppSizes.gapLarge),
+                        Expanded(
+                          child: Semantics(
+                            label: texts.boardLabel,
+                            child: _Panel(
+                              bordered: true,
+                              child: BoardView<C, TCell>(
+                                board: state.board,
+                                layout: layout,
+                                painter: cellPainter,
+                                preview: switch ((preview, previewOf)) {
+                                  (final preview?, final previewOf?) =>
+                                    previewOf(state, preview),
+                                  _ => null,
+                                },
+                                decorate: switch (boardDecoratorOf) {
+                                  null => null,
+                                  final decorate =>
+                                    (geometry, board) => decorate(
+                                      context,
+                                      state,
+                                      geometry,
+                                      board,
+                                    ),
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (trayOf case final trayOf?) ...[
-                        const SizedBox(height: AppSizes.gapLarge),
-                        Semantics(
-                          label: texts.trayLabel,
-                          child: _Panel(child: trayOf(context, state)),
-                        ),
+                        if (phase is GameOverPhase) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          _GameOverNotice(texts.gameOverTitle),
+                        ] else if (trayOf case final trayOf?) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          Semantics(
+                            label: texts.trayLabel,
+                            child: _Panel(child: trayOf(context, state)),
+                          ),
+                        ],
+                        if (actionsOf case final actionsOf?) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          actionsOf(context, state),
+                        ],
                       ],
-                      if (actionsOf case final actionsOf?) ...[
-                        const SizedBox(height: AppSizes.gapLarge),
-                        actionsOf(context, state),
-                      ],
-                    ],
-                  ),
+                    ),
                 },
               ),
         ),
@@ -182,6 +205,33 @@ final class _TopBar extends StatelessWidget {
       Text(title, style: AppTextStyles.title),
     ],
   );
+}
+
+/// The score and, if [record] is not `null`, the record beside it.
+final class _Markers extends StatelessWidget {
+  const _Markers({required this.score, required this.record});
+
+  final int score;
+  final int? record;
+
+  @override
+  Widget build(BuildContext context) {
+    final texts = AppLocalizations.of(context);
+    final scoreMarker = _Marker(label: texts.scoreLabel, value: score);
+    return switch (record) {
+      null => scoreMarker,
+      final record => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: scoreMarker),
+          const SizedBox(width: AppSizes.gapLarge),
+          Expanded(
+            child: _Marker(label: texts.recordLabel, value: record),
+          ),
+        ],
+      ),
+    };
+  }
 }
 
 final class _Marker extends StatelessWidget {
@@ -220,6 +270,22 @@ final class _Panel extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(AppSizes.gapMedium),
       child: child,
+    ),
+  );
+}
+
+/// Says that the game is over, as soon as it is (a live region, so a screen
+/// reader announces it).
+final class _GameOverNotice extends StatelessWidget {
+  const _GameOverNotice(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    child: _Panel(
+      child: Center(child: Text(title, style: AppTextStyles.title)),
     ),
   );
 }

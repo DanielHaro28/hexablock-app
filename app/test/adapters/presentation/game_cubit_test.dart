@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexa_application/hexa_application.dart';
@@ -31,11 +33,19 @@ void main() {
   const a = FakeCoord(0, 0);
   const b = FakeCoord(1, 0);
   const key = SavedGameKey(ProfileId.guest, GameKey('fake-game', 'fake-shape'));
+  final clock = FakeClock();
+  final earlier = DateTime.utc(2026, 11, 20);
 
   /// The empty board of a new [FakeVariantFamily] game.
   final emptyBoard = Board<FakeCoord, FakeCell>.of(
     const FakeTopology(),
     ShapeSpec('rectangle', const [3, 1]),
+  );
+
+  /// The empty board of a one-cell game, which the first move ends.
+  final oneCell = Board<FakeCoord, FakeCell>.of(
+    const FakeTopology(),
+    ShapeSpec('rectangle', const [1, 1]),
   );
 
   /// A presenter wired as the composition root does, over the fakes.
@@ -49,6 +59,40 @@ void main() {
       applyMoveFor: (session) =>
           ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),
       checkMoveFor: (session) => ErrorHandlingAspect(CheckMoveUseCase(session)),
+    );
+  }
+
+  /// A presenter whose game keeps a record in [progress] (D-142): a board of
+  /// [width] cells where each turn adds [points], so with one cell the first
+  /// move ends the game with [points].
+  _Cubit recordCubitOf(
+    FakeProgressRepository progress, {
+    int width = 1,
+    int points = 40,
+    FakeRules Function()? rules,
+    UseCase<GameKey, VariantProgress?>? getProgress,
+    UseCase<GameResult, VariantProgress>? saveProgress,
+  }) {
+    final saved = FakeSavedGameRepository<FakeState>();
+    final family = FakeVariantFamily(
+      width: width,
+      rules: rules ?? () => FakeRules(pointsPerTurn: points),
+    );
+    return GameCubit(
+      startGame: ErrorHandlingAspect(StartGameUseCase(family, saved, key)),
+      options: StartNew(NewGameOptions(seed: 1)),
+      applyMoveFor: (session) =>
+          ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),
+      checkMoveFor: (session) => ErrorHandlingAspect(CheckMoveUseCase(session)),
+      record: RecordUseCases(
+        game: key.game,
+        getProgress: ErrorHandlingAspect(
+          getProgress ?? GetProgressUseCase(progress, ProfileId.guest),
+        ),
+        saveProgress: ErrorHandlingAspect(
+          saveProgress ?? SaveProgressUseCase(progress, clock, ProfileId.guest),
+        ),
+      ),
     );
   }
 
@@ -112,6 +156,31 @@ void main() {
         expect(state.events, contains(const FakeEvent('apply')));
         expect(state.rejection, isNull);
       },
+    );
+  });
+
+  group('RN-COM-31', () {
+    blocTest<_Cubit, _Screen>(
+      'should_show_the_game_over_phase_when_the_move_ends_the_game',
+      build: cubitOf,
+      act: (cubit) async {
+        // The board has three cells: filling the last one leaves no move.
+        await cubit.start();
+        await cubit.submit(const FakeMove(a));
+        await cubit.submit(const FakeMove(b));
+        await cubit.submit(const FakeMove(FakeCoord(2, 0)));
+      },
+      skip: 3,
+      verify: (cubit) => expect(
+        cubit.state,
+        isA<_Ready>()
+            .having((ready) => ready.phase, 'phase', const GameOverPhase())
+            .having(
+              (ready) => ready.state.board.emptyCells,
+              'empty cells',
+              isEmpty,
+            ),
+      ),
     );
   });
 
@@ -353,6 +422,269 @@ void main() {
       expect: () => <_Screen>[],
     );
   });
+  group('RN-HL-70', () {
+    blocTest<_Cubit, _Screen>(
+      'should_show_the_saved_record_when_the_game_starts',
+      build: () => recordCubitOf(
+        FakeProgressRepository({
+          (ProfileId.guest, key.game): HighScoreProgress(1240, earlier),
+        }),
+      ),
+      act: (cubit) => cubit.start(),
+      verify: (cubit) => expect((cubit.state as _Ready).record, 1240),
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_show_no_record_when_the_game_was_never_finished',
+      build: () => recordCubitOf(FakeProgressRepository()),
+      act: (cubit) => cubit.start(),
+      verify: (cubit) => expect((cubit.state as _Ready).record, isNull),
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_keep_the_saved_record_when_the_score_goes_past_it',
+      build: () => recordCubitOf(
+        FakeProgressRepository({
+          (ProfileId.guest, key.game): HighScoreProgress(10, earlier),
+        }),
+        width: 3,
+      ),
+      act: (cubit) async {
+        await cubit.start();
+        await cubit.submit(const FakeMove(a));
+      },
+      skip: 1,
+      verify: (cubit) {
+        final state = cubit.state as _Ready;
+        expect(state.state.score, 40);
+        expect(state.phase, const PlayingPhase());
+        expect(state.record, 10);
+      },
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_keep_the_record_when_the_player_drags_a_move',
+      build: () => recordCubitOf(
+        FakeProgressRepository({
+          (ProfileId.guest, key.game): HighScoreProgress(10, earlier),
+        }),
+        width: 3,
+      ),
+      act: (cubit) async {
+        await cubit.start();
+        await cubit.preview(const FakeMove(a));
+        cubit.clearPreview();
+      },
+      skip: 1,
+      verify: (cubit) => expect((cubit.state as _Ready).record, 10),
+    );
+  });
+
+  group('RN-HL-71', () {
+    test(
+      'should_show_and_save_the_new_record_when_the_game_ends_above_it',
+      () async {
+        // Arrange
+        final progress = FakeProgressRepository({
+          (ProfileId.guest, key.game): HighScoreProgress(10, earlier),
+        });
+        final cubit = recordCubitOf(progress);
+        addTearDown(cubit.close);
+        await cubit.start();
+
+        // Act
+        await cubit.submit(const FakeMove(a));
+
+        // Assert
+        final state = cubit.state as _Ready;
+        expect(state.phase, const GameOverPhase());
+        expect(state.record, 40);
+        expect(
+          progress.savedAt(ProfileId.guest, key.game),
+          HighScoreProgress(40, clock.now()),
+        );
+      },
+    );
+
+    test('should_keep_the_record_when_the_game_ends_below_it', () async {
+      // Arrange
+      final progress = FakeProgressRepository({
+        (ProfileId.guest, key.game): HighScoreProgress(100, earlier),
+      });
+      final cubit = recordCubitOf(progress);
+      addTearDown(cubit.close);
+      await cubit.start();
+
+      // Act
+      await cubit.submit(const FakeMove(a));
+
+      // Assert
+      expect((cubit.state as _Ready).record, 100);
+      expect(progress.saves, 0);
+    });
+
+    test('should_save_nothing_when_the_turn_does_not_end_the_game', () async {
+      // Arrange
+      final progress = FakeProgressRepository();
+      final cubit = recordCubitOf(progress, width: 3);
+      addTearDown(cubit.close);
+      await cubit.start();
+
+      // Act
+      await cubit.submit(const FakeMove(a));
+
+      // Assert
+      expect(progress.saves, 0);
+    });
+
+    test('should_save_the_record_when_a_victory_ends_the_game', () async {
+      // Arrange
+      final progress = FakeProgressRepository();
+      final cubit = recordCubitOf(
+        progress,
+        width: 3,
+        rules: () => FakeRules(pointsPerTurn: 40, victoryWhen: (_) => true),
+      );
+      addTearDown(cubit.close);
+      await cubit.start();
+
+      // Act
+      await cubit.submit(const FakeMove(a));
+
+      // Assert
+      expect((cubit.state as _Ready).record, 40);
+    });
+
+    test(
+      'should_save_nothing_when_the_player_may_keep_playing_after_winning',
+      () async {
+        // Arrange: the record is kept when the game ends for good (D-112)
+        final progress = FakeProgressRepository();
+        final cubit = recordCubitOf(
+          progress,
+          width: 3,
+          rules: () => FakeRules(
+            pointsPerTurn: 40,
+            victoryWhen: (_) => true,
+            canContinue: true,
+          ),
+        );
+        addTearDown(cubit.close);
+        await cubit.start();
+
+        // Act
+        await cubit.submit(const FakeMove(a));
+
+        // Assert
+        expect(progress.saves, 0);
+      },
+    );
+  });
+
+  group('RNF-35', () {
+    blocTest<_Cubit, _Screen>(
+      'should_start_the_game_and_show_the_failure_when_the_record_is_unreadable',
+      build: () => recordCubitOf(
+        FakeProgressRepository(),
+        getProgress: _Throwing(const PersistenceException()),
+      ),
+      act: (cubit) => cubit.start(),
+      expect: () => [
+        _Ready(
+          FakeState(oneCell),
+          const PlayingPhase(),
+          failure: const PersistenceFailure(),
+        ),
+      ],
+    );
+
+    blocTest<_Cubit, _Screen>(
+      'should_end_the_game_and_show_the_failure_when_the_record_is_unsaved',
+      build: () => recordCubitOf(
+        FakeProgressRepository({
+          (ProfileId.guest, key.game): HighScoreProgress(10, earlier),
+        }),
+        saveProgress: _Throwing(const PersistenceException()),
+      ),
+      act: (cubit) async {
+        await cubit.start();
+        await cubit.submit(const FakeMove(a));
+      },
+      skip: 1,
+      verify: (cubit) {
+        final state = cubit.state as _Ready;
+        expect(state.phase, const GameOverPhase());
+        expect(state.failure, const PersistenceFailure());
+        expect(state.record, 10);
+      },
+    );
+  });
+  group('D-138', () {
+    test('should_show_the_last_turn_before_the_record_is_saved', () async {
+      // Arrange
+      final save = _PendingSave();
+      final cubit = recordCubitOf(FakeProgressRepository(), saveProgress: save);
+      addTearDown(cubit.close);
+      await cubit.start();
+
+      // Act
+      final submitted = cubit.submit(const FakeMove(a));
+      await pumpEventQueue();
+
+      // Assert
+      final state = cubit.state as _Ready;
+      expect(state.phase, const GameOverPhase());
+      expect(state.record, isNull);
+      save.finish(HighScoreProgress(40, clock.now()));
+      await submitted;
+    });
+
+    test('should_keep_the_preview_when_the_record_is_shown_after_it', () async {
+      // Arrange
+      final save = _PendingSave();
+      final cubit = recordCubitOf(
+        FakeProgressRepository(),
+        width: 2,
+        rules: () => FakeRules(pointsPerTurn: 40, victoryWhen: (_) => true),
+        saveProgress: save,
+      );
+      addTearDown(cubit.close);
+      await cubit.start();
+      final submitted = cubit.submit(const FakeMove(a));
+      await pumpEventQueue();
+      await cubit.preview(const FakeMove(b));
+
+      // Act
+      save.finish(HighScoreProgress(40, clock.now()));
+      await submitted;
+
+      // Assert
+      final state = cubit.state as _Ready;
+      expect(state.record, 40);
+      expect(state.preview?.move, const FakeMove(b));
+    });
+  });
+}
+
+/// A save that waits until the test calls [finish].
+final class _PendingSave implements UseCase<GameResult, VariantProgress> {
+  final _done = Completer<VariantProgress>();
+
+  /// Ends the save with [kept].
+  void finish(VariantProgress kept) => _done.complete(kept);
+
+  @override
+  Future<VariantProgress> execute(GameResult input) => _done.future;
+}
+
+/// A use case that always throws [error].
+final class _Throwing<TIn, TOut> implements UseCase<TIn, TOut> {
+  _Throwing(this.error);
+
+  final Object error;
+
+  @override
+  Future<TOut> execute(TIn input) async => throw error;
 }
 
 /// A move use case that always throws [error].

@@ -12,10 +12,12 @@ import 'topology_entry.dart';
 import 'variant_module.dart';
 
 /// Hexa Lines in the app: its configuration, its factory, its use cases and
-/// its screen (ARQ-02 §3.1).
+/// its screen (ARQ-02 §3.1). Its record is kept in the app's progress
+/// repository, dated by the app's clock (RN-HL-70, 71).
 final class HexaLinesModule implements VariantModule {
-  /// The module, with the decoded `assets/config/hexa-lines.json`.
-  const HexaLinesModule(this._config);
+  /// The module, with the decoded `assets/config/hexa-lines.json`, keeping
+  /// its record in [_progress] with the dates of [_clock].
+  const HexaLinesModule(this._config, this._progress, this._clock);
 
   /// The `gameId` of Hexa Lines in the contract.
   static const id = 'hexa-lines';
@@ -24,6 +26,8 @@ final class HexaLinesModule implements VariantModule {
   static const configAsset = 'assets/config/hexa-lines.json';
 
   final Map<String, Object?> _config;
+  final IProgressRepository _progress;
+  final IClock _clock;
 
   @override
   String get gameId => id;
@@ -52,6 +56,16 @@ final class HexaLinesModule implements VariantModule {
             ErrorHandlingAspect(ApplyMoveUseCase(session, savedGames, key)),
         checkMoveFor: (session) =>
             ErrorHandlingAspect(CheckMoveUseCase(session)),
+        // The guest until PRG-03 brings the profiles (D-142).
+        record: RecordUseCases(
+          game: key.game,
+          getProgress: ErrorHandlingAspect(
+            GetProgressUseCase(_progress, key.profile),
+          ),
+          saveProgress: ErrorHandlingAspect(
+            SaveProgressUseCase(_progress, _clock, key.profile),
+          ),
+        ),
       )..start(),
       child: LinesGameScreen<C>(layout: entry.layout),
     );

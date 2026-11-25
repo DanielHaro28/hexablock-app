@@ -51,6 +51,7 @@ final class GameReady<C extends Coord, TMove, TState>
     this.rejection,
     this.failure,
     this.preview,
+    this.record,
   });
 
   /// The state of the game.
@@ -72,6 +73,11 @@ final class GameReady<C extends Coord, TMove, TState>
   /// `null`.
   final MovePreview<TMove>? preview;
 
+  /// The saved record of the game (RN-HL-70), or `null` if the game has
+  /// none yet or keeps no record. It changes when the game ends, not while
+  /// the score goes past it (RN-HL-71, D-142).
+  final int? record;
+
   @override
   bool operator ==(Object other) =>
       other is GameReady<C, TMove, TState> &&
@@ -80,6 +86,7 @@ final class GameReady<C extends Coord, TMove, TState>
       other.rejection == rejection &&
       other.failure == failure &&
       other.preview == preview &&
+      other.record == record &&
       _sameEvents(other.events);
 
   bool _sameEvents(List<GameEvent<C>> others) {
@@ -97,13 +104,14 @@ final class GameReady<C extends Coord, TMove, TState>
     rejection,
     failure,
     preview,
+    record,
     Object.hashAll(events),
   );
 
   @override
   String toString() =>
       'GameReady($phase, rejection: $rejection, failure: $failure, '
-      'preview: $preview, $state)';
+      'preview: $preview, record: $record, $state)';
 }
 
 /// A move that is not played yet and whether it would be (D-138): what the

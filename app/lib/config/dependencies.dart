@@ -7,6 +7,8 @@ import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 
+import '../adapters/repositories/memory_progress_repository.dart';
+import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';
 import 'registries.dart';
@@ -21,21 +23,28 @@ typedef SeedSource = int Function();
 const defaultTopology = 'hex';
 
 /// Registers what the app needs at startup in [getIt] (ARQ-03 §6): the
-/// topologies with their layouts, the variant modules with their
-/// configuration read from [bundle], and the [newSeed] source (by default,
-/// a secure random seed).
+/// topologies with their layouts, the clock, the progress repository (one
+/// for the whole app, in memory until PRG-03, D-142), the variant modules
+/// with their configuration read from [bundle], and the [newSeed] source (by
+/// default, a secure random seed).
 Future<void> registerDependencies(
   GetIt getIt,
   AssetBundle bundle, {
   SeedSource? newSeed,
 }) async {
   final linesConfig = await _json(bundle, HexaLinesModule.configAsset);
+  final IClock clock = SystemClock();
+  final IProgressRepository progress = MemoryProgressRepository();
   getIt
+    ..registerSingleton<IClock>(clock)
+    ..registerSingleton<IProgressRepository>(progress)
     ..registerSingleton(
       TopologyRegistry()
         ..add(const TopologyEntry(HexTopology(), HexLayout(), _hexCoord)),
     )
-    ..registerSingleton(VariantRegistry()..add(HexaLinesModule(linesConfig)))
+    ..registerSingleton(
+      VariantRegistry()..add(HexaLinesModule(linesConfig, progress, clock)),
+    )
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
 }
 

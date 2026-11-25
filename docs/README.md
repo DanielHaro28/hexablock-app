@@ -19,8 +19,16 @@ docs/
 │   └── ARQ-04-APP-DATOS.md                tablas Drift, sincronización, niveles disponibles y migraciones (Paso 5)
 ├── contracts/                             COPIA idéntica de hexablock-api/docs/contracts/ (D-23); no se edita aquí
 ├── design/
-│   ├── HexaBlock-Suite-Diseno-v1.pdf      diseño inicial de @dicpc (59 pantallas, propuesta visual)
-│   └── REVISION-DISENO.md                 revisión del diseño contra las reglas: DIS-01 a DIS-16, aceptadas (Paso 7)
+│   ├── HexaBlock-Suite-Diseno-v1.pdf      diseño inicial de @dicpc (59 pantallas); historial desde el 25-11
+│   ├── REVISION-DISENO.md                 revisión del diseño contra las reglas: DIS-01 a DIS-16 aceptadas; conciliación y DIS-17 a DIS-24 (25-11)
+│   ├── sistema/                           COPIA del sistema de diseño de @dicpc (fuente visual, D-144); no se edita aquí
+│   │   ├── README.md                      principios, color, tipografía, movimiento, textos y marcadores por juego
+│   │   ├── decisiones.md, contraste.md    decisiones de diseño y contraste WCAG de cada par de colores
+│   │   ├── handoff-flutter.md             widget sugerido, medidas y colores de cada componente
+│   │   ├── pantalla-carga.md              pantalla de carga y error de lectura, con su animación
+│   │   ├── tokens.json                    tokens de color, tipografía, espaciado, radios y sombras
+│   │   └── componentes/                   guía de cada componente (en inglés, como en el origen)
+│   └── pantallas/                         una captura PNG por pantalla del prototipo (REVISION-DISENO §1)
 ├── plan/
 │   └── PLAN-ENTREGA.md                    equipo, milestones, tablero, Issues y hoja de ruta de la planificación (Paso 7)
 ├── levels/                                CATALOGO.md e informe del generador de los niveles de app/assets/levels/ (Paso 6)

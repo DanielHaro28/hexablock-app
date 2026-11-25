@@ -3,4 +3,6 @@
 commit-msg:
   commands:
     commitlint:
-      run: npx --no-install commitlint --edit {1}
+      # Quoted: in a git worktree the message file is an absolute path under
+      # the main clone's .git, which can contain spaces.
+      run: npx --no-install commitlint --edit "{1}"

@@ -115,6 +115,26 @@ void main() {
     );
   });
 
+  group('RN-COM-31', () {
+    blocTest<_Cubit, _Screen>(
+      'should_show_the_game_over_phase_when_the_move_ends_the_game',
+      build: cubitOf,
+      act: (cubit) async {
+        // The board has three cells: filling the last one leaves no move.
+        await cubit.start();
+        await cubit.submit(const FakeMove(a));
+        await cubit.submit(const FakeMove(b));
+        await cubit.submit(const FakeMove(FakeCoord(2, 0)));
+      },
+      skip: 3,
+      verify: (cubit) {
+        final state = cubit.state as _Ready;
+        expect(state.phase, const GameOverPhase());
+        expect(state.state.board.emptyCells, isEmpty);
+      },
+    );
+  });
+
   group('RN-COM-21', () {
     blocTest<_Cubit, _Screen>(
       'should_keep_the_state_and_show_the_reason_when_the_move_is_rejected',

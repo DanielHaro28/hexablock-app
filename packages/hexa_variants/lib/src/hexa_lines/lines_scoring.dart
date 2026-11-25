@@ -26,6 +26,7 @@ final class LinesScoring<C extends Coord>
             switch (event) {
               PiecePlaced(:final cells) => cells.length,
               LinesCleared() => 0, // scored by the line bonus
+              TrayRefilled() => 0,
             },
       ) +
       _lineBonus.pointsFor(state, events);
@@ -52,7 +53,7 @@ final class LineBonus<C extends Coord>
         (sum, event) =>
             sum +
             switch (event) {
-              PiecePlaced() => 0,
+              PiecePlaced() || TrayRefilled() => 0,
               LinesCleared(:final lines) =>
                 lines.fold(
                       0,

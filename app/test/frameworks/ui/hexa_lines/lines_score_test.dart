@@ -88,10 +88,10 @@ void main() {
       record: RecordUseCases(
         game: key.game,
         getProgress: ErrorHandlingAspect(
-          GetProgressUseCase(progress, ProfileId.guest),
+          GetProgressUseCase(progress, FakeProfileRepository()),
         ),
         saveProgress: ErrorHandlingAspect(
-          SaveProgressUseCase(progress, FakeClock(), ProfileId.guest),
+          SaveProgressUseCase(progress, FakeProfileRepository(), FakeClock()),
         ),
       ),
     );

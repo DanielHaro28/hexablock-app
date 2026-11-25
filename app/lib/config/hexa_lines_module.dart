@@ -16,8 +16,14 @@ import 'variant_module.dart';
 /// repository, dated by the app's clock (RN-HL-70, 71).
 final class HexaLinesModule implements VariantModule {
   /// The module, with the decoded `assets/config/hexa-lines.json`, keeping
-  /// its record in [_progress] with the dates of [_clock].
-  const HexaLinesModule(this._config, this._progress, this._clock);
+  /// its record for the active profile of [_profiles] in [_progress] with the
+  /// dates of [_clock].
+  const HexaLinesModule(
+    this._config,
+    this._progress,
+    this._profiles,
+    this._clock,
+  );
 
   /// The `gameId` of Hexa Lines in the contract.
   static const id = 'hexa-lines';
@@ -27,6 +33,7 @@ final class HexaLinesModule implements VariantModule {
 
   final Map<String, Object?> _config;
   final IProgressRepository _progress;
+  final IProfileRepository _profiles;
   final IClock _clock;
 
   @override
@@ -56,14 +63,13 @@ final class HexaLinesModule implements VariantModule {
             ErrorHandlingAspect(ApplyMoveUseCase(session, savedGames, key)),
         checkMoveFor: (session) =>
             ErrorHandlingAspect(CheckMoveUseCase(session)),
-        // The guest until PRG-03 brings the profiles (D-142).
         record: RecordUseCases(
           game: key.game,
           getProgress: ErrorHandlingAspect(
-            GetProgressUseCase(_progress, key.profile),
+            GetProgressUseCase(_progress, _profiles),
           ),
           saveProgress: ErrorHandlingAspect(
-            SaveProgressUseCase(_progress, _clock, key.profile),
+            SaveProgressUseCase(_progress, _profiles, _clock),
           ),
         ),
       )..start(),

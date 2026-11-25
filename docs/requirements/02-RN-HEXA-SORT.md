@@ -101,7 +101,7 @@ Juego **por niveles**. Cada celda puede tener una **pila de fichas de colores**.
 
 ## 11. Notificaciones
 
-**Pila colocada** → **transferencia** (origen, destino, color, cantidad) × N → **meta cumplida** (si corresponde) → **puntaje actualizado** → **pila nueva en la bandeja** → **victoria / derrota** (si corresponde).
+**Pila colocada** → **transferencia** (origen, destino, color, cantidad) × N → **meta cumplida** (si corresponde) → **pila nueva en la bandeja** → **puntaje actualizado** → **victoria / derrota** (si corresponde). El puntaje va después de los eventos de las reglas porque el motor lo publica una vez por turno, con el total (D-94, D-140).
 
 ## 12. Casos borde
 

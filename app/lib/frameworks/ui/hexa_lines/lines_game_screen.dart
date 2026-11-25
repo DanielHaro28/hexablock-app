@@ -14,7 +14,8 @@ import 'lines_preview.dart';
 import 'lines_tray.dart';
 
 /// The game screen of Hexa Lines: the common [GamePage] with its painter,
-/// its tray and dragging a piece to the board (HL-02).
+/// its tray, dragging a piece to the board (HL-02) and the record beside the
+/// score (HL-06).
 ///
 /// It reads the `GameCubit` of Hexa Lines above it: a drag over the board
 /// asks for a preview, and letting the piece go plays the move.
@@ -52,6 +53,7 @@ final class _LinesGameScreenState<C extends Coord>
       accent: AppColors.hexaLines,
       layout: widget.layout,
       cellPainter: const LinesCellPainter(),
+      showsRecord: true,
       previewOf: linesPreviewOf,
       boardDecoratorOf: (context, state, geometry, board) {
         final drag = _dragOn(state)..board = geometry;

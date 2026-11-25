@@ -105,7 +105,7 @@ Partida **sin fin**. El jugador coloca piezas de una bandeja de 3 en un tablero 
 
 | ID | Regla | Fuente | Estado |
 |---|---|---|---|
-| RN-HL-70 | Durante la partida se muestran el **puntaje actual** y el **récord** | HU HL-06 | ✅ |
+| RN-HL-70 | Durante la partida se muestran el **puntaje actual** y el **récord** guardado. El récord no cambia mientras el puntaje lo supera: cambia al terminar la partida (RN-HL-71). Sin récord guardado, se muestra 0 | HU HL-06; precisión D-142 | ✅ |
 | RN-HL-71 | Al terminar la partida (derrota, nueva partida o **salir**), si el puntaje supera el récord del perfil, el récord se actualiza y se guarda (RN-COM-80), igual que en Hexa Merge (RN-HM-70) | Enunciado §5.1; precisión D-66 (DIS-08) | ✅ |
 
 ## 10. Deshacer
@@ -116,7 +116,7 @@ Partida **sin fin**. El jugador coloca piezas de una bandeja de 3 en un tablero 
 
 ## 11. Notificaciones
 
-Para la interfaz, el sonido y la analítica (RN-COM-25), en este orden: **pieza colocada** → **líneas eliminadas** (cuáles, combo y racha) → **puntaje actualizado** → **bandeja nueva** (si corresponde) → **fin de partida** (si corresponde).
+Para la interfaz, el sonido y la analítica (RN-COM-25), en este orden: **pieza colocada** → **líneas eliminadas** (cuáles, combo y racha) → **bandeja nueva** (si corresponde) → **puntaje actualizado** → **fin de partida** (si corresponde). El puntaje va después de los eventos de las reglas porque el motor lo publica una vez por turno, con el total (D-94, D-140).
 
 ## 12. Casos borde
 

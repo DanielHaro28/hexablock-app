@@ -867,6 +867,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | @dicpc aceptó las recomendaciones de Claude: guardar en un *stash* el trabajo sin commit de la rama anterior y partir de `main`; copiar las guías de componentes en inglés, como en el origen, con una nota; que en la bandeja de Sort con «Siguiente» y en el deshacer de la derrota de Merge mande la regla (DIS-17 y DIS-18) sin abrir una decisión; agregar D-147 a las tres decisiones pedidas; no copiar la captura de carga repetida ni la miniatura del prototipo; dejar la «Racha ×2» como pregunta para quien diseñó |
 | Lecciones | (1) La rama de trabajo anterior proponía D-117 a D-120 sin commit, pero en `main` esos IDs ya eran las decisiones de AWS: `main` local iba 28 commits atrás. Se detectó al comparar con `origin/main` antes de escribir, y `next_id.py` confirmó D-144. (2) Dos capturas del prototipo eran idénticas byte a byte (carga normal y con «Reducir movimiento»): se vio por el tamaño y se comprobó con `cmp`. (3) Varias contradicciones solo aparecen en las capturas, no en las guías (el deshacer en la derrota de Merge, la racha ×2), así que revisar las dos fuentes valió la pena. (4) `check_shared.py` marca `APPROVED-TOOLS.md` como distinto porque el clon local de `hexablock-api` está atrasado; en `origin/main` los dos son iguales |
 
+### IA-87 · Decisiones de la interfaz antes de NAV-01 (D-148 a D-153) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Claude Code (app de escritorio) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Paráfrasis fiel: "Voy a empezar las historias de interfaz (NAV-01 a NAV-08, PRG-01, PRG-02). Lee CLAUDE.md, las reglas de la app, ADR-001, ARQ-01, ARQ-03 (§4 y §6), REVISION-DISENO, el sistema de diseño y el prototipo. Para cada punto (widgets base, navegación, audio, SVG, fuentes, *tokens*, estructura de `frameworks/ui/` y ARB), dame 2 o 3 opciones con ventajas, desventajas y una recomendación, verificando en pub.dev los paquetes. No escribas código. Cuando elija, agrégalas como abiertas en PENDIENTES y prepara la rama, el commit y el PR". Después de las opciones: "Sí, con las recomendaciones" |
+| Resultado | Rama `docs/ui-decisions`, apilada sobre `docs/t-05-design-system` (#140), porque cita el sistema de diseño y D-146 que todavía no están en `main`. PENDIENTES: D-148 (Material con `material_ui` envuelto en componentes propios), D-149 (`Navigator` con `AppRoute` sellada, sin `go_router`), D-150 (`audioplayers`), D-151 (`flutter_svg`), D-152 (*tokens* a mano con una prueba contra `tokens.json`) y D-153 (estructura de `frameworks/ui/` y ARB), abiertas con opciones, recomendación y los datos de pub.dev. Las fuentes no tienen ID nuevo: ya eran D-146 |
+| Modificaciones del equipo | @dicpc aceptó las seis recomendaciones sin cambios; el equipo las cierra en el PR |
+| Lecciones | (1) Desde Flutter 3.47 Material es un paquete aparte (`material_ui`): el *handoff* lo da por incluido, y por eso el comentario de `hexablock_app.dart` lo dejaba como decisión. (2) El punto de las fuentes ya estaba abierto como D-146: se buscó en PENDIENTES antes de numerar para no duplicarlo. (3) El componente `TextField` del sistema choca con el de Material: de ahí el prefijo `Hexa` en D-153 |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -856,6 +856,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Mientras terminaba el PR de la prueba de D-140 (#138), Claude encontró el fallo y propuso dos caminos: hacer ese commit sin el hook o arreglar el hook en un PR aparte. El usuario eligió hacer aquel commit sin `commitlint`, después de que Claude comprobó a mano que el mensaje pasaba, y pidió después este PR |
 | Lecciones | (1) El fallo solo aparece con un *worktree* y una ruta con espacios: en el clon principal git pasa una ruta relativa. (2) Para ver la versión de lefthook, Claude corrió `npx --yes` en el *worktree* sin `node_modules`, lo que puede descargar el paquete de npm; dio la misma versión fija del proyecto y no cambió el repositorio, pero debió usar la copia instalada |
 
+### IA-88 · Perfiles y progreso por nivel en la capa de aplicación (PRG-03, PR 1 de 2) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Antigravity con Gemini 4 Neon (High); subagente `architecture-reviewer` |
+| Prompt | `implementa la historia PRG-03 siguiendo implement-story`. Se propusieron 3 decisiones de alcance (dejar `saved_games` para NAV-04, incluir `LevelsProgress` y `LevelAttempt` agnósticos a la variante, y crear las 6 tablas en v1 manteniendo el respaldo de Android para Drift) junto con el plan en 2 PR apilados (D-137). El usuario respondió: "Acepto las recomendaciones y empieza, me gusta el plan". |
+| Resultado | Issue #56 (PR 1/2, rama `feat/prg-03-progress-application`). En `packages/hexa_application`: `Profile`, `ProfileKind` y `IProfileRepository` (`active`, `activate`, `guest`); `LevelAttempt`, `LevelsProgress`, `GameResult` sellado en `HighScoreResult` y `LevelCompletedResult`; actualización de `GetProgressUseCase` y `SaveProgressUseCase` para usar el perfil activo vía `IProfileRepository` y consolidar intentos de nivel con `IProgressModel<LevelAttempt>` (desempate por `achievedAt` más antiguo, RN-COM-105). En `packages/hexa_test_support`: `FakeProfileRepository` y sus pruebas. En `app/`: `MemoryProfileRepository` temporal y cableado de `GameCubit`, `dependencies.dart` y `HexaLinesModule`. Pruebas unitarias en `profile_test.dart`, `progress_test.dart`, `get_progress_use_case_test.dart` y `save_progress_use_case_test.dart`. |
+| Modificaciones del equipo | El usuario aceptó las 3 recomendaciones de alcance y el plan en 2 PR apilados. ⚠️ completar con la revisión humana de las pruebas (D-59). |
+| Lecciones | (1) El `switch ((input, saved))` sobre una tupla en Dart 3 requiere enlazar la variable del patrón (`final HighScoreProgress current`) para promover el tipo no anulable del campo en el `return`. (2) El `architecture-reviewer` señaló como mejora futura alinear `SavedGameKey` con el perfil activo al conectar `saved_games` en Drift y considerar atomicidad en `SyncProgressUseCase` cuando consolide en paralelo. (3) Al verificar `next_id.py` tras `git fetch`, se detectaron IDs ya usados en ramas remotas no integradas, evitando colisiones. |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

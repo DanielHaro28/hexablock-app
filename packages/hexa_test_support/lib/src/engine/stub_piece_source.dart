@@ -7,6 +7,10 @@ import 'package:hexa_engine/hexa_engine.dart';
 /// the chain that starts at `from`, so the same generator always gives the
 /// same piece (RN-COM-41) and undoing a draw draws it again. Like every
 /// source, it keeps no generator of its own (D-97).
+///
+/// It assumes the rules draw every number between two pieces through the
+/// source. Rules that also draw from the generator themselves (for example,
+/// a cell before its piece) break the chain, and the next draw throws.
 final class StubPieceSource<TPiece> implements IPieceSource<TPiece> {
   /// Hands out [pieces] in order to the generators that follow [from]:
   /// [from] gives the first one, the generator after it the second, and so
@@ -16,11 +20,11 @@ final class StubPieceSource<TPiece> implements IPieceSource<TPiece> {
 
   final Map<Xorshift32, (TPiece, Xorshift32)> _draws;
 
-  static Map<Xorshift32, (TPiece, Xorshift32)> _chain<TPiece>(
+  static Map<Xorshift32, (P, Xorshift32)> _chain<P>(
     Xorshift32 from,
-    List<TPiece> pieces,
+    List<P> pieces,
   ) {
-    final draws = <Xorshift32, (TPiece, Xorshift32)>{};
+    final draws = <Xorshift32, (P, Xorshift32)>{};
     var current = from;
     for (final piece in pieces) {
       final (_, after) = current.next();

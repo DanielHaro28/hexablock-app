@@ -127,11 +127,16 @@ void main() {
         await cubit.submit(const FakeMove(FakeCoord(2, 0)));
       },
       skip: 3,
-      verify: (cubit) {
-        final state = cubit.state as _Ready;
-        expect(state.phase, const GameOverPhase());
-        expect(state.state.board.emptyCells, isEmpty);
-      },
+      verify: (cubit) => expect(
+        cubit.state,
+        isA<_Ready>()
+            .having((ready) => ready.phase, 'phase', const GameOverPhase())
+            .having(
+              (ready) => ready.state.board.emptyCells,
+              'empty cells',
+              isEmpty,
+            ),
+      ),
     );
   });
 

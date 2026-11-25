@@ -76,4 +76,20 @@ void main() {
       },
     );
   });
+
+  group('D-148', () {
+    testWidgets('should_write_in_ink_without_underline_when_a_screen_has_'
+        'no_material', (tester) async {
+      // Arrange
+      const app = HexaBlockApp(home: Text('Hexa'));
+
+      // Act
+      await tester.pumpWidget(app);
+
+      // Assert
+      final style = tester.widget<RichText>(find.byType(RichText)).text.style!;
+      expect(style.color, HexaColors.crema.ink);
+      expect(style.decoration, isNot(TextDecoration.underline));
+    });
+  });
 }

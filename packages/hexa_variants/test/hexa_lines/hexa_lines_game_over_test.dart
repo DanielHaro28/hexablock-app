@@ -190,7 +190,7 @@ void main() {
         // Assert
         expect(
           result.events.last,
-          PhaseChanged<HexCoord>(const ResolvingPhase(), const GameOverPhase()),
+          const PhaseChanged<HexCoord>(ResolvingPhase(), GameOverPhase()),
         );
         expect(engine.phase, const GameOverPhase());
       },

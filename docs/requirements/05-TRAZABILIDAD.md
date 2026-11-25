@@ -104,7 +104,7 @@
 | RF-52 | HM-03 | RN-COM-40 a 45, RN-HM-11, 20 a 22 | E-COM-1, E-HM-6 | |
 | RF-53 | HM-04 | RN-HM-80 a 83, RN-COM-60 a 63 | E-HM-7 | RN-COM-60 a 63 (límite 1, sin rehacer; restaura el generador, RN-COM-61): `hexa_engine/test/undo/undo_history_test`. E-HM-7 se prueba con la variante |
 | RF-54 | HM-05 | RN-HM-50 a 53, 70 | E-HM-5 | |
-| RF-60 | PRG-03 | RN-COM-80 | — | |
+| RF-60 | PRG-03 | RN-COM-80 | — | Perfil y formas de progreso en capa 2 (`Profile`, `LevelsProgress`, `GetProgressUseCase`, `SaveProgressUseCase`): `hexa_application/test/profile_test`, `progress_test`, `use_cases/get_progress_use_case_test`, `use_cases/save_progress_use_case_test`; persistencia Drift por perfil, variante y figura (`RN-COM-80`, `D-49`, `RNF-35`, `D-39`) con `NativeDatabase.memory()` y reapertura de archivo SQLite sin conexión: `app/test/adapters/repositories/drift_profile_repository_test`, `drift_progress_repository_test`; récord persistido en pantalla tras reiniciar sin conexión: `app/test/frameworks/ui/hexa_lines_game_test` |
 | RF-61 | PRG-04 | RN-COM-73 | — | |
 | RF-62 | API-05 | RN-COM-81, 107 | — | |
 | RF-63 | API-08 | RN-COM-82, 85 | — | |

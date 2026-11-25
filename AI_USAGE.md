@@ -834,6 +834,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió las tres decisiones entre las opciones propuestas (D-142: puerto y adaptador en memoria en vez de solo mostrar el récord o de adelantar PRG-03; D-140: cambiar el texto del §11 en vez de reabrir D-94; marcador con el récord guardado en vez del máximo en vivo) y dividir la rama en dos PR apilados. El `architecture-reviewer` no encontró bloqueantes; Claude corrigió los dos puntos importantes (la vista previa que se perdía al mostrar el récord y la comprobación no exhaustiva de `SaveProgressUseCase`) y dejó como D-143 la duda sobre `IProgressModel` (D-99), que el usuario cerró con la opción A (el récord se consolida por su forma). Los puntos menores (`showsRecord` y `RecordUseCases` dicen lo mismo en dos lugares; el patrón de "partida terminada" repetido en el caso de uso y en el *cubit*) quedaron anotados en el PR. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | (1) La primera versión de `GameCubit` guardaba el récord y después emitía el estado nuevo sin la vista previa; el revisor lo detectó y una prueba con un guardado que no termina (`Completer`) lo reproduce: se comprobó que falla sin la corrección. (2) Una historia de 3 h dependía de piezas de otra de 8 h (PRG-03); separar el puerto del adaptador, como en D-136, permitió cumplir los tres criterios sin mezclar los dos Issues. (3) El total de la rama (unas 1300 líneas, dos tercios de pruebas) pasó el umbral de D-137 aunque el código de producción no llegaba a 400; se dividió por capas después de terminar, reconstruyendo las ramas desde el árbol final y comprobando que la segunda quedara igual |
 
+### IA-76 · Comillas en la ruta del mensaje para commitlint (lefthook) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "haz el PR para arreglar lefthook.yml" |
+| Resultado | Sin Issue (rama `fix/lefthook-commit-msg-path`). En `lefthook.yml`, el hook `commit-msg` pasa la ruta del mensaje entre comillas (`commitlint --edit "{1}"`), con un comentario que dice por qué. En un *worktree* de git esa ruta es absoluta, dentro del `.git` del clon principal, y tenía espacios ("Hexa Family Games"); sin comillas, `commitlint` recibía la ruta partida, mostraba su ayuda y todo commit fallaba. Se comprobó en un *worktree*: un mensaje inválido lo rechaza `commitlint` y el commit del arreglo pasa con el hook activo. El CI no usa este hook (revisa el título del PR) |
+| Modificaciones del equipo | Mientras terminaba el PR de la prueba de D-140 (#138), Claude encontró el fallo y propuso dos caminos: hacer ese commit sin el hook o arreglar el hook en un PR aparte. El usuario eligió hacer aquel commit sin `commitlint`, después de que Claude comprobó a mano que el mensaje pasaba, y pidió después este PR |
+| Lecciones | (1) El fallo solo aparece con un *worktree* y una ruta con espacios: en el clon principal git pasa una ruta relativa. (2) Para ver la versión de lefthook, Claude corrió `npx --yes` en el *worktree* sin `node_modules`, lo que puede descargar el paquete de npm; dio la misma versión fija del proyecto y no cambió el repositorio, pero debió usar la copia instalada |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -898,6 +909,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Una prueba de HL-04 (misma semilla, mismas bandejas) pasaba sin la implementación, porque las dos bandejas quedaban vacías y eran iguales (IA-71) | Al correr las pruebas antes de implementar, para ver que fallaran por la razón esperada | La prueba exige además que la bandeja final esté llena |
 | La prueba `RN-HL §11` de HL-04 parecía cubrir todo el orden de notificaciones, pero solo ve los eventos de las reglas; el motor publica `ScoreChanged` después de todos ellos (D-94), y §11 pide el puntaje antes de la bandeja nueva (IA-71) | `architecture-reviewer` antes del PR | La prueba dice su alcance y el desajuste quedó abierto como D-140 para el equipo |
 | La primera versión de HL-06 emitía el récord nuevo sobre el último estado sin copiar su vista previa, así que un arrastre durante el guardado la perdía; además, `SaveProgressUseCase` comprobaba la forma del progreso con un `if case` que no avisaría al llegar la forma por niveles (IA-74) | `architecture-reviewer` antes del PR | Se copia la vista previa (con una prueba que falla sin la corrección) y el caso de uso usa un `switch` exhaustivo; la duda sobre `IProgressModel` quedó como D-143, cerrada por el equipo con la opción A |
+| El hook `commit-msg` de `lefthook.yml` pasaba la ruta del mensaje sin comillas, así que en un *worktree* con espacios en la ruta todo commit fallaba (IA-76) | Un commit de merge en un *worktree* falló con la ayuda de `commitlint` | `"{1}"` entre comillas, probado con un mensaje inválido y uno válido |
 
 ### 4.3 Reflexión del equipo
 

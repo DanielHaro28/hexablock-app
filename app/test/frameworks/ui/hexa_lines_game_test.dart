@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 import 'package:hexablock_app/config/dependencies.dart';
@@ -70,6 +71,7 @@ void main() {
         // Assert
         expect(find.text('Hexa Lines'), findsOneWidget);
         expect(find.text('PUNTAJE'), findsOneWidget);
+        expect(find.text('RÉCORD'), findsOneWidget);
       },
     );
 
@@ -85,6 +87,28 @@ void main() {
 
         // Assert
         expect(find.text('SCORE'), findsOneWidget);
+        expect(find.text('BEST'), findsOneWidget);
+      },
+    );
+  });
+
+  group('D-142', () {
+    testWidgets(
+      'should_show_the_record_of_the_app_repository_when_lines_opens',
+      (tester) async {
+        // Arrange: one repository for the whole app, so a record saved by
+        // an earlier game is the one the next game shows.
+        await getIt<IProgressRepository>().save(
+          ProfileId.guest,
+          const GameKey(HexaLinesModule.id, defaultTopology),
+          HighScoreProgress(1240, DateTime.utc(2026, 11, 24)),
+        );
+
+        // Act
+        await openHexaLines(tester);
+
+        // Assert
+        expect(find.text('1240'), findsOneWidget);
       },
     );
   });

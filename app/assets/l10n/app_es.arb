@@ -12,6 +12,10 @@
   "@scoreLabel": {
     "description": "Label of the score marker on the game screen."
   },
+  "recordLabel": "RÉCORD",
+  "@recordLabel": {
+    "description": "Label of the record marker on the game screen: the best score saved for this game and cell shape."
+  },
   "gameLoading": "Preparando la partida…",
   "@gameLoading": {
     "description": "Shown while a game is being created or loaded."

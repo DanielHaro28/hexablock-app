@@ -900,6 +900,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | @dicpc aceptó el plan, la división en tres PR, D-154 y D-155 (se abren en el PR 3) y la descarga de las fuentes |
 | Lecciones | (1) Con `material_ui`, los *delegates* que genera `gen-l10n` (`GlobalMaterialLocalizations` de `flutter_localizations`) ya no sirven: en español Material no encontraba sus textos y fallaron 3 pruebas; se usan los de `material_ui`. (2) Las fuentes de `google/fonts` son variables: el peso solo no elige el eje, así que cada estilo fija también `FontVariation.weight`. (3) El `architecture-reviewer` no encontró bloqueantes; se aplicaron tres mejoras (el borde discontinuo de la bandeja lee el tema, el tamaño de icono del tema usa su *token* y la prueba dice qué estilo falla) |
 
+### IA-90 · Componentes del sistema de diseño (NAV-01, 2/3) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Claude Code (app de escritorio) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | El mismo de IA-89 ("/implement-story NAV-01" con el contexto de la interfaz y "Sí, sigue"); después del PR 1: "Continua" |
+| Resultado | Issue #24, segundo PR de tres. En `app/lib/frameworks/ui/components/` (D-153): `HexaIcon` (los 23 iconos), `HexaAbi` (3 poses), `HexaTappable` (reposo, presionado con la sombra interior, desactivado con borde discontinuo y anillo de foco, sobre `InkWell` de Material sin onda, D-148), `HexaRoundIconButton` (56 o 48, insignia con su lectura), `HexaTopBar`, `HexaMenu` (sobre `MenuAnchor`, se abre hacia el lado con espacio) y `HexaVariantCard` (pie sellado: texto con icono o «Nuevo»; menú opcional). Ningún componente conoce un juego: la tarjeta recibe textos, ilustración y acciones. 34 pruebas de widget |
+| Modificaciones del equipo | Pendiente de la revisión de las pruebas por una persona (D-59) |
+| Lecciones | (1) `MenuAnchor` siempre abre el menú hacia el final de la línea desde su punto de anclaje; con `bottomEnd` quedaba en pantalla solo porque Flutter lo reacomodaba. Lo vio el `architecture-reviewer`, una prueba lo confirmó y se corrigió anclando en la dirección inversa. (2) `addTearDown(handle.dispose)` no sirve en `testWidgets`: la verificación de los *handles* de semántica corre antes. (3) Los SVG del sistema traen metadatos C2PA que `flutter_svg` ignora con un aviso; se copiaron sin tocar |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

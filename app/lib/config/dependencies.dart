@@ -12,17 +12,12 @@ import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import '../frameworks/ui/navigation/app_navigator.dart';
 import 'app_pages.dart';
+import 'game_launcher.dart';
 import 'hexa_lines_module.dart';
 import 'registries.dart';
 import 'topology_entry.dart';
-import 'variant_module.dart';
 
-/// Draws the seed of a new game when the player gives none (RN-COM-45).
-typedef SeedSource = int Function();
-
-/// The cell shape of a new game until NAV-08 lets the player choose one:
-/// hexagons (RN-TOP-30).
-const defaultTopology = 'hex';
+export 'game_launcher.dart' show SeedSource, defaultTopology, openGame;
 
 /// Registers what the app needs at startup in [getIt] (ARQ-03 §6): the
 /// topologies with their layouts, the clock, the progress repository (one
@@ -50,17 +45,6 @@ Future<void> registerDependencies(
     )
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed)
     ..registerSingleton(AppNavigator((route) => pageFor(getIt, route)));
-}
-
-/// The screen of a new game of [gameId] on the default cell shape.
-///
-/// The home screen opens it from the card of a game without levels
-/// (NAV-01), through `pageFor`.
-Widget openGame(GetIt getIt, String gameId) {
-  final entry = getIt<TopologyRegistry>()[defaultTopology];
-  final module = getIt<VariantRegistry>()[gameId];
-  final options = StartNew(NewGameOptions(seed: getIt<SeedSource>()()));
-  return entry.accept(OpenGame(module, options));
 }
 
 Future<Map<String, Object?>> _json(AssetBundle bundle, String asset) async =>

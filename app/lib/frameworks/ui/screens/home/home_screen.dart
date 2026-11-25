@@ -201,7 +201,8 @@ class HomeView extends StatelessWidget {
   }
 
   /// Cards in the start column open their menu towards the end (Menu.md).
-  bool _isStartColumn(HomeGame game) => games.indexOf(game).isEven;
+  bool _isStartColumn(HomeGame game) =>
+      games.indexOf(game) % _Grid.columns == 0;
 
   /// [value] with its thousands grouped by [separator] («12 850»).
   static String _grouped(int value, String separator) {
@@ -220,13 +221,17 @@ class HomeView extends StatelessWidget {
 final class _Grid extends StatelessWidget {
   const _Grid({required this.children});
 
+  /// The cards of a row: two at every width from 360 (README, «Tamaños de
+  /// pantalla»).
+  static const columns = 2;
+
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      for (var row = 0; row < children.length; row += 2) ...[
+      for (var row = 0; row < children.length; row += columns) ...[
         if (row > 0) const SizedBox(height: HexaSpacing.s8),
         IntrinsicHeight(
           child: Row(

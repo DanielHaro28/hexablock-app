@@ -7,6 +7,8 @@ import 'hexa_lines_module.dart';
 /// The home screen only walks this list: a fifth variant is one more entry
 /// here and its module in `registerDependencies` (EXTENSIBILITY.md). A game
 /// whose module is not registered yet opens a temporary screen (`pageFor`).
+/// Until then its `gameId` is written here; when its module arrives, the
+/// entry uses the module's `id`, as Hexa Lines does.
 final List<HomeGame> gameCatalog = List.unmodifiable([
   HomeGame(
     gameId: HexaLinesModule.id,

@@ -7,6 +7,7 @@ import 'package:hexa_variants/hexa_variants.dart';
 import 'package:hexablock_app/adapters/presentation/home/home_state.dart';
 import 'package:hexablock_app/config/dependencies.dart';
 import 'package:hexablock_app/config/game_catalog.dart';
+import 'package:hexablock_app/frameworks/l10n/app_localizations.dart';
 import 'package:hexablock_app/frameworks/theme/hexa_theme.dart';
 import 'package:hexablock_app/frameworks/ui/board/board_view.dart';
 import 'package:hexablock_app/frameworks/ui/components/hexa_variant_card.dart';
@@ -221,6 +222,28 @@ void main() {
     );
   });
 
+  group('D-155', () {
+    testWidgets('should_show_a_new_record_when_the_player_comes_back_home', (
+      tester,
+    ) async {
+      // Arrange
+      await openApp(tester);
+      await tapCard(tester, 'Hexa Fit');
+      await getIt<IProgressRepository>().save(
+        ProfileId.guest,
+        const GameKey('hexa-lines', defaultTopology),
+        HighScoreProgress(320, DateTime.utc(2026, 11, 24)),
+      );
+
+      // Act
+      await tester.tap(find.bySemanticsLabel('Volver'));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Récord 320'), findsOneWidget);
+    });
+  });
+
   group('NAV-01 · 360 dp', () {
     for (final locale in const [Locale('es'), Locale('en')]) {
       testWidgets(
@@ -283,7 +306,7 @@ void main() {
           theme: HexaTheme.crema(),
           locale: const Locale('es'),
           localizationsDelegates: HexaBlockApp.localizationsDelegates,
-          supportedLocales: const [Locale('es'), Locale('en')],
+          supportedLocales: AppLocalizations.supportedLocales,
           home: HomeView(
             games: gameCatalog,
             state: const HomeReady({'hexa-lines': HomeSavedGame()}),

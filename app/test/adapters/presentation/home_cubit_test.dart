@@ -97,7 +97,7 @@ void main() {
     );
   });
 
-  group('RN-HL-70', () {
+  group('D-155', () {
     late FakeProgressRepository repository;
 
     blocTest<HomeCubit, HomeState>(

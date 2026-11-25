@@ -10,8 +10,8 @@ import '../frameworks/ui/navigation/app_route.dart';
 import '../frameworks/ui/screens/home/home_game.dart';
 import '../frameworks/ui/screens/home/home_screen.dart';
 import '../frameworks/ui/screens/placeholder/placeholder_screen.dart';
-import 'dependencies.dart';
 import 'game_catalog.dart';
+import 'game_launcher.dart';
 import 'registries.dart';
 
 /// Builds the screen of each [route] (D-149): one exhaustive `switch`, so a

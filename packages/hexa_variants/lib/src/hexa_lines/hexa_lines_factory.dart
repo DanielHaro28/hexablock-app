@@ -43,7 +43,7 @@ final class HexaLinesFactory<C extends Coord>
   /// would infer `HexaLinesRules<Never>`, which covariance lets through and
   /// fails only when a state is passed in.
   @override
-  HexaLinesRules<C> createRules() => HexaLinesRules<C>(_scoring);
+  HexaLinesRules<C> createRules() => HexaLinesRules<C>(_scoring, _source);
 
   /// An empty board (RN-HL-10, 11) and a tray of pieces drawn from
   /// `options.seed` (RN-HL-20, RN-COM-41).

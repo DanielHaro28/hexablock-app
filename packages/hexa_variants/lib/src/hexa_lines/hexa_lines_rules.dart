@@ -1,23 +1,26 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
 import 'lines_piece.dart';
+import 'lines_piece_source.dart';
 import 'lines_state.dart';
 
 /// The rules of Hexa Lines: only the steps of the turn (D-36).
 ///
 /// A turn places a piece (`apply`, RN-HL-30 to 32) and clears the complete
 /// lines (`resolve`, RN-HL-40 to 43); each step adds the points of its own
-/// events with the injected scoring (RN-HL-60 to 64, D-98). The new tray
-/// (HL-04) is the `afterResolve` step still to come. The end of the game is
-/// the default `evaluate`: a defeat when no piece of the tray fits
-/// (RN-HL-50, 51).
+/// events with the injected scoring (RN-HL-60 to 64, D-98). Once the three
+/// pieces are placed, a new tray is drawn (`afterResolve`, RN-HL-21). The
+/// end of the game is the default `evaluate`, on that new tray: a defeat
+/// when no piece of the tray fits (RN-HL-50, 51).
 final class HexaLinesRules<C extends Coord>
     extends GameRules<C, PieceColor, PlacePiece<C>, LinesState<C>> {
-  /// The rules of Hexa Lines, scored by [scoring] (D-100: the factory
-  /// chooses it).
-  const HexaLinesRules(this._scoring);
+  /// The rules of Hexa Lines, scored by [scoring] and drawing the new trays
+  /// from [source] (D-100: the factory chooses both).
+  const HexaLinesRules(this._scoring, this._source);
 
   final IScoringPolicy<LinesState<C>, LinesEvent<C>> _scoring;
+
+  final IPieceSource<LinesPiece<C>> _source;
 
   /// Every slot and anchor where a tray piece fits, slot by slot and the
   /// anchors in reading order. Lazy, so asking whether there is one stops at
@@ -80,6 +83,18 @@ final class HexaLinesRules<C extends Coord>
       ),
       [LinesCleared(lines, cleared, streak: streak)],
     );
+  }
+
+  /// Draws a new tray from the game's generator when the three slots are
+  /// empty (RN-HL-21), as it comes out (RN-HL-25), and keeps the generator
+  /// after the last draw (RN-COM-42). With a piece left, nothing happens.
+  @override
+  Step<C, LinesState<C>> afterResolve(LinesState<C> state) {
+    if (state.tray.any((piece) => piece != null)) return Step(state);
+    final (tray, random) = drawTray(_source, state.random, LinesState.traySize);
+    return Step(state.copyWith(tray: tray, random: random), [
+      TrayRefilled(tray),
+    ]);
   }
 
   /// A step that leaves [state] with [events] and their points added.

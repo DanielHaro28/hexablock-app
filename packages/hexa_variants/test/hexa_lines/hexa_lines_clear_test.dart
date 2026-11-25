@@ -154,7 +154,7 @@ void main() {
 
     test('should_clear_nothing_when_no_line_is_complete', () {
       // Arrange
-      final state = stateWith(occupied: [(0, -4)], tray: [domino, null, null]);
+      final state = stateWith(occupied: [(0, -4)], tray: [domino, mono, null]);
 
       // Act
       final turn = play(state, const PlacePiece(0, HexCoord(1, -4)));

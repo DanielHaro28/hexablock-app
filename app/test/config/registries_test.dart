@@ -64,4 +64,17 @@ void main() {
       expect(find, throwsStateError);
     });
   });
+
+  group('NAV-01', () {
+    test('should_not_contain_a_variant_when_it_is_not_registered', () {
+      // Arrange
+      final registry = VariantRegistry();
+
+      // Act
+      final contains = registry.contains('hexa-x');
+
+      // Assert
+      expect(contains, isFalse);
+    });
+  });
 }

@@ -72,7 +72,7 @@
 
 | RF | Historias | Reglas | Ejemplos (→ pruebas) | Pruebas |
 |---|---|---|---|---|
-| RF-01 | NAV-01 | RN-COM-01, 02 | — | |
+| RF-01 | NAV-01 | RN-COM-01, 02 | — | Inicio con las 4 variantes, Lines y Merge abren partida, Fit y Sort sus niveles: `app/test/frameworks/ui/screens/home_screen_test`; pie de cada tarjeta (D-155): `app/test/adapters/presentation/home_cubit_test` |
 | RF-02 | HF-01, HS-01 | RN-COM-73, RN-HF-72, RN-HS-72 | — | |
 | RF-03 | NAV-03 | RN-COM-110, 112 | — | |
 | RF-04 | NAV-02 | RN-COM-111 | — | |

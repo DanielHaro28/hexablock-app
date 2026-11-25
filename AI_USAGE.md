@@ -911,6 +911,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Pendiente de la revisión de las pruebas por una persona (D-59) |
 | Lecciones | (1) `MenuAnchor` siempre abre el menú hacia el final de la línea desde su punto de anclaje; con `bottomEnd` quedaba en pantalla solo porque Flutter lo reacomodaba. Lo vio el `architecture-reviewer`, una prueba lo confirmó y se corrigió anclando en la dirección inversa. (2) `addTearDown(handle.dispose)` no sirve en `testWidgets`: la verificación de los *handles* de semántica corre antes. (3) Los SVG del sistema traen metadatos C2PA que `flutter_svg` ignora con un aviso; se copiaron sin tocar |
 
+### IA-91 · Pantalla de inicio y navegación (NAV-01, 3/3) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Claude Code (app de escritorio) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | El mismo de IA-89 ("/implement-story NAV-01" con el contexto de la interfaz y "Sí, sigue"); después del PR 1: "Continua" |
+| Resultado | Issue #24, último PR de tres. Navegación con `AppRoute` sellada y `AppNavigator` sobre `Navigator`; `pageFor` en `config/` construye cada pantalla con un `switch` exhaustivo (D-149). `HomeCubit` (capa 3) lee el progreso de cada juego con `GetProgressUseCase` y dice qué muestra cada pie (D-155); no conoce ningún juego. `HomeScreen` y `HomeView` (capa 4) recorren el catálogo de `config/game_catalog.dart` (RN-COM-01, 02): Lines y Merge abren partida, Fit y Sort sus niveles. Pantalla provisional para los niveles, Merge y Ajustes. 20 claves nuevas en es y en. `main` abre el inicio. D-154 y D-155 abiertas en PENDIENTES con la opción aplicada; trazabilidad de RF-01 al día. `HexaVariantCard` deja `LayoutBuilder` para que las tarjetas de una fila midan lo mismo |
+| Modificaciones del equipo | Pendiente de la revisión de las pruebas por una persona (D-59) |
+| Lecciones | (1) `LayoutBuilder` no da medidas intrínsecas, así que la tarjeta no podía ir en una fila con `IntrinsicHeight`; las pruebas de la tarjeta sola no lo mostraban. (2) En una prueba, `IntrinsicHeight` por fuera de un `SizedBox(width)` mide el texto con todo el ancho de la pantalla: el ancho va por fuera. (3) Con Abi de 240 dp, como pide el sistema, Inicio no cabe en 844 dp y las tarjetas de abajo quedan bajo el pliegue; el prototipo la ponía de 120 al lado del título. Queda para @dicpc. (4) El `architecture-reviewer` no encontró bloqueantes; se aplicaron sus mejoras: el ciclo de imports entre `dependencies.dart` y `app_pages.dart` (ahora `game_launcher.dart`), las 2 columnas en una constante, un `group` que citaba una regla ajena (RN-HL-70) y la prueba de que Inicio relee el récord al volver |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -17,16 +17,18 @@ class HexaBlockApp extends StatelessWidget {
   /// The first screen.
   final Widget home;
 
+  /// The app's texts and Material's, from `material_ui`: not the legacy
+  /// ones that the generated `AppLocalizations.localizationsDelegates`
+  /// lists, which only serve `package:flutter/material.dart` (D-148).
+  static const localizationsDelegates = [
+    AppLocalizations.delegate,
+    ...GlobalMaterialLocalizations.delegates,
+  ];
+
   @override
   Widget build(BuildContext context) => MaterialApp(
     onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-    // The Material delegates of `material_ui`, not the legacy ones that the
-    // generated `AppLocalizations.localizationsDelegates` lists: those only
-    // serve `package:flutter/material.dart` (D-148).
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      ...GlobalMaterialLocalizations.delegates,
-    ],
+    localizationsDelegates: localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     theme: HexaTheme.crema(),
     debugShowCheckedModeBanner: false,

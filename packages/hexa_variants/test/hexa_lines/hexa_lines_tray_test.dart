@@ -5,10 +5,9 @@ import 'package:test/test.dart';
 
 import 'hex_catalog.dart';
 
-/// Receiving a new tray (HL-04): RN-HL-21, RN-HL-50 and where the new tray
-/// goes among the rules' events (RN-HL §11), with the rules as the factory
-/// wires them. The engine adds its own events (`ScoreChanged`, D-94) after
-/// these, which the engine's tests cover.
+/// Receiving a new tray (HL-04): RN-HL-21, RN-HL-50 and the order of the
+/// notifications (RN-HL §11), with the rules as the factory wires them: the
+/// rules' events, and then the updated score the engine adds (D-94, D-140).
 void main() {
   final rules = HexaLinesFactory(hexTopology, hexConfig).createRules();
   final source = LinesPieceSource(hexTopology, hexCatalog);
@@ -147,5 +146,31 @@ void main() {
         ]);
       },
     );
+
+    test('should_publish_the_updated_score_after_the_new_tray_when_the_engine_plays_the_turn', () {
+      // Arrange: the row r = −4 lacks only (4, −4).
+      final engine = GameEngine(
+        rules,
+        stateWith(
+          tray: [mono, null, null],
+          occupied: [(0, -4), (1, -4), (2, -4), (3, -4)],
+        ),
+      );
+      addTearDown(engine.close);
+
+      // Act
+      final result = engine.submit(const PlacePiece(0, HexCoord(4, -4)));
+
+      // Assert
+      expect(result, isA<AcceptedMove<HexCoord, LinesState<HexCoord>>>());
+      expect(result.events.map((event) => event.runtimeType), [
+        PhaseChanged<HexCoord>,
+        PiecePlaced<HexCoord>,
+        LinesCleared<HexCoord>,
+        TrayRefilled<HexCoord>,
+        ScoreChanged<HexCoord>,
+        PhaseChanged<HexCoord>,
+      ]);
+    });
   });
 }

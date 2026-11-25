@@ -1,25 +1,10 @@
-/// The spacing, corner and line tokens of the design (D-66). Like the
-/// colors, they live in the theme so the interface stories (T-05) adjust
-/// them in one place.
+/// Sizes of the game screens that the design system does not define yet.
+///
+/// Spacing, radii and borders are tokens in `HexaSpacing`, `HexaRadii` and
+/// `HexaBorders` (D-152). These stay here until the game screens follow the
+/// design system: the TopBar has no accent dot, and the system lifts a
+/// dragged piece 48 dp and grows it 15 % (HL-02 uses cells).
 abstract final class AppSizes {
-  /// Between elements inside a panel, such as two tray slots.
-  static const double gapSmall = 8;
-
-  /// Inside a panel, between its edge and its content.
-  static const double gapMedium = 12;
-
-  /// Around a screen and between its slots.
-  static const double gapLarge = 16;
-
-  /// The corners of a tray slot.
-  static const double radiusSmall = 16;
-
-  /// The corners of a panel.
-  static const double radiusLarge = 24;
-
-  /// The border of the board panel.
-  static const double borderWidth = 2;
-
   /// The colored dot next to a game's name.
   static const double accentDot = 12;
 

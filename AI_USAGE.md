@@ -889,6 +889,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El equipo cerró todas con la opción recomendada; D-145, D-147 y D-150 siguen abiertas porque no bloquean NAV-01 |
 | Lecciones | El PR apilado #141 se integró 46 s después de #140, cuando su base (`docs/t-05-design-system`) ya estaba integrada con *squash*: su contenido quedó en esa rama y nunca llegó a `main`. Antes de integrar un PR apilado hay que cambiar su base a `main`. Se detectó al revisar `main` antes de empezar NAV-01 |
 
+### IA-89 · Tema de la app desde el sistema de diseño (NAV-01, 1/3) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Claude Code (app de escritorio) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "/implement-story NAV-01" con contexto de la interfaz: crear la base que usarán las demás pantallas según D-144 a D-153 (tema con los *tokens* en una `ThemeExtension` y las fuentes TTF empaquetadas, i18n, navegación y get_it), los componentes VariantCard, TopBar, RoundIconButton, Icon, Menu y Abi, `HomeCubit` y la pantalla, pantallas provisionales donde falten, pruebas a 360 y 390 de ancho, verificar cada dependencia en pub.dev y pedir el `architecture-reviewer`. Después del plan: "Sí, sigue" |
+| Resultado | Issue #24, primer PR de tres (D-137; subtareas agregadas al Issue). `material_ui` y `flutter_svg` (flutter.dev, verificados en pub.dev). Fredoka y Nunito variables descargadas de `google/fonts` con su `OFL.txt` (D-146). Los SVG de iconos, juegos y Abi copiados del sistema. `HexaColors`, `HexaRadii` y `HexaShadows` (`ThemeExtension`), `HexaSpacing`, `HexaBorders`, `HexaSizes`, `HexaTypography` y `HexaTheme`; una prueba compara cada valor con `tokens.json` en las dos direcciones (D-152). `HexaBlockApp` pasa a `MaterialApp` con las traducciones de Material de `material_ui`. La partida de Hexa Lines usa los *tokens*; `AppColors` y `AppSizes` quedan solo con lo que el sistema no define |
+| Modificaciones del equipo | @dicpc aceptó el plan, la división en tres PR, las dos decisiones nuevas de Inicio (se abren en el PR 3) y la descarga de las fuentes |
+| Lecciones | (1) Con `material_ui`, los *delegates* que genera `gen-l10n` (`GlobalMaterialLocalizations` de `flutter_localizations`) ya no sirven: en español Material no encontraba sus textos y fallaron 3 pruebas; se usan los de `material_ui`. (2) Las fuentes de `google/fonts` son variables: el peso solo no elige el eje, así que cada estilo fija también `FontVariation.weight`. (3) El `architecture-reviewer` no encontró bloqueantes; se aplicaron tres mejoras (el borde discontinuo de la bandeja lee el tema, el tamaño de icono del tema usa su *token* y la prueba dice qué estilo falla). (4) Al abrir la app en un dispositivo, los textos salían en rojo con doble subrayado amarillo: las pantallas pintan el fondo sin un `Material` por encima y las pruebas no miraban el estilo. Lo vio la persona del equipo; se corrigió con un `Material` en el `builder` de `MaterialApp` y una prueba (con Claude Sonnet 5.5, `claude-sonnet-5-5`) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

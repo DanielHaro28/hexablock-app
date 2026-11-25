@@ -2,8 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 
-import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
+import '../../theme/hexa_colors.dart';
+import '../../theme/hexa_metrics.dart';
+import '../../theme/hexa_radii.dart';
 import '../board/cells_painter.dart';
 import '../board/shape_view.dart';
 import 'lines_cell_painter.dart';
@@ -40,7 +42,7 @@ final class LinesTray<C extends Coord> extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       for (final (index, piece) in tray.indexed) ...[
-        if (index > 0) const SizedBox(width: AppSizes.gapSmall),
+        if (index > 0) const SizedBox(width: HexaSpacing.s8),
         Expanded(
           child: switch (piece) {
             null => const _Slot(),
@@ -76,26 +78,32 @@ final class _Slot extends StatelessWidget {
   static const double _fill = 0.7;
 
   @override
-  Widget build(BuildContext context) => AspectRatio(
-    aspectRatio: 1,
-    child: CustomPaint(
-      foregroundPainter: dashed ? const _DashedOutline() : null,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-        ),
-        child: switch (child) {
-          null => const SizedBox.expand(),
-          final child => FractionallySizedBox(
-            widthFactor: _fill,
-            heightFactor: _fill,
-            child: child,
+  Widget build(BuildContext context) {
+    final colors = HexaColors.of(context);
+    final radius = HexaRadii.of(context).chip;
+    return AspectRatio(
+      aspectRatio: 1,
+      child: CustomPaint(
+        foregroundPainter: dashed
+            ? _DashedOutline(color: colors.inkSoft, radius: radius)
+            : null,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.bg,
+            borderRadius: BorderRadius.circular(radius),
           ),
-        },
+          child: switch (child) {
+            null => const SizedBox.expand(),
+            final child => FractionallySizedBox(
+              widthFactor: _fill,
+              heightFactor: _fill,
+              child: child,
+            ),
+          },
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The piece that follows the finger, as large as the board's cells.
@@ -123,16 +131,22 @@ final class _Dragged<C extends Coord> extends StatelessWidget {
 /// The dashed outline of a slot whose piece is being dragged (page 24 of
 /// the design).
 final class _DashedOutline extends CustomPainter {
-  const _DashedOutline();
+  const _DashedOutline({required this.color, required this.radius});
+
+  /// The color of the dashes.
+  final Color color;
+
+  /// The radius of the slot's corners.
+  final double radius;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final inset = AppSizes.borderWidth / 2;
+    const inset = HexaBorders.chip / 2;
     final outline = Path()
       ..addRRect(
         RRect.fromRectAndRadius(
           (Offset.zero & size).deflate(inset),
-          const Radius.circular(AppSizes.radiusSmall),
+          Radius.circular(radius),
         ),
       );
     final dashes = Path();
@@ -151,12 +165,13 @@ final class _DashedOutline extends CustomPainter {
     canvas.drawPath(
       dashes,
       Paint()
-        ..color = AppColors.draggedSlot
+        ..color = color
         ..style = PaintingStyle.stroke
-        ..strokeWidth = AppSizes.borderWidth,
+        ..strokeWidth = HexaBorders.chip,
     );
   }
 
   @override
-  bool shouldRepaint(_DashedOutline oldDelegate) => false;
+  bool shouldRepaint(_DashedOutline oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }

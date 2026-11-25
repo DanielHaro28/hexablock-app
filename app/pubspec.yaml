@@ -16,6 +16,7 @@ dependencies:
   flutter_bloc: ^9.1.1
   flutter_localizations:
     sdk: flutter
+  flutter_svg: ^2.5.0
   get_it: ^9.3.0
   hexa_application:
     path: ../packages/hexa_application
@@ -26,6 +27,7 @@ dependencies:
   hexa_variants:
     path: ../packages/hexa_variants
   intl: ^0.20.3
+  material_ui: ^1.11.1
 
 dev_dependencies:
   bloc_test: ^10.0.0
@@ -39,3 +41,15 @@ flutter:
   generate: true
   assets:
     - assets/config/
+    # Design system SVGs (D-151), copied from the design system.
+    - assets/icons/
+    - assets/games/
+    - assets/mascot/
+  fonts:
+    # Bundled, so they work offline (D-146). SIL OFL 1.1: assets/fonts/*-OFL.txt.
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito.ttf

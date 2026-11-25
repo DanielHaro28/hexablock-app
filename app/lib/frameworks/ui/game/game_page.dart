@@ -5,9 +5,11 @@ import 'package:hexa_engine/hexa_engine.dart';
 import '../../../adapters/presentation/game/game_cubit.dart';
 import '../../../adapters/presentation/game/game_screen_state.dart';
 import '../../l10n/app_localizations.dart';
-import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
-import '../../theme/app_text_styles.dart';
+import '../../theme/hexa_colors.dart';
+import '../../theme/hexa_metrics.dart';
+import '../../theme/hexa_radii.dart';
+import '../../theme/hexa_typography.dart';
 import '../board/board_geometry.dart';
 import '../board/board_preview.dart';
 import '../board/board_view.dart';
@@ -107,10 +109,10 @@ final class GamePage<
   Widget build(BuildContext context) {
     final texts = AppLocalizations.of(context);
     return ColoredBox(
-      color: AppColors.background,
+      color: HexaColors.of(context).bg,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AppSizes.gapLarge),
+          padding: const EdgeInsets.all(HexaSpacing.s16),
           child:
               BlocBuilder<
                 GameCubit<C, TCell, TMove, TState>,
@@ -129,12 +131,12 @@ final class GamePage<
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _TopBar(title: titleOf(texts), accent: accent),
-                        const SizedBox(height: AppSizes.gapLarge),
+                        const SizedBox(height: HexaSpacing.s16),
                         _Markers(
                           score: state.score,
                           record: showsRecord ? record ?? 0 : null,
                         ),
-                        const SizedBox(height: AppSizes.gapLarge),
+                        const SizedBox(height: HexaSpacing.s16),
                         Expanded(
                           child: Semantics(
                             label: texts.boardLabel,
@@ -164,17 +166,17 @@ final class GamePage<
                           ),
                         ),
                         if (phase is GameOverPhase) ...[
-                          const SizedBox(height: AppSizes.gapLarge),
+                          const SizedBox(height: HexaSpacing.s16),
                           _GameOverNotice(texts.gameOverTitle),
                         ] else if (trayOf case final trayOf?) ...[
-                          const SizedBox(height: AppSizes.gapLarge),
+                          const SizedBox(height: HexaSpacing.s16),
                           Semantics(
                             label: texts.trayLabel,
                             child: _Panel(child: trayOf(context, state)),
                           ),
                         ],
                         if (actionsOf case final actionsOf?) ...[
-                          const SizedBox(height: AppSizes.gapLarge),
+                          const SizedBox(height: HexaSpacing.s16),
                           actionsOf(context, state),
                         ],
                       ],
@@ -201,8 +203,8 @@ final class _TopBar extends StatelessWidget {
         decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
         child: const SizedBox.square(dimension: AppSizes.accentDot),
       ),
-      const SizedBox(width: AppSizes.gapSmall),
-      Text(title, style: AppTextStyles.title),
+      const SizedBox(width: HexaSpacing.s8),
+      Text(title, style: HexaTypography.subtitle),
     ],
   );
 }
@@ -224,7 +226,7 @@ final class _Markers extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: scoreMarker),
-          const SizedBox(width: AppSizes.gapLarge),
+          const SizedBox(width: HexaSpacing.s16),
           Expanded(
             child: _Marker(label: texts.recordLabel, value: record),
           ),
@@ -245,8 +247,13 @@ final class _Marker extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.markerLabel),
-        Text('$value', style: AppTextStyles.markerValue),
+        Text(
+          label,
+          style: HexaTypography.label.copyWith(
+            color: HexaColors.of(context).inkSoft,
+          ),
+        ),
+        Text('$value', style: HexaTypography.title),
       ],
     ),
   );
@@ -259,19 +266,22 @@ final class _Panel extends StatelessWidget {
   final bool bordered;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-      border: bordered
-          ? Border.all(color: AppColors.ink, width: AppSizes.borderWidth)
-          : null,
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(AppSizes.gapMedium),
-      child: child,
-    ),
-  );
+  Widget build(BuildContext context) {
+    final colors = HexaColors.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(HexaRadii.of(context).card),
+        border: bordered
+            ? Border.all(color: colors.ink, width: HexaBorders.board)
+            : null,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(HexaSpacing.s12),
+        child: child,
+      ),
+    );
+  }
 }
 
 /// Says that the game is over, as soon as it is (a live region, so a screen
@@ -285,7 +295,7 @@ final class _GameOverNotice extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
     child: _Panel(
-      child: Center(child: Text(title, style: AppTextStyles.title)),
+      child: Center(child: Text(title, style: HexaTypography.subtitle)),
     ),
   );
 }

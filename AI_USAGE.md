@@ -845,6 +845,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción A de D-140. Claude cambió los §11, cerró D-140 y abrió el PR, pero HL-06 se había integrado antes con el mismo cierre; Claude propuso reducir el PR a la prueba o cerrarlo, y el usuario eligió reducirlo. El `architecture-reviewer` no encontró bloqueantes en la prueba. Las pruebas las escribió Claude. ⚠️ completar: revisión de las pruebas por una persona (D-59) |
 | Lecciones | (1) La prueba pasó a la primera, como se esperaba: comprueba lo que el motor ya hacía. (2) Dos sesiones trabajaban en paralelo en el mismo clon y las dos cerraron D-140; ninguna miró `main` antes de empezar. Antes de un cambio de documentos hay que revisar si `main` ya lo tiene |
 
+### IA-76 · Comillas en la ruta del mensaje para commitlint (lefthook) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "haz el PR para arreglar lefthook.yml" |
+| Resultado | Sin Issue (rama `fix/lefthook-commit-msg-path`). En `lefthook.yml`, el hook `commit-msg` pasa la ruta del mensaje entre comillas (`commitlint --edit "{1}"`), con un comentario que dice por qué. En un *worktree* de git esa ruta es absoluta, dentro del `.git` del clon principal, y tenía espacios ("Hexa Family Games"); sin comillas, `commitlint` recibía la ruta partida, mostraba su ayuda y todo commit fallaba. Se comprobó en un *worktree*: un mensaje inválido lo rechaza `commitlint` y el commit del arreglo pasa con el hook activo. El CI no usa este hook (revisa el título del PR) |
+| Modificaciones del equipo | Mientras terminaba el PR de la prueba de D-140 (#138), Claude encontró el fallo y propuso dos caminos: hacer ese commit sin el hook o arreglar el hook en un PR aparte. El usuario eligió hacer aquel commit sin `commitlint`, después de que Claude comprobó a mano que el mensaje pasaba, y pidió después este PR |
+| Lecciones | (1) El fallo solo aparece con un *worktree* y una ruta con espacios: en el clon principal git pasa una ruta relativa. (2) Para ver la versión de lefthook, Claude corrió `npx --yes` en el *worktree* sin `node_modules`, lo que puede descargar el paquete de npm; dio la misma versión fija del proyecto y no cambió el repositorio, pero debió usar la copia instalada |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -910,6 +921,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | La prueba `RN-HL §11` de HL-04 parecía cubrir todo el orden de notificaciones, pero solo ve los eventos de las reglas; el motor publica `ScoreChanged` después de todos ellos (D-94), y §11 pide el puntaje antes de la bandeja nueva (IA-71) | `architecture-reviewer` antes del PR | La prueba dice su alcance y el desajuste quedó abierto como D-140 para el equipo |
 | La primera versión de HL-06 emitía el récord nuevo sobre el último estado sin copiar su vista previa, así que un arrastre durante el guardado la perdía; además, `SaveProgressUseCase` comprobaba la forma del progreso con un `if case` que no avisaría al llegar la forma por niveles (IA-74) | `architecture-reviewer` antes del PR | Se copia la vista previa (con una prueba que falla sin la corrección) y el caso de uso usa un `switch` exhaustivo; la duda sobre `IProgressModel` quedó como D-143, cerrada por el equipo con la opción A |
 | La rama de IA-72 cerró D-140 en los §11 y en `DECISIONES.md` cuando el PR de HL-06 (IA-74) ya lo había hecho en `main`; dos sesiones trabajaban en paralelo | Conflicto del PR en GitHub al integrar `main` | Se dejaron los documentos de `main` y el PR quedó solo con la prueba del orden completo |
+| El hook `commit-msg` de `lefthook.yml` pasaba la ruta del mensaje sin comillas, así que en un *worktree* con espacios en la ruta todo commit fallaba (IA-76) | Un commit de merge en un *worktree* falló con la ayuda de `commitlint` | `"{1}"` entre comillas, probado con un mensaje inválido y uno válido |
 
 ### 4.3 Reflexión del equipo
 

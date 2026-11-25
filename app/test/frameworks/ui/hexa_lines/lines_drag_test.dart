@@ -56,7 +56,11 @@ void main() {
         HexaLinesRules<HexCoord>(
           const LinesScoring(StreakMultiplier(LineBonus(5), maxMultiplier: 3)),
           LinesPieceSource(topology, [
-            LinesFamily(shape: mono.shape, weight: 100, color: red),
+            LinesFamily(
+              shape: mono.shape,
+              weight: LinesPieceSource.totalWeight,
+              color: red,
+            ),
           ]),
         ),
         state,

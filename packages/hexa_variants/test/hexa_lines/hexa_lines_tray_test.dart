@@ -5,8 +5,10 @@ import 'package:test/test.dart';
 
 import 'hex_catalog.dart';
 
-/// Receiving a new tray (HL-04): RN-HL-21, RN-HL-50 and the order of the
-/// events of RN-HL §11, with the rules as the factory wires them.
+/// Receiving a new tray (HL-04): RN-HL-21, RN-HL-50 and where the new tray
+/// goes among the rules' events (RN-HL §11), with the rules as the factory
+/// wires them. The engine adds its own events (`ScoreChanged`, D-94) after
+/// these, which the engine's tests cover.
 void main() {
   final rules = HexaLinesFactory(hexTopology, hexConfig).createRules();
   final source = LinesPieceSource(hexTopology, hexCatalog);
@@ -44,7 +46,11 @@ void main() {
     test('should_draw_3_new_pieces_when_the_third_piece_is_placed', () {
       // Arrange
       final state = stateWith(tray: [null, mono, null]);
-      final (expected, after) = drawTray(source, state.random, 3);
+      final (expected, after) = drawTray(
+        source,
+        state.random,
+        LinesState.traySize,
+      );
 
       // Act
       final turn = play(state, const PlacePiece(1, HexCoord(0, 0)));
@@ -121,22 +127,25 @@ void main() {
   });
 
   group('RN-HL §11', () {
-    test('should_publish_the_new_tray_after_the_cleared_lines', () {
-      // Arrange: the row r = −4 lacks only (4, −4).
-      final state = stateWith(
-        tray: [mono, null, null],
-        occupied: [(0, -4), (1, -4), (2, -4), (3, -4)],
-      );
+    test(
+      'should_give_the_new_tray_after_the_cleared_lines_among_the_rules_events',
+      () {
+        // Arrange: the row r = −4 lacks only (4, −4).
+        final state = stateWith(
+          tray: [mono, null, null],
+          occupied: [(0, -4), (1, -4), (2, -4), (3, -4)],
+        );
 
-      // Act
-      final turn = play(state, const PlacePiece(0, HexCoord(4, -4)));
+        // Act
+        final turn = play(state, const PlacePiece(0, HexCoord(4, -4)));
 
-      // Assert
-      expect(turn.events.map((event) => event.runtimeType), [
-        PiecePlaced<HexCoord>,
-        LinesCleared<HexCoord>,
-        TrayRefilled<HexCoord>,
-      ]);
-    });
+        // Assert
+        expect(turn.events.map((event) => event.runtimeType), [
+          PiecePlaced<HexCoord>,
+          LinesCleared<HexCoord>,
+          TrayRefilled<HexCoord>,
+        ]);
+      },
+    );
   });
 }

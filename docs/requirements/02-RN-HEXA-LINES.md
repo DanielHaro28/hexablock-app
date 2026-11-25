@@ -116,7 +116,7 @@ Partida **sin fin**. El jugador coloca piezas de una bandeja de 3 en un tablero 
 
 ## 11. Notificaciones
 
-Para la interfaz, el sonido y la analítica (RN-COM-25), en este orden: **pieza colocada** → **líneas eliminadas** (cuáles, combo y racha) → **puntaje actualizado** → **bandeja nueva** (si corresponde) → **fin de partida** (si corresponde).
+Para la interfaz, el sonido y la analítica (RN-COM-25), en este orden: **pieza colocada** → **líneas eliminadas** (cuáles, combo y racha) → **bandeja nueva** (si corresponde) → **puntaje actualizado** → **fin de partida** (si corresponde). El puntaje va después de los eventos de las reglas porque lo publica el motor con el total del turno (D-94, D-140).
 
 ## 12. Casos borde
 

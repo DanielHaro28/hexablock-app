@@ -53,8 +53,15 @@ void main() {
     final saved = FakeSavedGameRepository<LinesState<HexCoord>>();
     final cubit = _Cubit(
       startGame: StubStartGame(
-        const HexaLinesRules<HexCoord>(
-          LinesScoring(StreakMultiplier(LineBonus(5), maxMultiplier: 3)),
+        HexaLinesRules<HexCoord>(
+          const LinesScoring(StreakMultiplier(LineBonus(5), maxMultiplier: 3)),
+          LinesPieceSource(topology, [
+            LinesFamily(
+              shape: mono.shape,
+              weight: LinesPieceSource.totalWeight,
+              color: red,
+            ),
+          ]),
         ),
         state,
       ),

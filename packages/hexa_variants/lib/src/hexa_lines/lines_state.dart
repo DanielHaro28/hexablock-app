@@ -211,3 +211,32 @@ final class LinesCleared<C extends Coord> extends LinesEvent<C> {
   @override
   String toString() => 'LinesCleared($lines, streak: $streak)';
 }
+
+/// The three slots were empty, so a new tray of [pieces] was drawn
+/// (RN-HL-21): what the screen animates before the end of the game is
+/// checked on it (RN-HL-50).
+final class TrayRefilled<C extends Coord> extends LinesEvent<C> {
+  /// A new tray of [pieces], in slot order.
+  TrayRefilled(List<LinesPiece<C>> pieces) : pieces = List.unmodifiable(pieces);
+
+  /// The new pieces, slot by slot.
+  final List<LinesPiece<C>> pieces;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TrayRefilled<C> && _samePieces(other.pieces);
+
+  bool _samePieces(List<LinesPiece<C>> others) {
+    if (others.length != pieces.length) return false;
+    for (var i = 0; i < pieces.length; i++) {
+      if (others[i] != pieces[i]) return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hashAll(pieces);
+
+  @override
+  String toString() => 'TrayRefilled($pieces)';
+}

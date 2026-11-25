@@ -801,6 +801,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El `architecture-reviewer` vio que RNF-11 (Must) pide leer las fórmulas de puntaje de la configuración y que la primera parte dejaba los valores como constantes. Claude no lo resolvió por su cuenta: planteó tres opciones (valores en el JSON, precisar RNF-11 o aplazarlo) y el usuario eligió la recomendada. Claude propuso que un valor fuera de rango lance el `ArgumentError` del dominio, como pasa con los pesos del catálogo, y no un `FormatException`. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | (1) El plan de HL-03 no revisó los requisitos no funcionales, solo las reglas de la historia, y RNF-11 apareció en la revisión de arquitectura. (2) ARQ-02 §10 y RNF-11 parecían contradecirse. D-139 los concilia: la forma de la fórmula es una clase y sus valores son configuración |
 
+### IA-71 · Bandeja nueva al colocar la tercera pieza (HL-04) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | `/implement-story HL-04`; después del plan: "ok". Ante el desajuste del orden de eventos, el usuario eligió "Anotar en PENDIENTES (Recomendado)" |
+| Resultado | Issue #35 (rama `feat/hl-04-new-tray`). En la capa 1 (`hexa_variants`, el motor no cambia): el paso `afterResolve` de `HexaLinesRules`, que saca una bandeja nueva de 3 con el generador de la partida cuando las tres casillas están vacías (RN-HL-21, RN-COM-42); la fábrica le pasa la fuente de piezas (D-100), y el evento `TrayRefilled`, que el puntaje ignora. El fin de partida se evalúa con la bandeja nueva (RN-HL-50). Pruebas en `hexa_lines_tray_test` (RN-HL-21, RN-HL-50, la bandeja nueva tras las líneas eliminadas y la misma semilla con las mismas bandejas) y en `hexa_lines_any_shape_test` (otra figura, RNF-04); se ajustaron una prueba de RN-HL-40 que vaciaba la bandeja sin querer y la prueba de arrastre de la app, que arma las reglas a mano. Documentos: la trazabilidad de RF-20 y la decisión abierta D-140 en `PENDIENTES.md` |
+| Modificaciones del equipo | El usuario aceptó el plan sin cambios. El `architecture-reviewer` no encontró bloqueantes; Claude aplicó sus sugerencias (usar `LinesState.traySize` y `LinesPieceSource.totalWeight` en las pruebas, probar otra figura y decir el alcance de la prueba del orden de eventos). El desajuste entre RN-HL §11 y D-94 no lo resolvió Claude: planteó cuatro opciones y el usuario eligió registrarlo como D-140, con la recomendación de ajustar el texto de §11. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
+| Lecciones | (1) El orden de notificaciones de §11 y el de D-94 ya no coincidían, pero no se notaba hasta que hubo un evento de "después de resolver"; una prueba sobre los eventos de las reglas no ve los que agrega el motor. (2) Correr las pruebas antes de implementar mostró una que pasaba por casualidad |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -862,6 +873,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | La pantalla de TEC-11 mostraba su contenido con `WidgetsApp.builder`, sin `Navigator` ni `Overlay`, así que arrastrar una pieza fallaba también en la app (IA-62, IA-67) | La primera prueba de widget del arrastre de HL-02 | `HexaBlockApp` muestra la primera pantalla como ruta, con `home` y `pageRouteBuilder` |
 | D-137 pedía rebasar la rama del siguiente PR apilado, lo que exige un *force push* que SEC-AGT-02 prohíbe (IA-63, IA-68) | El *hook* de git bloqueó el *force push* al integrar la primera parte de HL-02 | Precisión de D-137 en los dos repos: merge de `main` en vez de rebase |
 | El plan de HL-03 dejaba los valores del puntaje (5 puntos por celda, tope ×3) como constantes en el código, aunque RNF-11 pide leerlos de la configuración (IA-69, IA-70) | `architecture-reviewer` antes del PR | D-139: los valores pasan a `hexa-lines.json` y la fábrica se los da a las políticas |
+| Una prueba de HL-04 (misma semilla, mismas bandejas) pasaba sin la implementación, porque las dos bandejas quedaban vacías y eran iguales (IA-71) | Al correr las pruebas antes de implementar, para ver que fallaran por la razón esperada | La prueba exige además que la bandeja final esté llena |
+| La prueba `RN-HL §11` de HL-04 parecía cubrir todo el orden de notificaciones, pero solo ve los eventos de las reglas; el motor publica `ScoreChanged` después de todos ellos (D-94), y §11 pide el puntaje antes de la bandeja nueva (IA-71) | `architecture-reviewer` antes del PR | La prueba dice su alcance y el desajuste quedó abierto como D-140 para el equipo |
 
 ### 4.3 Reflexión del equipo
 

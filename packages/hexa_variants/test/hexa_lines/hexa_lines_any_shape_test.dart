@@ -96,4 +96,31 @@ void main() {
       expect(turn.state.score, 22);
     });
   });
+
+  group('RN-HL-21', () {
+    test(
+      'should_draw_a_full_tray_when_the_last_piece_is_placed_on_any_shape',
+      () {
+        // Arrange
+        final state = LinesState(
+          board: Board<FakeCoord, PieceColor>.of(topology, config.board),
+          tray: [
+            LinesPiece(shapeOf([(0, 0)]), color),
+            null,
+            null,
+          ],
+          random: Xorshift32(1),
+          seed: 1,
+        );
+        const move = PlacePiece(0, FakeCoord(0, 0));
+
+        // Act
+        final turn = factory().createRules().playTurn(state, move);
+
+        // Assert
+        expect(turn.state.tray, everyElement(isNotNull));
+        expect(turn.state.random, isNot(state.random));
+      },
+    );
+  });
 }

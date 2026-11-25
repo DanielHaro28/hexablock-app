@@ -812,6 +812,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó el plan sin cambios. El `architecture-reviewer` no encontró bloqueantes; Claude aplicó sus sugerencias (usar `LinesState.traySize` y `LinesPieceSource.totalWeight` en las pruebas, probar otra figura y decir el alcance de la prueba del orden de eventos). El desajuste entre RN-HL §11 y D-94 no lo resolvió Claude: planteó cuatro opciones y el usuario eligió registrarlo como D-140, con la recomendación de ajustar el texto de §11. Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | (1) El orden de notificaciones de §11 y el de D-94 ya no coincidían, pero no se notaba hasta que hubo un evento de "después de resolver"; una prueba sobre los eventos de las reglas no ve los que agrega el motor. (2) Correr las pruebas antes de implementar mostró una que pasaba por casualidad |
 
+### IA-72 · El puntaje después de los eventos de las reglas en el §11 de las variantes (D-140) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 24-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | Preguntas previas: "que es d140?", "esto es para esos modos de juego no modificariamos los otros modos si modificamos el caso de uso o es puro texto?" y "tiene sentido esto que hicimos en esa implementacion". Después: "Ok, haz el /rule-change para D-140 con la opción A" |
+| Resultado | Sin Issue: cierra la decisión D-140 (rama `docs/d-140-notification-order`). El §11 de `02-RN-HEXA-LINES.md`, `02-RN-HEXA-SORT.md` y `02-RN-HEXA-MERGE.md` pone el puntaje actualizado después de los eventos de las reglas y antes de la victoria o la derrota, como lo publica el motor (D-94); el §11 de Hexa Fit no cambia, porque no tiene puntaje. D-140 pasa de `PENDIENTES.md` a `DECISIONES.md` (Reglas de juego) con las opciones descartadas. Una prueba nueva en `hexa_lines_tray_test` (grupo `RN-HL §11`) juega un turno con el `GameEngine` real y comprueba el orden completo. Trazabilidad de RF-12. No cambia código del motor, de los casos de uso ni de las variantes; el simulador no modela las notificaciones y ningún `E-*` cambia |
+| Modificaciones del equipo | El usuario eligió la opción A, la recomendada en D-140, después de preguntar si afectaba a los otros modos y si la implementación de HL-04 tenía sentido. El `architecture-reviewer` no encontró bloqueantes; Claude aplicó su sugerencia sobre el formato de la fila de D-140 y dejó para el equipo dos textos que este PR no tocó: en el §11 de Sort la meta puede cumplirse a mitad de la cascada (RN-HS-50, 51) y en el de Merge la victoria se vuelve a anunciar si se deshace la jugada ganadora (D-115, RN-HM-83). Las pruebas las escribió Claude. ⚠️ completar: revisión de las pruebas por una persona (D-59) |
+| Lecciones | (1) La prueba nueva pasó a la primera, como se esperaba: el cambio alinea el texto de la regla con lo que el código ya hacía. (2) El PR de la rama base se integró con *squash* mientras se trabajaba; al integrar `main`, el merge devolvió la fila de D-140 a `PENDIENTES.md`, porque `main` la agregaba y la rama la había agregado y quitado |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -875,6 +886,8 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | El plan de HL-03 dejaba los valores del puntaje (5 puntos por celda, tope ×3) como constantes en el código, aunque RNF-11 pide leerlos de la configuración (IA-69, IA-70) | `architecture-reviewer` antes del PR | D-139: los valores pasan a `hexa-lines.json` y la fábrica se los da a las políticas |
 | Una prueba de HL-04 (misma semilla, mismas bandejas) pasaba sin la implementación, porque las dos bandejas quedaban vacías y eran iguales (IA-71) | Al correr las pruebas antes de implementar, para ver que fallaran por la razón esperada | La prueba exige además que la bandeja final esté llena |
 | La prueba `RN-HL §11` de HL-04 parecía cubrir todo el orden de notificaciones, pero solo ve los eventos de las reglas; el motor publica `ScoreChanged` después de todos ellos (D-94), y §11 pide el puntaje antes de la bandeja nueva (IA-71) | `architecture-reviewer` antes del PR | La prueba dice su alcance y el desajuste quedó abierto como D-140 para el equipo |
+| Al integrar `main` en la rama de D-140, después del *squash* de HL-04, volvió a `PENDIENTES.md` la fila de D-140 que la rama había quitado (IA-72) | Comprobación con `grep` después del merge | Fila quitada de nuevo en un commit aparte |
+| El `architecture-reviewer` advirtió que el nombre largo de la prueba nueva haría fallar el paso de formato del CI (IA-72) | Se corrió `dart format --set-exit-if-changed` sobre el paquete | No hizo falta cambiar nada: es la forma que da el propio `dart format` |
 
 ### 4.3 Reflexión del equipo
 

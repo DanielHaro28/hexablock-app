@@ -207,7 +207,10 @@ void main() {
       final widget = card(footer: const HexaCardMeta('Récord 12 850'));
 
       // Act
-      await pumpThemed(tester, SizedBox(width: 163, child: widget));
+      await pumpThemed(
+        tester,
+        SizedBox(width: 163, child: IntrinsicHeight(child: widget)),
+      );
 
       // Assert
       expect(find.text('Hexa Lines'), findsOneWidget);
@@ -222,7 +225,10 @@ void main() {
       final widget = card(footer: const HexaCardNew('Nuevo'));
 
       // Act
-      await pumpThemed(tester, SizedBox(width: 163, child: widget));
+      await pumpThemed(
+        tester,
+        SizedBox(width: 163, child: IntrinsicHeight(child: widget)),
+      );
 
       // Assert
       expect(find.text('Nuevo'), findsOneWidget);
@@ -250,7 +256,10 @@ void main() {
       final widget = card();
 
       // Act
-      await pumpThemed(tester, SizedBox(width: 163, child: widget));
+      await pumpThemed(
+        tester,
+        SizedBox(width: 163, child: IntrinsicHeight(child: widget)),
+      );
 
       // Assert
       expect(
@@ -268,7 +277,10 @@ void main() {
       );
 
       // Act
-      await pumpThemed(tester, SizedBox(width: 148, child: widget));
+      await pumpThemed(
+        tester,
+        SizedBox(width: 148, child: IntrinsicHeight(child: widget)),
+      );
 
       // Assert
       expect(tester.takeException(), isNull);

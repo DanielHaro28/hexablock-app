@@ -43,7 +43,9 @@ final class HexaCardNew extends HexaVariantCardFooter {
 /// colored blob included. Title in `subtitle`, description in `note`
 /// `ink-soft`, footer at the bottom. With a [menu], a 48 dp «more» button
 /// sits in the top-right corner. The card grows taller when its texts need
-/// more lines (up to 30 % longer in English): it never cuts them.
+/// more lines (up to 30 % longer in English): it never cuts them. It fills
+/// the height its parent gives, with the footer at the bottom, so the cards
+/// of a row in an `IntrinsicHeight` match the tallest one.
 ///
 /// It knows no game: the screen passes the texts, the artwork and what a
 /// tap does.
@@ -143,21 +145,16 @@ class HexaVariantCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(HexaRadii.of(context).card),
         child: Padding(
           padding: const EdgeInsets.all(HexaSpacing.s16),
-          child: LayoutBuilder(
-            builder: (context, constraints) => Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: constraints.hasBoundedHeight
-                  ? MainAxisSize.max
-                  : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                top,
-                if (bottom != null) ...[
-                  const SizedBox(height: HexaSpacing.s8),
-                  bottom,
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              top,
+              if (bottom != null) ...[
+                const SizedBox(height: HexaSpacing.s8),
+                bottom,
               ],
-            ),
+            ],
           ),
         ),
       ),

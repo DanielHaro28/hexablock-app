@@ -1,15 +1,14 @@
-import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../l10n/app_localizations.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/hexa_theme.dart';
 
 /// Root widget of the app.
 ///
-/// It sets the localized texts (es and en, RNF-50) and the base text style,
-/// and shows [home] as the first route. It only uses `package:flutter/widgets.dart`: since
-/// Flutter 3.47 Material lives in its own package, and adding it is a
-/// decision for the interface stories. Navigation comes with NAV-01.
+/// It sets the localized texts (es and en, RNF-50) and the theme built from
+/// the design system tokens (D-148, D-152), and shows [home] as the first
+/// route. Material comes from `material_ui` (D-148); the screens only use the
+/// components of the design system, never Material widgets directly.
 class HexaBlockApp extends StatelessWidget {
   /// The app showing [home].
   const HexaBlockApp({required this.home, super.key});
@@ -18,19 +17,20 @@ class HexaBlockApp extends StatelessWidget {
   final Widget home;
 
   @override
-  Widget build(BuildContext context) => WidgetsApp(
-    color: AppColors.background,
-    onGenerateTitle: (context) =>
-        AppLocalizations.of(context).gameTitleHexaLines,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
+  Widget build(BuildContext context) => MaterialApp(
+    onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+    // The Material delegates of `material_ui`, not the legacy ones that the
+    // generated `AppLocalizations.localizationsDelegates` lists: those only
+    // serve `package:flutter/material.dart` (D-148).
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      ...GlobalMaterialLocalizations.delegates,
+    ],
     supportedLocales: AppLocalizations.supportedLocales,
-    textStyle: AppTextStyles.body,
+    theme: HexaTheme.crema(),
+    debugShowCheckedModeBanner: false,
     // A route, not a builder: the Navigator brings the Overlay that a
     // dragged piece floats on (HL-02).
     home: home,
-    pageRouteBuilder: <T>(settings, builder) => PageRouteBuilder<T>(
-      settings: settings,
-      pageBuilder: (context, _, _) => builder(context),
-    ),
   );
 }

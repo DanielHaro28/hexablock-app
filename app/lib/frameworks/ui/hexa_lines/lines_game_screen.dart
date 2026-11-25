@@ -4,7 +4,7 @@ import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 
 import '../../../adapters/presentation/game/game_cubit.dart';
-import '../../theme/app_colors.dart';
+import '../../theme/hexa_colors.dart';
 import '../board/topology_layout.dart';
 import '../game/game_page.dart';
 import 'lines_board_target.dart';
@@ -50,7 +50,7 @@ final class _LinesGameScreenState<C extends Coord>
         .read<GameCubit<C, PieceColor, PlacePiece<C>, LinesState<C>>>();
     return GamePage<C, PieceColor, PlacePiece<C>, LinesState<C>>(
       titleOf: (texts) => texts.gameTitleHexaLines,
-      accent: AppColors.hexaLines,
+      accent: HexaColors.of(context).gameLines,
       layout: widget.layout,
       cellPainter: const LinesCellPainter(),
       showsRecord: true,

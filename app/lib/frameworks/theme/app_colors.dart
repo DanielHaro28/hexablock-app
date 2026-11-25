@@ -1,30 +1,11 @@
 import 'dart:ui';
 
-/// The color tokens of the design (D-66, REVISION-DISENO: the colors live in
-/// the theme, not in the screens).
+/// Colors of the game screens that the design system does not define yet.
 ///
-/// They follow the proposal of the design PDF: a warm light background,
-/// white cards, a dark ink and one accent per game. The interface stories
-/// (T-05) adjust them here.
+/// Every other color is a token in `HexaColors` (D-152). These stay here
+/// until @dicpc defines them: the piece palette by the color names of the
+/// configuration (D-131) and the invalid preview of HL-02 (D-138).
 abstract final class AppColors {
-  /// The background of every screen.
-  static const background = Color(0xFFF8F3EC);
-
-  /// Cards and panels on the background.
-  static const surface = Color(0xFFFFFCF8);
-
-  /// Text and strong lines.
-  static const ink = Color(0xFF3A3340);
-
-  /// Secondary text, such as the label of a marker.
-  static const inkMuted = Color(0xFF8C8490);
-
-  /// An empty cell of the board.
-  static const emptyCell = Color(0xFFEDE7E0);
-
-  /// The accent of Hexa Lines (blue, REVISION-DISENO).
-  static const hexaLines = Color(0xFF9CC3EA);
-
   /// The cells of a piece over a position where it does not fit (HL-02).
   /// The design does not draw it yet: @dicpc confirms it (D-66, D-138).
   static const invalidPreview = Color(0xB3E5675C);
@@ -32,9 +13,6 @@ abstract final class AppColors {
   /// How opaque the cells of a piece over a valid position are (HL-02): the
   /// piece's own color, lighter, so the board shows through.
   static const double previewOpacity = 0.55;
-
-  /// The outline of an empty tray slot while its piece is being dragged.
-  static const draggedSlot = inkMuted;
 
   /// A piece color whose name the palette does not know.
   static const unknownPiece = Color(0xFFB8B2AC);

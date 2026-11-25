@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/hexa_colors.dart';
 import '../theme/hexa_theme.dart';
 
 /// Root widget of the app.
@@ -31,7 +32,12 @@ class HexaBlockApp extends StatelessWidget {
     supportedLocales: AppLocalizations.supportedLocales,
     theme: HexaTheme.crema(),
     debugShowCheckedModeBanner: false,
-    // A route, not a builder: the Navigator brings the Overlay that a
+    // The Material of every screen, above the Navigator: without it Flutter
+    // draws texts in its red, yellow underlined warning style. It gives the
+    // theme's text style (`ink`) to the routes and what floats over them.
+    builder: (context, navigator) =>
+        Material(color: HexaColors.of(context).bg, child: navigator),
+    // A route as home: the Navigator brings the Overlay that a
     // dragged piece floats on (HL-02).
     home: home,
   );

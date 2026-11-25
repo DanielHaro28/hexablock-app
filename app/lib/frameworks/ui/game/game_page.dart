@@ -44,6 +44,10 @@ typedef BoardDecoratorBuilder<C extends Coord, TState> = Widget Function(
 /// pieces onto the board also gives [previewOf] and [boardDecoratorOf]
 /// (HL-02).
 ///
+/// When the game is over, a notice takes the place of the tray, so no piece
+/// can be dragged any more (HL-05, D-141); the defeat screen comes with
+/// PRG-02.
+///
 /// It reads the [GameCubit] above it. Pause and "how to play" (NAV-04,
 /// NAV-05) and the record (HL-06) come with their stories.
 final class GamePage<
@@ -107,55 +111,58 @@ final class GamePage<
                 builder: (context, screen) => switch (screen) {
                   GameLoading() => _Message(texts.gameLoading),
                   GameNotStarted() => _Message(texts.gameNotStarted),
-                  GameReady(:final state, :final preview) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _TopBar(title: titleOf(texts), accent: accent),
-                      const SizedBox(height: AppSizes.gapLarge),
-                      _Marker(label: texts.scoreLabel, value: state.score),
-                      const SizedBox(height: AppSizes.gapLarge),
-                      Expanded(
-                        child: Semantics(
-                          label: texts.boardLabel,
-                          child: _Panel(
-                            bordered: true,
-                            child: BoardView<C, TCell>(
-                              board: state.board,
-                              layout: layout,
-                              painter: cellPainter,
-                              preview: switch ((preview, previewOf)) {
-                                (final preview?, final previewOf?) => previewOf(
-                                  state,
-                                  preview,
-                                ),
-                                _ => null,
-                              },
-                              decorate: switch (boardDecoratorOf) {
-                                null => null,
-                                final decorate => (geometry, board) => decorate(
-                                  context,
-                                  state,
-                                  geometry,
-                                  board,
-                                ),
-                              },
+                  GameReady(:final state, :final phase, :final preview) =>
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _TopBar(title: titleOf(texts), accent: accent),
+                        const SizedBox(height: AppSizes.gapLarge),
+                        _Marker(label: texts.scoreLabel, value: state.score),
+                        const SizedBox(height: AppSizes.gapLarge),
+                        Expanded(
+                          child: Semantics(
+                            label: texts.boardLabel,
+                            child: _Panel(
+                              bordered: true,
+                              child: BoardView<C, TCell>(
+                                board: state.board,
+                                layout: layout,
+                                painter: cellPainter,
+                                preview: switch ((preview, previewOf)) {
+                                  (final preview?, final previewOf?) =>
+                                    previewOf(state, preview),
+                                  _ => null,
+                                },
+                                decorate: switch (boardDecoratorOf) {
+                                  null => null,
+                                  final decorate =>
+                                    (geometry, board) => decorate(
+                                      context,
+                                      state,
+                                      geometry,
+                                      board,
+                                    ),
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      if (trayOf case final trayOf?) ...[
-                        const SizedBox(height: AppSizes.gapLarge),
-                        Semantics(
-                          label: texts.trayLabel,
-                          child: _Panel(child: trayOf(context, state)),
-                        ),
+                        if (phase is GameOverPhase) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          _GameOverNotice(texts.gameOverTitle),
+                        ] else if (trayOf case final trayOf?) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          Semantics(
+                            label: texts.trayLabel,
+                            child: _Panel(child: trayOf(context, state)),
+                          ),
+                        ],
+                        if (actionsOf case final actionsOf?) ...[
+                          const SizedBox(height: AppSizes.gapLarge),
+                          actionsOf(context, state),
+                        ],
                       ],
-                      if (actionsOf case final actionsOf?) ...[
-                        const SizedBox(height: AppSizes.gapLarge),
-                        actionsOf(context, state),
-                      ],
-                    ],
-                  ),
+                    ),
                 },
               ),
         ),
@@ -220,6 +227,22 @@ final class _Panel extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(AppSizes.gapMedium),
       child: child,
+    ),
+  );
+}
+
+/// Says that the game is over, as soon as it is (a live region, so a screen
+/// reader announces it).
+final class _GameOverNotice extends StatelessWidget {
+  const _GameOverNotice(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    child: _Panel(
+      child: Center(child: Text(title, style: AppTextStyles.title)),
     ),
   );
 }

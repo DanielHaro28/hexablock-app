@@ -55,11 +55,20 @@ void main() {
     return GameCubit(
       startGame: ExceptionAspect(
         StartGameUseCase(FakeVariantFamily(), saved, key),
+        FakeLogger(),
+        name: 'test',
       ),
       options: StartNew(NewGameOptions(seed: 1)),
-      applyMoveFor: (session) =>
-          ExceptionAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
+      applyMoveFor: (session) => ExceptionAspect(
+        ApplyMoveUseCase(session, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
+      checkMoveFor: (session) => ExceptionAspect(
+        CheckMoveUseCase(session),
+        FakeLogger(),
+        name: 'test',
+      ),
     );
   }
 
@@ -80,15 +89,28 @@ void main() {
       rules: rules ?? () => FakeRules(pointsPerTurn: points),
     );
     return GameCubit(
-      startGame: ExceptionAspect(StartGameUseCase(family, saved, key)),
+      startGame: ExceptionAspect(
+        StartGameUseCase(family, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
       options: StartNew(NewGameOptions(seed: 1)),
-      applyMoveFor: (session) =>
-          ExceptionAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
+      applyMoveFor: (session) => ExceptionAspect(
+        ApplyMoveUseCase(session, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
+      checkMoveFor: (session) => ExceptionAspect(
+        CheckMoveUseCase(session),
+        FakeLogger(),
+        name: 'test',
+      ),
       record: RecordUseCases(
         game: key.game,
         getProgress: ExceptionAspect(
           getProgress ?? GetProgressUseCase(progress, FakeProfileRepository()),
+          FakeLogger(),
+          name: 'test',
         ),
         saveProgress: ExceptionAspect(
           saveProgress ??
@@ -98,6 +120,8 @@ void main() {
                 clock,
                 FakeUnitOfWork(),
               ),
+          FakeLogger(),
+          name: 'test',
         ),
       ),
     );
@@ -219,11 +243,20 @@ void main() {
             FakeSavedGameRepository<FakeState>(),
             key,
           ),
+          FakeLogger(),
+          name: 'test',
         ),
         options: StartNew(NewGameOptions(seed: 1)),
-        applyMoveFor: (session) =>
-            ExceptionAspect(_ThrowingMove(const PersistenceException())),
-        checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
+        applyMoveFor: (session) => ExceptionAspect(
+          _ThrowingMove(const PersistenceException()),
+          FakeLogger(),
+          name: 'test',
+        ),
+        checkMoveFor: (session) => ExceptionAspect(
+          CheckMoveUseCase(session),
+          FakeLogger(),
+          name: 'test',
+        ),
       ),
       act: (cubit) async {
         await cubit.start();
@@ -332,13 +365,20 @@ void main() {
             FakeSavedGameRepository<FakeState>(),
             key,
           ),
+          FakeLogger(),
+          name: 'test',
         ),
         options: StartNew(NewGameOptions(seed: 1)),
         applyMoveFor: (session) => ExceptionAspect(
           ApplyMoveUseCase(session, FakeSavedGameRepository<FakeState>(), key),
+          FakeLogger(),
+          name: 'test',
         ),
-        checkMoveFor: (session) =>
-            ExceptionAspect(_ThrowingCheck(StateError('broken'))),
+        checkMoveFor: (session) => ExceptionAspect(
+          _ThrowingCheck(StateError('broken')),
+          FakeLogger(),
+          name: 'test',
+        ),
       ),
       act: (cubit) async {
         await cubit.start();

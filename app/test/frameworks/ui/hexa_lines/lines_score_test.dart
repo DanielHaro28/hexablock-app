@@ -82,13 +82,22 @@ void main() {
         state,
       ),
       options: StartNew(NewGameOptions(seed: 7)),
-      applyMoveFor: (session) =>
-          ExceptionAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
+      applyMoveFor: (session) => ExceptionAspect(
+        ApplyMoveUseCase(session, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
+      checkMoveFor: (session) => ExceptionAspect(
+        CheckMoveUseCase(session),
+        FakeLogger(),
+        name: 'test',
+      ),
       record: RecordUseCases(
         game: key.game,
         getProgress: ExceptionAspect(
           GetProgressUseCase(progress, FakeProfileRepository()),
+          FakeLogger(),
+          name: 'test',
         ),
         saveProgress: ExceptionAspect(
           SaveProgressUseCase(
@@ -97,6 +106,8 @@ void main() {
             FakeClock(),
             FakeUnitOfWork(),
           ),
+          FakeLogger(),
+          name: 'test',
         ),
       ),
     );

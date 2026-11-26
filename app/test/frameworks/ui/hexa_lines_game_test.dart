@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hexa_application/hexa_application.dart';
+import 'package:hexa_test_support/hexa_test_support.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 import 'package:hexa_variants/hexa_variants.dart';
 import 'package:hexablock_app/config/dependencies.dart';
@@ -25,6 +26,7 @@ void main() {
       rootBundle,
       newSeed: () => 1,
       databaseExecutor: NativeDatabase.memory(),
+      logger: FakeLogger(),
     );
   });
 
@@ -148,6 +150,7 @@ void main() {
           rootBundle,
           newSeed: () => 1,
           databaseExecutor: NativeDatabase(dbFile),
+          logger: FakeLogger(),
         );
         await firstSession<IProgressRepository>().save(
           ProfileId.guest,
@@ -161,6 +164,7 @@ void main() {
           rootBundle,
           newSeed: () => 1,
           databaseExecutor: NativeDatabase(dbFile),
+          logger: FakeLogger(),
         );
       });
       addTearDown(reopenedSession.reset);

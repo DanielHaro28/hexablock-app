@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexa_application/hexa_application.dart';
@@ -107,6 +108,88 @@ void main() {
         // Assert
         expect(await repository.active(), renamed);
         expect(await db.select(db.profiles).get(), hasLength(2));
+      },
+    );
+
+    test(
+      'should_keep_creation_date_and_kind_when_activating_existing_account',
+      () async {
+        // Arrange
+        final original = Profile(
+          id: const ProfileId('user-1'),
+          kind: ProfileKind.account,
+          displayName: 'Ana',
+          createdAt: DateTime.utc(2026, 11, 25, 11),
+        );
+        final signedInAgain = Profile(
+          id: const ProfileId('user-1'),
+          kind: ProfileKind.guest,
+          displayName: 'Ana',
+          createdAt: DateTime.utc(2026, 12, 1, 8),
+        );
+        await repository.activate(original);
+
+        // Act
+        await repository.activate(signedInAgain);
+
+        // Assert
+        expect(await repository.active(), original);
+      },
+    );
+  });
+
+  group('RN-COM-81', () {
+    test('should_return_guest_when_no_profile_is_active', () async {
+      // Arrange
+      await db
+          .update(db.profiles)
+          .write(const ProfilesCompanion(isActive: Value(false)));
+
+      // Act
+      final active = await repository.active();
+
+      // Assert
+      expect(active, await repository.guest());
+    });
+  });
+
+  group('D-39', () {
+    test(
+      'should_throw_persistence_exception_when_two_profiles_are_active',
+      () async {
+        // Arrange
+        await db
+            .into(db.profiles)
+            .insert(
+              ProfilesCompanion.insert(
+                id: 'user-1',
+                kind: ProfileKind.account.name,
+                isActive: const Value(true),
+                createdAt: 0,
+              ),
+            );
+
+        // Act & Assert
+        await expectLater(
+          repository.active(),
+          throwsA(isA<PersistenceException>()),
+        );
+      },
+    );
+
+    test(
+      'should_throw_persistence_exception_when_stored_kind_is_unknown',
+      () async {
+        // Arrange
+        await (db.update(db.profiles)
+              ..where((row) => row.id.equals(ProfileId.guest.value)))
+            .write(const ProfilesCompanion(kind: Value('robot')));
+
+        // Act & Assert
+        await expectLater(
+          repository.guest(),
+          throwsA(isA<PersistenceException>()),
+        );
       },
     );
   });

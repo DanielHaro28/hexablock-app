@@ -13,11 +13,16 @@ final class DriftProfileRepository implements IProfileRepository {
 
   @override
   Future<Profile> active() => runDrift(() async {
-    final row = await (_db.select(
+    final rows = await (_db.select(
       _db.profiles,
-    )..where((row) => row.isActive.equals(true))).getSingleOrNull();
-    if (row == null) throw const PersistenceException();
-    return _toDomain(row);
+    )..where((row) => row.isActive.equals(true))).get();
+    return switch (rows) {
+      // The port promises the guest when no profile is active.
+      [] => await guest(),
+      [final row] => _toDomain(row),
+      // Only one profile is ever active (ARQ-04 §2): more is corrupt data.
+      _ => throw const PersistenceException(),
+    };
   });
 
   @override
@@ -27,16 +32,24 @@ final class DriftProfileRepository implements IProfileRepository {
           .update(_db.profiles)
           .write(const ProfilesCompanion(isActive: Value(false)));
       // Upsert in place so existing progress rows referencing this profile are
-      // never dropped by ON DELETE CASCADE (RNF-35).
+      // never dropped by ON DELETE CASCADE (RNF-35). An existing profile keeps
+      // its kind and the date it was created on this device; only its name
+      // and the active flag change.
       await _db
           .into(_db.profiles)
-          .insertOnConflictUpdate(
+          .insert(
             ProfilesCompanion.insert(
               id: profile.id.value,
               kind: profile.kind.name,
               displayName: Value(profile.displayName),
               isActive: const Value(true),
               createdAt: profile.createdAt.toUtc().millisecondsSinceEpoch,
+            ),
+            onConflict: DoUpdate(
+              (_) => ProfilesCompanion(
+                displayName: Value(profile.displayName),
+                isActive: const Value(true),
+              ),
             ),
           );
     }),
@@ -53,7 +66,10 @@ final class DriftProfileRepository implements IProfileRepository {
 
   static Profile _toDomain(ProfileRow row) => Profile(
     id: ProfileId(row.id),
-    kind: ProfileKind.values.byName(row.kind),
+    // A kind this version does not know is corrupt data, not a crash (D-39).
+    kind:
+        ProfileKind.values.asNameMap()[row.kind] ??
+        (throw const PersistenceException()),
     displayName: row.displayName,
     createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt, isUtc: true),
   );

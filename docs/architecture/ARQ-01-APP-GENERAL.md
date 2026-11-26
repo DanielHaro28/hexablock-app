@@ -276,6 +276,7 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. Los 
 | Los casos de uso no ven las variantes | `hexa_application` no depende de `hexa_variants` | RNF-07 |
 | Ningún caso de uso llama al logger | Script que busca usos de `ILogger` fuera de `aspects/` | RNF-10 |
 | Los adaptadores no ven la capa 4 | El mismo script falla si un archivo de `app/lib/adapters/` importa algo de `frameworks/` o `package:drift` | D-156 |
+| El código generado está al día | El job `flutter` corre `build_runner` en `app/` y falla si algún `*.g.dart` cambia o aparece sin subir (#149) | ARQ-04 §6 |
 | Niveles incluidos válidos | Validador de niveles sobre `assets/levels/` | RF-83 |
 | Paridad de idiomas | Script que compara las claves de los ARB | RNF-50 |
 

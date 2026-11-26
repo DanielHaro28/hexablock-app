@@ -63,6 +63,22 @@ jobs:
       - name: Dependencies (lockfile only)
         run: flutter pub get --enforce-lockfile
 
+      # The Drift code (`*.g.dart`) is generated and committed. If a table
+      # changes without regenerating, analysis and tests can still pass on the
+      # old schema, and the schema dump of ARQ-04 §6 stops matching (#149).
+      # `git status` also catches a generated file that was never committed.
+      - name: Generated code is up to date (Drift, ARQ-04 §6)
+        working-directory: app
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          changed=$(git status --porcelain -- '*.g.dart')
+          if [ -n "$changed" ]; then
+            echo "::error::Generated code is stale. Run 'dart run build_runner build --delete-conflicting-outputs' in app/ and commit the result:"
+            echo "$changed"
+            git --no-pager diff --stat -- '*.g.dart'
+            exit 1
+          fi
+
       - name: Format
         run: |
           if ! dart format --output=none --set-exit-if-changed .; then

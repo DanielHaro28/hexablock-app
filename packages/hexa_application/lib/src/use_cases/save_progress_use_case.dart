@@ -12,7 +12,7 @@ import '../use_case.dart';
 /// For a record (D-143), the score is kept only if it beats the saved one, or
 /// if there is none yet, dated with [_clock]. For a level, the attempt is
 /// compared against the saved one with the result's [IProgressModel] (and by
-/// earliest timestamp on a tie, RN-COM-105). It returns the progress that is
+/// earliest timestamp on a tie, ARQ-04 §3). It returns the progress that is
 /// kept, new or not.
 ///
 /// The sync outbox arrives with API-03; the saved game is removed by

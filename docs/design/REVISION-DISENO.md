@@ -1,29 +1,39 @@
-# Revisión del diseño inicial (Paso 7)
+# Revisión del diseño (Paso 7; sistema de diseño y prototipo desde el 25-11)
 
 | Campo | Valor |
 |---|---|
-| Diseño revisado | "HexaBlock Suite — Diseño", 59 pantallas, hecho por **@dicpc** (recibido el 20-11). Es una **propuesta visual** para ir viendo el juego; se ajusta a lo definido. Archivo: `HexaBlock-Suite-Diseno-v1.pdf` en esta carpeta |
-| Fecha | 2026-11-20 |
+| Fuente visual | **Sistema de diseño** de @dicpc ([en línea](https://claude.ai/artifact/BpH2DMc1TY1HiA46vr6nw4); copia en `sistema/`): *tokens*, componentes, textos y medidas para Flutter (D-144) |
+| Referencia de cada pantalla | **Prototipo** de @dicpc ([en línea](https://claude.ai/artifact/35wwuL6SEsooCibs35pm1h)), con una captura por pantalla en `pantallas/` (§1) |
+| Diseño inicial | "HexaBlock Suite — Diseño", 59 pantallas, de @dicpc (recibido el 20-11). Fue la base de DIS-01 a DIS-16 (§3) y queda como historial: `HexaBlock-Suite-Diseno-v1.pdf` en esta carpeta |
+| Fecha | 2026-11-20 (diseño inicial) · 2026-11-25 (sistema y prototipo) |
 | Contra qué | Reglas (`docs/requirements/02-RN-*.md`), historias (`04-HISTORIAS.md`), decisiones (`docs/DECISIONES.md`) |
-| Estado | **Las 16 propuestas fueron aceptadas** (D-66, 20-11). Quien diseñó decide cómo se ven al aplicarlas; las reglas ya se ajustaron (RN-HL-71, NAV-05) |
+| Estado | **Las 16 propuestas fueron aceptadas** (D-66, 20-11). Quien diseñó decide cómo se ven al aplicarlas; las reglas ya se ajustaron (RN-HL-71, NAV-05). **25-11:** el sistema y el prototipo aplican las 16 (§5); quedan diferencias nuevas, DIS-17 a DIS-24 (§6). Donde el diseño contradice una regla, manda la regla |
 
-## 1. Pantallas del diseño y sus historias
+## 1. Pantallas del prototipo y sus historias
 
-| Páginas | Pantalla | Historias |
+Una captura por pantalla en `pantallas/` (390×844). Las páginas del PDF que se citan en §2 y §3 son del diseño inicial.
+
+| Capturas (`pantallas/`) | Pantalla | Historias |
 |---|---|---|
-| 1–3 | Carga (*splash*) y error al leer el progreso, con "Reintentar" y "Jugar sin conexión" | PRG-03, API-08 |
-| 4–6 | Inicio: elegir juego, con récord o nivel en cada tarjeta, "Nuevo" la primera vez; en español e inglés | NAV-01, NAV-03, NAV-07 |
-| 7–10 | Ajustes: sonido, música, volumen, idioma, "Reducir movimiento", cuenta (con o sin sesión) | NAV-02, NAV-03, NAV-06, API-07 |
-| 11–18 | Iniciar sesión y crear cuenta, con errores (correo sin @, credenciales, sin conexión) | API-01, API-02, API-05, API-08 |
-| 19–22 | Selección de niveles de Fit y Sort: camino de hexágonos, candados, estrellas, "todo completado" | HF-01, HS-01, PRG-04 |
-| 23–30 | Hexa Lines: partida, arrastre, combo, racha, "No cabe"; la página 26 describe la estructura común | HL-01 a HL-06 |
-| 31–33 | Hexa Fit: partida, inicio del nivel, pieza que vuelve a la bandeja | HF-02 a HF-05 |
-| 34–37 | Hexa Sort: partida, transferencia, "¡Pila completa!", metas | HS-02 a HS-04 |
-| 38–40 | Hexa Merge: partida, fusión, objetivo 2048 | HM-01, HM-02 |
-| 41–43 | Pausa (Fit y Lines) y confirmación de salir | NAV-04 |
-| 44–48 | Victoria de Fit (con estrellas), de Merge (con "Seguir jugando"), los 15 niveles completados, guardado en el teléfono | PRG-01, HF-06, HM-05 |
-| 49–54 | Derrota de Lines (con y sin récord nuevo), de Sort ("Tablero lleno", en dos idiomas) y de Merge ("Sin movimientos") | PRG-02, HL-05, HS-05, HM-05 |
-| 55–59 | Clasificación: Lines, Fit por nivel, Sort, Merge; "Tú · Puesto 128"; error de carga | NAV-07, API-04 |
+| `carga`, `error-lectura` | Carga (*splash*) y error al leer el progreso, con «Reintentar» y «Jugar sin guardar» (DIS-19) | PRG-03, API-08 |
+| `inicio`, `inicio-primera-vez`, `inicio-ingles`, `inicio-continuar` | Inicio: elegir juego, con récord o nivel en cada tarjeta, «Nuevo» la primera vez, «Continuar» con partida guardada | NAV-01, NAV-03 |
+| `ajustes`, `ajustes-sin-sesion`, `ajustes-silenciado`, `ajustes-ingles`, `ajustes-figura-bloqueada` | Ajustes: sonido, idioma, accesibilidad, cuenta y figura de las celdas | NAV-02, NAV-03, NAV-06, NAV-08, API-07 |
+| `cuenta-iniciar-sesion`, `cuenta-crear`, `cuenta-foco`, `cuenta-error-validacion`, `cuenta-contrasena-corta`, `cuenta-en-uso`, `cuenta-credenciales`, `cuenta-sin-conexion`, `cuenta-enviando`, `cuenta-teclado` | Iniciar sesión y crear cuenta, con sus errores | API-01, API-02, API-08 |
+| `cuenta-progreso-invitado` | Pasar el progreso de invitado a la cuenta | API-06 |
+| `niveles-fit`, `niveles-sort`, `niveles-bloqueado`, `niveles-completo` | Selección de niveles de Fit y Sort | HF-01, HS-01, PRG-04 |
+| `partida-lines`, `partida-arrastre`, `partida-combo`, `partida-anotada` | Estructura común de la partida (la anotada describe las ranuras) | TEC-11, HL-02, HL-03 |
+| `lines`, `lines-jugable`, `lines-dos-lineas`, `lines-despues-limpiar`, `lines-sin-hueco` | Hexa Lines: partida, líneas, racha, «No cabe» | HL-01 a HL-06 |
+| `lines-sesion-vencida` | Aviso de sesión vencida sin cortar la partida | API-08 |
+| `fit`, `fit-jugable`, `fit-inicio`, `fit-no-cabe` | Hexa Fit: partida, inicio del nivel, pieza que no cabe | HF-02 a HF-05 |
+| `sort`, `sort-jugable`, `sort-cascada`, `sort-pila-completa`, `sort-casi-lleno` | Hexa Sort: partida, cascada, pila completa, metas | HS-02 a HS-04 |
+| `merge`, `merge-jugable`, `merge-deslizar`, `merge-deshacer-usado` | Hexa Merge: partida, deslizar y fusionar, deshacer | HM-01, HM-02, HM-04 |
+| `pausa-fit`, `pausa-lines`, `pausa-salir`, `pausa-salir-record` | Pausa, «?» y confirmación de salir | NAV-04, NAV-05, HL-06, HM-05 |
+| `hoja-partida` | Plantilla de la hoja de pausa, victoria y derrota | PRG-01, PRG-02 |
+| `victoria-fit`, `victoria-fit-ultimo`, `victoria-sort`, `victoria-merge`, `victoria-sin-conexion`, `victoria-reducir` | Victoria de cada juego, último nivel, sin conexión y con «Reducir movimiento» | PRG-01, HF-06, HS-05, HM-05, API-08 |
+| `fin-lines`, `fin-lines-record`, `fin-sort`, `fin-sort-ingles`, `fin-merge`, `fin-merge-deshacer` | Derrota de cada juego, con y sin récord nuevo | PRG-02, HL-05, HS-05, HM-05 |
+| `clasificacion-lines`, `clasificacion-fit`, `clasificacion-sin-sesion`, `clasificacion-cargando`, `clasificacion-sin-conexion` | Clasificación por juego y por nivel, con sus estados | NAV-07 |
+
+No hay pantalla de «Cómo jugar» (NAV-05): ver DIS-23.
 
 ## 2. Lo que ya cumple
 
@@ -58,7 +68,43 @@
 
 ## 4. Qué se toma del diseño para el código
 
-- **Colores por juego:** Lines azul, Fit verde, Sort naranja, Merge violeta (tarjetas, punto del título, borde del *chip* principal). Van en el tema de la app (`lib/frameworks/theme/`) como *tokens*, no repartidos en las pantallas.
+- **Colores por juego:** Lines azul, Fit verde, Sort naranja, Merge violeta (tarjetas, punto del título, borde del *chip* principal). Van en el tema de la app (`app/lib/frameworks/theme/`) como *tokens* (`sistema/tokens.json`), no repartidos en las pantallas. Medidas y *widget* sugerido de cada componente: `sistema/handoff-flutter.md`; las dependencias que sugiere se verifican antes (SEC-AGT-04, DIS-22).
 - **Estructura común de la partida** (página 26): un solo *widget* de pantalla con cinco ranuras (barra, marcadores, tablero, bandeja, acciones) que cada variante llena. Es la contraparte visual del Abstract Factory de las variantes (`VariantFamily`).
 - **Símbolos de color** (gota, estrella, rombo, triángulo, flor, hoja, cuadrado, círculo): uno por cada *token* de color del contrato (`common.schema.json`), para que los colores también se distingan sin verlos (RNF-51).
 - **Textos:** todos van a los archivos ARB (es/en), con los mensajes de error elegidos por `code` (D-51).
+
+## 5. Conciliación con el sistema de diseño y el prototipo (25-11)
+
+Cómo quedó cada propuesta aceptada en D-66. «Cumple» quiere decir que el sistema (`sistema/`) y la captura citada lo muestran así.
+
+| ID | Cómo quedó | Dónde se ve | Estado |
+|---|---|---|---|
+| DIS-01 | «Mínimo 15 caracteres; puede ser una frase» y los errores «Es muy corta…» y «Es demasiado común…» junto al campo (TextField) | `cuenta-crear`, `cuenta-contrasena-corta` | Cumple |
+| DIS-02 | Fit sin puntaje ni récord: estrellas, tiempo, movimientos y «Tu mejor intento» | `fit`, `victoria-fit` | Cumple |
+| DIS-03 | Umbrales «★ ≤ 8 mov.» y «★ ≤ 2:20» en la partida; en la victoria, StarRow con la estrella que faltó y «Te faltó la de tiempo…» | `fit`, `victoria-fit` | Cumple |
+| DIS-04 | Título «Clasificación · Hexágonos» | `clasificacion-lines`, `clasificacion-fit` | Cumple |
+| DIS-05 | Selector de nivel (ChoiceChips) que empieza con «Todos los niveles» | `clasificacion-fit` | Cumple |
+| DIS-06 | Fila de Fit por nivel «3★ · 0:58 · 7 mov.» | `clasificacion-fit` | Cumple |
+| DIS-07 | Sección «Figura de las celdas» (ChoiceChips), bloqueada con partida en curso y oculta mientras solo haya hexágonos | `ajustes-figura-bloqueada` | Cumple |
+| DIS-08 | Salir termina la partida y guarda el récord si lo superó, con los dos textos | `pausa-salir`, `pausa-salir-record` | Cumple |
+| DIS-09 | Sort con Movimientos y Puntaje; el récord del nivel en la victoria | `sort`, `victoria-sort` | Cumple |
+| DIS-10 | Hoja «Tienes progreso como invitado. ¿Lo pasamos a tu cuenta?» | `cuenta-progreso-invitado` | Cumple |
+| DIS-11 | Tarjeta con «Continuar» y «Nueva partida» en su menú (Menu) | `inicio-continuar` | Cumple |
+| DIS-12 | StatChip «Tu sesión venció. Inicia sesión para sincronizar.»; la partida sigue | `lines-sesion-vencida` | Cumple |
+| DIS-13 | «Ese correo ya tiene una cuenta» y «Ese nombre ya lo usa otra persona» junto al campo | `cuenta-en-uso` | Cumple |
+| DIS-14 | Bandeja de Fit con todas las piezas del nivel y desplazamiento horizontal | `fit` | Cumple |
+| DIS-15 | «?» en la barra de cada partida y en la pausa; si NAV-05 no llega, se oculta | `lines`, `fit`, `sort`, `merge`, `pausa-fit` | Cumple; falta la pantalla que abre (DIS-23) |
+| DIS-16 | La insignia de Deshacer cuenta los pasos que se pueden deshacer; nunca es un límite | `fit` | Cumple |
+
+## 6. Diferencias nuevas del sistema y el prototipo
+
+| ID | Qué muestra el diseño | Qué dicen las reglas | Qué se hace |
+|---|---|---|---|
+| DIS-17 | Bandeja de Sort con la pila actual **y la siguiente** («Siguiente») (`sort`, PieceTray, `handoff-flutter.md`) | La bandeja ofrece **una pila a la vez** (RN-HS-20) | Manda la regla: el diseño quita «Siguiente». Cambiarla sería reabrir RN-HS-20 y 21 y los ejemplos `E-HS` |
+| DIS-18 | Derrota de Merge con «Deshacer último movimiento» (`fin-merge-deshacer`) | No se deshace después de la derrota (RN-HM-83, RN-COM-63) | Manda la regla: el diseño quita el botón de la hoja de derrota |
+| DIS-19 | Error de lectura con «Jugar sin guardar»; el diseño inicial decía «Jugar sin conexión». El sistema lo deja pendiente | Ni PRG-03 ni API-08 definen esa salida | Decisión abierta: D-145 |
+| DIS-20 | Ajustes › Accesibilidad: «Símbolos en las fichas: Mostrar / Ocultar» (`ajustes`) | No está en los requisitos; RNF-51 pide que los colores se distingan también por un símbolo | Decisión abierta: D-147. Hasta cerrarla, los símbolos siempre se ven |
+| DIS-21 | Chip «Racha ×2» en Hexa Lines (`lines`) | Con dos turnos seguidos (k = 2) el multiplicador es ×1,5 (RN-HL-63) | Pregunta para quien diseñó: si el chip muestra k o el multiplicador. No cambia la regla |
+| DIS-22 | El *handoff* sugiere `google_fonts`, `flutter_svg` y *widgets* de Material | `google_fonts` descarga las fuentes en línea (API-08); toda dependencia nueva se verifica antes (SEC-AGT-04) | Fuentes empaquetadas (D-146); Material con `material_ui` (D-148) y `flutter_svg` (D-151), verificados en pub.dev |
+| DIS-23 | No hay pantalla de «Cómo jugar», que abre el «?» | NAV-05 (*Should*): resumen de reglas, victoria y derrota en el idioma del jugador | Falta diseñarla antes de NAV-05 |
+| DIS-24 | Diferencias internas menores: las piezas de la bandeja de Lines llevan símbolo y la guía de Piece dice que no; `error-lectura` no coincide con `sistema/pantalla-carga.md` (botón secundario y nota); el fondo de `victoria-sort` muestra otros datos; algunas hojas salen con una fuente con serifa en la captura | — | Las corrige quien diseñó; para el código vale el sistema (`sistema/`) |

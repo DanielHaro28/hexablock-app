@@ -13,20 +13,20 @@ import 'variant_module.dart';
 
 /// Hexa Lines in the app: its configuration, its factory, its use cases and
 /// its screen (ARQ-02 §3.1). Its record is kept in the app's progress
-/// repository, dated by the app's clock (RN-HL-70, 71). The unexpected
-/// errors of its use cases go to the app's log (D-163).
+/// repository, dated by the app's clock (RN-HL-70, 71). Each use case is
+/// wrapped by the app's [AspectChain] with the aspects of ARQ-03 §5.3.
 final class HexaLinesModule implements VariantModule {
   /// The module, with the decoded `assets/config/hexa-lines.json`, keeping
   /// its record for the active profile of [_profiles] in [_progress] with the
   /// dates of [_clock], each save inside a unit of [_unitOfWork] (D-158),
-  /// logging the unexpected errors of its use cases in [_logger].
+  /// and its use cases wrapped by [_chain].
   const HexaLinesModule(
     this._config,
     this._progress,
     this._profiles,
     this._clock,
     this._unitOfWork,
-    this._logger,
+    this._chain,
   );
 
   /// The `gameId` of Hexa Lines in the contract.
@@ -40,7 +40,7 @@ final class HexaLinesModule implements VariantModule {
   final IProfileRepository _profiles;
   final IClock _clock;
   final IUnitOfWork _unitOfWork;
-  final ILogger _logger;
+  final AspectChain _chain;
 
   @override
   String get gameId => id;
@@ -61,32 +61,33 @@ final class HexaLinesModule implements VariantModule {
     final savedGames = MemorySavedGameRepository<LinesState<C>>();
     return BlocProvider(
       create: (_) => GameCubit<C, PieceColor, PlacePiece<C>, LinesState<C>>(
-        startGame: ExceptionAspect(
+        startGame: _chain.wrap(
           StartGameUseCase(family, savedGames, key),
-          _logger,
           name: 'StartGame',
+          measured: true,
         ),
         options: options,
-        applyMoveFor: (session) => ExceptionAspect(
+        applyMoveFor: (session) => _chain.wrap(
           ApplyMoveUseCase(session, savedGames, key),
-          _logger,
           name: 'ApplyMove',
+          budget: AspectChain.frameBudget,
+          describe: MoveDescriber(session),
         ),
-        checkMoveFor: (session) => ExceptionAspect(
+        // Not logged: it runs on every step of a drag (D-138).
+        checkMoveFor: (session) => _chain.wrap(
           CheckMoveUseCase(session),
-          _logger,
           name: 'CheckMove',
+          logged: false,
+          budget: AspectChain.frameBudget,
         ),
         record: RecordUseCases(
           game: key.game,
-          getProgress: ExceptionAspect(
+          getProgress: _chain.wrap(
             GetProgressUseCase(_progress, _profiles),
-            _logger,
             name: 'GetProgress',
           ),
-          saveProgress: ExceptionAspect(
+          saveProgress: _chain.wrap(
             SaveProgressUseCase(_progress, _profiles, _clock, _unitOfWork),
-            _logger,
             name: 'SaveProgress',
           ),
         ),

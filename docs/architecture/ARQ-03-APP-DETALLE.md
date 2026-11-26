@@ -14,26 +14,34 @@
 
 ---
 
-## 1. Forma de los casos de uso (D-38)
+## 1. Forma de los casos de uso (D-38, D-160)
 
-Todos los casos de uso implementan **la misma interfaz**, con un solo método. Así un aspecto se escribe una vez y envuelve a cualquiera (enunciado §3.5).
+Todos los casos de uso **y todos los aspectos** implementan **la misma interfaz**, con un solo método: el `ICommandService<TCommand>` del capítulo 10 de *Dependency Injection Principles, Practices, and Patterns* (Seemann y van Deursen). Así un aspecto se escribe una vez y envuelve a cualquiera (enunciado §3.5), y como tiene el mismo tipo que lo que envuelve, los aspectos se encadenan sin cambiar de forma.
 
 ```dart
-// hexa_application/lib/src/use_case.dart
-abstract interface class UseCase<TIn, TOut> {
-  Future<TOut> execute(TIn input);
+// hexa_application/lib/src/command_service.dart
+abstract interface class ICommandService<TCommand, TResult> {
+  Future<Either<AppFailure, TResult>> execute(TCommand command);
 }
+
+// hexa_application/lib/src/either.dart
+sealed class Either<L, R> { const Either(); }
+final class Left<L, R> extends Either<L, R> { const Left(this.value); final L value; }   // what went wrong
+final class Right<L, R> extends Either<L, R> { const Right(this.value); final R value; } // what it produced
 ```
 
-- La entrada es **un** objeto: una clase de entrada o un *record* (`(gameKey: ..., page: 1)`). Si no hace falta entrada, el tipo es el *record* vacío `()`.
+- La entrada es **un** objeto, el comando: una clase de entrada o un *record* (`(gameKey: ..., page: 1)`). Si no hace falta entrada, el tipo es el *record* vacío `()`.
+- En lugar del `void` del libro, devuelve `Either` con el fallo fijo en `AppFailure` (D-160): los casos de uso devuelven valores (D-32: los eventos de un movimiento) y una sola abstracción sirve a los que cambian el estado y a los que solo leen, así que cada aspecto se escribe una vez y no una por abstracción. Las clases conservan su nombre (`StartGameUseCase`, `ApplyMoveUseCase`…).
 - `execute` devuelve un `Future` aunque el trabajo sea síncrono (como `ApplyMoveUseCase`). Esperarlo cuesta una microtarea: la pantalla recibe el resultado antes del siguiente cuadro (D-32).
 - Los casos de uso que trabajan con una partida son **genéricos** en los cuatro parámetros del motor: `ApplyMoveUseCase<C, TCell, TMove, TState>`. Se instancian una vez por partida, en el `VariantModule` de la variante (ARQ-02 §3.1), y nunca nombran una variante (RNF-07).
 
-## 2. Errores (D-39)
+## 2. Errores (D-39, D-161)
 
-**Por dentro, excepciones tipadas.** Los adaptadores (capa 3) traducen los errores técnicos (de dio, de Drift, de la plataforma) a excepciones de la aplicación. El caso de uso no las atrapa: queda limpio.
+**Los adaptadores lanzan.** Los adaptadores (capas 3 y 4) traducen los errores técnicos (de dio, de Drift, de la plataforma) a excepciones de la aplicación y las lanzan. El caso de uso no las atrapa: queda sin `try`.
 
-**Hacia la pantalla, `Result`.** El aspecto de errores (§5) atrapa esas excepciones, aplica reintentos si corresponde y entrega un `Result`. La pantalla hace un `switch` exhaustivo sobre él.
+**Los casos de uso devuelven.** Si una regla propia lo impide, el caso de uso devuelve `Left(RuleFailure(code))`; nunca lanza a propósito. Si todo sale bien, devuelve `Right(valor)`.
+
+**Hacia la pantalla, siempre un `Either`.** `ExceptionAspect`, el aspecto más interno (§5), convierte cualquier excepción en un `Left` y deja pasar sin cambios lo que devuelve el caso de uso. La pantalla hace un `switch` exhaustivo sobre el `Either` y sobre el `AppFailure`.
 
 ```dart
 // hexa_application/lib/src/errors.dart
@@ -43,7 +51,6 @@ final class SessionExpiredException extends AppException { const SessionExpiredE
 final class ConflictException extends AppException { const ConflictException(this.code); final String code; }
 final class ValidationException extends AppException { const ValidationException(this.fields); final Map<String, String> fields; }
 final class PersistenceException extends AppException { const PersistenceException(); }
-final class RuleException extends AppException { const RuleException(this.code); final String code; } // e.g. 'game-in-progress'
 
 sealed class AppFailure { const AppFailure(); }
 final class NetworkFailure extends AppFailure { const NetworkFailure(); }
@@ -51,15 +58,11 @@ final class SessionFailure extends AppFailure { const SessionFailure({required t
 final class ConflictFailure extends AppFailure { const ConflictFailure(this.code); final String code; }
 final class ValidationFailure extends AppFailure { const ValidationFailure(this.fields); final Map<String, String> fields; }
 final class PersistenceFailure extends AppFailure { const PersistenceFailure(); }
-final class RuleFailure extends AppFailure { const RuleFailure(this.code); final String code; }
+final class RuleFailure extends AppFailure { const RuleFailure(this.code); final String code; } // returned by a use case, e.g. 'game-in-progress'
 final class UnexpectedFailure extends AppFailure { const UnexpectedFailure(); } // programming error, already logged
-
-sealed class Result<T> { const Result(); }
-final class Success<T> extends Result<T> { const Success(this.value); final T value; }
-final class Failure<T> extends Result<T> { const Failure(this.error); final AppFailure error; }
 ```
 
-| Dónde nace | Excepción | Fallo que ve la pantalla | Qué muestra |
+| Dónde nace | Excepción | `Left` que ve la pantalla | Qué muestra |
 |---|---|---|---|
 | Gateway: sin red o tiempo agotado | `NetworkException` | `NetworkFailure` (después de los reintentos) | "Sin conexión; se sincronizará después" |
 | Gateway: 401 | `SessionExpiredException` | `SessionFailure(expired: true)` | Borra el token y pide iniciar sesión (SEC-MOB-04) |
@@ -68,12 +71,12 @@ final class Failure<T> extends Result<T> { const Failure(this.error); final AppF
 | Gateway: 400 con `errors` | `ValidationException` (por `pointer` y `code`) | `ValidationFailure` | Errores por campo |
 | Gateway: 429 | `NetworkException(retryAfter)` | `NetworkFailure` (si se agotan los reintentos) | El aspecto de reintentos espera lo que dice `Retry-After` |
 | Repositorio: Drift falla | `PersistenceException` | `PersistenceFailure` | "No se pudo guardar"; el juego sigue (RNF-35) |
-| Caso de uso: una regla lo impide | `RuleException` | `RuleFailure` | Mensaje de la regla (p. ej., RN-COM-113) |
+| Caso de uso: una regla lo impide | — (lo devuelve, D-161) | `RuleFailure` | Mensaje de la regla (p. ej., RN-COM-113) |
 | Cualquier otra excepción | (error de programación) | `UnexpectedFailure` | Mensaje genérico; nunca un *stack* |
 
 **Errores de la API (D-51).** La API responde Problem Details (RFC 9457). El gateway lee **solo `status` y `code`** (y `errors` en los 400, `Retry-After` en los 429): con eso elige la excepción de la tabla de arriba. El texto que ve el jugador sale siempre de los archivos de traducción de la app (ARB, es/en) según el `code`; **nunca** se muestran `title` ni `detail`, y la app no abre la URI de `type`. Un `code` que la app no conoce se trata como `UnexpectedFailure`.
 
-Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` dentro de un `Success` (RN-COM-21).
+Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` dentro de un `Right` (RN-COM-21).
 
 ## 3. Casos de uso
 
@@ -99,17 +102,17 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 | `GetSettingsUseCase` / `UpdateSettingsUseCase` | `()` → `Settings` / `SettingsChange` → `Settings` | `ISettingsRepository`, `ISavedGameRepository` (figura bloqueada si hay partida, RN-COM-113) | RF-02 a 04, RF-09 |
 
 ```dart
-// hexa_application/lib/src/game/apply_move_use_case.dart
+// hexa_application/lib/src/use_cases/apply_move_use_case.dart
 final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
         TState extends GameState<C, TCell>>
-    implements UseCase<TMove, MoveResult<C, TState>> {
+    implements ICommandService<TMove, MoveResult<C, TState>> {
   ApplyMoveUseCase(this._session, this._savedGames, this._key);
   final GameSession<C, TCell, TMove, TState> _session;
   final ISavedGameRepository<TState> _savedGames;
   final SavedGameKey _key;
 
   @override
-  Future<MoveResult<C, TState>> execute(TMove move) async {
+  Future<Either<AppFailure, MoveResult<C, TState>>> execute(TMove move) async {
     final result = _session.engine.submit(move); // synchronous, < 1 ms (D-32)
     switch (result) {
       case AcceptedMove(outcome: Ongoing()):
@@ -122,7 +125,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
       case RejectedMove():
         break; // nothing changed (RN-COM-21)
     }
-    return result;
+    return Right(result); // a rejected move is a Right too
   }
 }
 ```
@@ -156,13 +159,15 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 | Componente | Responsabilidad |
 |---|---|
-| `GameCubit<C, TCell, TMove, TState>` | Uno para las 4 variantes. Recibe el `Result<MoveResult>` de `ApplyMoveUseCase`, convierte los eventos en animaciones y expone un estado de pantalla. Muestra deshacer solo si `session.undo != null` (D-33). Mientras se arrastra una pieza, `preview(move)` pide a `CheckMoveUseCase` si se jugaría y deja en `GameReady` un `MovePreview`; `clearPreview()` y jugar el movimiento la quitan, y una respuesta adelantada por otra llamada se descarta (D-138) |
+| `GameCubit<C, TCell, TMove, TState>` | Uno para las 4 variantes. Recibe el `Either<AppFailure, MoveResult>` de `ApplyMoveUseCase`, convierte los eventos en animaciones y expone un estado de pantalla. Muestra deshacer solo si `session.undo != null` (D-33). Mientras se arrastra una pieza, `preview(move)` pide a `CheckMoveUseCase` si se jugaría y deja en `GameReady` un `MovePreview`; `clearPreview()` y jugar el movimiento la quitan, y una respuesta adelantada por otra llamada se descarta (D-138) |
 | `HomeCubit`, `LevelSelectCubit`, `SettingsCubit`, `AccountCubit`, `LeaderboardCubit` | Una por tipo de pantalla |
 | `IGameStateCodec<TState>` (uno por variante: `LinesStateCodec`, …) | Serializa y deserializa el estado inmutable para la partida guardada (D-37). Es un puerto de la capa 2 que implementa cada variante en la capa 3 |
 | Mappers | Dominio ↔ DTO de la API (con los ejemplos de `docs/contracts/`, D-23) y dominio ↔ filas de Drift |
 | Traductor de errores | Convierte `DioException` y los errores de Drift en `AppException` (§2) |
 
-## 5. Aspectos AOP (D-40, D-41)
+## 5. Aspectos AOP (D-40, D-41, D-160)
+
+> Desde D-160 cada aspecto implementa `ICommandService` y extiende `Aspect`: tiene el mismo tipo que lo que envuelve, y una cadena no admite dos aspectos del mismo tipo. El registro, las métricas, el orden y `AspectChain` de esta sección se actualizan en TEC-03 (2/2).
 
 ### 5.1 Los cuatro aspectos
 
@@ -170,7 +175,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|---|
 | `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
 | `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
-| `ErrorHandlingAspect<TIn, TOut>` | Decorator (convierte `UseCase<TIn, TOut>` en `UseCase<TIn, Result<TOut>>`) | Atrapa las excepciones, reintenta según una `RetryPolicy` (Strategy) y devuelve `Result` (D-39) | Todos; con reintentos (2, con espera de 0,5 s y 1 s), solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
+| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Los reintentos según una `RetryPolicy` (Strategy) van en un aspecto aparte, que llega con la primera historia que usa red | Todos; con reintentos (2, con espera de 0,5 s y 1 s), solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
 | `SessionAspect<TIn, TOut>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
 La caché del ranking (un Proxy de caché sobre `GetLeaderboard`) queda como opcional (*Could*).
@@ -275,7 +280,7 @@ Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con 
 | Singleton (por inyección) | Creacional | 4 | `app/lib/config/injection.dart` (`get_it`) |
 | Bridge | Estructural | 1 · 4 | `hexa_engine/lib/src/board.dart` ↔ `GridTopology`; en la vista, `TopologyLayout` × pintor de contenido (ARQ-A-06) |
 | Composite | Estructural | 1 | `hexa_engine/lib/src/shape.dart` |
-| Decorator | Estructural | 1 · 2 | Puntuación (`StreakMultiplier`), reglas; aspectos `LoggingAspect`, `MetricsAspect`, `ErrorHandlingAspect` |
+| Decorator | Estructural | 1 · 2 | Puntuación (`StreakMultiplier`), reglas; aspectos `LoggingAspect`, `MetricsAspect`, `ExceptionAspect` |
 | Proxy | Estructural | 2 | `SessionAspect` (protección); caché del ranking (opcional) |
 | Adapter | Estructural | 3 y 4 | Gateways HTTP e `IGameStateCodec` por variante (capa 3); repositorios Drift y de plataforma (capa 4, D-156) |
 | Facade | Estructural | 4 | `AudioFacade` |

@@ -64,8 +64,8 @@ package "Capa 4 · Frameworks (app/lib/frameworks, config)" {
 
 package "Capa 3 · Adaptadores (app/lib/adapters)" {
   class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
-    - applyMove: UseCase<TMove, Result<MoveResult>>
-    - undo: UseCase<void, Result<TState>>
+    - applyMove: ICommandService<TMove, MoveResult>
+    - undo: ICommandService<(), TState>
     + onMove(m: TMove): void
     + onUndo(): void
   }
@@ -84,33 +84,31 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
 }
 
 package "Capa 2 · Casos de uso (hexa_application)" {
-  interface UseCase<TIn, TOut> <<interface>> {
-    + execute(input: TIn): Future<TOut>
+  interface ICommandService<TCommand, TResult> <<interface>> {
+    + execute(command: TCommand): Future<Either<AppFailure, TResult>>
   }
-  abstract class Result<T> <<sealed>> {
-    + isSuccess: bool
+  abstract class Either<L, R> <<sealed>>
+  class Left<L, R> {
+    + value: L
+  }
+  class Right<L, R> {
+    + value: R
+  }
+  abstract class Aspect<TCommand, TResult> <<Decorator>> {
+    + inner: ICommandService<TCommand, TResult>
   }
   class AspectChain {
-    + wrap<TIn, TOut>(u: UseCase<TIn, TOut>): UseCase<TIn, Result<TOut>>
+    + wrap<TCommand, TResult>(s: ICommandService<TCommand, TResult>): ICommandService<TCommand, TResult>
   }
-  class SessionAspect<TIn, TOut> <<Proxy>> <<AOP>> {
-    - inner: UseCase<TIn, TOut>
+  class SessionAspect<TCommand, TResult> <<Proxy>> <<AOP>> {
     - session: ISessionStore
   }
-  class ErrorHandlingAspect<TIn, TOut> <<Decorator>> <<AOP>> {
-    - inner: UseCase<TIn, TOut>
-    - retry: RetryPolicy
-  }
-  class MetricsAspect<TIn, TOut> <<Decorator>> <<AOP>> {
-    - inner: UseCase<TIn, TOut>
+  class ExceptionAspect<TCommand, TResult> <<Decorator>> <<AOP>>
+  class MetricsAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - metrics: IMetrics
   }
-  class LoggingAspect<TIn, TOut> <<Decorator>> <<AOP>> {
-    - inner: UseCase<TIn, TOut>
+  class LoggingAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - logger: ILogger
-  }
-  interface RetryPolicy <<interface>> <<Strategy>> {
-    + shouldRetry(e: Object, attempt: int): bool
   }
 
   class StartGameUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
@@ -187,7 +185,7 @@ HexaLinesModule ..> StartGameUseCase : crea
 AudioFacade ..> GameEvent : escucha
 
 ' ===== Capa 3 → capa 2 =====
-GameCubit --> UseCase : casos de uso envueltos
+GameCubit --> ICommandService : casos de uso envueltos
 DriftSavedGameRepository ..|> ISavedGameRepository
 DriftSavedGameRepository --> IGameStateCodec
 LinesStateCodec ..|> IGameStateCodec : «bind» TState = LinesState
@@ -198,32 +196,31 @@ HttpProgressGateway ..|> IProgressGateway
 HttpAuthGateway ..|> IAuthGateway
 SecureSessionStore ..|> ISessionStore
 
-' ===== Aspectos (AOP con decoradores, D-40 y D-41) =====
-SessionAspect ..|> UseCase
-ErrorHandlingAspect ..|> UseCase
-MetricsAspect ..|> UseCase
-LoggingAspect ..|> UseCase
-SessionAspect o-- UseCase : protege
-ErrorHandlingAspect o-- UseCase : envuelve
-MetricsAspect o-- UseCase : envuelve
-LoggingAspect o-- UseCase : envuelve
+' ===== Aspectos (AOP con decoradores, D-40, D-41 y D-160) =====
+Left --|> Either
+Right --|> Either
+ICommandService ..> Either : devuelve
+Aspect ..|> ICommandService
+Aspect o-- ICommandService : envuelve
+SessionAspect --|> Aspect
+ExceptionAspect --|> Aspect
+MetricsAspect --|> Aspect
+LoggingAspect --|> Aspect
 AspectChain ..> SessionAspect : arma
-AspectChain ..> ErrorHandlingAspect : arma
+AspectChain ..> ExceptionAspect : arma
 AspectChain ..> MetricsAspect : arma
 AspectChain ..> LoggingAspect : arma
-ErrorHandlingAspect --> RetryPolicy
-ErrorHandlingAspect ..> Result : devuelve
 SessionAspect --> ISessionStore
 MetricsAspect --> IMetrics
 LoggingAspect --> ILogger
 
 ' ===== Casos de uso → puertos =====
-StartGameUseCase ..|> UseCase
-ApplyMoveUseCase ..|> UseCase
-UndoMoveUseCase ..|> UseCase
-SaveProgressUseCase ..|> UseCase
-SyncProgressUseCase ..|> UseCase
-LoginUseCase ..|> UseCase
+StartGameUseCase ..|> ICommandService
+ApplyMoveUseCase ..|> ICommandService
+UndoMoveUseCase ..|> ICommandService
+SaveProgressUseCase ..|> ICommandService
+SyncProgressUseCase ..|> ICommandService
+LoginUseCase ..|> ICommandService
 StartGameUseCase --> ISavedGameRepository
 ApplyMoveUseCase --> ISavedGameRepository
 UndoMoveUseCase --> ISavedGameRepository
@@ -249,7 +246,7 @@ legend right
   «bind» = instancia un parámetro genérico · «...» = patrón de diseño (ARQ-03 §7)
   Orden de los aspectos: sesión → errores → métricas → registro (D-41)
   Los otros casos de uso (niveles, ranking, registro, invitado, ajustes) siguen
-  el mismo camino: UseCase → puerto de la capa 2 → adaptador de la capa 3 (ARQ-03 §3, §4)
+  el mismo camino: ICommandService → puerto de la capa 2 → adaptador de la capa 3 (ARQ-03 §3, §4)
   Fit, Sort y Merge tienen su módulo y su codec como Hexa Lines
 endlegend
 

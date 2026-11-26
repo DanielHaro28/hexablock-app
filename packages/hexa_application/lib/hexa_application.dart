@@ -11,6 +11,7 @@ export 'src/ports/clock.dart';
 export 'src/ports/profile_repository.dart';
 export 'src/ports/progress_repository.dart';
 export 'src/ports/saved_game_repository.dart';
+export 'src/ports/unit_of_work.dart';
 export 'src/profile.dart';
 export 'src/progress.dart';
 export 'src/use_case.dart';

@@ -87,7 +87,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
 | `PauseGameUseCase<…>` / `ResumeGameUseCase<…>` | `()` → `GamePhase` | `ISavedGameRepository` (al pausar: guarda un `snapshot()` nuevo, con el tiempo activo, y hace `flush`) | RF-05, RN-COM-32, 33 |
 | `ContinuePlayingUseCase<…>` | `()` → `GamePhase` (Hexa Merge tras la victoria) | `ISavedGameRepository` (guarda el turno de la victoria al elegir seguir, D-112) | RN-COM-31, RN-HM-51 |
-| `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-24, RF-60, RN-COM-80, 83, RN-HL-71. Desde HL-06 guarda el récord (`HighScoreProgress`, con la fecha de `IClock`) si el puntaje lo supera; `ISyncOutbox`, `ISavedGameRepository` e `IProfileRepository` llegan con PRG-03 y API-03 (D-142) |
+| `SaveProgressUseCase` | `GameResult` → `VariantProgress` | `IProgressRepository`, `ISyncOutbox`, `ISavedGameRepository` (borra la partida, RN-COM-35), `IProfileRepository` | RF-24, RF-60, RN-COM-80, 83, RN-HL-71. Desde HL-06 guarda el récord (`HighScoreProgress`, con la fecha de `IClock`) si el puntaje lo supera; `ISyncOutbox`, `ISavedGameRepository` e `IProfileRepository` llegan con PRG-03 y API-03 (D-142). Desde PRG-03 usa el perfil activo de `IProfileRepository` y lee, consolida y escribe dentro de una `IUnitOfWork` (ARQ-04 §3, D-158) |
 | `GetProgressUseCase` | `GameKey` → `VariantProgress?` (`null` si no hay) | `IProgressRepository` (y después `IProfileRepository`) | RF-24, RN-HL-70 (D-142) |
 | `SyncProgressUseCase` | `()` → `SyncReport` | `IProgressGateway`, `IProgressRepository`, `ISyncOutbox`, `IProfileRepository` | RF-63, RF-72, RN-COM-86. Cubre también el `SyncLeaderboardUseCase` del enunciado: los mejores intentos viajan en el progreso |
 | `LoadLevelsUseCase` | `GameKey` → `List<LevelSummary>` | `ILevelRepository`, `IProgressRepository` | RF-61, RF-83, RN-COM-73 |
@@ -137,6 +137,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|
 | `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
+| `IUnitOfWork` | `run<T>(Future<T> Function() work)`: una transacción; las unidades no se intercalan (D-158) | `DriftUnitOfWork` → transacción de Drift (en `frameworks/persistence/`, capa 4, D-156) |
 | `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
 | `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |

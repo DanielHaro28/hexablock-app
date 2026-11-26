@@ -17,12 +17,13 @@ import 'variant_module.dart';
 final class HexaLinesModule implements VariantModule {
   /// The module, with the decoded `assets/config/hexa-lines.json`, keeping
   /// its record for the active profile of [_profiles] in [_progress] with the
-  /// dates of [_clock].
+  /// dates of [_clock], each save inside a unit of [_unitOfWork] (D-158).
   const HexaLinesModule(
     this._config,
     this._progress,
     this._profiles,
     this._clock,
+    this._unitOfWork,
   );
 
   /// The `gameId` of Hexa Lines in the contract.
@@ -35,6 +36,7 @@ final class HexaLinesModule implements VariantModule {
   final IProgressRepository _progress;
   final IProfileRepository _profiles;
   final IClock _clock;
+  final IUnitOfWork _unitOfWork;
 
   @override
   String get gameId => id;
@@ -69,7 +71,7 @@ final class HexaLinesModule implements VariantModule {
             GetProgressUseCase(_progress, _profiles),
           ),
           saveProgress: ErrorHandlingAspect(
-            SaveProgressUseCase(_progress, _profiles, _clock),
+            SaveProgressUseCase(_progress, _profiles, _clock, _unitOfWork),
           ),
         ),
       )..start(),

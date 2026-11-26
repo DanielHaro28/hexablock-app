@@ -10,16 +10,57 @@ void main() {
   const model = _StarsTimeMovesModel();
   final earlier = DateTime.utc(2026, 11, 20, 9);
 
-  /// The use case over [progress], [profiles] and [clock].
+  /// The use case over [progress], [profiles], [clock] and [unitOfWork].
   SaveProgressUseCase useCaseOf(
     FakeProgressRepository progress, {
     FakeProfileRepository? profiles,
     FakeClock? clock,
+    FakeUnitOfWork? unitOfWork,
   }) => SaveProgressUseCase(
     progress,
     profiles ?? FakeProfileRepository(),
     clock ?? FakeClock(),
+    unitOfWork ?? FakeUnitOfWork(),
   );
+
+  group('D-158', () {
+    test('should_save_inside_one_unit_of_work_when_a_result_arrives', () async {
+      // Arrange
+      final progress = FakeProgressRepository();
+      final unitOfWork = FakeUnitOfWork();
+
+      // Act
+      await useCaseOf(
+        progress,
+        unitOfWork: unitOfWork,
+      ).execute(const HighScoreResult(game, 120));
+
+      // Assert
+      expect(unitOfWork.runs, 1);
+      expect(progress.saves, 1);
+    });
+
+    test(
+      'should_keep_the_best_record_when_two_results_are_saved_at_once',
+      () async {
+        // Arrange: one use case for both, as the app shares its repository.
+        final progress = FakeProgressRepository();
+        final useCase = useCaseOf(progress);
+
+        // Act: neither waits for the other.
+        await Future.wait([
+          useCase.execute(const HighScoreResult(game, 100)),
+          useCase.execute(const HighScoreResult(game, 50)),
+        ]);
+
+        // Assert
+        expect(
+          (progress.savedAt(profile, game)! as HighScoreProgress).score,
+          100,
+        );
+      },
+    );
+  });
 
   group('RN-HL-71', () {
     test(

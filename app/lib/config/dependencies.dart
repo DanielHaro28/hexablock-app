@@ -11,6 +11,7 @@ import 'package:hexa_topologies/hexa_topologies.dart';
 import '../frameworks/persistence/app_database.dart';
 import '../frameworks/persistence/drift_profile_repository.dart';
 import '../frameworks/persistence/drift_progress_repository.dart';
+import '../frameworks/persistence/drift_unit_of_work.dart';
 import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';
@@ -44,18 +45,21 @@ Future<void> registerDependencies(
       : AppDatabase(databaseExecutor, clock: appClock);
   final IProfileRepository profiles = DriftProfileRepository(database);
   final IProgressRepository progress = DriftProgressRepository(database);
+  final IUnitOfWork unitOfWork = DriftUnitOfWork(database);
   getIt
     ..registerSingleton<IClock>(appClock)
     ..registerSingleton<AppDatabase>(database, dispose: (db) => db.close())
     ..registerSingleton<IProfileRepository>(profiles)
     ..registerSingleton<IProgressRepository>(progress)
+    ..registerSingleton<IUnitOfWork>(unitOfWork)
     ..registerSingleton(
       TopologyRegistry()
         ..add(const TopologyEntry(HexTopology(), HexLayout(), _hexCoord)),
     )
     ..registerSingleton(
-      VariantRegistry()
-        ..add(HexaLinesModule(linesConfig, progress, profiles, appClock)),
+      VariantRegistry()..add(
+        HexaLinesModule(linesConfig, progress, profiles, appClock, unitOfWork),
+      ),
     )
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
 }

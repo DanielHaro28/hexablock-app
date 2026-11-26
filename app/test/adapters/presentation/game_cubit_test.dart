@@ -91,7 +91,12 @@ void main() {
         ),
         saveProgress: ErrorHandlingAspect(
           saveProgress ??
-              SaveProgressUseCase(progress, FakeProfileRepository(), clock),
+              SaveProgressUseCase(
+                progress,
+                FakeProfileRepository(),
+                clock,
+                FakeUnitOfWork(),
+              ),
         ),
       ),
     );

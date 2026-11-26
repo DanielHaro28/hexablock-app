@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | Aprobado por el equipo (D-86, D-87, 20-11-2026; D-126, 23-11-2026) |
+| Estado | Aprobado por el equipo (D-86, D-87, 20-11-2026; D-126, 23-11-2026; D-159, 25-11-2026) |
 | Repositorio | **Compartido:** `docs/ai/` en los dos repos; las dos copias deben ser idénticas |
 | Control | SEC-AGT-04 (cadena de suministro agéntica) |
 
@@ -12,7 +12,8 @@ Solo se usan las herramientas de esta lista. Para agregar otra, se abre un PR qu
 
 | Herramienta | Uso | Configuración |
 |---|---|---|
-| **Claude Code** | Única herramienta de agente del proyecto (D-87) | `CLAUDE.md`, `.claude/settings.json`, `.claude/rules/`, `.claude/agents/`, `.claude/skills/` y `.claude/hooks/` en cada repo |
+| **Claude Code** | Herramienta de agente principal del proyecto y la única con configuración en los repos (D-87, D-159) | `CLAUDE.md`, `.claude/settings.json`, `.claude/rules/`, `.claude/agents/`, `.claude/skills/` y `.claude/hooks/` en cada repo |
+| **Antigravity** (Google), con modelos Gemini | Segunda herramienta de agente, con condiciones (D-159) | Ninguna en los repos. No lee `.claude/`, así que sus permisos y *hooks* no la protegen: (1) al empezar, se le da `CLAUDE.md` y las reglas de `.claude/rules/` que apliquen como instrucciones; (2) no se le abren `.env*`, claves, *keystores*, `~/.ssh` ni `~/.aws`, ni se usa un modo que omita las confirmaciones (SEC-AGT-02, SEC-AGT-03); (3) antes de abrir el PR, el cambio pasa por los subagentes `architecture-reviewer` y `security-reviewer` de Claude Code cuando su descripción lo pide; (4) `AI_USAGE.md` registra la herramienta y el modelo. Los *hooks* de git (lefthook) y el CI aplican igual |
 | **GitHub CLI (`gh`)** | Issues y PR desde la terminal, en lugar de un servidor MCP de GitHub | Cuenta de cada integrante |
 
 ## Servidores MCP

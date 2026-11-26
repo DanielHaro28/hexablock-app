@@ -16,6 +16,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 |---|---|---|---|
 | **Claude** (claude.ai, conversación con herramientas de agente: archivos, terminal, git) | **Claude Opus 5.5** (`claude-opus-5-5`) desde el 12-11-2026. Conversaciones anteriores: ⚠️ completar el modelo | Planificación: propone opciones con ventajas y desventajas, redacta los documentos de `docs/`, verifica los ejemplos de reglas con código, revisa la coherencia entre documentos y sube los cambios por rama y PR | DanielHaro28 |
 | **Claude Code** | Extensión de VS Code con **Claude Opus 5.5** (`claude-opus-5-5`) desde el 21-11-2026 (IA-43). ⚠️ completar la versión de la extensión | Herramienta principal de implementación (ADR-001 §2.6), con los permisos de `.claude/settings.json` | Todo el equipo |
+| **Antigravity** (Google) | Gemini 4 Neon (High), usada en app #142 y #147. ⚠️ completar la versión | Segunda herramienta de agente, con las condiciones de `docs/ai/APPROVED-TOOLS.md` (D-159) | DanielHaro28 |
 
 ## 2. Cómo aplicamos las buenas prácticas (§7.3)
 
@@ -888,6 +889,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Resultado | Sin código. Rama `docs/close-ui-decisions` desde `main`. DECISIONES: sección «Interfaz (25-11)» con D-144, D-146, D-148, D-149 y D-151 a D-153 cerradas con la opción recomendada. PENDIENTES: se borran las cerradas y vuelve D-150 (audio), que se había perdido. REVISION-DISENO: la cabecera y DIS-22 citan las decisiones cerradas. Se recupera IA-87 |
 | Modificaciones del equipo | El equipo cerró todas con la opción recomendada; D-145, D-147 y D-150 siguen abiertas porque no bloquean NAV-01 |
 | Lecciones | El PR apilado #141 se integró 46 s después de #140, cuando su base (`docs/t-05-design-system`) ya estaba integrada con *squash*: su contenido quedó en esa rama y nunca llegó a `main`. Antes de integrar un PR apilado hay que cambiar su base a `main`. Se detectó al revisar `main` antes de empezar NAV-01 |
+
+### IA-95 · Aprobación de Antigravity como segunda herramienta de agente (D-159) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 25-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | En la revisión de los PR de PRG-03 (app #142 y #147), Claude señaló que se habían hecho con Antigravity, que no estaba aprobada (D-86, D-87), y propuso tres opciones: aprobarla, registrar una excepción o rehacer los PR. El usuario respondió "1A, 2A, 3A, 4C, 5 lo que creas recomendado y sube las ramas y actualiza los repos" |
+| Resultado | Rama `docs/approve-antigravity` en los dos repos (`/paired-change`). D-159 en `DECISIONES.md` de cada repo. Documentos compartidos, copiados byte a byte: `docs/ai/APPROVED-TOOLS.md` (fila de Antigravity con sus cuatro condiciones; Claude Code sigue como principal y única con configuración), ADR-001 §2.6 (revisión 2.3) y SECURITY-BASELINE §6. Fila de Antigravity en la §1 de este archivo |
+| Modificaciones del equipo | El usuario eligió la opción A, la recomendada era B (excepción puntual). Las cuatro condiciones las redactó Claude a partir de los controles que Antigravity no recibe de `.claude/` (SEC-AGT-02, 03, 05); ⚠️ el equipo las confirma al revisar el PR (CODEOWNERS) |
+| Lecciones | Una herramienta que no lee `.claude/` deja sin efecto los permisos y los *hooks* de agente; lo único que aplica igual son los *hooks* de git y el CI. Por eso la aprobación lleva condiciones de uso y no solo la fila de la lista |
 
 ## 4. Evaluación crítica
 

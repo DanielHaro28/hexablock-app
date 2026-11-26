@@ -4,7 +4,7 @@
 |---|---|
 | Estado | **Aceptado** |
 | Fecha | 2026-11-11 |
-| Revisión | 20-11: enumeración de correos aceptada como riesgo (D-03), §6.1 y §6.2 apuntan a la configuración real de Claude Code (D-80, D-81), solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
+| Revisión | 25-11: Antigravity como segunda herramienta de agente, con condiciones (D-159) · 20-11: enumeración de correos aceptada como riesgo (D-03), §6.1 y §6.2 apuntan a la configuración real de Claude Code (D-80, D-81), solo Claude Code (D-87), keystore del APK (SEC-MOB-07, D-75), reporte privado de vulnerabilidades (D-74) y tareas pasadas a Issues (D-69) · 12-11: estrellas 1–3 (D-10), enumeración de correos marcada como pendiente de D-03, ruleset de `main` (G-02) y tabla de §6 reparada |
 | Aplica a | `hexablock-app`, `hexablock-api`, infraestructura AWS y flujo de desarrollo con agentes de IA |
 | Relacionado | [ADR-001 — Stack tecnológico](../adr/ADR-001-tech-stack.md) · Tareas de configuración: Issues de los dos repos (D-69) |
 | Repositorio | **Compartido:** `docs/security/` en ambos repos; las dos copias deben ser idénticas |
@@ -96,7 +96,7 @@ Solo se listan los puntos no cubiertos ya en la sección 3.
 
 ## 6. Flujo de desarrollo con agentes — OWASP Top 10 for Agentic Applications (2026)
 
-El producto no incluye agentes, pero **el equipo desarrolla con agentes** (solo Claude Code, D-87). Aplicamos los principios de la lista: **mínima agencia** (el agente solo tiene el poder que necesita) y **observabilidad fuerte** (todo uso queda registrado).
+El producto no incluye agentes, pero **el equipo desarrolla con agentes** (Claude Code, D-87, y Antigravity con las condiciones de `docs/ai/APPROVED-TOOLS.md`, D-159; los controles de `.claude/` solo protegen a Claude Code). Aplicamos los principios de la lista: **mínima agencia** (el agente solo tiene el poder que necesita) y **observabilidad fuerte** (todo uso queda registrado).
 
 | ID | Riesgo | Cómo nos afecta | Control | Prioridad |
 |---|---|---|---|---|

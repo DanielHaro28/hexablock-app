@@ -29,7 +29,7 @@
 | Nivel | Cuántas | Velocidad | Qué prueba |
 |---|---|---|---|
 | Unitarias (capas 1 y 2) | La mayoría | Milisegundos | Motor, topologías, reglas de cada variante, casos de uso, aspectos |
-| Integración (capa 3) | Decenas | Menos de un segundo | Repositorios Drift en memoria, codecs, gateway contra los ejemplos del contrato |
+| Integración (capas 3 y 4) | Decenas | Menos de un segundo | Repositorios Drift en memoria (capa 4, D-156), codecs, gateway contra los ejemplos del contrato |
 | Widget y navegación (capa 4) | Decenas | Segundos | Pantallas, tablero, gestos, flujo inicio → partida → victoria o derrota |
 | Arquitectura y contenido | Pocas | Segundos | Dependencias entre capas, Template Method, contrato copiado, niveles incluidos |
 
@@ -41,7 +41,8 @@
 | `hexa_topologies` | Unitaria | Vecinas, líneas, giros y tablero por defecto de cada figura (RN-TOP-*) | — |
 | `hexa_variants` | Unitaria | Cada ejemplo `E-HL-*`, `E-HF-*`, `E-HS-*`, `E-HM-*`: líneas en los 3 ejes, cobertura exacta, cascada con desempate horario, fusión por choque; puntajes; generación de pilas (E-HS-GEN); validadores de nivel | xorshift real con semilla fija |
 | `hexa_application` | Unitaria | Cada caso de uso (tabla de ARQ-03-APP §3) y cada aspecto (sesión, errores y reintentos, métricas, logging) y su orden (D-41) | *Fakes* de todos los puertos (§4) |
-| `lib/adapters/` | Integración | Repositorios Drift en una base en memoria; migraciones (ARQ-04-APP §6); codecs de partida guardada (ida y vuelta); gateway HTTP con un servidor falso que responde con `docs/contracts/examples/` | `NativeDatabase.memory()`, `FakeHttpServer` |
+| `lib/adapters/` | Integración | Codecs de partida guardada (ida y vuelta); gateway HTTP con un servidor falso que responde con `docs/contracts/examples/` | `FakeHttpServer` |
+| `lib/frameworks/persistence/` | Integración | Repositorios Drift y `DriftUnitOfWork` en una base en memoria; migraciones (ARQ-04-APP §6) (D-156) | `NativeDatabase.memory()` |
 | Flujo de progreso | Integración | **Por cada variante**: jugar hasta ganar → `SaveProgressUseCase` → Drift en memoria → `SyncProgressUseCase` contra el gateway falso → borrar y volver a leer → mismo progreso (§3.6 del enunciado) | Drift en memoria, gateway falso |
 | `lib/frameworks/` | Widget | El tablero se dibuja con la figura elegida; tocar, arrastrar y rotar llaman al caso de uso correcto; la victoria muestra estrellas o puntaje | Casos de uso falsos |
 | Navegación | Widget | Inicio → selección de juego → selección de nivel → partida → victoria y derrota → reintentar, siguiente, salir; niveles bloqueados con candado | Router real, casos de uso falsos |

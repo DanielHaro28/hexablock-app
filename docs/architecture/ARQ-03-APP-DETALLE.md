@@ -133,7 +133,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 ## 4. Puertos (capa 2) y adaptadores (capa 3)
 
-| Puerto | Firma principal | Adaptador (capa 3) → framework (capa 4) |
+| Puerto | Firma principal | Implementación → framework (capa 4 si se apoya en un framework, D-156) |
 |---|---|---|
 | `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
@@ -277,7 +277,7 @@ Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con 
 | Composite | Estructural | 1 | `hexa_engine/lib/src/shape.dart` |
 | Decorator | Estructural | 1 · 2 | Puntuación (`StreakMultiplier`), reglas; aspectos `LoggingAspect`, `MetricsAspect`, `ErrorHandlingAspect` |
 | Proxy | Estructural | 2 | `SessionAspect` (protección); caché del ranking (opcional) |
-| Adapter | Estructural | 3 | Repositorios Drift, gateways HTTP, `IGameStateCodec` por variante |
+| Adapter | Estructural | 3 y 4 | Gateways HTTP e `IGameStateCodec` por variante (capa 3); repositorios Drift y de plataforma (capa 4, D-156) |
 | Facade | Estructural | 4 | `AudioFacade` |
 | Strategy | Comportamiento | 1 · 2 | `IGameRules`, `IScoringPolicy`, `IPieceSource`, `IProgressModel`; `RetryPolicy`, `UseCaseDescriber` |
 | Template Method | Comportamiento | 1 | `hexa_engine/lib/src/game_rules.dart` (`playTurn`) |
@@ -300,7 +300,7 @@ Total: 4 creacionales, 6 estructurales y 8 de comportamiento. RNF-09 pide al men
 | **O**, abierto/cerrado | Una 5ª variante es una carpeta nueva en `hexa_variants` y un `VariantModule`; una figura nueva, una `GridTopology` y su `TopologyEntry` | `GameEngine`, `Board` y los casos de uso no se modifican (`EXTENSIBILITY.md`) |
 | **L**, sustitución de Liskov | `GameEngine` funciona con cualquier `IGameRules`; `HexaFitRules` cambia `evaluate` para que nunca haya derrota y sigue cumpliendo el contrato (devuelve un `GameOutcome` válido) | El motor no pregunta qué variante tiene (RNF-02) |
 | **I**, segregación de interfaces | `IUndoable`, `ITimed`, `IRandomSeeded` e `ILevelBased` separadas; Hexa Lines no recibe `IUndoable` (D-33). `UndoHistory` solo ve `UndoableEngine`, no todo el motor | Nadie depende de métodos que no usa |
-| **D**, inversión de dependencias | `ApplyMoveUseCase` depende de `ISavedGameRepository` (capa 2), que implementa `DriftSavedGameRepository` (capa 3); el dominio define `IMonotonicClock` y la plataforma lo implementa | Las dependencias apuntan hacia el núcleo (§3.4) |
+| **D**, inversión de dependencias | `ApplyMoveUseCase` depende de `ISavedGameRepository` (capa 2), que implementa `DriftSavedGameRepository` (capa 4, D-156); el dominio define `IMonotonicClock` y la plataforma lo implementa | Las dependencias apuntan hacia el núcleo (§3.4) |
 
 ## 9. Diagramas (D-43)
 

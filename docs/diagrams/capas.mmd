@@ -5,10 +5,11 @@ flowchart TB
         UI["Flutter: pantallas, BoardView<br/>TopologyLayout × pintor de contenido"]
         FW["Drift / SQLite · dio / HTTP<br/>flutter_secure_storage · shared_preferences<br/>AudioFacade · i18n (ARB)"]
         ROOT["main.dart + get_it (composition root)<br/>registro de TopologyEntry y VariantModule"]
+        REPO["Repositorios sobre frameworks (D-156)<br/>DriftProgressRepository · DriftProfileRepository · DriftUnitOfWork<br/>DriftSavedGameRepository · DriftSyncOutbox · SecureSessionStore"]
         subgraph L3["Capa 3 · Adaptadores de interfaz"]
             direction TB
             CUB["GameCubit&lt;C, TCell, TMove, TState&gt;<br/>HomeCubit · LevelSelectCubit · SettingsCubit<br/>AccountCubit · LeaderboardCubit"]
-            ADP["Adaptadores de salida<br/>DriftProgressRepository · DriftSavedGameRepository<br/>HttpProgressGateway · HttpAuthGateway · SecureSessionStore<br/>IGameStateCodec por variante · mappers DTO"]
+            ADP["Adaptadores de salida<br/>HttpProgressGateway · HttpAuthGateway<br/>IGameStateCodec por variante · mappers DTO"]
             subgraph L2["Capa 2 · Casos de uso (hexa_application)"]
                 direction TB
                 UC["UseCase&lt;TIn, TOut&gt;<br/>StartGame · ApplyMove · Undo · Redo · Pause<br/>SaveProgress · SyncProgress · LoadLevels · Login · GetLeaderboard"]
@@ -28,11 +29,15 @@ flowchart TB
     UI --> CUB
     ROOT --> CUB
     ROOT --> ADP
+    ROOT --> REPO
+    FW --> REPO
+    REPO --> ADP
     FW --> ADP
     CUB --> ASP
     ASP --> UC
     UC --> PORT
     ADP -. implementa .-> PORT
+    REPO -. implementa .-> PORT
     UC --> ENG
     ENG --> DPORT
     VAR -. implementa .-> DPORT
@@ -57,7 +62,7 @@ flowchart TB
     class ENG,TOP,VAR c1
     class UC,ASP c2
     class CUB,ADP c3
-    class UI,FW,ROOT c4
+    class UI,FW,ROOT,REPO c4
     class PORT,DPORT port
     style L1 fill:#FFF4E0,stroke:#B26A00
     style L2 fill:#EAF6EC,stroke:#2E7D32

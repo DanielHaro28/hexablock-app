@@ -668,7 +668,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 | Patrón | Capa | Dónde |
 |---|---|---|
 | Decorator (AOP) | 2 | Aspectos sobre los casos de uso genéricos: logging (TEC-03), métricas, sesión (ARQ-A-05) |
-| Adapter | 3 | Repositorios y gateways que implementan los puertos sobre Drift y dio |
+| Adapter | 3 y 4 | Gateways que implementan los puertos sobre dio (capa 3) y repositorios que los implementan sobre Drift y la plataforma (capa 4, D-156) |
 | Facade | 4 | `AudioFacade` (ARQ-A-07) |
 | Singleton (por inyección) | 4 | `get_it` con `registerLazySingleton` en el *composition root* |
 

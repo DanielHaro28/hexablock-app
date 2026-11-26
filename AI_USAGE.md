@@ -934,6 +934,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción A, la recomendada era B (excepción puntual). Las cuatro condiciones las redactó Claude a partir de los controles que Antigravity no recibe de `.claude/` (SEC-AGT-02, 03, 05); ⚠️ el equipo las confirma al revisar el PR (CODEOWNERS) |
 | Lecciones | Una herramienta que no lee `.claude/` deja sin efecto los permisos y los *hooks* de agente; lo único que aplica igual son los *hooks* de git y el CI. Por eso la aprobación lleva condiciones de uso y no solo la fila de la lista |
 
+### IA-96 · El CI comprueba que el código generado por Drift está al día (#149) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 26-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "Implementa el #149" (el Issue lo abrió Claude en la revisión de PRG-03, IA-94) |
+| Resultado | Issue #149 (rama `ci/drift-generated-code`). Paso nuevo en el job `flutter` de `.github/workflows/ci.yml`, después de las dependencias: corre `dart run build_runner build --delete-conflicting-outputs` en `app/` y falla si `git status --porcelain -- '*.g.dart'` no está vacío, así detecta un archivo cambiado y también uno generado que nunca se subió. Sin acciones nuevas ni permisos nuevos. Documentos: ARQ-01-APP §8 (fila del control) y ARQ-04 §6. Se simuló el paso como en el runner (un *worktree* con `core.autocrlf=false`): pasa con el código actual y falla en dos casos, con una columna nueva sin regenerar y con el archivo generado fuera del índice |
+| Modificaciones del equipo | ⚠️ Cambia un *workflow* (SEC-AGT-05): hay que avisar al equipo |
+| Lecciones | (1) En el repo los archivos generados están con LF, y el runner no convierte los fines de línea, así que el `git status` no da falsos positivos; en Windows con `core.autocrlf=true` sí podría marcar el archivo, por eso la prueba local se hizo con `autocrlf=false`. (2) `git diff --exit-code`, la propuesta original del Issue, no ve un archivo generado nuevo que nadie subió; `git status --porcelain` sí. (3) El *hook* de git bloqueó un `--no-verify` en la prueba; el caso se armó sin commit, sacando el archivo del índice |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

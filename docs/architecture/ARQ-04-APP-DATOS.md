@@ -88,7 +88,7 @@ Una actualización del APK no puede perder el progreso. Cada cambio de tablas:
 - trae su paso de migración;
 - trae una prueba que migra una base de la versión anterior (con los volcados de esquema de Drift).
 
-La versión 1 es la de este documento. Su volcado está en `app/drift_schemas/drift_schema_v1.json` (PRG-03); cada versión nueva agrega el suyo con `dart run drift_dev schema dump lib/frameworks/persistence/app_database.dart drift_schemas/`, desde `app/`.
+La versión 1 es la de este documento. Su volcado está en `app/drift_schemas/drift_schema_v1.json` (PRG-03); cada versión nueva agrega el suyo con `dart run drift_dev schema dump lib/frameworks/persistence/app_database.dart drift_schemas/`, desde `app/`. El CI regenera el código de Drift y falla si `app_database.g.dart` no coincide con las tablas (#149), así un cambio de tablas no pasa sin regenerar.
 
 ## 7. Seguridad
 

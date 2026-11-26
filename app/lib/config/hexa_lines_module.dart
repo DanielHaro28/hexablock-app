@@ -51,7 +51,7 @@ final class HexaLinesModule implements VariantModule {
       ProfileId.guest,
       GameKey(gameId, entry.topology.id),
     );
-    // In memory until NAV-04 brings Drift saved_games + codec (D-136, D-154).
+    // In memory until NAV-04 brings Drift saved_games + codec (D-136, D-156).
     final savedGames = MemorySavedGameRepository<LinesState<C>>();
     return BlocProvider(
       create: (_) => GameCubit<C, PieceColor, PlacePiece<C>, LinesState<C>>(

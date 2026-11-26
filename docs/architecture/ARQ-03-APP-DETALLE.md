@@ -135,8 +135,8 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 | Puerto | Firma principal | Adaptador (capa 3) → framework (capa 4) |
 |---|---|---|
-| `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift (en `frameworks/persistence/`, capa 4, D-154) |
-| `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift (en `frameworks/persistence/`, capa 4, D-154) |
+| `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
+| `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
 | `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
 | `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |

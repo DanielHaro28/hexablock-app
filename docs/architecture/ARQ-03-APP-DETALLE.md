@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`) |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 y D-161 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -39,7 +39,7 @@ final class Right<L, R> extends Either<L, R> { const Right(this.value); final R 
 
 **Los adaptadores lanzan.** Los adaptadores (capas 3 y 4) traducen los errores técnicos (de dio, de Drift, de la plataforma) a excepciones de la aplicación y las lanzan. El caso de uso no las atrapa: queda sin `try`.
 
-**Los casos de uso devuelven.** Si una regla propia lo impide, el caso de uso devuelve `Left(RuleFailure(code))`; nunca lanza a propósito. Si todo sale bien, devuelve `Right(valor)`.
+**Los casos de uso devuelven.** Si una regla propia lo impide, el caso de uso devuelve `Left(RuleFailure(code))`: nunca lanza por una regla. Si todo sale bien, devuelve `Right(valor)`. Solo un invariante roto (un error de programación, como la forma del progreso que no coincide en `SaveProgressUseCase`) lanza, y termina en `UnexpectedFailure`.
 
 **Hacia la pantalla, siempre un `Either`.** `ExceptionAspect`, el aspecto más interno (§5), convierte cualquier excepción en un `Left` y deja pasar sin cambios lo que devuelve el caso de uso. La pantalla hace un `switch` exhaustivo sobre el `Either` y sobre el `AppFailure`.
 
@@ -169,14 +169,15 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 
 > Desde D-160 cada aspecto implementa `ICommandService` y extiende `Aspect`: tiene el mismo tipo que lo que envuelve, y una cadena no admite dos aspectos del mismo tipo. El registro, las métricas, el orden y `AspectChain` de esta sección se actualizan en TEC-03 (2/2).
 
-### 5.1 Los cuatro aspectos
+### 5.1 Los aspectos
 
 | Aspecto | Patrón | Qué hace | A qué casos de uso |
 |---|---|---|---|
-| `LoggingAspect<TIn, TOut>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
-| `MetricsAspect<TIn, TOut>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
-| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Los reintentos según una `RetryPolicy` (Strategy) van en un aspecto aparte, que llega con la primera historia que usa red | Todos; con reintentos (2, con espera de 0,5 s y 1 s), solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
-| `SessionAspect<TIn, TOut>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
+| `LoggingAspect<TCommand, TResult>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
+| `MetricsAspect<TCommand, TResult>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
+| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161) | Todos |
+| `RetryAspect<TCommand, TResult>` (llega con la primera historia que usa red) | Decorator | Reintenta si recibe `Left(NetworkFailure())`, según una `RetryPolicy` (Strategy): 2 reintentos, con espera de 0,5 s y 1 s | Solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
+| `SessionAspect<TCommand, TResult>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
 La caché del ranking (un Proxy de caché sobre `GetLeaderboard`) queda como opcional (*Could*).
 
@@ -322,4 +323,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`) y D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno).

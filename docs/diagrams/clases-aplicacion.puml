@@ -112,22 +112,22 @@ package "Capa 2 · Casos de uso (hexa_application)" {
   }
 
   class StartGameUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
-    + execute(o: StartOptions): Future<GameSession>
+    + execute(o: StartOptions): Future<Either<AppFailure, GameSession>>
   }
   class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
-    + execute(m: TMove): Future<MoveResult>
+    + execute(m: TMove): Future<Either<AppFailure, MoveResult>>
   }
   class UndoMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
-    + execute(): Future<TState>
+    + execute(): Future<Either<AppFailure, TState>>
   }
   class SaveProgressUseCase {
-    + execute(r: GameResult): Future<VariantProgress>
+    + execute(r: GameResult): Future<Either<AppFailure, VariantProgress>>
   }
   class SyncProgressUseCase {
-    + execute(): Future<SyncReport>
+    + execute(): Future<Either<AppFailure, SyncReport>>
   }
   class LoginUseCase {
-    + execute(c: Credentials): Future<Profile>
+    + execute(c: Credentials): Future<Either<AppFailure, Profile>>
   }
 
   interface ISavedGameRepository<TState> <<interface>> {

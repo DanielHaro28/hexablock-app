@@ -934,6 +934,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió la opción A, la recomendada era B (excepción puntual). Las cuatro condiciones las redactó Claude a partir de los controles que Antigravity no recibe de `.claude/` (SEC-AGT-02, 03, 05); ⚠️ el equipo las confirma al revisar el PR (CODEOWNERS) |
 | Lecciones | Una herramienta que no lee `.claude/` deja sin efecto los permisos y los *hooks* de agente; lo único que aplica igual son los *hooks* de git y el CI. Por eso la aprobación lleva condiciones de uso y no solo la fila de la lista |
 
+### IA-97 · `ICommandService` con `Either` y `ExceptionAspect` (TEC-03, PR 1 de 2, D-160 y D-161) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 26-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "/implement-story TEC-03. Pero te digo ciertos lineamientos, quiero que los aspectos queden como el capitulo 10 del libro 08_2019_Mark Seemann, Steven van Deursen - Dependency Injection Principles, Practices, and Patterns, pero en vez de devolver void que sea un eather<l,r> o se le puede poner otro nombre para manejar errores y resultados, para no tener que envolver casos de uso varias veces con el mismo aspecto". Después: "necesito que ICommandService<TCommand>, su funcion regrese un eather <l, r>", "1 fijo, 2 [...] si falla en el momento de conectarse a la api ese error lo lanza el adaptador no?, 3 sí, pero sabiendo que no se pueden repetir aspectos sobre un mismo caso de uso [...], 4 sí entra", "volvamos al command service que dice el libro" y "Sí, dale, empieza con el PR 1" |
+| Resultado | Issue #66, primera de dos partes (D-137). `ICommandService<TCommand, TResult>` con `Future<Either<AppFailure, TResult>>`, `Either`/`Left`/`Right`, la base `Aspect` (rechaza dos aspectos del mismo tipo en una cadena) y `ExceptionAspect` en `hexa_application`, que reemplazan a `UseCase`, `Result` y `ErrorHandlingAspect`; los 5 casos de uso devuelven `Right`, y `StartGameUseCase`, `Left(RuleFailure)` en vez de lanzar (`RuleException` se eliminó). `GameCubit`, `HexaLinesModule` y sus pruebas migrados; `.right` en `hexa_test_support`. Pruebas nuevas: `either_test`, `aspects/aspect_test`, `aspects/exception_aspect_test`. D-160 y D-161 en `DECISIONES.md`; ARQ-03 §1, §2, §3 y §5.1, ARQ-01, `clases.puml`, `clases-aplicacion.puml`, `.claude/rules/application.md` y el `architecture-reviewer` actualizados |
+| Modificaciones del equipo | Claude recomendó mantener el nombre `Result<T>` (ya en ARQ-03); el usuario pidió `ICommandService` y `Either<L, R>`, como en el libro. Entre `L` fijo y genérico eligió `L` fijo en `AppFailure` después de una explicación con código. Pidió que los casos de uso no lancen sus fallos, y que un aspecto no se repita sobre un mismo caso de uso: Claude lo hizo cumplir en el código con la base `Aspect`. Pidió leer el libro antes de seguir: Claude lo leyó del PDF del usuario (cap. 10, §10.3) y la decisión dice en qué se aparta (resultado en lugar de `void` y sin abstracción aparte para las consultas). ⚠️ Una persona revisa las pruebas escritas por Claude (D-59) |
+| Lecciones | Los subagentes `architecture-reviewer` y `security-reviewer` no encontraron bloqueantes; lo que señalaron se corrigió en la misma rama (ver §4.2). El primer plan se armó sobre una copia de `main` atrasada 34 commits y suponía que `hexa_application` estaba vacío; al actualizar la rama aparecieron 5 casos de uso, `ErrorHandlingAspect` y los IDs D-117 a D-120 ya usados, y el plan se rehízo en dos PR apilados. El PR abierto de NAV-01 (#146) usa los tipos viejos: el PR que se integre segundo ajusta unas 5 líneas |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -1002,6 +1013,9 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | El hook `commit-msg` de `lefthook.yml` pasaba la ruta del mensaje sin comillas, así que en un *worktree* con espacios en la ruta todo commit fallaba (IA-76) | Un commit de merge en un *worktree* falló con la ayuda de `commitlint` | `"{1}"` entre comillas, probado con un mensaje inválido y uno válido |
 | Los repositorios Drift en `adapters/repositories/` (capa 3) importaban `AppDatabase` (capa 4) y `package:drift`, contra `ARQ-01-APP` §2 y `capas.mmd` (IA-92) | Subagente `architecture-reviewer` antes del PR | Movidos a `app/lib/frameworks/persistence/` (capa 4) implementando los puertos de capa 2 (D-156); la segunda revisión dio 0 bloqueantes |
 | La entrada de IA del #142 usaba IA-88, que `main` ya tenía por #143, y `activate` de Drift pisaba la fecha de creación de un perfil existente (IA-94) | Revisión de los PR de PRG-03 con Claude Code | Pasó a IA-93; `activate` actualiza solo el nombre y la marca de activo, con una prueba que falla sin el arreglo |
+| El plan de TEC-03 se propuso sobre una copia local de `main` atrasada 34 commits: daba por vacío `hexa_application`, que ya tenía casos de uso y `ErrorHandlingAspect`, y proponía IDs D-117 a D-120 ya usados (IA-97) | Al hacer `git pull` para crear la rama | Plan rehecho en dos PR apilados que migran lo existente; IDs desde `next_id.py` (D-160 en adelante) |
+| La base `Aspect` comparaba el `runtimeType`, que incluye los argumentos genéricos: con la covarianza de Dart, un `ExceptionAspect<int, num>` podía envolver un `ExceptionAspect<int, int>` sin que lo rechazara (IA-97) | Subagente `architecture-reviewer` antes del PR | Cada aspecto da su clase sin argumentos (`kind`), con una prueba que fallaba antes del arreglo |
+| D-161 ponía las excepciones como el aspecto más interno sin decir que eso cambiaba el orden de D-41, y `.claude/rules/application.md` seguía con el orden viejo (IA-97) | Subagente `architecture-reviewer` antes del PR | D-161 dice que precisa D-41 y da el orden nuevo; la regla de la capa 2 lo copia |
 
 ### 4.3 Reflexión del equipo
 
@@ -1015,6 +1029,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Coordenadas axiales y cúbicas de hexágonos, vecindad, rotación y distancia; conversión entre píxeles y celdas *pointy-top* y redondeo cúbico | A. Patel, "Hexagonal Grids", Red Blob Games | `02-RN-TOPOLOGIAS.md` (RN-HEX-*); `app/lib/frameworks/ui/board/hex_layout.dart` |
 | Riesgos de seguridad | OWASP API Security Top 10 (2023), OWASP Top 10:2025, OWASP MASVS, OWASP Top 10 for Agentic Applications (2026) | `docs/security/SECURITY-BASELINE.md` |
 | Formato de commits | Conventional Commits 1.0.0 | Enunciado §6.2, ADR-001 §2.4 |
+| Aspectos como decoradores de una abstracción genérica de un método (`ICommandService<TCommand>`) y su composición en el *Composition Root* | M. Seemann y S. van Deursen, *Dependency Injection Principles, Practices, and Patterns*, Manning, 2019, cap. 10 (§10.3) | D-160; `hexa_application/lib/src/command_service.dart`, `aspects/` |
 
 Cuando el código implemente uno de estos algoritmos, el comentario de la clase cita la fuente (§7.3).
 

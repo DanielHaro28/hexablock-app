@@ -119,7 +119,7 @@
 | RF-82 | LVL-01 | RN-COM-71, 76, RN-HF-12, RN-HS-12 | E-HF-NIVEL (y sus variaciones) | |
 | RF-83 | LVL-01 | RN-COM-76 | E-HF-NIVEL (variación que falla f) | |
 
-**Historias sin RF (solo RNF):** TEC-02 (RNF-03, 04), TEC-03 (RNF-10), TEC-04 (RNF-24, 26, 52), TEC-06 a TEC-09 (RNF-04).
+**Historias sin RF (solo RNF):** TEC-02 (RNF-03, 04), TEC-03 (RNF-10; SEC-WEB-06: `hexa_application/test/aspects/redactor_test`; registro de la plataforma y errores fuera de los casos de uso, D-163: `app/test/frameworks/platform/`), TEC-04 (RNF-24, 26, 52), TEC-06 a TEC-09 (RNF-04).
 
 **RF solo de servidor** (en `hexablock-api`): RF-81, RF-90 a 93.
 

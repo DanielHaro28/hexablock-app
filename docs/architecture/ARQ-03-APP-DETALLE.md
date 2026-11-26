@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 y D-161 |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160, D-161 y D-163 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -152,7 +152,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 | `ISettingsRepository` | `read() → Settings`, `write(Settings)` | `PrefsSettingsRepository` → `shared_preferences` |
 | `IClock` (extiende `IMonotonicClock` del dominio) | `now()` (en UTC), `nowMillis()` | `SystemClock` en `frameworks/platform/` (en pruebas, `FakeClock`) |
 | `IConnectivity` | `isOnline`, `changes` | `ConnectivityAdapter` → plugin de conectividad |
-| `ILogger` | `log(LogEntry)` (solo lo usan los aspectos, RNF-10) | `PlatformLogger` |
+| `ILogger` | `log(LogEntry)` (solo lo usan los aspectos, RNF-10) | `PlatformLogger` (capa 4, `frameworks/platform/`): consola de la plataforma; en *release*, solo advertencias y errores, sin datos (D-163) |
 | `IMetrics` | `record(String name, Duration elapsed)` | `LogMetrics` (escribe en el registro) |
 
 **Otros adaptadores de la capa 3:**
@@ -175,7 +175,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|---|
 | `LoggingAspect<TCommand, TResult>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
 | `MetricsAspect<TCommand, TResult>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
-| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161) | Todos |
+| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Registra un error inesperado con su tipo y su *stack*: es el único lugar que registra una excepción | Todos |
 | `RetryAspect<TCommand, TResult>` (llega con la primera historia que usa red) | Decorator | Reintenta si recibe `Left(NetworkFailure())`, según una `RetryPolicy` (Strategy): 2 reintentos, con espera de 0,5 s y 1 s | Solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
 | `SessionAspect<TCommand, TResult>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
@@ -263,7 +263,7 @@ Como `ApplyMoveUseCase` es genérico, sus aspectos aplican a las 4 variantes sin
 
 | Momento | Qué se crea | Dónde |
 |---|---|---|
-| Arranque (`main.dart`) | Base de datos, adaptadores, `AspectChain`, casos de uso que no dependen de una partida, Cubits de pantalla; registro de **topologías con su layout** (`TopologyEntry`, D-29) y de **módulos de variante** (`VariantModule`) | `app/lib/config/`, con `get_it` (*lazy singletons*) |
+| Arranque (`main.dart`) | Manejadores globales de errores (`installErrorHandlers`: los errores fuera de los casos de uso van al mismo `ILogger`, D-163), base de datos, adaptadores, `ILogger`, `AspectChain`, casos de uso que no dependen de una partida, Cubits de pantalla; registro de **topologías con su layout** (`TopologyEntry`, D-29) y de **módulos de variante** (`VariantModule`) | `app/lib/config/`, con `get_it` (*lazy singletons*) |
 | Al abrir una partida | `topologyRegistry[figura].accept(OpenGame(module, opciones))` → el módulo crea su `VariantFamily<C>`, la `GameSession`, el codec del estado, los casos de uso de partida envueltos por `AspectChain` y el `GameCubit` | `VariantModule.open<C>()` (ARQ-02 §3.1) |
 | Al pasar a segundo plano | Un `WidgetsBindingObserver` llama a `PauseGameUseCase`, que pausa, guarda un `snapshot()` nuevo y hace `flush()` de la partida guardada | `app/lib/frameworks/lifecycle/` |
 
@@ -323,4 +323,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`) y D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno) y D-163 (destino del registro). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).

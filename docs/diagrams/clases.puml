@@ -43,7 +43,7 @@ package "Capa 4 · Frameworks (app/lib/frameworks, config)" {
 
 package "Capa 3 · Adaptadores (app/lib/adapters)" {
   class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
-    - applyMove: UseCase<TMove, Result<MoveResult>>
+    - applyMove: ICommandService<TMove, MoveResult>
     + onMove(m: TMove): void
   }
   class HttpProgressGateway <<Adapter>> {
@@ -53,27 +53,29 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
 }
 
 package "Capa 2 · Casos de uso (hexa_application)" {
-  interface UseCase<TIn, TOut> <<interface>> {
-    + execute(input: TIn): Future<TOut>
+  interface ICommandService<TCommand, TResult> <<interface>> {
+    + execute(command: TCommand): Future<Either<AppFailure, TResult>>
   }
-  class LoggingAspect<TIn, TOut> <<Decorator>> <<AOP>> {
-    - inner: UseCase<TIn, TOut>
+  abstract class Aspect<TCommand, TResult> <<Decorator>> {
+    + inner: ICommandService<TCommand, TResult>
+  }
+  class LoggingAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - logger: ILogger
-    + execute(input: TIn): Future<TOut>
+    + execute(command: TCommand): Future<Either<AppFailure, TResult>>
   }
   class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
     - session: GameSession
     - savedGames: ISavedGameRepository<TState>
-    + execute(m: TMove): Future<MoveResult>
+    + execute(m: TMove): Future<Either<AppFailure, MoveResult>>
   }
   class SaveProgressUseCase {
     - progress: IProgressRepository
-    + execute(r: GameResult): Future<VariantProgress>
+    + execute(r: GameResult): Future<Either<AppFailure, VariantProgress>>
   }
   class SyncProgressUseCase {
     - gateway: IProgressGateway
     - progress: IProgressRepository
-    + execute(): Future<SyncReport>
+    + execute(): Future<Either<AppFailure, SyncReport>>
   }
   interface ISavedGameRepository<TState> <<interface>> {
     + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
@@ -141,17 +143,18 @@ HexaLinesModule ..> HexaLinesFactory : crea
 HexaLinesModule ..> LoggingAspect : envuelve los casos de uso
 
 ' ===== Capa 3 → capa 2 =====
-GameCubit --> UseCase : usa
+GameCubit --> ICommandService : usa
 DriftSavedGameRepository ..|> ISavedGameRepository
 DriftProgressRepository ..|> IProgressRepository
 HttpProgressGateway ..|> IProgressGateway
 
 ' ===== Capa 2 =====
-LoggingAspect ..|> UseCase
-LoggingAspect o-- UseCase : envuelve
-ApplyMoveUseCase ..|> UseCase
-SaveProgressUseCase ..|> UseCase
-SyncProgressUseCase ..|> UseCase
+Aspect ..|> ICommandService
+Aspect o-- ICommandService : envuelve
+LoggingAspect --|> Aspect
+ApplyMoveUseCase ..|> ICommandService
+SaveProgressUseCase ..|> ICommandService
+SyncProgressUseCase ..|> ICommandService
 ApplyMoveUseCase --> ISavedGameRepository
 SaveProgressUseCase --> IProgressRepository
 SyncProgressUseCase --> IProgressGateway

@@ -23,7 +23,7 @@ void main() {
       final useCase = CheckMoveUseCase(session());
 
       // Act
-      final reason = await useCase.execute(const FakeMove(a));
+      final reason = await useCase.execute(const FakeMove(a)).right;
 
       // Assert
       expect(reason, isNull);
@@ -35,7 +35,7 @@ void main() {
       final useCase = CheckMoveUseCase(played);
 
       // Act
-      final reason = await useCase.execute(const FakeMove(a));
+      final reason = await useCase.execute(const FakeMove(a)).right;
 
       // Assert
       expect(reason, const CellOccupied(a));

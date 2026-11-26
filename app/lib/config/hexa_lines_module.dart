@@ -57,20 +57,17 @@ final class HexaLinesModule implements VariantModule {
     final savedGames = MemorySavedGameRepository<LinesState<C>>();
     return BlocProvider(
       create: (_) => GameCubit<C, PieceColor, PlacePiece<C>, LinesState<C>>(
-        startGame: ErrorHandlingAspect(
-          StartGameUseCase(family, savedGames, key),
-        ),
+        startGame: ExceptionAspect(StartGameUseCase(family, savedGames, key)),
         options: options,
         applyMoveFor: (session) =>
-            ErrorHandlingAspect(ApplyMoveUseCase(session, savedGames, key)),
-        checkMoveFor: (session) =>
-            ErrorHandlingAspect(CheckMoveUseCase(session)),
+            ExceptionAspect(ApplyMoveUseCase(session, savedGames, key)),
+        checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
         record: RecordUseCases(
           game: key.game,
-          getProgress: ErrorHandlingAspect(
+          getProgress: ExceptionAspect(
             GetProgressUseCase(_progress, _profiles),
           ),
-          saveProgress: ErrorHandlingAspect(
+          saveProgress: ExceptionAspect(
             SaveProgressUseCase(_progress, _profiles, _clock, _unitOfWork),
           ),
         ),

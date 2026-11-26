@@ -76,8 +76,8 @@ void main() {
       ),
       options: StartNew(NewGameOptions(seed: 7)),
       applyMoveFor: (session) =>
-          ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ErrorHandlingAspect(CheckMoveUseCase(session)),
+          ExceptionAspect(ApplyMoveUseCase(session, saved, key)),
+      checkMoveFor: (session) => ExceptionAspect(CheckMoveUseCase(session)),
     );
     addTearDown(cubit.close);
     await cubit.start();

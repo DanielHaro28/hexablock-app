@@ -76,7 +76,7 @@ void main() {
         final kept = await useCaseOf(
           progress,
           clock: clock,
-        ).execute(const HighScoreResult(game, 101));
+        ).execute(const HighScoreResult(game, 101)).right;
 
         // Assert
         final record = HighScoreProgress(101, clock.now());
@@ -92,7 +92,8 @@ void main() {
 
       // Act
       final kept = await useCaseOf(progress)
-          .execute(const HighScoreResult(game, 100));
+          .execute(const HighScoreResult(game, 100))
+          .right;
 
       // Assert
       expect(kept, record);
@@ -106,7 +107,8 @@ void main() {
 
       // Act
       final kept = await useCaseOf(progress)
-          .execute(const HighScoreResult(game, 40));
+          .execute(const HighScoreResult(game, 40))
+          .right;
 
       // Assert
       expect(kept, record);
@@ -124,7 +126,7 @@ void main() {
         final kept = await useCaseOf(
           progress,
           clock: clock,
-        ).execute(const HighScoreResult(game, 0));
+        ).execute(const HighScoreResult(game, 0)).right;
 
         // Assert
         expect(kept, HighScoreProgress(0, clock.now()));
@@ -166,7 +168,7 @@ void main() {
         final kept = await useCaseOf(
           progress,
           clock: clock,
-        ).execute(const HighScoreResult(game, 20));
+        ).execute(const HighScoreResult(game, 20)).right;
 
         // Assert
         expect(kept, HighScoreProgress(20, clock.now()));
@@ -201,7 +203,7 @@ void main() {
           progress,
           profiles: profiles,
           clock: clock,
-        ).execute(const HighScoreResult(game, 120));
+        ).execute(const HighScoreResult(game, 120)).right;
 
         // Assert
         expect(kept, HighScoreProgress(120, clock.now()));
@@ -221,16 +223,18 @@ void main() {
       final clock = FakeClock();
 
       // Act
-      final kept = await useCaseOf(progress, clock: clock).execute(
-        const LevelCompletedResult(
-          game,
-          levelId: 'lvl-001',
-          moves: 4,
-          stars: 2,
-          timeMs: 30000,
-          model: model,
-        ),
-      );
+      final kept = await useCaseOf(progress, clock: clock)
+          .execute(
+            const LevelCompletedResult(
+              game,
+              levelId: 'lvl-001',
+              moves: 4,
+              stars: 2,
+              timeMs: 30000,
+              model: model,
+            ),
+          )
+          .right;
 
       // Assert
       final expected = LevelsProgress({
@@ -261,15 +265,17 @@ void main() {
         final clock = FakeClock();
 
         // Act
-        final kept = await useCaseOf(progress, clock: clock).execute(
-          const LevelCompletedResult(
-            game,
-            levelId: 'lvl-002',
-            moves: 5,
-            score: 210,
-            model: model,
-          ),
-        );
+        final kept = await useCaseOf(progress, clock: clock)
+            .execute(
+              const LevelCompletedResult(
+                game,
+                levelId: 'lvl-002',
+                moves: 5,
+                score: 210,
+                model: model,
+              ),
+            )
+            .right;
 
         // Assert
         final expected = LevelsProgress({
@@ -299,16 +305,18 @@ void main() {
       final clock = FakeClock();
 
       // Act
-      final kept = await useCaseOf(progress, clock: clock).execute(
-        const LevelCompletedResult(
-          game,
-          levelId: 'lvl-001',
-          moves: 3,
-          stars: 3,
-          timeMs: 38000,
-          model: model,
-        ),
-      );
+      final kept = await useCaseOf(progress, clock: clock)
+          .execute(
+            const LevelCompletedResult(
+              game,
+              levelId: 'lvl-001',
+              moves: 3,
+              stars: 3,
+              timeMs: 38000,
+              model: model,
+            ),
+          )
+          .right;
 
       // Assert
       final expected = LevelsProgress({
@@ -339,16 +347,18 @@ void main() {
         });
 
         // Act
-        final kept = await useCaseOf(progress).execute(
-          const LevelCompletedResult(
-            game,
-            levelId: 'lvl-001',
-            moves: 5,
-            stars: 2,
-            timeMs: 15000,
-            model: model,
-          ),
-        );
+        final kept = await useCaseOf(progress)
+            .execute(
+              const LevelCompletedResult(
+                game,
+                levelId: 'lvl-001',
+                moves: 5,
+                stars: 2,
+                timeMs: 15000,
+                model: model,
+              ),
+            )
+            .right;
 
         // Assert
         expect(kept, existingProgress);
@@ -375,16 +385,18 @@ void main() {
         );
 
         // Act
-        final kept = await useCaseOf(progress, clock: laterClock).execute(
-          const LevelCompletedResult(
-            game,
-            levelId: 'lvl-001',
-            moves: 3,
-            stars: 3,
-            timeMs: 28000,
-            model: model,
-          ),
-        );
+        final kept = await useCaseOf(progress, clock: laterClock)
+            .execute(
+              const LevelCompletedResult(
+                game,
+                levelId: 'lvl-001',
+                moves: 3,
+                stars: 3,
+                timeMs: 28000,
+                model: model,
+              ),
+            )
+            .right;
 
         // Assert
         expect(kept, existingProgress);
@@ -407,16 +419,18 @@ void main() {
       final sameClock = FakeClock(startDate: earlier);
 
       // Act
-      final kept = await useCaseOf(progress, clock: sameClock).execute(
-        const LevelCompletedResult(
-          game,
-          levelId: 'lvl-001',
-          moves: 3,
-          stars: 3,
-          timeMs: 28000,
-          model: model,
-        ),
-      );
+      final kept = await useCaseOf(progress, clock: sameClock)
+          .execute(
+            const LevelCompletedResult(
+              game,
+              levelId: 'lvl-001',
+              moves: 3,
+              stars: 3,
+              timeMs: 28000,
+              model: model,
+            ),
+          )
+          .right;
 
       // Assert
       expect(kept, existingProgress);
@@ -439,16 +453,18 @@ void main() {
         final earlierClock = FakeClock(startDate: earlier);
 
         // Act
-        final kept = await useCaseOf(progress, clock: earlierClock).execute(
-          const LevelCompletedResult(
-            game,
-            levelId: 'lvl-001',
-            moves: 3,
-            stars: 3,
-            timeMs: 28000,
-            model: model,
-          ),
-        );
+        final kept = await useCaseOf(progress, clock: earlierClock)
+            .execute(
+              const LevelCompletedResult(
+                game,
+                levelId: 'lvl-001',
+                moves: 3,
+                stars: 3,
+                timeMs: 28000,
+                model: model,
+              ),
+            )
+            .right;
 
         // Assert
         expect(

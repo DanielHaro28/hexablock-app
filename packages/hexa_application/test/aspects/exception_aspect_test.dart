@@ -1,33 +1,55 @@
 import 'package:hexa_application/hexa_application.dart';
 import 'package:test/test.dart';
 
-/// A use case that returns [value] or throws [error].
-final class _StubUseCase implements UseCase<int, int> {
-  _StubUseCase({this.value = 0, this.error});
+/// A service that adds [value] to its command, returns [failure] or throws
+/// [error].
+final class _StubService implements ICommandService<int, int> {
+  _StubService({this.value = 0, this.failure, this.error});
 
   final int value;
+  final AppFailure? failure;
   final Object? error;
 
   @override
-  Future<int> execute(int input) async {
+  Future<Either<AppFailure, int>> execute(int command) async {
     if (error case final error?) throw error;
-    return input + value;
+    if (failure case final failure?) return Left(failure);
+    return Right(command + value);
   }
 }
 
 void main() {
-  group('D-39', () {
+  group('D-161', () {
     test(
-      'should_return_success_with_the_value_when_the_use_case_succeeds',
+      'should_return_the_right_unchanged_when_the_service_succeeds',
       () async {
         // Arrange
-        final aspect = ErrorHandlingAspect(_StubUseCase(value: 1));
+        final aspect = ExceptionAspect(_StubService(value: 1));
 
         // Act
         final result = await aspect.execute(41);
 
         // Assert
-        expect(result, isA<Success<int>>().having((r) => r.value, 'value', 42));
+        expect(result, const Right<AppFailure, int>(42));
+      },
+    );
+
+    test(
+      'should_return_the_left_unchanged_when_the_service_returns_a_failure',
+      () async {
+        // Arrange
+        final aspect = ExceptionAspect(
+          _StubService(failure: const RuleFailure('no-saved-game')),
+        );
+
+        // Act
+        final result = await aspect.execute(0);
+
+        // Assert
+        expect(
+          result,
+          const Left<AppFailure, int>(RuleFailure('no-saved-game')),
+        );
       },
     );
 
@@ -46,10 +68,6 @@ void main() {
         const ValidationFailure({'/email': 'format'}),
       ),
       'persistence': (const PersistenceException(), const PersistenceFailure()),
-      'rule': (
-        const RuleException('no-saved-game'),
-        const RuleFailure('no-saved-game'),
-      ),
       'unexpected': (StateError('bug'), const UnexpectedFailure()),
     };
     test('should_give_equal_failures_the_same_hash_when_compared', () {
@@ -63,7 +81,10 @@ void main() {
         RuleFailure(:final code) => RuleFailure(code),
         UnexpectedFailure() => const UnexpectedFailure(),
       };
-      final failures = [for (final (_, failure) in cases.values) failure];
+      final failures = [
+        for (final (_, failure) in cases.values) failure,
+        const RuleFailure('no-saved-game'),
+      ];
 
       // Act
       final copies = [for (final failure in failures) copyOf(failure)];
@@ -77,19 +98,16 @@ void main() {
 
     for (final MapEntry(key: name, value: (error, failure)) in cases.entries) {
       test(
-        'should_return_the_matching_failure_when_the_error_is_$name',
+        'should_return_the_matching_left_when_the_service_throws_$name',
         () async {
           // Arrange
-          final aspect = ErrorHandlingAspect(_StubUseCase(error: error));
+          final aspect = ExceptionAspect(_StubService(error: error));
 
           // Act
           final result = await aspect.execute(0);
 
           // Assert
-          expect(
-            result,
-            isA<Failure<int>>().having((r) => r.error, 'error', failure),
-          );
+          expect(result, Left<AppFailure, int>(failure));
         },
       );
     }

@@ -1,13 +1,15 @@
-/// The errors of the app (D-39, ARQ-03 §2).
+/// The errors of the app (D-39, D-161, ARQ-03 §2).
 ///
-/// Inside, adapters translate technical errors into typed [AppException]s
-/// and use cases let them through. Towards the screen, `ErrorHandlingAspect`
-/// catches them and returns a [Result], so the screen switches exhaustively
-/// over an [AppFailure]. A rejected move is not an error: it is a
-/// `RejectedMove` inside a [Success] (RN-COM-21).
+/// The adapters translate technical errors into typed [AppException]s and
+/// throw them; the use cases let them through without catching. A use case
+/// stopped by one of its own rules returns a `Left` with its [AppFailure]
+/// instead of throwing. `ExceptionAspect` turns every exception into a
+/// `Left`, so the screen switches exhaustively over an [AppFailure]. A
+/// rejected move is not an error: it is a `RejectedMove` inside a `Right`
+/// (RN-COM-21).
 library;
 
-/// An error an adapter or a use case raises on purpose.
+/// An error an adapter throws on purpose.
 sealed class AppException implements Exception {
   const AppException();
 }
@@ -49,15 +51,6 @@ final class ValidationException extends AppException {
 final class PersistenceException extends AppException {
   /// A local database error.
   const PersistenceException();
-}
-
-/// A rule of the app stops the use case (for example `game-in-progress`).
-final class RuleException extends AppException {
-  /// A rule with [code] stopped the use case.
-  const RuleException(this.code);
-
-  /// Which rule; the screen turns it into a text (RNF-50).
-  final String code;
 }
 
 /// What the screen is told went wrong; its text comes from the ARB files.
@@ -166,27 +159,4 @@ final class UnexpectedFailure extends AppFailure {
 
   @override
   int get hashCode => (UnexpectedFailure).hashCode;
-}
-
-/// What a use case wrapped by `ErrorHandlingAspect` returns.
-sealed class Result<T> {
-  const Result();
-}
-
-/// The use case finished with [value].
-final class Success<T> extends Result<T> {
-  /// A result with [value].
-  const Success(this.value);
-
-  /// What the use case returned.
-  final T value;
-}
-
-/// The use case failed with [error].
-final class Failure<T> extends Result<T> {
-  /// A result that failed with [error].
-  const Failure(this.error);
-
-  /// What went wrong.
-  final AppFailure error;
 }

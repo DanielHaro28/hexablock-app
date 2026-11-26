@@ -13,6 +13,8 @@
 /// - Maps and lists are redacted inside; any other object is logged as its
 ///   redacted text, since its `toString` may hold a secret.
 /// - Numbers, flags and `null` stay as they are.
+///
+/// The display name is not a secret: it is public in the ranking (D-163).
 final class Redactor {
   /// A redactor.
   const Redactor();

@@ -3,8 +3,8 @@
 //
 // The dependency rule itself is enforced by pub (each package can only import
 // what its pubspec declares). This script adds what pub cannot see:
-// identifiers in code, forbidden platform APIs, `playTurn` overrides and the
-// logger outside the aspects.
+// identifiers in code, forbidden platform APIs, `playTurn` overrides, the
+// logger outside the aspects and imports from layer 3 into layer 4.
 import 'dart:convert';
 import 'dart:io';
 
@@ -83,6 +83,9 @@ void main() {
   for (final file in _dartFiles('packages/hexa_variants/lib')) {
     _checkPlayTurn(file);
   }
+  for (final file in _dartFiles('app/lib/adapters')) {
+    _checkAdapterImports(file);
+  }
   _checkArbParity();
 
   if (_failures.isEmpty) {
@@ -142,6 +145,21 @@ void _checkLogger(File file) {
   for (final (number, line) in _codeLines(file).indexed) {
     if (logger.hasMatch(line)) {
       _fail(file, number, 'only the aspects may use `ILogger` (RNF-10)');
+    }
+  }
+}
+
+/// D-156: layer 3 cannot import layer 4. A repository that needs Drift (or
+/// another framework) lives in `app/lib/frameworks/` and implements the
+/// layer 2 port there, so the adapters never see `frameworks/` nor Drift.
+void _checkAdapterImports(File file) {
+  final forbidden = RegExp(
+    r'''^\s*(import|export)\s+['"]([^'"]*/)?frameworks/|'''
+    r'''^\s*(import|export)\s+['"]package:drift''',
+  );
+  for (final (number, line) in _codeLines(file).indexed) {
+    if (forbidden.hasMatch(line)) {
+      _fail(file, number, 'layer 3 cannot import layer 4 or Drift (D-156)');
     }
   }
 }

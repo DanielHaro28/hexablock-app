@@ -1,6 +1,7 @@
 @startuml clases-aplicacion
 ' Diagrama de clases de DETALLE: casos de uso, puertos y aspectos AOP (capa 2),
-' adaptadores y presentadores (capa 3) y composition root (capa 4).
+' presentadores, gateways y códecs (capa 3), y repositorios sobre frameworks
+' y composition root (capa 4, D-156).
 ' Parte de clases.puml (D-76). Las clases marcadas «motor» están completas en
 ' clases-motor.puml; aquí solo aparece su nombre para mostrar la conexión.
 ' Imagen: abrir este archivo → Ctrl+Shift+P → "PlantUML: Export Current Diagram" → png.
@@ -35,24 +36,11 @@ package "Capa 4 · Frameworks (app/lib/frameworks, config)" {
   class AudioFacade <<Facade>> {
     + onEvent(e: GameEvent): void
   }
-}
-
-package "Capa 3 · Adaptadores (app/lib/adapters)" {
-  class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
-    - applyMove: UseCase<TMove, Result<MoveResult>>
-    - undo: UseCase<void, Result<TState>>
-    + onMove(m: TMove): void
-    + onUndo(): void
-  }
   class DriftSavedGameRepository<TState> <<Adapter>> {
     - db: AppDatabase
     - codec: IGameStateCodec<TState>
     + scheduleSave(k: SavedGameKey, g: SavedGame<TState>): void
     + flush(): Future<void>
-  }
-  class LinesStateCodec <<Adapter>> {
-    + encode(s: LinesState): Map<String, Object?>
-    + decode(json: Map<String, Object?>): LinesState
   }
   class DriftProgressRepository <<Adapter>> {
     - db: AppDatabase
@@ -63,6 +51,28 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
     - db: AppDatabase
     + pending(p: ProfileId): Future<List<ResultKey>>
   }
+  class SecureSessionStore <<Adapter>> {
+    - storage: FlutterSecureStorage
+    + read(): Future<Session?>
+    + write(s: Session): Future<void>
+  }
+  class DriftUnitOfWork <<Adapter>> {
+    - db: AppDatabase
+    + run<T>(work: Future<T> Function()): Future<T>
+  }
+}
+
+package "Capa 3 · Adaptadores (app/lib/adapters)" {
+  class GameCubit<C extends Coord, TCell extends Object, TMove, TState extends GameState> <<Observer>> {
+    - applyMove: UseCase<TMove, Result<MoveResult>>
+    - undo: UseCase<void, Result<TState>>
+    + onMove(m: TMove): void
+    + onUndo(): void
+  }
+  class LinesStateCodec <<Adapter>> {
+    + encode(s: LinesState): Map<String, Object?>
+    + decode(json: Map<String, Object?>): LinesState
+  }
   class HttpProgressGateway <<Adapter>> {
     - http: Dio
     + push(k: GameKey, v: VariantProgress): Future<VariantProgress>
@@ -70,11 +80,6 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
   class HttpAuthGateway <<Adapter>> {
     - http: Dio
     + login(c: Credentials): Future<AuthToken>
-  }
-  class SecureSessionStore <<Adapter>> {
-    - storage: FlutterSecureStorage
-    + read(): Future<Session?>
-    + write(s: Session): Future<void>
   }
 }
 
@@ -142,6 +147,9 @@ package "Capa 2 · Casos de uso (hexa_application)" {
     + load(p: ProfileId, k: GameKey): Future<VariantProgress?>
     + save(p: ProfileId, k: GameKey, v: VariantProgress): Future<void>
   }
+  interface IUnitOfWork <<interface>> {
+    + run<T>(work: Future<T> Function()): Future<T>
+  }
   interface ISyncOutbox <<interface>> {
     + markPending(p: ProfileId, k: GameKey, r: ResultKey): Future<void>
     + pending(p: ProfileId): Future<List<ResultKey>>
@@ -185,6 +193,7 @@ DriftSavedGameRepository --> IGameStateCodec
 LinesStateCodec ..|> IGameStateCodec : «bind» TState = LinesState
 DriftProgressRepository ..|> IProgressRepository
 DriftSyncOutbox ..|> ISyncOutbox
+DriftUnitOfWork ..|> IUnitOfWork
 HttpProgressGateway ..|> IProgressGateway
 HttpAuthGateway ..|> IAuthGateway
 SecureSessionStore ..|> ISessionStore
@@ -220,6 +229,7 @@ ApplyMoveUseCase --> ISavedGameRepository
 UndoMoveUseCase --> ISavedGameRepository
 SaveProgressUseCase --> IProgressRepository
 SaveProgressUseCase --> ISyncOutbox
+SaveProgressUseCase --> IUnitOfWork : lee, consolida y escribe (D-158)
 SyncProgressUseCase --> IProgressGateway
 SyncProgressUseCase --> IProgressRepository
 SyncProgressUseCase --> ISyncOutbox

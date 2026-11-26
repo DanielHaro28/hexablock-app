@@ -315,7 +315,43 @@ void main() {
       },
     );
 
-    test('should_keep_existing_level_attempt_when_tied_and_achieved_later_or_same_time', () async {
+    test(
+      'should_keep_existing_level_attempt_when_tied_and_achieved_later',
+      () async {
+        // Arrange
+        final existing = LevelAttempt(
+          moves: 3,
+          stars: 3,
+          timeMs: 28000,
+          achievedAt: earlier,
+        );
+        final existingProgress = LevelsProgress({'lvl-001': existing});
+        final progress = FakeProgressRepository({
+          (profile, game): existingProgress,
+        });
+        final laterClock = FakeClock(
+          startDate: earlier.add(const Duration(minutes: 5)),
+        );
+
+        // Act
+        final kept = await useCaseOf(progress, clock: laterClock).execute(
+          const LevelCompletedResult(
+            game,
+            levelId: 'lvl-001',
+            moves: 3,
+            stars: 3,
+            timeMs: 28000,
+            model: model,
+          ),
+        );
+
+        // Assert
+        expect(kept, existingProgress);
+        expect(progress.saves, 0);
+      },
+    );
+
+    test('should_keep_existing_level_attempt_when_tied_and_achieved_at_the_same_time', () async {
       // Arrange
       final existing = LevelAttempt(
         moves: 3,
@@ -327,12 +363,10 @@ void main() {
       final progress = FakeProgressRepository({
         (profile, game): existingProgress,
       });
-      final laterClock = FakeClock(
-        startDate: earlier.add(const Duration(minutes: 5)),
-      );
+      final sameClock = FakeClock(startDate: earlier);
 
       // Act
-      final kept = await useCaseOf(progress, clock: laterClock).execute(
+      final kept = await useCaseOf(progress, clock: sameClock).execute(
         const LevelCompletedResult(
           game,
           levelId: 'lvl-001',

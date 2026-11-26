@@ -5,7 +5,12 @@
 library;
 
 export 'src/aspects/aspect.dart';
+export 'src/aspects/aspect_chain.dart';
+export 'src/aspects/command_describer.dart';
 export 'src/aspects/exception_aspect.dart';
+export 'src/aspects/logging_aspect.dart';
+export 'src/aspects/metrics_aspect.dart';
+export 'src/aspects/move_describer.dart';
 export 'src/aspects/redactor.dart';
 export 'src/command_service.dart';
 export 'src/either.dart';
@@ -13,6 +18,7 @@ export 'src/errors.dart';
 export 'src/game_keys.dart';
 export 'src/ports/clock.dart';
 export 'src/ports/logger.dart';
+export 'src/ports/metrics.dart';
 export 'src/ports/profile_repository.dart';
 export 'src/ports/progress_repository.dart';
 export 'src/ports/saved_game_repository.dart';

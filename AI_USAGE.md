@@ -956,6 +956,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | Claude propuso solo la consola de la plataforma; el usuario preguntó cómo se detectarían los errores sin registros, y la decisión se amplió: advertencias y errores también en *release* (sin datos), manejadores globales para lo que pasa fuera de los casos de uso, y el reporte remoto como decisión abierta (D-164, con la recomendación de no agregar un servicio para la entrega). El usuario eligió dividir el PR; la línea de corte original (capa 2 contra app) dejaba la app sin compilar, y Claude la cambió a "dónde va el registro" contra "los aspectos de la historia". ⚠️ Una persona revisa las pruebas escritas por Claude (D-59) |
 | Lecciones | `security-reviewer` y `architecture-reviewer` encontraron que el manejador de errores por defecto de Flutter imprime el texto del error también en *release*; Claude lo comprobó en el código del SDK antes de corregirlo (ver §4.2) |
 
+### IA-99 · Aspectos de registro y métricas y `AspectChain` (TEC-03, PR 3 de 3, D-162) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 26-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma conversación de IA-97 e IA-98: "quiero que los aspectos queden como el capitulo 10 del libro [...] pero en vez de devolver void que sea un eather<l,r>", "4 sí entra" (el aspecto de métricas), "Necesito que me expliques como va a quedar toda esta implementacion ahora" y "sigamos con el PR 2" |
+| Resultado | Issue #66, última de tres partes (la cierra). `LoggingAspect` (inicio, fin, duración, resultado; los datos solo en desarrollo, redactados), `CommandDescriber` y `SilentDescriber` (Strategy), `MoveDescriber` (el tablero antes y después de cada movimiento, enunciado §3.5), `MetricsAspect` con presupuesto (RNF-31), puerto `IMetrics` y `AspectChain` (el `Decorate` del cap. 10, en orden fijo). En la app, `LogMetrics` y el módulo de Hexa Lines envolviendo cada caso de uso según la matriz de ARQ-03 §5.3. D-162 en `DECISIONES.md`; ARQ-03 §4, §5 y §7; T-09 (#152) y T-10 (#153) en el plan; diagrama; trazabilidad. Pruebas: `logging_aspect_test`, `metrics_aspect_test`, `move_describer_test`, `aspect_chain_test`, `log_metrics_test` |
+| Modificaciones del equipo | El usuario confirmó que `MetricsAspect` entra en TEC-03 y que los reintentos y la sesión llegan con sus historias (T-09, T-10). Pidió una explicación completa de cómo queda la implementación antes de empezar. Ante la revisión, el usuario aceptó que la medición de `CheckMove` se escriba en el registro en cada paso del arrastre, solo en desarrollo (D-162). Aceptó también la recomendación de no redactar `displayName` (D-163). ⚠️ Una persona revisa las pruebas escritas por Claude (D-59) |
+| Lecciones | `architecture-reviewer` encontró pruebas de `AspectChain` que pasaban aunque `wrap` dejara de pasar `budget`, `describe` o `verbose`, y que `_failureDetails` no tenía prueba (ver §4.2) |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -1030,6 +1041,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | `installErrorHandlers` llamaba siempre al manejador anterior de Flutter, que en *release* imprime el texto completo del error (`debugPrintStack(label: exception.toString())`), contra D-163 y SEC-MOB-05 (IA-98) | Subagentes `security-reviewer` y `architecture-reviewer`; Claude lo verificó en `flutter/lib/src/foundation/assertions.dart` | Solo se llama en desarrollo (`verbose`), con una prueba para cada caso |
 | El `Redactor` no tapaba una contraseña dentro del texto de un objeto (un *record* se imprime `(email: …, password: …)`), ni un token que no fuera JWT después de `Bearer`, ni un correo usado como clave de un mapa; faltaban claves como `pwd`, `jwt`, `cookie` o `api_key` (IA-98) | Subagente `security-reviewer` | Patrones para campos secretos y `Bearer` en cualquier texto, claves redactadas, lista de claves ampliada y comparada sin `_` ni `-`, con una prueba por caso; `PlatformLogger` redacta otra vez los datos y el texto del error (IA-98) |
 | El primer corte del PR 2 de TEC-03 (capa 2 en un PR y la app en otro) dejaba la app sin compilar en el primero, porque `ExceptionAspect` pasó a recibir un *logger* (IA-98) | Al armar la rama del primer PR | Corte por tema: el destino del registro primero, los aspectos de la historia después |
+| Las pruebas de `AspectChain` solo miraban qué aspectos armaba, así que pasaban aunque `wrap` dejara de pasar `budget`, `describe` o `verbose`; la conversión de `ValidationFailure` a `pointer: code` no tenía prueba, y un `describe` que lanzara salía de la cadena sin pasar por `ExceptionAspect` (IA-99) | Subagente `architecture-reviewer` | Pruebas del aviso de presupuesto, del detalle con y sin `verbose`, de `ConflictFailure` y `ValidationFailure`; un `describe` que lanza se registra como su tipo de error |
 
 ### 4.3 Reflexión del equipo
 

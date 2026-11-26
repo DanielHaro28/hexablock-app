@@ -9,6 +9,7 @@ import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 
+import '../adapters/metrics/log_metrics.dart';
 import '../frameworks/persistence/app_database.dart';
 import '../frameworks/persistence/drift_profile_repository.dart';
 import '../frameworks/persistence/drift_progress_repository.dart';
@@ -30,11 +31,14 @@ const defaultTopology = 'hex';
 
 /// Registers what the app needs at startup in [getIt] (ARQ-03 §6): the
 /// topologies with their layouts, the clock, the log ([logger], by default
-/// a [PlatformLogger] that writes everything only in development builds,
-/// [kDebugMode], D-163), the Drift database and its repositories
+/// a [PlatformLogger]), the metrics and the [AspectChain] that wraps every
+/// use case (D-161, D-163), the Drift database and its repositories
 /// (`IProfileRepository`, `IProgressRepository`), the variant modules with
 /// their configuration read from [bundle], and the [newSeed] source (by
 /// default, a secure random seed).
+///
+/// The details of each use case are logged only in development builds
+/// ([kDebugMode], SEC-MOB-05).
 Future<void> registerDependencies(
   GetIt getIt,
   AssetBundle bundle, {
@@ -46,6 +50,8 @@ Future<void> registerDependencies(
   final linesConfig = await _json(bundle, HexaLinesModule.configAsset);
   final IClock appClock = clock ?? SystemClock();
   final ILogger appLogger = logger ?? PlatformLogger(verbose: kDebugMode);
+  final IMetrics metrics = LogMetrics(appLogger);
+  final chain = AspectChain(appLogger, metrics, appClock, verbose: kDebugMode);
   final database = databaseExecutor == null
       ? AppDatabase.open(clock: appClock)
       : AppDatabase(databaseExecutor, clock: appClock);
@@ -55,6 +61,8 @@ Future<void> registerDependencies(
   getIt
     ..registerSingleton<IClock>(appClock)
     ..registerSingleton<ILogger>(appLogger)
+    ..registerSingleton<IMetrics>(metrics)
+    ..registerSingleton<AspectChain>(chain)
     ..registerSingleton<AppDatabase>(database, dispose: (db) => db.close())
     ..registerSingleton<IProfileRepository>(profiles)
     ..registerSingleton<IProgressRepository>(progress)
@@ -71,7 +79,7 @@ Future<void> registerDependencies(
           profiles,
           appClock,
           unitOfWork,
-          appLogger,
+          chain,
         ),
       ),
     )

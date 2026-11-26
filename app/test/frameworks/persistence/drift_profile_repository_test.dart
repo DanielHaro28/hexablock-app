@@ -2,9 +2,9 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_test_support/hexa_test_support.dart';
-import 'package:hexablock_app/adapters/repositories/drift_profile_repository.dart';
-import 'package:hexablock_app/adapters/repositories/drift_progress_repository.dart';
 import 'package:hexablock_app/frameworks/persistence/app_database.dart';
+import 'package:hexablock_app/frameworks/persistence/drift_profile_repository.dart';
+import 'package:hexablock_app/frameworks/persistence/drift_progress_repository.dart';
 
 void main() {
   late AppDatabase db;

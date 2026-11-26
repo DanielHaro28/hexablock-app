@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:hexa_application/hexa_application.dart';
 
-import '../../frameworks/persistence/app_database.dart';
+import 'app_database.dart';
 import 'drift_error.dart';
 
 /// Persists local player profiles in SQLite via Drift (ARQ-04 §2, RN-COM-81).

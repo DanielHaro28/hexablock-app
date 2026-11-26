@@ -8,9 +8,9 @@ import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 
-import '../adapters/repositories/drift_profile_repository.dart';
-import '../adapters/repositories/drift_progress_repository.dart';
 import '../frameworks/persistence/app_database.dart';
+import '../frameworks/persistence/drift_profile_repository.dart';
+import '../frameworks/persistence/drift_progress_repository.dart';
 import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';

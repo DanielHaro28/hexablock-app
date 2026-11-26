@@ -32,7 +32,7 @@ void main() {
         final useCase = ApplyMoveUseCase(session, saved, key);
 
         // Act
-        final result = await useCase.execute(const FakeMove(a));
+        final result = await useCase.execute(const FakeMove(a)).right;
 
         // Assert
         expect(result, isA<AcceptedMove<FakeCoord, FakeState>>());
@@ -50,7 +50,7 @@ void main() {
       final useCase = ApplyMoveUseCase(session, saved, key);
 
       // Act
-      final result = await useCase.execute(const FakeMove(a));
+      final result = await useCase.execute(const FakeMove(a)).right;
 
       // Assert
       expect(
@@ -108,7 +108,7 @@ void main() {
       final useCase = ApplyMoveUseCase(session, saved, key);
 
       // Act
-      final result = await useCase.execute(const FakeMove(b));
+      final result = await useCase.execute(const FakeMove(b)).right;
 
       // Assert
       expect(

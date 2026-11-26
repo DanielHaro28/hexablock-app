@@ -1,9 +1,10 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
+import '../command_service.dart';
+import '../either.dart';
 import '../errors.dart';
 import '../game_keys.dart';
 import '../ports/saved_game_repository.dart';
-import '../use_case.dart';
 
 /// How a game starts: anew or from the saved one (ARQ-03 §3).
 sealed class StartOptions {
@@ -29,18 +30,20 @@ final class ContinueSaved extends StartOptions {
 ///
 /// It sees the variant only as a [VariantFamily], so there is one use case
 /// for every game. A new game replaces the saved one (RN-COM-35); a
-/// saved game continues paused (RN-COM-34, D-111).
+/// saved game continues paused (RN-COM-34, D-111); with none to continue,
+/// it returns a [RuleFailure] with [noSavedGame] (D-161).
 final class StartGameUseCase<
   C extends Coord,
   TCell extends Object,
   TMove,
   TState extends GameState<C, TCell>
 >
-    implements UseCase<StartOptions, GameSession<C, TCell, TMove, TState>> {
+    implements
+        ICommandService<StartOptions, GameSession<C, TCell, TMove, TState>> {
   /// Starts games of [_family] saved under [_key] in [_savedGames].
   StartGameUseCase(this._family, this._savedGames, this._key);
 
-  /// The [RuleException] code when there is no saved game to continue.
+  /// The [RuleFailure] code when there is no saved game to continue.
   static const noSavedGame = 'no-saved-game';
 
   final VariantFamily<C, TCell, TMove, TState> _family;
@@ -48,19 +51,19 @@ final class StartGameUseCase<
   final SavedGameKey _key;
 
   @override
-  Future<GameSession<C, TCell, TMove, TState>> execute(
-    StartOptions input,
+  Future<Either<AppFailure, GameSession<C, TCell, TMove, TState>>> execute(
+    StartOptions command,
   ) async {
-    switch (input) {
+    switch (command) {
       case StartNew(:final newGame):
         final session = _family.createSession(newGame);
         // After creating it, so a failure keeps the saved game (RN-COM-35).
         _savedGames.delete(_key);
-        return session;
+        return Right(session);
       case ContinueSaved():
         final saved = await _savedGames.load(_key);
-        if (saved == null) throw const RuleException(noSavedGame);
-        return _family.continueSession(saved);
+        if (saved == null) return const Left(RuleFailure(noSavedGame));
+        return Right(_family.continueSession(saved));
     }
   }
 }

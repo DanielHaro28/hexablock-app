@@ -172,6 +172,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 |---|---|---|
 | `IProgressRepository` | Progreso por perfil, `gameId` y figura (D-27) | Repositorio → Drift |
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
+| `IUnitOfWork` | Leer, consolidar y escribir como una sola transacción (D-158) | Transacción de Drift |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Resultados pendientes de enviar (una marca en cada fila, D-49) | Repositorio → Drift |
 | `ISavedGameRepository` | Partida en curso guardada por perfil, variante y figura (D-37) | Repositorio → Drift |

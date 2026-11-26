@@ -7,7 +7,9 @@ import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 
+import '../adapters/repositories/memory_profile_repository.dart';
 import '../adapters/repositories/memory_progress_repository.dart';
+import '../adapters/repositories/memory_unit_of_work.dart';
 import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';
@@ -34,16 +36,22 @@ Future<void> registerDependencies(
 }) async {
   final linesConfig = await _json(bundle, HexaLinesModule.configAsset);
   final IClock clock = SystemClock();
+  final IProfileRepository profiles = MemoryProfileRepository(clock.now());
   final IProgressRepository progress = MemoryProgressRepository();
+  final IUnitOfWork unitOfWork = MemoryUnitOfWork();
   getIt
     ..registerSingleton<IClock>(clock)
+    ..registerSingleton<IProfileRepository>(profiles)
     ..registerSingleton<IProgressRepository>(progress)
+    ..registerSingleton<IUnitOfWork>(unitOfWork)
     ..registerSingleton(
       TopologyRegistry()
         ..add(const TopologyEntry(HexTopology(), HexLayout(), _hexCoord)),
     )
     ..registerSingleton(
-      VariantRegistry()..add(HexaLinesModule(linesConfig, progress, clock)),
+      VariantRegistry()..add(
+        HexaLinesModule(linesConfig, progress, profiles, clock, unitOfWork),
+      ),
     )
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
 }

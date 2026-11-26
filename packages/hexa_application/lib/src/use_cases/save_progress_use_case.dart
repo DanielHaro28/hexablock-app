@@ -3,6 +3,7 @@ import 'package:hexa_engine/hexa_engine.dart';
 import '../ports/clock.dart';
 import '../ports/profile_repository.dart';
 import '../ports/progress_repository.dart';
+import '../ports/unit_of_work.dart';
 import '../progress.dart';
 import '../use_case.dart';
 
@@ -15,20 +16,33 @@ import '../use_case.dart';
 /// earliest timestamp on a tie, ARQ-04 §3). It returns the progress that is
 /// kept, new or not.
 ///
+/// Reading, comparing and writing run as one [IUnitOfWork], so a result
+/// saved at the same time (by a sync or a guest import) cannot be lost
+/// between the read and the write (ARQ-04 §3, D-158).
+///
 /// The sync outbox arrives with API-03; the saved game is removed by
 /// `ApplyMoveUseCase` when the game ends (D-110).
 final class SaveProgressUseCase
     implements UseCase<GameResult, VariantProgress> {
   /// Keeps the results of the active profile from [_profiles] in [_progress],
-  /// dated by [_clock].
-  SaveProgressUseCase(this._progress, this._profiles, this._clock);
+  /// dated by [_clock], each one inside a unit of [_unitOfWork].
+  SaveProgressUseCase(
+    this._progress,
+    this._profiles,
+    this._clock,
+    this._unitOfWork,
+  );
 
   final IProgressRepository _progress;
   final IProfileRepository _profiles;
   final IClock _clock;
+  final IUnitOfWork _unitOfWork;
 
   @override
-  Future<VariantProgress> execute(GameResult input) async {
+  Future<VariantProgress> execute(GameResult input) =>
+      _unitOfWork.run(() => _consolidate(input));
+
+  Future<VariantProgress> _consolidate(GameResult input) async {
     final profile = (await _profiles.active()).id;
     final saved = await _progress.load(profile, input.game);
     // Exhaustive over both the incoming result and the saved progress shape

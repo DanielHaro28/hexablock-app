@@ -33,6 +33,13 @@ package "Capa 4 · Frameworks (app/lib/frameworks, config)" {
   class Injection <<Singleton via get_it>> {
     + registerAll(): void
   }
+  class PlatformLogger <<Adapter>> {
+    - verbose: bool
+    + log(e: LogEntry): void
+  }
+  class ErrorHandlers <<function installErrorHandlers>> {
+    + install(l: ILogger, d: PlatformDispatcher, verbose: bool): void
+  }
   class AudioFacade <<Facade>> {
     + onEvent(e: GameEvent): void
   }
@@ -103,7 +110,9 @@ package "Capa 2 · Casos de uso (hexa_application)" {
   class SessionAspect<TCommand, TResult> <<Proxy>> <<AOP>> {
     - session: ISessionStore
   }
-  class ExceptionAspect<TCommand, TResult> <<Decorator>> <<AOP>>
+  class ExceptionAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
+    - logger: ILogger
+  }
   class MetricsAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - metrics: IMetrics
   }
@@ -195,6 +204,8 @@ DriftUnitOfWork ..|> IUnitOfWork
 HttpProgressGateway ..|> IProgressGateway
 HttpAuthGateway ..|> IAuthGateway
 SecureSessionStore ..|> ISessionStore
+PlatformLogger ..|> ILogger
+ErrorHandlers --> ILogger
 
 ' ===== Aspectos (AOP con decoradores, D-40, D-41 y D-160) =====
 Left --|> Either
@@ -213,6 +224,7 @@ AspectChain ..> LoggingAspect : arma
 SessionAspect --> ISessionStore
 MetricsAspect --> IMetrics
 LoggingAspect --> ILogger
+ExceptionAspect --> ILogger
 
 ' ===== Casos de uso → puertos =====
 StartGameUseCase ..|> ICommandService
@@ -244,7 +256,7 @@ legend right
   ..|> implementa una interfaz · --> usa · ..> crea o usa de paso
   o-- agregación (el aspecto envuelve otro caso de uso)
   «bind» = instancia un parámetro genérico · «...» = patrón de diseño (ARQ-03 §7)
-  Orden de los aspectos: sesión → errores → métricas → registro (D-41)
+  Orden de los aspectos: sesión → reintentos → métricas → registro → excepciones → caso de uso (D-161)
   Los otros casos de uso (niveles, ranking, registro, invitado, ajustes) siguen
   el mismo camino: ICommandService → puerto de la capa 2 → adaptador de la capa 3 (ARQ-03 §3, §4)
   Fit, Sort y Merge tienen su módulo y su codec como Hexa Lines

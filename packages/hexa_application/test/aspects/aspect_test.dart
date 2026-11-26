@@ -1,4 +1,5 @@
 import 'package:hexa_application/hexa_application.dart';
+import 'package:hexa_test_support/hexa_test_support.dart';
 import 'package:test/test.dart';
 
 /// A service that returns its command.
@@ -28,7 +29,11 @@ void main() {
       const service = _EchoService();
 
       // Act
-      final ICommandService<int, int> wrapped = ExceptionAspect(service);
+      final ICommandService<int, int> wrapped = ExceptionAspect(
+        service,
+        FakeLogger(),
+        name: 'test',
+      );
 
       // Assert
       expect(await wrapped.execute(7), const Right<AppFailure, int>(7));
@@ -39,7 +44,9 @@ void main() {
       const service = _EchoService();
 
       // Act
-      final chain = _PassAspect(ExceptionAspect(service));
+      final chain = _PassAspect(
+        ExceptionAspect(service, FakeLogger(), name: 'test'),
+      );
 
       // Assert
       expect(await chain.execute(3), const Right<AppFailure, int>(3));
@@ -47,10 +54,15 @@ void main() {
 
     test('should_throw_when_an_aspect_wraps_the_same_kind_of_aspect', () {
       // Arrange
-      final once = ExceptionAspect(const _EchoService());
+      final once = ExceptionAspect(
+        const _EchoService(),
+        FakeLogger(),
+        name: 'test',
+      );
 
       // Act
-      ExceptionAspect<int, int> twice() => ExceptionAspect(once);
+      ExceptionAspect<int, int> twice() =>
+          ExceptionAspect(once, FakeLogger(), name: 'test');
 
       // Assert
       expect(twice, throwsArgumentError);
@@ -61,10 +73,15 @@ void main() {
       () {
         // Arrange: Dart's covariance lets an <int, num> aspect wrap an
         // <int, int> chain, so the two runtime types differ.
-        final once = ExceptionAspect<int, int>(const _EchoService());
+        final once = ExceptionAspect<int, int>(
+          const _EchoService(),
+          FakeLogger(),
+          name: 'test',
+        );
 
         // Act
-        ExceptionAspect<int, num> twice() => ExceptionAspect<int, num>(once);
+        ExceptionAspect<int, num> twice() =>
+            ExceptionAspect<int, num>(once, FakeLogger(), name: 'test');
 
         // Assert
         expect(twice, throwsArgumentError);
@@ -75,10 +92,13 @@ void main() {
       'should_throw_when_the_same_kind_of_aspect_is_deeper_in_the_chain',
       () {
         // Arrange
-        final chain = _PassAspect(ExceptionAspect(const _EchoService()));
+        final chain = _PassAspect(
+          ExceptionAspect(const _EchoService(), FakeLogger(), name: 'test'),
+        );
 
         // Act
-        ExceptionAspect<int, int> again() => ExceptionAspect(chain);
+        ExceptionAspect<int, int> again() =>
+            ExceptionAspect(chain, FakeLogger(), name: 'test');
 
         // Assert
         expect(again, throwsArgumentError);

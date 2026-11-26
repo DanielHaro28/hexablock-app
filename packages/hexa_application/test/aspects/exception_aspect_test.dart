@@ -1,4 +1,5 @@
 import 'package:hexa_application/hexa_application.dart';
+import 'package:hexa_test_support/hexa_test_support.dart';
 import 'package:test/test.dart';
 
 /// A service that adds [value] to its command, returns [failure] or throws
@@ -24,7 +25,11 @@ void main() {
       'should_return_the_right_unchanged_when_the_service_succeeds',
       () async {
         // Arrange
-        final aspect = ExceptionAspect(_StubService(value: 1));
+        final aspect = ExceptionAspect(
+          _StubService(value: 1),
+          FakeLogger(),
+          name: 'test',
+        );
 
         // Act
         final result = await aspect.execute(41);
@@ -40,6 +45,8 @@ void main() {
         // Arrange
         final aspect = ExceptionAspect(
           _StubService(failure: const RuleFailure('no-saved-game')),
+          FakeLogger(),
+          name: 'test',
         );
 
         // Act
@@ -50,6 +57,50 @@ void main() {
           result,
           const Left<AppFailure, int>(RuleFailure('no-saved-game')),
         );
+      },
+    );
+
+    test(
+      'should_log_the_error_type_and_stack_when_the_error_is_unexpected',
+      () async {
+        // Arrange
+        final logger = FakeLogger();
+        final error = StateError('bug');
+        final aspect = ExceptionAspect(
+          _StubService(error: error),
+          logger,
+          name: 'SaveProgress',
+        );
+
+        // Act
+        await aspect.execute(0);
+
+        // Assert
+        final entry = logger.entries.single;
+        expect(entry.level, LogLevel.error);
+        expect(entry.message, 'SaveProgress unexpected error');
+        expect(entry.data, {'error': 'StateError'});
+        expect(entry.error, same(error));
+        expect(entry.stackTrace, isNotNull);
+      },
+    );
+
+    test(
+      'should_log_nothing_when_the_service_throws_an_app_exception',
+      () async {
+        // Arrange: the logging aspect, outside, logs the Left.
+        final logger = FakeLogger();
+        final aspect = ExceptionAspect(
+          _StubService(error: const PersistenceException()),
+          logger,
+          name: 'SaveProgress',
+        );
+
+        // Act
+        await aspect.execute(0);
+
+        // Assert
+        expect(logger.entries, isEmpty);
       },
     );
 
@@ -101,7 +152,11 @@ void main() {
         'should_return_the_matching_left_when_the_service_throws_$name',
         () async {
           // Arrange
-          final aspect = ExceptionAspect(_StubService(error: error));
+          final aspect = ExceptionAspect(
+            _StubService(error: error),
+            FakeLogger(),
+            name: 'test',
+          );
 
           // Act
           final result = await aspect.execute(0);

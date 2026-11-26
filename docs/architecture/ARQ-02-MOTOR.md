@@ -143,7 +143,7 @@ sequenceDiagram
     PH-->>EN: PlayingPhase, VictoryPhase o GameOverPhase
     EN->>OB: los mismos eventos por el Stream (Observer):<br/>historial y cronómetro, síncronos
     EN-->>UC: MoveResult (estado, eventos en orden, resultado)
-    UC-->>CU: MoveResult, en la misma llamada
+    UC-->>CU: Right(MoveResult), en la misma llamada
     EN--)OB: audio y analítica, un instante después
     CU-->>UI: estado de pantalla + animaciones
 ```

@@ -1,6 +1,8 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
-import '../use_case.dart';
+import '../command_service.dart';
+import '../either.dart';
+import '../errors.dart';
 
 /// Tells whether a move of any variant would be played, without playing it
 /// (D-138, RNF-07): the preview of a drag (HL-02).
@@ -15,13 +17,13 @@ final class CheckMoveUseCase<
   TMove,
   TState extends GameState<C, TCell>
 >
-    implements UseCase<TMove, RejectionReason?> {
+    implements ICommandService<TMove, RejectionReason?> {
   /// Checks the moves of [_session].
   const CheckMoveUseCase(this._session);
 
   final GameSession<C, TCell, TMove, TState> _session;
 
   @override
-  Future<RejectionReason?> execute(TMove input) async =>
-      _session.engine.check(input);
+  Future<Either<AppFailure, RejectionReason?>> execute(TMove command) async =>
+      Right(_session.engine.check(command));
 }

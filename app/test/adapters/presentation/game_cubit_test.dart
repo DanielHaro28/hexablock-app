@@ -15,18 +15,19 @@ typedef _Ready = GameReady<FakeCoord, FakeMove, FakeState>;
 /// A start use case that always fails with [failure].
 final class _FailingStart
     implements
-        UseCase<
+        ICommandService<
           StartOptions,
-          Result<GameSession<FakeCoord, FakeCell, FakeMove, FakeState>>
+          GameSession<FakeCoord, FakeCell, FakeMove, FakeState>
         > {
   const _FailingStart(this.failure);
 
   final AppFailure failure;
 
   @override
-  Future<Result<GameSession<FakeCoord, FakeCell, FakeMove, FakeState>>> execute(
-    StartOptions input,
-  ) async => Failure(failure);
+  Future<
+    Either<AppFailure, GameSession<FakeCoord, FakeCell, FakeMove, FakeState>>
+  >
+  execute(StartOptions command) async => Left(failure);
 }
 
 void main() {
@@ -52,13 +53,22 @@ void main() {
   _Cubit cubitOf({ISavedGameRepository<FakeState>? savedGames}) {
     final saved = savedGames ?? FakeSavedGameRepository<FakeState>();
     return GameCubit(
-      startGame: ErrorHandlingAspect(
+      startGame: ExceptionAspect(
         StartGameUseCase(FakeVariantFamily(), saved, key),
+        FakeLogger(),
+        name: 'test',
       ),
       options: StartNew(NewGameOptions(seed: 1)),
-      applyMoveFor: (session) =>
-          ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ErrorHandlingAspect(CheckMoveUseCase(session)),
+      applyMoveFor: (session) => ExceptionAspect(
+        ApplyMoveUseCase(session, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
+      checkMoveFor: (session) => ExceptionAspect(
+        CheckMoveUseCase(session),
+        FakeLogger(),
+        name: 'test',
+      ),
     );
   }
 
@@ -70,8 +80,8 @@ void main() {
     int width = 1,
     int points = 40,
     FakeRules Function()? rules,
-    UseCase<GameKey, VariantProgress?>? getProgress,
-    UseCase<GameResult, VariantProgress>? saveProgress,
+    ICommandService<GameKey, VariantProgress?>? getProgress,
+    ICommandService<GameResult, VariantProgress>? saveProgress,
   }) {
     final saved = FakeSavedGameRepository<FakeState>();
     final family = FakeVariantFamily(
@@ -79,17 +89,30 @@ void main() {
       rules: rules ?? () => FakeRules(pointsPerTurn: points),
     );
     return GameCubit(
-      startGame: ErrorHandlingAspect(StartGameUseCase(family, saved, key)),
+      startGame: ExceptionAspect(
+        StartGameUseCase(family, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
       options: StartNew(NewGameOptions(seed: 1)),
-      applyMoveFor: (session) =>
-          ErrorHandlingAspect(ApplyMoveUseCase(session, saved, key)),
-      checkMoveFor: (session) => ErrorHandlingAspect(CheckMoveUseCase(session)),
+      applyMoveFor: (session) => ExceptionAspect(
+        ApplyMoveUseCase(session, saved, key),
+        FakeLogger(),
+        name: 'test',
+      ),
+      checkMoveFor: (session) => ExceptionAspect(
+        CheckMoveUseCase(session),
+        FakeLogger(),
+        name: 'test',
+      ),
       record: RecordUseCases(
         game: key.game,
-        getProgress: ErrorHandlingAspect(
+        getProgress: ExceptionAspect(
           getProgress ?? GetProgressUseCase(progress, FakeProfileRepository()),
+          FakeLogger(),
+          name: 'test',
         ),
-        saveProgress: ErrorHandlingAspect(
+        saveProgress: ExceptionAspect(
           saveProgress ??
               SaveProgressUseCase(
                 progress,
@@ -97,6 +120,8 @@ void main() {
                 clock,
                 FakeUnitOfWork(),
               ),
+          FakeLogger(),
+          name: 'test',
         ),
       ),
     );
@@ -212,18 +237,26 @@ void main() {
     blocTest<_Cubit, _Screen>(
       'should_keep_the_game_and_show_the_failure_when_the_move_use_case_fails',
       build: () => GameCubit(
-        startGame: ErrorHandlingAspect(
+        startGame: ExceptionAspect(
           StartGameUseCase(
             FakeVariantFamily(),
             FakeSavedGameRepository<FakeState>(),
             key,
           ),
+          FakeLogger(),
+          name: 'test',
         ),
         options: StartNew(NewGameOptions(seed: 1)),
-        applyMoveFor: (session) =>
-            ErrorHandlingAspect(_ThrowingMove(const PersistenceException())),
-        checkMoveFor: (session) =>
-            ErrorHandlingAspect(CheckMoveUseCase(session)),
+        applyMoveFor: (session) => ExceptionAspect(
+          _ThrowingMove(const PersistenceException()),
+          FakeLogger(),
+          name: 'test',
+        ),
+        checkMoveFor: (session) => ExceptionAspect(
+          CheckMoveUseCase(session),
+          FakeLogger(),
+          name: 'test',
+        ),
       ),
       act: (cubit) async {
         await cubit.start();
@@ -326,19 +359,26 @@ void main() {
     blocTest<_Cubit, _Screen>(
       'should_keep_the_game_and_show_the_failure_when_the_check_fails',
       build: () => GameCubit(
-        startGame: ErrorHandlingAspect(
+        startGame: ExceptionAspect(
           StartGameUseCase(
             FakeVariantFamily(),
             FakeSavedGameRepository<FakeState>(),
             key,
           ),
+          FakeLogger(),
+          name: 'test',
         ),
         options: StartNew(NewGameOptions(seed: 1)),
-        applyMoveFor: (session) => ErrorHandlingAspect(
+        applyMoveFor: (session) => ExceptionAspect(
           ApplyMoveUseCase(session, FakeSavedGameRepository<FakeState>(), key),
+          FakeLogger(),
+          name: 'test',
         ),
-        checkMoveFor: (session) =>
-            ErrorHandlingAspect(_ThrowingCheck(StateError('broken'))),
+        checkMoveFor: (session) => ExceptionAspect(
+          _ThrowingCheck(StateError('broken')),
+          FakeLogger(),
+          name: 'test',
+        ),
       ),
       act: (cubit) async {
         await cubit.start();
@@ -673,44 +713,53 @@ void main() {
 }
 
 /// A save that waits until the test calls [finish].
-final class _PendingSave implements UseCase<GameResult, VariantProgress> {
+final class _PendingSave
+    implements ICommandService<GameResult, VariantProgress> {
   final _done = Completer<VariantProgress>();
 
   /// Ends the save with [kept].
   void finish(VariantProgress kept) => _done.complete(kept);
 
   @override
-  Future<VariantProgress> execute(GameResult input) => _done.future;
+  Future<Either<AppFailure, VariantProgress>> execute(
+    GameResult command,
+  ) async => Right(await _done.future);
 }
 
 /// A use case that always throws [error].
-final class _Throwing<TIn, TOut> implements UseCase<TIn, TOut> {
+final class _Throwing<TCommand, TResult>
+    implements ICommandService<TCommand, TResult> {
   _Throwing(this.error);
 
   final Object error;
 
   @override
-  Future<TOut> execute(TIn input) async => throw error;
+  Future<Either<AppFailure, TResult>> execute(TCommand command) async =>
+      throw error;
 }
 
 /// A move use case that always throws [error].
 final class _ThrowingMove
-    implements UseCase<FakeMove, MoveResult<FakeCoord, FakeState>> {
+    implements ICommandService<FakeMove, MoveResult<FakeCoord, FakeState>> {
   _ThrowingMove(this.error);
 
   final Object error;
 
   @override
-  Future<MoveResult<FakeCoord, FakeState>> execute(FakeMove input) async =>
-      throw error;
+  Future<Either<AppFailure, MoveResult<FakeCoord, FakeState>>> execute(
+    FakeMove command,
+  ) async => throw error;
 }
 
 /// A check use case that always throws [error].
-final class _ThrowingCheck implements UseCase<FakeMove, RejectionReason?> {
+final class _ThrowingCheck
+    implements ICommandService<FakeMove, RejectionReason?> {
   _ThrowingCheck(this.error);
 
   final Object error;
 
   @override
-  Future<RejectionReason?> execute(FakeMove input) async => throw error;
+  Future<Either<AppFailure, RejectionReason?>> execute(
+    FakeMove command,
+  ) async => throw error;
 }

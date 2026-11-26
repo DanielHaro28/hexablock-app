@@ -1,11 +1,13 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
+import '../command_service.dart';
+import '../either.dart';
+import '../errors.dart';
 import '../ports/clock.dart';
 import '../ports/profile_repository.dart';
 import '../ports/progress_repository.dart';
 import '../ports/unit_of_work.dart';
 import '../progress.dart';
-import '../use_case.dart';
 
 /// Keeps the result of a finished game or level for the active profile if it
 /// improves the saved progress (RF-24, RF-60, RN-COM-80, 83).
@@ -23,7 +25,7 @@ import '../use_case.dart';
 /// The sync outbox arrives with API-03; the saved game is removed by
 /// `ApplyMoveUseCase` when the game ends (D-110).
 final class SaveProgressUseCase
-    implements UseCase<GameResult, VariantProgress> {
+    implements ICommandService<GameResult, VariantProgress> {
   /// Keeps the results of the active profile from [_profiles] in [_progress],
   /// dated by [_clock], each one inside a unit of [_unitOfWork].
   SaveProgressUseCase(
@@ -39,8 +41,9 @@ final class SaveProgressUseCase
   final IUnitOfWork _unitOfWork;
 
   @override
-  Future<VariantProgress> execute(GameResult input) =>
-      _unitOfWork.run(() => _consolidate(input));
+  Future<Either<AppFailure, VariantProgress>> execute(
+    GameResult command,
+  ) async => Right(await _unitOfWork.run(() => _consolidate(command)));
 
   Future<VariantProgress> _consolidate(GameResult input) async {
     final profile = (await _profiles.active()).id;

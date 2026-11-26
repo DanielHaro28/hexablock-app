@@ -262,7 +262,7 @@ Fin de partida → `SaveProgressUseCase` consolida el resultado en el perfil act
 | **Error de persistencia** | Repositorio (capa 3) | Se traduce a un error de aplicación; las escrituras son transaccionales (RNF-35) |
 | **Error inesperado** | Cualquier capa | Lo captura un aspecto o el cubit; nunca se muestra un stack al jugador |
 
-El dominio **no lanza excepciones de infraestructura** porque no la conoce. Por dentro se usan excepciones tipadas y hacia la pantalla un `Result` (D-39, `ARQ-03-APP-DETALLE.md` §2).
+El dominio **no lanza excepciones de infraestructura** porque no la conoce. Los adaptadores lanzan excepciones tipadas, los casos de uso devuelven un `Either` con el fallo o el resultado, y hacia la pantalla siempre llega un `Either` (D-39, D-160, D-161, `ARQ-03-APP-DETALLE.md` §2).
 
 ## 8. Controles automáticos en CI
 

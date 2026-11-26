@@ -85,6 +85,9 @@ void main() {
   }
   for (final file in _dartFiles('app/lib/adapters')) {
     _checkAdapterImports(file);
+    // RNF-10: presenters and gateways do not log either; only the adapter
+    // that implements IMetrics may use ILogger.
+    if (!_slash(file.path).contains('/adapters/metrics/')) _checkLogger(file);
   }
   _checkArbParity();
 
@@ -134,17 +137,18 @@ void _checkPlayTurn(File file) {
   }
 }
 
-/// RNF-10: only the aspects log. `ILogger` is declared among the ports and
-/// used by the aspects; a use case that mentions it is logging by itself.
+/// RNF-10: only the aspects log and measure. `ILogger` and `IMetrics` are
+/// declared among the ports and used by the aspects; a use case that
+/// mentions either is logging or measuring by itself.
 void _checkLogger(File file) {
   final path = _slash(file.path);
   if (path.contains('/lib/src/aspects/') || path.contains('/lib/src/ports/')) {
     return;
   }
-  final logger = RegExp(r'(?<![A-Za-z0-9_])ILogger(?![A-Za-z0-9_])');
+  final port = RegExp(r'(?<![A-Za-z0-9_])(ILogger|IMetrics)(?![A-Za-z0-9_])');
   for (final (number, line) in _codeLines(file).indexed) {
-    if (logger.hasMatch(line)) {
-      _fail(file, number, 'only the aspects may use `ILogger` (RNF-10)');
+    if (port.firstMatch(line) case final match?) {
+      _fail(file, number, 'only the aspects may use `${match[1]}` (RNF-10)');
     }
   }
 }

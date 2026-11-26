@@ -13,7 +13,7 @@ final class StubStartGame<
   TState extends GameState<C, TCell>
 >
     implements
-        UseCase<StartOptions, Result<GameSession<C, TCell, TMove, TState>>> {
+        ICommandService<StartOptions, GameSession<C, TCell, TMove, TState>> {
   /// Starts every game on [state], played with [rules].
   const StubStartGame(this.rules, this.state);
 
@@ -24,7 +24,7 @@ final class StubStartGame<
   final TState state;
 
   @override
-  Future<Result<GameSession<C, TCell, TMove, TState>>> execute(
-    StartOptions input,
-  ) async => Success(GameSession(GameEngine(rules, state)));
+  Future<Either<AppFailure, GameSession<C, TCell, TMove, TState>>> execute(
+    StartOptions command,
+  ) async => Right(GameSession(GameEngine(rules, state)));
 }

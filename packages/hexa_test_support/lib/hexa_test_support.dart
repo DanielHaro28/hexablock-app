@@ -2,7 +2,7 @@
 ///
 /// In-memory repositories (`FakeSavedGameRepository`,
 /// `FakeProgressRepository`, `FakeProfileRepository`) and unit of work
-/// (`FakeUnitOfWork`), a fake clock, seeded randomness, a start use case on
+/// (`FakeUnitOfWork`), `.right` to read a service that succeeded, a logger and metrics that keep what they get (`FakeLogger`, `FakeMetrics`), a fake clock, seeded randomness, a start use case on
 /// a given state (`StubStartGame`), a piece
 /// source that hands out given pieces (`StubPieceSource`), a gateway that
 /// answers with the contract examples, the contract test every topology must
@@ -12,6 +12,9 @@
 /// Only ever a `dev_dependency`.
 library;
 
+export 'src/application/either_values.dart';
+export 'src/application/fake_logger.dart';
+export 'src/application/fake_metrics.dart';
 export 'src/application/fake_profile_repository.dart';
 export 'src/application/fake_progress_repository.dart';
 export 'src/application/fake_saved_game_repository.dart';

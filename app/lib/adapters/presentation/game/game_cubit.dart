@@ -10,7 +10,7 @@ typedef ApplyMoveFor<
   TCell extends Object,
   TMove,
   TState extends GameState<C, TCell>
-> = UseCase<TMove, Result<MoveResult<C, TState>>> Function(
+> = ICommandService<TMove, MoveResult<C, TState>> Function(
   GameSession<C, TCell, TMove, TState> session,
 );
 
@@ -21,7 +21,7 @@ typedef CheckMoveFor<
   TCell extends Object,
   TMove,
   TState extends GameState<C, TCell>
-> = UseCase<TMove, Result<RejectionReason?>> Function(
+> = ICommandService<TMove, RejectionReason?> Function(
   GameSession<C, TCell, TMove, TState> session,
 );
 
@@ -40,10 +40,10 @@ final class RecordUseCases {
   final GameKey game;
 
   /// Reads the saved record.
-  final UseCase<GameKey, Result<VariantProgress?>> getProgress;
+  final ICommandService<GameKey, VariantProgress?> getProgress;
 
   /// Keeps the score of a finished game if it beats the record.
-  final UseCase<GameResult, Result<VariantProgress>> saveProgress;
+  final ICommandService<GameResult, VariantProgress> saveProgress;
 }
 
 /// The presenter of the game screen: one for the four variants
@@ -73,7 +73,7 @@ final class GameCubit<
   }) : _recordUseCases = record,
        super(GameLoading<C, TMove, TState>());
 
-  final UseCase<StartOptions, Result<GameSession<C, TCell, TMove, TState>>>
+  final ICommandService<StartOptions, GameSession<C, TCell, TMove, TState>>
   _startGame;
   final StartOptions _options;
   final ApplyMoveFor<C, TCell, TMove, TState> _applyMoveFor;
@@ -81,8 +81,8 @@ final class GameCubit<
   final RecordUseCases? _recordUseCases;
 
   GameSession<C, TCell, TMove, TState>? _session;
-  UseCase<TMove, Result<MoveResult<C, TState>>>? _applyMove;
-  UseCase<TMove, Result<RejectionReason?>>? _checkMove;
+  ICommandService<TMove, MoveResult<C, TState>>? _applyMove;
+  ICommandService<TMove, RejectionReason?>? _checkMove;
 
   /// The saved record, as the screen shows it (RN-HL-70).
   int? _record;
@@ -99,11 +99,11 @@ final class GameCubit<
   Future<void> start() async {
     final result = await _startGame.execute(_options);
     if (isClosed) {
-      if (result case Success(:final value)) await value.engine.close();
+      if (result case Right(:final value)) await value.engine.close();
       return;
     }
     switch (result) {
-      case Success(value: final session):
+      case Right(value: final session):
         final failure = await _readRecord();
         if (isClosed) {
           await session.engine.close();
@@ -120,7 +120,7 @@ final class GameCubit<
             record: _record,
           ),
         );
-      case Failure(:final error):
+      case Left(value: final error):
         emit(GameNotStarted(error));
     }
   }
@@ -140,27 +140,27 @@ final class GameCubit<
     if (isClosed) return;
     final engine = session.engine;
     emit(switch (result) {
-      Success(value: AcceptedMove(:final state, :final events)) => GameReady(
+      Right(value: AcceptedMove(:final state, :final events)) => GameReady(
         state,
         engine.phase,
         events: events,
         record: _record,
       ),
-      Success(value: RejectedMove(:final reason, :final events)) => GameReady(
+      Right(value: RejectedMove(:final reason, :final events)) => GameReady(
         engine.state,
         engine.phase,
         events: events,
         rejection: reason,
         record: _record,
       ),
-      Failure(:final error) => GameReady(
+      Left(value: final error) => GameReady(
         engine.state,
         engine.phase,
         failure: error,
         record: _record,
       ),
     });
-    if (result case Success(
+    if (result case Right(
       value: AcceptedMove(
         :final state,
         outcome: Defeat() || Victory(canContinue: false),
@@ -194,13 +194,13 @@ final class GameCubit<
     final screen = state;
     if (screen is! GameReady<C, TMove, TState>) return;
     emit(switch (result) {
-      Success(value: final rejection) => GameReady(
+      Right(value: final rejection) => GameReady(
         screen.state,
         screen.phase,
         preview: MovePreview(move, rejection: rejection),
         record: screen.record,
       ),
-      Failure(:final error) => GameReady(
+      Left(value: final error) => GameReady(
         screen.state,
         screen.phase,
         failure: error,
@@ -226,10 +226,10 @@ final class GameCubit<
     final useCases = _recordUseCases;
     if (useCases == null) return null;
     switch (await useCases.getProgress.execute(useCases.game)) {
-      case Success(value: final progress):
+      case Right(value: final progress):
         _record = _scoreOf(progress);
         return null;
-      case Failure(:final error):
+      case Left(value: final error):
         return error;
     }
   }
@@ -250,7 +250,7 @@ final class GameCubit<
     final screen = state;
     if (screen is! GameReady<C, TMove, TState>) return;
     switch (result) {
-      case Success(value: final progress):
+      case Right(value: final progress):
         final record = _scoreOf(progress);
         if (record == _record) return;
         _record = record;
@@ -262,7 +262,7 @@ final class GameCubit<
             record: record,
           ),
         );
-      case Failure(:final error):
+      case Left(value: final error):
         emit(
           GameReady(
             screen.state,

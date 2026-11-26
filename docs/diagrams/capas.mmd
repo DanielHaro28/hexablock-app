@@ -12,8 +12,8 @@ flowchart TB
             ADP["Adaptadores de salida<br/>HttpProgressGateway · HttpAuthGateway<br/>IGameStateCodec por variante · mappers DTO"]
             subgraph L2["Capa 2 · Casos de uso (hexa_application)"]
                 direction TB
-                UC["UseCase&lt;TIn, TOut&gt;<br/>StartGame · ApplyMove · Undo · Redo · Pause<br/>SaveProgress · SyncProgress · LoadLevels · Login · GetLeaderboard"]
-                ASP["Aspectos AOP (decoradores)<br/>Session → ErrorHandling → Metrics → Logging"]
+                UC["ICommandService&lt;TCommand, TResult&gt; → Either&lt;AppFailure, TResult&gt;<br/>StartGame · ApplyMove · Undo · Redo · Pause<br/>SaveProgress · SyncProgress · LoadLevels · Login · GetLeaderboard"]
+                ASP["Aspectos AOP (decoradores)<br/>Session → Retry → Metrics → Logging → Exception"]
                 PORT(["Puertos<br/>IProgressRepository · ISavedGameRepository · ISyncOutbox<br/>IProgressGateway · IAuthGateway · ISessionStore<br/>ILevelRepository · IClock · ILogger · IMetrics"])
                 subgraph L1["Capa 1 · Entidades (hexa_engine, hexa_topologies, hexa_variants)"]
                     direction TB

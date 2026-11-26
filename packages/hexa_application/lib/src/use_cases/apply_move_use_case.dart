@@ -1,8 +1,10 @@
 import 'package:hexa_engine/hexa_engine.dart';
 
+import '../command_service.dart';
+import '../either.dart';
+import '../errors.dart';
 import '../game_keys.dart';
 import '../ports/saved_game_repository.dart';
-import '../use_case.dart';
 
 /// Plays a move of any variant and keeps the saved game up to date
 /// (RF-10, RN-COM-20 to 25, RN-COM-33, RNF-07).
@@ -22,7 +24,7 @@ final class ApplyMoveUseCase<
   TMove,
   TState extends GameState<C, TCell>
 >
-    implements UseCase<TMove, MoveResult<C, TState>> {
+    implements ICommandService<TMove, MoveResult<C, TState>> {
   /// Plays the moves of [_session], saving it under [_key].
   ApplyMoveUseCase(this._session, this._savedGames, this._key);
 
@@ -31,8 +33,10 @@ final class ApplyMoveUseCase<
   final SavedGameKey _key;
 
   @override
-  Future<MoveResult<C, TState>> execute(TMove input) async {
-    final result = _session.engine.submit(input);
+  Future<Either<AppFailure, MoveResult<C, TState>>> execute(
+    TMove command,
+  ) async {
+    final result = _session.engine.submit(command);
     switch (result) {
       case AcceptedMove(outcome: Ongoing()):
         _savedGames.scheduleSave(_key, _session.snapshot());
@@ -42,6 +46,6 @@ final class ApplyMoveUseCase<
       case RejectedMove():
         break;
     }
-    return result;
+    return Right(result);
   }
 }

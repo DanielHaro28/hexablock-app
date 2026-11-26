@@ -37,7 +37,7 @@ void main() {
         );
 
         // Act
-        final session = track(await useCase.execute(StartNew(options)));
+        final session = track(await useCase.execute(StartNew(options)).right);
 
         // Assert
         expect(family.newGames, [options]);
@@ -53,7 +53,7 @@ void main() {
       final useCase = StartGameUseCase(FakeVariantFamily(), saved, key);
 
       // Act
-      track(await useCase.execute(StartNew(NewGameOptions(seed: 7))));
+      track(await useCase.execute(StartNew(NewGameOptions(seed: 7))).right);
 
       // Assert
       expect(saved.calls, ['delete']);
@@ -98,7 +98,9 @@ void main() {
         );
 
         // Act
-        final session = track(await useCase.execute(const ContinueSaved()));
+        final session = track(
+          await useCase.execute(const ContinueSaved()).right,
+        );
 
         // Assert
         expect(family.continued, [game]);
@@ -109,7 +111,7 @@ void main() {
     );
 
     test(
-      'should_throw_a_rule_exception_when_there_is_no_game_to_continue',
+      'should_return_a_rule_failure_when_there_is_no_game_to_continue',
       () async {
         // Arrange
         final useCase = StartGameUseCase(
@@ -119,17 +121,15 @@ void main() {
         );
 
         // Act
-        final starting = useCase.execute(const ContinueSaved());
+        final result = await useCase.execute(const ContinueSaved());
 
         // Assert
-        await expectLater(
-          starting,
-          throwsA(
-            isA<RuleException>().having(
-              (e) => e.code,
-              'code',
-              StartGameUseCase.noSavedGame,
-            ),
+        expect(
+          result,
+          isA<Left<AppFailure, Object?>>().having(
+            (left) => left.value,
+            'failure',
+            const RuleFailure(StartGameUseCase.noSavedGame),
           ),
         );
       },

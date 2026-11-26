@@ -16,7 +16,7 @@ void main() {
       final useCase = GetProgressUseCase(progress, FakeProfileRepository());
 
       // Act
-      final read = await useCase.execute(game);
+      final read = await useCase.execute(game).right;
 
       // Assert
       expect(read, record);
@@ -30,7 +30,7 @@ void main() {
       );
 
       // Act
-      final read = await useCase.execute(game);
+      final read = await useCase.execute(game).right;
 
       // Assert
       expect(read, isNull);
@@ -44,7 +44,7 @@ void main() {
       final useCase = GetProgressUseCase(progress, FakeProfileRepository());
 
       // Act
-      final read = await useCase.execute(game);
+      final read = await useCase.execute(game).right;
 
       // Assert
       expect(read, isNull);
@@ -74,7 +74,7 @@ void main() {
         final useCase = GetProgressUseCase(progress, profiles);
 
         // Act
-        final read = await useCase.execute(game);
+        final read = await useCase.execute(game).right;
 
         // Assert
         expect(read, accountProgress);
@@ -97,7 +97,7 @@ void main() {
       final useCase = GetProgressUseCase(progress, FakeProfileRepository());
 
       // Act
-      final read = await useCase.execute(game);
+      final read = await useCase.execute(game).right;
 
       // Assert
       expect(read, levels);

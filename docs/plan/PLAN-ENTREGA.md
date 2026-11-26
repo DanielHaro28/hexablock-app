@@ -75,6 +75,8 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | T-05 | Aplicar los ajustes al diseño DIS-01 a DIS-16 |
 | T-06 | Release: APK firmado en GitHub Releases |
 | T-07 | Entrega: README final y ensayo de la defensa |
+| T-09 | Aspecto de reintentos para los casos de uso con red (D-162) |
+| T-10 | Aspecto de sesión para los casos de uso que necesitan cuenta (D-162) |
 
 ### M0 · Preparación
 
@@ -180,6 +182,8 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #75](https://github.com/DanielHaro28/hexablock-app/issues/75) | A-03 · Completar los campos ⚠️ de AI_USAGE.md | @DanielHaro28, @DavidCR20, @dicpc | 3 |
 | [app #76](https://github.com/DanielHaro28/hexablock-app/issues/76) | R-02 · Citar las fuentes de los algoritmos (xorshift32, coordenadas hexagonales) | @DanielHaro28 | 1 |
 | [app #78](https://github.com/DanielHaro28/hexablock-app/issues/78) | R-05 · Jugar y aprobar los 25 niveles en el APK | @DanielHaro28, @DavidCR20, @dicpc | 3 |
+| [app #152](https://github.com/DanielHaro28/hexablock-app/issues/152) | T-09 · Aspecto de reintentos para los casos de uso con red | @DanielHaro28 | 3 |
+| [app #153](https://github.com/DanielHaro28/hexablock-app/issues/153) | T-10 · Aspecto de sesión para los casos de uso que necesitan cuenta | @DanielHaro28 | 3 |
 
 ### Sin milestone (solo si sobra tiempo)
 

@@ -76,6 +76,9 @@ package "Capa 3 · Adaptadores (app/lib/adapters)" {
     + onMove(m: TMove): void
     + onUndo(): void
   }
+  class LogMetrics <<Adapter>> {
+    + record(name: String, elapsed: Duration): void
+  }
   class LinesStateCodec <<Adapter>> {
     + encode(s: LinesState): Map<String, Object?>
     + decode(json: Map<String, Object?>): LinesState
@@ -104,6 +107,14 @@ package "Capa 2 · Casos de uso (hexa_application)" {
   abstract class Aspect<TCommand, TResult> <<Decorator>> {
     + inner: ICommandService<TCommand, TResult>
   }
+  interface CommandDescriber<TCommand, TResult> <<interface>> <<Strategy>> {
+    + command(c: TCommand): Map<String, Object?>
+    + result(r: TResult): Map<String, Object?>
+  }
+  class MoveDescriber<C extends Coord, TCell extends Object, TMove, TState extends GameState>
+  class Redactor {
+    + redact(data: Map<String, Object?>): Map<String, Object?>
+  }
   class AspectChain {
     + wrap<TCommand, TResult>(s: ICommandService<TCommand, TResult>): ICommandService<TCommand, TResult>
   }
@@ -113,11 +124,19 @@ package "Capa 2 · Casos de uso (hexa_application)" {
   class ExceptionAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - logger: ILogger
   }
+  class RetryAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
+    - policy: RetryPolicy
+  }
+  interface RetryPolicy <<interface>> <<Strategy>> {
+    + shouldRetry(f: AppFailure, attempt: int): bool
+  }
   class MetricsAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - metrics: IMetrics
   }
   class LoggingAspect<TCommand, TResult> <<Decorator>> <<AOP>> {
     - logger: ILogger
+    - describe: CommandDescriber<TCommand, TResult>
+    - verbose: bool
   }
 
   class StartGameUseCase<C extends Coord, TCell extends Object, TMove, TState extends GameState> {
@@ -205,9 +224,11 @@ HttpProgressGateway ..|> IProgressGateway
 HttpAuthGateway ..|> IAuthGateway
 SecureSessionStore ..|> ISessionStore
 PlatformLogger ..|> ILogger
+LogMetrics ..|> IMetrics
+LogMetrics --> ILogger
 ErrorHandlers --> ILogger
 
-' ===== Aspectos (AOP con decoradores, D-40, D-41 y D-160) =====
+' ===== Aspectos (AOP con decoradores, D-40, D-41 y D-160 a D-163) =====
 Left --|> Either
 Right --|> Either
 ICommandService ..> Either : devuelve
@@ -224,7 +245,13 @@ AspectChain ..> LoggingAspect : arma
 SessionAspect --> ISessionStore
 MetricsAspect --> IMetrics
 LoggingAspect --> ILogger
+LoggingAspect --> CommandDescriber
+LoggingAspect ..> Redactor : redacta
+MoveDescriber ..|> CommandDescriber
 ExceptionAspect --> ILogger
+RetryAspect --|> Aspect
+RetryAspect --> RetryPolicy
+AspectChain ..> RetryAspect : arma
 
 ' ===== Casos de uso → puertos =====
 StartGameUseCase ..|> ICommandService

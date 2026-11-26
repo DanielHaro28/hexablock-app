@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160, D-161 y D-163 |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -153,7 +153,7 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 | `IClock` (extiende `IMonotonicClock` del dominio) | `now()` (en UTC), `nowMillis()` | `SystemClock` en `frameworks/platform/` (en pruebas, `FakeClock`) |
 | `IConnectivity` | `isOnline`, `changes` | `ConnectivityAdapter` → plugin de conectividad |
 | `ILogger` | `log(LogEntry)` (solo lo usan los aspectos, RNF-10) | `PlatformLogger` (capa 4, `frameworks/platform/`): consola de la plataforma; en *release*, solo advertencias y errores, sin datos (D-163) |
-| `IMetrics` | `record(String name, Duration elapsed)` | `LogMetrics` (escribe en el registro) |
+| `IMetrics` | `record(String name, Duration elapsed)` (solo lo usan los aspectos, RNF-10) | `LogMetrics` (capa 3, `adapters/metrics/`): escribe cada medición en el registro (D-163) |
 
 **Otros adaptadores de la capa 3:**
 
@@ -165,85 +165,76 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 | Mappers | Dominio ↔ DTO de la API (con los ejemplos de `docs/contracts/`, D-23) y dominio ↔ filas de Drift |
 | Traductor de errores | Convierte `DioException` y los errores de Drift en `AppException` (§2) |
 
-## 5. Aspectos AOP (D-40, D-41, D-160)
+## 5. Aspectos AOP (D-40, D-41, D-160 a D-163)
 
-> Desde D-160 cada aspecto implementa `ICommandService` y extiende `Aspect`: tiene el mismo tipo que lo que envuelve, y una cadena no admite dos aspectos del mismo tipo. El registro, las métricas, el orden y `AspectChain` de esta sección se actualizan en TEC-03 (2/2).
+Cada aspecto implementa `ICommandService` y extiende `Aspect` (D-160): tiene el mismo tipo que lo que envuelve, así que se anidan sin saber qué hay adentro, como el `Decorate` del capítulo 10 de Seemann y van Deursen. Una cadena no admite dos aspectos de la misma clase (`Aspect.kind`): un caso de uso nunca se registra ni se mide dos veces.
 
 ### 5.1 Los aspectos
 
 | Aspecto | Patrón | Qué hace | A qué casos de uso |
 |---|---|---|---|
-| `LoggingAspect<TCommand, TResult>` | Decorator | Registra inicio, fin, duración y resultado. **Redacta** contraseñas, tokens y correos (SEC-WEB-06). El volcado del tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) solo se escribe en modo desarrollo (SEC-MOB-05). Cómo se describe cada entrada lo decide un `UseCaseDescriber` (Strategy) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
-| `MetricsAspect<TCommand, TResult>` | Decorator | Mide la duración con `IMonotonicClock`; si supera el presupuesto, lo registra como advertencia | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
-| `ExceptionAspect<TCommand, TResult>` | Decorator (mantiene el tipo, D-160) | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Registra un error inesperado con su tipo y su *stack*: es el único lugar que registra una excepción | Todos |
-| `RetryAspect<TCommand, TResult>` (llega con la primera historia que usa red) | Decorator | Reintenta si recibe `Left(NetworkFailure())`, según una `RetryPolicy` (Strategy): 2 reintentos, con espera de 0,5 s y 1 s | Solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
-| `SessionAspect<TCommand, TResult>` | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `SessionFailure` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
+| `LoggingAspect<TCommand, TResult>` | Decorator | Registra `<nombre> started` (debug), y después `<nombre> finished` (info) con `ms` o `<nombre> failed` (warning) con `ms`, el tipo de fallo y, en un conflicto o una regla, su código. Solo en modo desarrollo (`verbose`, SEC-MOB-05) agrega lo que dice un `CommandDescriber` (Strategy) sobre el comando y el resultado, **redactado** por `Redactor`: contraseñas, tokens y correos, por la clave o por la forma del valor, también anidados (SEC-WEB-06). `MoveDescriber` vuelca el tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
+| `MetricsAspect<TCommand, TResult>` | Decorator | Mide cada intento con `IMonotonicClock` y lo entrega a `IMetrics`; si supera el presupuesto, lo registra como advertencia. Va por fuera del registro, así que en desarrollo también mide el volcado del tablero: el presupuesto solo es representativo en *profile* o *release* | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
+| `ExceptionAspect<TCommand, TResult>` | Decorator | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Registra un error inesperado con su tipo y su *stack*: es el único lugar que registra una excepción | Todos |
+| `RetryAspect<TCommand, TResult>` (T-09, D-162) | Decorator | Reintenta si recibe `Left(NetworkFailure())`, según una `RetryPolicy` (Strategy): 2 reintentos, con espera de 0,5 s y 1 s | Solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
+| `SessionAspect<TCommand, TResult>` (T-10, D-162) | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `Left(SessionFailure(expired: false))` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
 
 La caché del ranking (un Proxy de caché sobre `GetLeaderboard`) queda como opcional (*Could*).
 
 ```dart
-// hexa_application/lib/src/aspects/logging_aspect.dart
-final class LoggingAspect<TIn, TOut> implements UseCase<TIn, TOut> {
-  LoggingAspect(this._inner, this._logger, {required this.name, UseCaseDescriber<TIn, TOut>? describe})
-      : _describe = describe ?? DefaultDescriber<TIn, TOut>();
-  final UseCase<TIn, TOut> _inner;
-  final ILogger _logger;
-  final String name;
-  final UseCaseDescriber<TIn, TOut> _describe;
-
+// hexa_application/lib/src/aspects/logging_aspect.dart (abridged)
+final class LoggingAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
   @override
-  Future<TOut> execute(TIn input) async {
-    _logger.log(LogEntry.debug('$name started', _describe.input(input)));   // redacted
-    try {
-      final output = await _inner.execute(input);
-      _logger.log(LogEntry.info('$name finished', _describe.output(output)));
-      return output;
-    } on Object catch (error) {
-      _logger.log(LogEntry.warning('$name failed', {'error': error.runtimeType.toString()}));
-      rethrow; // ErrorHandlingAspect, outside, turns it into a Result
+  Future<Either<AppFailure, TResult>> execute(TCommand command) async {
+    final start = _clock.nowMillis();
+    _logger.log(LogEntry.debug('$name started', _details(() => _describe.command(command))));
+    final result = await inner.execute(command); // an Either: ExceptionAspect is inside
+    final ms = _clock.nowMillis() - start;
+    switch (result) {
+      case Right(:final value):
+        _logger.log(LogEntry.info('$name finished', {'ms': ms, ..._details(() => _describe.result(value))}));
+      case Left(:final value):
+        _logger.log(LogEntry.warning('$name failed', {'ms': ms, ..._failure(value)}));
     }
+    return result;
   }
+
+  // Only in development, and always redacted (SEC-MOB-05, SEC-WEB-06).
+  Map<String, Object?> _details(Map<String, Object?> Function() describe) =>
+      verbose ? _redactor.redact(describe()) : const {};
 }
 ```
 
-### 5.2 Orden y ensamblado (D-41)
+### 5.2 Orden y ensamblado (D-41, D-161)
 
-De afuera hacia adentro: **sesión → errores y reintentos → métricas → registro → caso de uso**.
+De afuera hacia adentro: **sesión → reintentos → métricas → registro → excepciones → caso de uso**.
 
 - La sesión va primero: sin cuenta no tiene sentido reintentar.
 - Las métricas van dentro de los reintentos: miden un intento, no la suma de todos.
-- El registro va pegado al caso de uso: anota cada intento con sus datos.
+- El registro va dentro de los reintentos: anota cada intento con sus datos.
+- Las excepciones van pegadas al caso de uso: los demás aspectos solo ven un `Either` y ninguno necesita `try`.
 
-`AspectChain` (en `hexa_application`, porque solo usa puertos) arma la cadena; el *composition root* la usa en una línea por caso de uso:
+`AspectChain` (en `hexa_application`, porque solo usa puertos) arma la cadena. El *composition root* la usa en una línea por caso de uso: elige **qué** aspectos lleva cada uno (matriz de §5.3), y el orden no se elige. Los reintentos y la sesión se agregan aquí con T-09 y T-10 (D-162):
 
 ```dart
-// hexa_application/lib/src/aspects/aspect_chain.dart
-final class AspectChain {
-  AspectChain(this._logger, this._metrics, this._clock, this._sessions);
-  final ILogger _logger;
-  final IMetrics _metrics;
-  final IMonotonicClock _clock;
-  final ISessionStore _sessions;
-
-  UseCase<TIn, Result<TOut>> wrap<TIn, TOut>(
-    UseCase<TIn, TOut> useCase, {
-    required String name,
-    bool requiresSession = false,
-    RetryPolicy retry = RetryPolicy.none,
-    Duration? budget,
-    UseCaseDescriber<TIn, TOut>? describe,
-  }) {
-    UseCase<TIn, TOut> inner = LoggingAspect(useCase, _logger, name: name, describe: describe);
-    inner = MetricsAspect(inner, _metrics, _clock, name: name, budget: budget);
-    UseCase<TIn, Result<TOut>> outer = ErrorHandlingAspect(inner, _logger, retry: retry);
-    if (requiresSession) outer = SessionAspect(outer, _sessions, _clock);
-    return outer;
-  }
+// hexa_application/lib/src/aspects/aspect_chain.dart (abridged)
+ICommandService<TCommand, TResult> wrap<TCommand, TResult>(
+  ICommandService<TCommand, TResult> service, {
+  required String name,     // given: a release build obfuscates type names
+  bool logged = true,
+  bool measured = false,
+  Duration? budget,         // AspectChain.frameBudget = 16 ms (RNF-31)
+  CommandDescriber<TCommand, TResult>? describe,
+}) {
+  ICommandService<TCommand, TResult> wrapped = ExceptionAspect(service, _logger, name: name);
+  if (logged) wrapped = LoggingAspect(wrapped, _logger, _clock, name: name, describe: describe, verbose: verbose);
+  if (measured || budget != null) wrapped = MetricsAspect(wrapped, _metrics, _clock, _logger, name: name, budget: budget);
+  return wrapped;
 }
 
-// app/lib/config/ (composition root)
-final syncProgress = chain.wrap(SyncProgressUseCase(...),
-    name: 'SyncProgress', requiresSession: true, retry: RetryPolicy.network);
+// app/lib/config/hexa_lines_module.dart (composition root)
+applyMoveFor: (session) => _chain.wrap(ApplyMoveUseCase(session, savedGames, key),
+    name: 'ApplyMove', budget: AspectChain.frameBudget, describe: MoveDescriber(session)),
 ```
 
 ### 5.3 Matriz de aspectos
@@ -252,8 +243,8 @@ final syncProgress = chain.wrap(SyncProgressUseCase(...),
 |---|---|---|---|---|---|
 | `StartGame`, `Undo`, `Redo`, `Pause`, `Resume`, `ContinuePlaying` | — | ✓ | — | ✓ | ✓ |
 | `ApplyMove` | — | ✓ | — | ✓ (16 ms) | ✓ (tablero en modo desarrollo) |
-| `CheckMove` | — | ✓ | — | ✓ (16 ms) | — (D-138) |
-| `SaveProgress`, `LoadLevels`, `Logout`, `GetSettings`, `UpdateSettings` | — | ✓ | — | — | ✓ |
+| `CheckMove` | — | ✓ | — | ✓ (16 ms; `LogMetrics` escribe cada medición en debug) | — (D-138) |
+| `SaveProgress`, `GetProgress`, `LoadLevels`, `Logout`, `GetSettings`, `UpdateSettings` | — | ✓ | — | — | ✓ |
 | `SyncProgress`, `ImportGuestProgress` | ✓ | ✓ | `SyncProgress` | — | ✓ |
 | `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` | — | ✓ | ✓ | — | ✓ (redactado) |
 
@@ -263,7 +254,7 @@ Como `ApplyMoveUseCase` es genérico, sus aspectos aplican a las 4 variantes sin
 
 | Momento | Qué se crea | Dónde |
 |---|---|---|
-| Arranque (`main.dart`) | Manejadores globales de errores (`installErrorHandlers`: los errores fuera de los casos de uso van al mismo `ILogger`, D-163), base de datos, adaptadores, `ILogger`, `AspectChain`, casos de uso que no dependen de una partida, Cubits de pantalla; registro de **topologías con su layout** (`TopologyEntry`, D-29) y de **módulos de variante** (`VariantModule`) | `app/lib/config/`, con `get_it` (*lazy singletons*) |
+| Arranque (`main.dart`) | Manejadores globales de errores (`installErrorHandlers`: los errores fuera de los casos de uso van al mismo `ILogger`, D-163), base de datos, adaptadores, `ILogger`, `IMetrics`, `AspectChain`, casos de uso que no dependen de una partida, Cubits de pantalla; registro de **topologías con su layout** (`TopologyEntry`, D-29) y de **módulos de variante** (`VariantModule`) | `app/lib/config/`, con `get_it` (*lazy singletons*) |
 | Al abrir una partida | `topologyRegistry[figura].accept(OpenGame(module, opciones))` → el módulo crea su `VariantFamily<C>`, la `GameSession`, el codec del estado, los casos de uso de partida envueltos por `AspectChain` y el `GameCubit` | `VariantModule.open<C>()` (ARQ-02 §3.1) |
 | Al pasar a segundo plano | Un `WidgetsBindingObserver` llama a `PauseGameUseCase`, que pausa, guarda un `snapshot()` nuevo y hace `flush()` de la partida guardada | `app/lib/frameworks/lifecycle/` |
 
@@ -285,7 +276,7 @@ Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con 
 | Proxy | Estructural | 2 | `SessionAspect` (protección); caché del ranking (opcional) |
 | Adapter | Estructural | 3 y 4 | Gateways HTTP e `IGameStateCodec` por variante (capa 3); repositorios Drift y de plataforma (capa 4, D-156) |
 | Facade | Estructural | 4 | `AudioFacade` |
-| Strategy | Comportamiento | 1 · 2 | `IGameRules`, `IScoringPolicy`, `IPieceSource`, `IProgressModel`; `RetryPolicy`, `UseCaseDescriber` |
+| Strategy | Comportamiento | 1 · 2 | `IGameRules`, `IScoringPolicy`, `IPieceSource`, `IProgressModel`; `RetryPolicy`, `CommandDescriber` (`MoveDescriber`) |
 | Template Method | Comportamiento | 1 | `hexa_engine/lib/src/game_rules.dart` (`playTurn`) |
 | State | Comportamiento | 1 | `hexa_engine/lib/src/phases.dart` |
 | Observer | Comportamiento | 1 · 3 | `GameEngine.events`; Cubits (estados que escuchan los widgets) |
@@ -323,4 +314,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno) y D-163 (destino del registro). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03) y D-163 (destino del registro). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).

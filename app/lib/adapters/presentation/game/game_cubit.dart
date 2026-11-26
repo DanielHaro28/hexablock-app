@@ -244,7 +244,7 @@ final class GameCubit<
     final useCases = _recordUseCases;
     if (useCases == null) return;
     final result = await useCases.saveProgress.execute(
-      GameResult(useCases.game, finished.score),
+      HighScoreResult(useCases.game, finished.score),
     );
     if (isClosed) return;
     final screen = state;
@@ -277,7 +277,7 @@ final class GameCubit<
 
   static int? _scoreOf(VariantProgress? progress) => switch (progress) {
     HighScoreProgress(:final score) => score,
-    null => null,
+    LevelsProgress() || null => null,
   };
 
   @override

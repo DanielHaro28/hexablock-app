@@ -16,8 +16,15 @@ import 'variant_module.dart';
 /// repository, dated by the app's clock (RN-HL-70, 71).
 final class HexaLinesModule implements VariantModule {
   /// The module, with the decoded `assets/config/hexa-lines.json`, keeping
-  /// its record in [_progress] with the dates of [_clock].
-  const HexaLinesModule(this._config, this._progress, this._clock);
+  /// its record for the active profile of [_profiles] in [_progress] with the
+  /// dates of [_clock], each save inside a unit of [_unitOfWork] (D-158).
+  const HexaLinesModule(
+    this._config,
+    this._progress,
+    this._profiles,
+    this._clock,
+    this._unitOfWork,
+  );
 
   /// The `gameId` of Hexa Lines in the contract.
   static const id = 'hexa-lines';
@@ -27,7 +34,9 @@ final class HexaLinesModule implements VariantModule {
 
   final Map<String, Object?> _config;
   final IProgressRepository _progress;
+  final IProfileRepository _profiles;
   final IClock _clock;
+  final IUnitOfWork _unitOfWork;
 
   @override
   String get gameId => id;
@@ -44,7 +53,7 @@ final class HexaLinesModule implements VariantModule {
       ProfileId.guest,
       GameKey(gameId, entry.topology.id),
     );
-    // In memory until PRG-03 brings Drift (D-136).
+    // In memory until NAV-04 brings Drift saved_games + codec (D-136, D-156).
     final savedGames = MemorySavedGameRepository<LinesState<C>>();
     return BlocProvider(
       create: (_) => GameCubit<C, PieceColor, PlacePiece<C>, LinesState<C>>(
@@ -56,14 +65,13 @@ final class HexaLinesModule implements VariantModule {
             ErrorHandlingAspect(ApplyMoveUseCase(session, savedGames, key)),
         checkMoveFor: (session) =>
             ErrorHandlingAspect(CheckMoveUseCase(session)),
-        // The guest until PRG-03 brings the profiles (D-142).
         record: RecordUseCases(
           game: key.game,
           getProgress: ErrorHandlingAspect(
-            GetProgressUseCase(_progress, key.profile),
+            GetProgressUseCase(_progress, _profiles),
           ),
           saveProgress: ErrorHandlingAspect(
-            SaveProgressUseCase(_progress, _clock, key.profile),
+            SaveProgressUseCase(_progress, _profiles, _clock, _unitOfWork),
           ),
         ),
       )..start(),

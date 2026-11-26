@@ -60,8 +60,8 @@ Las dependencias apuntan **siempre hacia adentro**: la capa 4 conoce a la 3, la 
 |---|---|---|
 | **1. Entidades** | Motor genérico (tablero, ciclo de turno, estados, historial, eventos de dominio); abstracciones de topología, fuente de piezas, puntuación, progreso y azar (xorshift32); topologías concretas (hexágonos, cuadrados, triángulos, cubos); reglas, puntuación, fuentes y criterios de mejor intento de las 4 variantes; validadores de niveles; consolidación del progreso | Flutter, Drift, dio, `dart:io`, reloj del sistema, cualquier paquete de terceros |
 | **2. Casos de uso** | Casos de uso **genéricos** (iniciar partida, aplicar movimiento, deshacer, rehacer, pausar, guardar progreso, sincronizar, cargar niveles, iniciar y cerrar sesión, importar progreso de invitado, consultar ranking); **puertos** (interfaces) que necesitan; **aspectos** como decoradores que solo dependen de puertos | Implementaciones concretas, Flutter, cualquier nombre de variante |
-| **3. Adaptadores** | Cubits (uno por tipo de pantalla, genéricos sobre la variante); implementaciones de repositorios y gateways; mappers dominio ↔ DTO y la serialización del estado de cada variante | Widgets, consultas SQL, detalles HTTP |
-| **4. Frameworks** | Widgets, `CustomPainter` por topología y por contenido de celda, base de datos Drift, cliente dio, audio, almacenamiento seguro, preferencias, i18n (ARB), `main.dart` y el *composition root* | Reglas de juego |
+| **3. Adaptadores** | Cubits (uno por tipo de pantalla, genéricos sobre la variante); gateways; mappers dominio ↔ DTO y la serialización del estado de cada variante | Widgets, consultas SQL, detalles HTTP, imports de `app/lib/frameworks/` |
+| **4. Frameworks** | Widgets, `CustomPainter` por topología y por contenido de celda, base de datos Drift, cliente dio, audio, almacenamiento seguro, preferencias, i18n (ARB), `main.dart` y el *composition root*; los **repositorios que se apoyan en un framework** (Drift, almacenamiento seguro, preferencias), que implementan directamente los puertos de la capa 2 (D-156) | Reglas de juego |
 
 ## 3. Paquetes del repositorio (pub workspace)
 
@@ -81,14 +81,14 @@ hexablock-app/
 │   ├── lib/
 │   │   ├── adapters/            # Capa 3
 │   │   │   ├── presentation/    #   cubits por tipo de pantalla
-│   │   │   ├── repositories/    #   implementaciones de los puertos de persistencia
+│   │   │   ├── repositories/    #   repositorios en memoria que todavía no tienen framework
 │   │   │   ├── gateways/        #   implementaciones de los puertos remotos
 │   │   │   └── mappers/         #   DTO ↔ dominio, serialización por variante
 │   │   ├── frameworks/          # Capa 4
 │   │   │   ├── ui/              #   pantallas, widgets, painters (topología × contenido)
-│   │   │   ├── persistence/     #   Drift (tablas, migraciones)
+│   │   │   ├── persistence/     #   Drift (tablas, migraciones) y sus repositorios (D-156)
 │   │   │   ├── network/         #   dio, interceptores
-│   │   │   └── platform/        #   audio, almacenamiento seguro, preferencias, logger
+│   │   │   └── platform/        #   audio, almacenamiento seguro, preferencias y sus repositorios, logger
 │   │   ├── config/              #   registro de variantes y topologías
 │   │   └── main.dart            #   composition root (get_it)
 │   ├── android/                 #   proyecto Android generado por flutter create
@@ -168,10 +168,11 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 
 **Puertos** (interfaces definidas en `hexa_application`):
 
-| Puerto | Responsabilidad | Implementación (capa 3 → 4) |
+| Puerto | Responsabilidad | Implementación (capa 4 si se apoya en un framework, D-156) |
 |---|---|---|
 | `IProgressRepository` | Progreso por perfil, `gameId` y figura (D-27) | Repositorio → Drift |
 | `IProfileRepository` | Perfil activo (invitado o cuenta) | Repositorio → Drift + preferencias |
+| `IUnitOfWork` | Leer, consolidar y escribir como una sola transacción (D-158) | Transacción de Drift |
 | `ILevelRepository` | Niveles incluidos y descargados | Repositorio → assets + Drift |
 | `ISyncOutbox` | Resultados pendientes de enviar (una marca en cada fila, D-49) | Repositorio → Drift |
 | `ISavedGameRepository` | Partida en curso guardada por perfil, variante y figura (D-37) | Repositorio → Drift |
@@ -192,9 +193,8 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 | Componente | Responsabilidad |
 |---|---|
 | **Cubits** por tipo de pantalla | `GameCubit` (genérico: sirve para las 4 variantes), `LevelSelectCubit`, `HomeCubit`, `SettingsCubit`, `AccountCubit`, `LeaderboardCubit`. Escuchan los eventos de dominio y exponen un estado listo para dibujar |
-| **Repositorios** | Implementan los puertos de persistencia sobre Drift, assets y preferencias |
 | **Gateways** | Implementan los puertos remotos sobre dio; traducen errores HTTP a errores de aplicación |
-| **Mappers** | Dominio ↔ DTO de la API; dominio ↔ filas de Drift; **serialización del estado de cada variante** (para pausar y guardar) |
+| **Mappers** | Dominio ↔ DTO de la API; **serialización del estado de cada variante** (para pausar y guardar). El paso entre el dominio y las filas de Drift lo hace cada repositorio, en la capa 4 (D-156) |
 
 ### 4.4 Capa 4 — frameworks
 
@@ -202,9 +202,9 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
 | **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
-| **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en `ARQ-04-APP-DATOS.md`) |
+| **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en `ARQ-04-APP-DATOS.md`), y los repositorios que implementan sobre ellas los puertos de la capa 2: `DriftProfileRepository`, `DriftProgressRepository`, `DriftUnitOfWork` y después `DriftSavedGameRepository`, `DriftSyncOutbox` y `LevelRepository` (D-156, D-158) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
-| **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger |
+| **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger, y los repositorios sobre ellos (`SecureSessionStore`, el de preferencias) y `SystemClock` (D-156) |
 | **Composition root** | `main.dart` + `get_it`: crea las implementaciones, aplica los decoradores y registra variantes y topologías |
 
 ## 5. Configuración: variantes y topologías
@@ -275,6 +275,7 @@ El dominio **no lanza excepciones de infraestructura** porque no la conoce. Por 
 > Se buscan **identificadores completos** y no palabras sueltas: buscar `sort`, `tri` o `hex` daría falsos positivos con `List.sort()`, `String` o el propio nombre `hexa_engine`.
 | Los casos de uso no ven las variantes | `hexa_application` no depende de `hexa_variants` | RNF-07 |
 | Ningún caso de uso llama al logger | Script que busca usos de `ILogger` fuera de `aspects/` | RNF-10 |
+| Los adaptadores no ven la capa 4 | El mismo script falla si un archivo de `app/lib/adapters/` importa algo de `frameworks/` o `package:drift` | D-156 |
 | Niveles incluidos válidos | Validador de niveles sobre `assets/levels/` | RF-83 |
 | Paridad de idiomas | Script que compara las claves de los ARB | RNF-50 |
 

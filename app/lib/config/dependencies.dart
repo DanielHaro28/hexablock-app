@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:drift/drift.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hexa_application/hexa_application.dart';
 import 'package:hexa_engine/hexa_engine.dart';
 import 'package:hexa_topologies/hexa_topologies.dart';
 
-import '../adapters/repositories/memory_progress_repository.dart';
+import '../frameworks/persistence/app_database.dart';
+import '../frameworks/persistence/drift_profile_repository.dart';
+import '../frameworks/persistence/drift_progress_repository.dart';
+import '../frameworks/persistence/drift_unit_of_work.dart';
 import '../frameworks/platform/system_clock.dart';
 import '../frameworks/ui/board/hex_layout.dart';
 import 'hexa_lines_module.dart';
@@ -23,27 +27,39 @@ typedef SeedSource = int Function();
 const defaultTopology = 'hex';
 
 /// Registers what the app needs at startup in [getIt] (ARQ-03 §6): the
-/// topologies with their layouts, the clock, the progress repository (one
-/// for the whole app, in memory until PRG-03, D-142), the variant modules
-/// with their configuration read from [bundle], and the [newSeed] source (by
-/// default, a secure random seed).
+/// topologies with their layouts, the clock, the Drift database and its
+/// repositories (`IProfileRepository`, `IProgressRepository`), the variant
+/// modules with their configuration read from [bundle], and the [newSeed]
+/// source (by default, a secure random seed).
 Future<void> registerDependencies(
   GetIt getIt,
   AssetBundle bundle, {
   SeedSource? newSeed,
+  QueryExecutor? databaseExecutor,
+  IClock? clock,
 }) async {
   final linesConfig = await _json(bundle, HexaLinesModule.configAsset);
-  final IClock clock = SystemClock();
-  final IProgressRepository progress = MemoryProgressRepository();
+  final IClock appClock = clock ?? SystemClock();
+  final database = databaseExecutor == null
+      ? AppDatabase.open(clock: appClock)
+      : AppDatabase(databaseExecutor, clock: appClock);
+  final IProfileRepository profiles = DriftProfileRepository(database);
+  final IProgressRepository progress = DriftProgressRepository(database);
+  final IUnitOfWork unitOfWork = DriftUnitOfWork(database);
   getIt
-    ..registerSingleton<IClock>(clock)
+    ..registerSingleton<IClock>(appClock)
+    ..registerSingleton<AppDatabase>(database, dispose: (db) => db.close())
+    ..registerSingleton<IProfileRepository>(profiles)
     ..registerSingleton<IProgressRepository>(progress)
+    ..registerSingleton<IUnitOfWork>(unitOfWork)
     ..registerSingleton(
       TopologyRegistry()
         ..add(const TopologyEntry(HexTopology(), HexLayout(), _hexCoord)),
     )
     ..registerSingleton(
-      VariantRegistry()..add(HexaLinesModule(linesConfig, progress, clock)),
+      VariantRegistry()..add(
+        HexaLinesModule(linesConfig, progress, profiles, appClock, unitOfWork),
+      ),
     )
     ..registerSingleton<SeedSource>(newSeed ?? _secureSeed);
 }

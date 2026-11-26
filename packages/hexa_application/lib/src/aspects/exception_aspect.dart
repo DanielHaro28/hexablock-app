@@ -16,6 +16,9 @@ final class ExceptionAspect<TCommand, TResult>
   ExceptionAspect(super.inner);
 
   @override
+  Type get kind => ExceptionAspect;
+
+  @override
   Future<Either<AppFailure, TResult>> execute(TCommand command) async {
     try {
       return await inner.execute(command);

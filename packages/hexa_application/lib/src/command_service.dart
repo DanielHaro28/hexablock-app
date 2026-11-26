@@ -15,9 +15,10 @@ import 'errors.dart';
 /// - The command is one object, a class or a record; when nothing is needed
 ///   it is the empty record `()`.
 /// - A use case returns `Right` when it worked and `Left` when one of its
-///   rules stops it; it never throws on purpose and never catches. The
+///   rules stops it; it never throws for a rule and never catches. The
 ///   exceptions of the adapters go through it and `ExceptionAspect` turns
-///   them into a `Left` (D-161).
+///   them into a `Left` (D-161). A broken invariant is a programming error
+///   and may throw: it becomes an `UnexpectedFailure`.
 /// - [execute] returns a `Future` even when the work is synchronous:
 ///   awaiting it costs a microtask, so the screen still gets the result
 ///   before the next frame (D-32).

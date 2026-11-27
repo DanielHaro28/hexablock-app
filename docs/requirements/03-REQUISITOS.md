@@ -86,11 +86,11 @@
 
 | ID | El sistema… | Reglas | Fuente | Prioridad |
 |---|---|---|---|---|
-| RF-60 | Guarda en el dispositivo, por perfil, por variante y por figura, los niveles completados, el mejor intento por nivel y el récord | RN-COM-80 | §5.1 (9) | Must |
+| RF-60 | Guarda en el dispositivo, por perfil, por variante y por figura, los niveles completados, el mejor intento por nivel y el récord | RN-COM-80, RN-COM-114 | §5.1 (9) | Must |
 | RF-61 | Desbloquea los niveles en orden | RN-COM-73 | §5.1 (2) | Must |
 | RF-62 | Permite jugar sin cuenta (modo invitado) con progreso local | RN-COM-81 | Profesor (P-08) | Must |
 | RF-63 | Funciona sin conexión; marca los resultados pendientes de sincronizar | RN-COM-82, 85 | Profesor (P-08) | Must |
-| RF-64 | Guarda la partida en curso después de cada turno y al pasar a segundo plano, y permite **continuarla** aunque la app se haya cerrado | RN-COM-32 a 35, 42 | HU NAV-04, D-37 | Must |
+| RF-64 | Guarda la partida en curso después de cada turno y al pasar a segundo plano, y permite **continuarla** aunque la app se haya cerrado | RN-COM-32 a 35, 42, 115 | HU NAV-04, D-37 | Must |
 
 ### 1.8 Cuenta, sincronización y ranking (parte de la app)
 

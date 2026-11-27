@@ -11,7 +11,7 @@
 3. Paleta empolvada lila, durazno y salvia; ilustración de línea de 4 px sobre una mancha hexagonal.
 4. Cada juego muestra solo sus marcadores, en tarjetas crema: Puntaje y Récord en Hexa Lines y Hexa Merge; estrellas, tiempo y movimientos en Hexa Fit; Movimientos y Puntaje en Hexa Sort (ver «Marcadores por juego»). Acciones: el par Deshacer / Nueva partida. Sin modo oscuro, sin neón.
 5. Hexágono para lo jugable (HexCell, LevelBubble, manchas); píldora (`radius-pill`) y círculo para lo tocable.
-6. Cada color de ficha lleva un símbolo: nunca el color solo. Están activos por defecto; solo el jugador puede ocultarlos, en Ajustes › Accesibilidad.
+6. Cada color de ficha lleva un símbolo: nunca el color solo. Los símbolos se ven siempre; no hay un ajuste para ocultarlos (D-147).
 7. Texto siempre en `ink` sobre pastel; `ink-soft` solo sobre `bg` y `surface`.
 8. Movimiento de miel: suave al entrar, rebote corto al colocar, pétalos al limpiar.
 
@@ -118,8 +118,7 @@ Arriba del tablero, cada juego muestra solo lo que define su progreso. Los valor
 
 ## Ajustes · Accesibilidad
 
-- «Símbolos en las fichas» / «Symbols on tiles»: un ChoiceChips con «Mostrar» / «Show» (por defecto) y «Ocultar» / «Hide». Cambia al instante en todos los juegos.
-- Sin símbolos, las fichas conservan su trazo `tile-stroke` y el tablero su contorno; el color pasa a ser la única forma de distinguirlas, por eso nunca se ocultan por defecto.
+- No hay ajuste «Símbolos en las fichas» (D-147): los símbolos se ven siempre, porque sin ellos el color sería la única forma de distinguir las fichas (`butter` y `mint` quedan muy cerca en claridad). Un ajuste para ocultarlos queda como mejora en el *backlog*, si sobra tiempo.
 
 ## Cuenta
 

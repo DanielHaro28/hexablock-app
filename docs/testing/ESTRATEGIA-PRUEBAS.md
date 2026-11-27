@@ -124,6 +124,19 @@ El contrato (copia idéntica a la de la API, D-23, y `check_contracts.py`) y los
 
 Costo: los repos son públicos, así que los *runners* estándar no gastan minutos (D-57).
 
+### 9.1 Leer un error del APK de *release* (D-164)
+
+Los errores de producción no se envían a ningún servicio (D-164): se leen del teléfono. En *release*, `PlatformLogger` escribe el tipo y el *stack* de cada error, sin su texto (D-163), y el *stack* sale ofuscado (SEC-MOB-05). Para leerlo:
+
+1. Conecta el teléfono por USB, con la depuración USB activada.
+2. Corre `adb logcat -s flutter` y reproduce el error.
+3. Copia el bloque del error, con su *stack*, a `stack.txt`.
+4. Baja el artefacto `symbols-<versión>` del workflow de *release* de esa versión (GitHub Actions lo guarda 90 días).
+5. Corre `flutter symbolize -i stack.txt -d symbols/app.android-arm64.symbols` (el archivo de la arquitectura del teléfono).
+6. Abre un Issue `type:bug` con el *stack* traducido. Nunca pegues datos del jugador.
+
+Lo usa quien prueba el APK (por ejemplo, en R-05). Si el equipo decide recibir los errores de forma remota, es una decisión nueva y otro adaptador de `ILogger` (D-163), sin tocar los aspectos.
+
 ## 10. Fuera del alcance (por ahora)
 
 | Qué | Por qué |

@@ -84,7 +84,7 @@ Un **movimiento inválido no es un error**: el motor devuelve `RejectedMove` den
 
 | Caso de uso | Entrada → salida | Puertos | Requisitos |
 |---|---|---|---|
-| `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, nivel —dónde llega a la fábrica está abierto, D-125— y un `NewGameOptions` con la semilla, D-124) → `GameSession<C, TCell, TMove, TState>`, con `VariantFamily.createSession(newGame)` o `continueSession(saved)` (D-116) | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
+| `StartGameUseCase<C, TCell, TMove, TState>` | `StartOptions` (continuar o nueva, con un `NewGameOptions` que lleva la semilla, D-124, y el `levelId` del nivel elegido en una variante por niveles, D-125) → `GameSession<C, TCell, TMove, TState>`, con `VariantFamily.createSession(newGame)` o `continueSession(saved)` (D-116) | `ISavedGameRepository`, `ILevelRepository` | RF-01, RF-64, RN-COM-34, 40 |
 | `ApplyMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `MoveResult<C, TState>` | `ISavedGameRepository` (guardado tras cada turno, D-37) | RF-10, RN-COM-20 a 25, 33 |
 | `CheckMoveUseCase<C, TCell, TMove, TState>` | `TMove` → `RejectionReason?` (`null` = se jugaría), con `GameEngine.check`: no cambia la partida ni guarda nada | — | RF-21, D-138 |
 | `UndoMoveUseCase<…>` / `RedoMoveUseCase<…>` | `()` → `TState` | `ISavedGameRepository` | RF-34, 53; RN-COM-60 a 63 |
@@ -267,7 +267,7 @@ Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con 
 | Patrón | Categoría | Capa | Dónde (ruta prevista) |
 |---|---|---|---|
 | Abstract Factory | Creacional | 1 | `hexa_variants/lib/src/*/hexa_*_factory.dart` (`VariantFamily`) |
-| Builder | Creacional | 1 | `hexa_variants/lib/src/fit/fit_level_builder.dart`, `sort/sort_level_builder.dart` |
+| Builder | Creacional | 1 | `hexa_variants/lib/src/hexa_fit/fit_level_builder.dart`, `hexa_sort/sort_level_builder.dart` |
 | Factory Method | Creacional | 1 | `hexa_topologies/lib/src/*/…_topology.dart` (`cellsOf`) |
 | Singleton (por inyección) | Creacional | 4 | `app/lib/config/injection.dart` (`get_it`) |
 | Bridge | Estructural | 1 · 4 | `hexa_engine/lib/src/board.dart` ↔ `GridTopology`; en la vista, `TopologyLayout` × pintor de contenido (ARQ-A-06) |
@@ -275,8 +275,8 @@ Los 14 del dominio están detallados en `ARQ-02-MOTOR.md` §9. Aquí, todos con 
 | Decorator | Estructural | 1 · 2 | Puntuación (`StreakMultiplier`), reglas; aspectos `LoggingAspect`, `MetricsAspect`, `ExceptionAspect` |
 | Proxy | Estructural | 2 | `SessionAspect` (protección); caché del ranking (opcional) |
 | Adapter | Estructural | 3 y 4 | Gateways HTTP e `IGameStateCodec` por variante (capa 3); repositorios Drift y de plataforma (capa 4, D-156) |
-| Facade | Estructural | 4 | `AudioFacade` |
-| Strategy | Comportamiento | 1 · 2 | `IGameRules`, `IScoringPolicy`, `IPieceSource`, `IProgressModel`; `RetryPolicy`, `CommandDescriber` (`MoveDescriber`) |
+| Facade | Estructural | 4 | `AudioFacade`, con `audioplayers` (D-150); recibe solo un `SoundId` |
+| Strategy | Comportamiento | 1 · 2 · 4 | `IGameRules`, `IScoringPolicy`, `IPieceSource`, `IProgressModel`; `RetryPolicy`, `CommandDescriber` (`MoveDescriber`); en la capa 4, `EventSounds` (qué sonido toca cada evento, uno por variante en su `VariantModule`, D-166) |
 | Template Method | Comportamiento | 1 | `hexa_engine/lib/src/game_rules.dart` (`playTurn`) |
 | State | Comportamiento | 1 | `hexa_engine/lib/src/phases.dart` |
 | Observer | Comportamiento | 1 · 3 | `GameEngine.events`; Cubits (estados que escuchan los widgets) |

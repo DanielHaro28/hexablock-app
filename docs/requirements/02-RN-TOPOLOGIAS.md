@@ -65,7 +65,7 @@ Estado: 🟡 (los de hexágonos son ✅ por el enunciado). Se ajustan jugando; s
 | ID | Topología | Catálogo | Estado |
 |---|---|---|---|
 | RN-TOP-20 | Hexágonos | `02-RN-HEXA-LINES.md`, RN-HL-23 (8 familias, 24 piezas) | ✅ D-08 |
-| RN-TOP-21 | Cuadrados | Propuesta: mono, dominó, línea de 3, L de 3, línea de 4, cuadrado 2 × 2, L de 4, T de 4, línea de 5 (sin rotación: cada orientación es una pieza) | ⚠️ D-20 |
+| RN-TOP-21 | Cuadrados | Propuesta (corregida el 26-11 para cumplir D-131 y RN-HL-24: un color por familia, con 8 pasteles, y pesos que suman 100): mono 5, dominó 10, línea de 3 15, L de 3 15, línea de 4 15, cuadrado 2 × 2 15, L de 4 15, línea de 5 10 (8 familias, 18 piezas). Sale la T de 4. Las orientaciones (giros de 90°) las da la topología (RN-COM-14, D-132) | ⚠️ D-20 |
 | RN-TOP-22 | Triángulos | Se define al implementar la topología | ⚠️ D-20 |
 | RN-TOP-23 | Cubos | Se define al implementar la topología | ⚠️ D-20 |
 

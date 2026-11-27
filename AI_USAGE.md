@@ -1033,6 +1033,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió B con el catálogo ya cargado en la fábrica, entre tres opciones, y que una partida guardada siga con su versión del nivel (D-165) |
 | Lecciones | En la primera versión, las pruebas por niveles del contrato no las corría ninguna fábrica: se habrían estrenado con Fit o con Sort. Con la fábrica falsa por niveles se comprobó que fallan si la fábrica no lanza el error con un id desconocido o si el estado no guarda el nivel. Un id como `fit-hex-001` en las pruebas del motor no lo detecta el CI, pero nombra una variante y una figura: se usó `level-001`. Hacer `levelBased` obligatorio obliga a Fit, Sort y Merge a declararlo, como pasa con `usesChance` |
 
+### IA-105 · Dos decisiones abiertas que salieron de las revisiones (D-167 y D-168) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | "si haces codigo o arreglas cosas estas chequeando con los skills de arqui y seguridad…" y "las nuevas solo anotalas y despues vemos" |
+| Resultado | `architecture-reviewer` y `security-reviewer` revisaron los PR #160 a #164 y api #64 y #66. Dos de sus hallazgos son decisiones del equipo y quedan abiertas en `PENDIENTES.md`, cada una con sus opciones y una recomendación: D-167 (qué recibe el jugador si su nivel ya no está al empezar) y D-168 (si se validan las horas reales). Los demás hallazgos quedaron anotados en los Issues que los van a resolver |
+| Modificaciones del equipo | El usuario pidió solo anotarlas, sin decidir todavía |
+| Lecciones | Correr solo los scripts del CI no reemplaza a los revisores: desde ahora, los dos revisores corren antes de abrir cada PR |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

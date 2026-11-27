@@ -978,6 +978,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario confirmó que `MetricsAspect` entra en TEC-03 y que los reintentos y la sesión llegan con sus historias (T-09, T-10). Pidió una explicación completa de cómo queda la implementación antes de empezar. Ante la revisión, el usuario aceptó que la medición de `CheckMove` se escriba en el registro en cada paso del arrastre, solo en desarrollo (D-162). Aceptó también la recomendación de no redactar `displayName` (D-163). Las pruebas las escribió Claude y las revisó @DanielHaro28 (D-59) |
 | Lecciones | `architecture-reviewer` encontró pruebas de `AspectChain` que pasaban aunque `wrap` dejara de pasar `budget`, `describe` o `verbose`, y que `_failureDetails` no tenía prueba (ver §4.2) |
 
+### IA-101 · Despliegue y audio en los documentos compartidos (D-121, D-122 y D-150) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 26-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los pendientes de la app: "B con paired-change" (D-121), "A en el mismo paired-change" (D-122), "A" (D-150) y "A, arma los PR" |
+| Resultado | Sin Issue propio (decisiones; se implementan en TEC-10, api #16, y NAV-02, app #25). SECURITY-BASELINE: SEC-WEB-01 suma la clave del CI restringida al script de despliegue con el usuario `deploy` (D-121), y SEC-WEB-03 y el Environment `production` suman la huella del servidor en `EC2_KNOWN_HOSTS` (D-122). ADR-001 §2.1: el audio usa `audioplayers` (D-150), revisión 2.4. D-121, D-122 y D-150 en el `DECISIONES.md` de la API, con el mismo texto que en la app. Dos PR enlazados, uno por repo |
+| Modificaciones del equipo | El usuario eligió B en D-121 (un usuario `deploy` con `sudo` solo para el script, en vez de restringir la clave de `ubuntu`) y pidió que el control quedara en SECURITY-BASELINE con `/paired-change` y no solo en `DEPLOY.md`. Pidió que D-122 fuera en el mismo cambio |
+| Lecciones | La descripción original de D-122 decía que sin verificar la huella el CI le entregaba la clave a un servidor falso; en SSH la clave privada nunca viaja (RFC 4252 §7), y el riesgo real es hablar con un impostor |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -120,6 +120,8 @@ Cada ejemplo `E-*` de `docs/requirements/02-RN-*.md` tiene una prueba con su ID 
 
 El contrato (copia idéntica a la de la API, D-23, y `check_contracts.py`) y los niveles incluidos (`levelcheck.py`) los revisa `docs-check.yml`, que corre en el mismo PR. La prueba en Dart con el validador de niveles del dominio llega con su historia.
 
+`.github/workflows/pr-body.yml` corre aparte, también cuando se edita la descripción, y falla si no tiene la línea `- Real hours: <n>` de la plantilla (D-128).
+
 `.github/workflows/release.yml` corre con un tag `v*` sobre un commit de `main`: arma el APK firmado y ofuscado (SEC-MOB-05, SEC-MOB-07) y lo publica en un GitHub Release.
 
 Costo: los repos son públicos, así que los *runners* estándar no gastan minutos (D-57).

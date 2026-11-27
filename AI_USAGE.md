@@ -1000,6 +1000,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió B en D-121 (un usuario `deploy` con `sudo` solo para el script, en vez de restringir la clave de `ubuntu`) y pidió que el control quedara en SECURITY-BASELINE con `/paired-change` y no solo en `DEPLOY.md`. Pidió que D-122 fuera en el mismo cambio, y confirmó después que D-128 aplica también a la API |
 | Lecciones | La descripción original de D-122 decía que sin verificar la huella el CI le entregaba la clave a un servidor falso; en SSH la clave privada nunca viaja (RFC 4252 §7), y el riesgo real es hablar con un impostor |
 
+### IA-102 · Horas reales en cada PR (T-11, D-128) — compartido
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 26-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los pendientes: "Elijo D" (D-128), "D128 Sip" (también en la API) y "Sí, arranca con D-128, y mergea los PR que esten listos" |
+| Resultado | Issues app #161 y api #65 (T-11). En los dos repos: la sección `## Real hours` de la plantilla de PR, el workflow `.github/workflows/pr-body.yml` (falla sin la línea `- Real hours: <n>`; corre también al editar la descripción, la lee por `env`, tiene su propio `concurrency` y no corre en los PR de Dependabot), y `/implement-story` y `/ai-usage`, que piden el número a la persona. En la app: `tool/hours_report.dart`, que suma las horas de los PR integrados de los dos repos por Issue, a partir de `Closes`/`Refs #n`, y las compara con `PLAN-ENTREGA.md` §5; el plan (§2, §4 y T-11 en M1), `README.md` y ESTRATEGIA-PRUEBAS §9. La expresión del workflow se probó con 9 descripciones de ejemplo (con CRLF, sin número, con texto, solo dentro de un comentario) y el reporte, contra los PR reales de M1 |
+| Modificaciones del equipo | El usuario eligió D entre cuatro opciones y confirmó que aplica a los dos repos. La revisión obligatoria del *ruleset* y el campo **Horas reales** del tablero los hace él a mano. Las horas de este PR las anota él |
+| Lecciones | GitHub guarda la descripción de un PR con CRLF, así que la comprobación quita `\r` antes de buscar la línea; sin eso, una descripción bien llena fallaba |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

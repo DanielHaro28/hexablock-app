@@ -1,0 +1,37 @@
+# Real hours of every pull request (D-128): the "Real hours" line that the PR
+# template asks for. `tool/hours_report.dart` in hexablock-app adds them up per
+# Issue to compare them with the estimate (D-62). It is a separate workflow
+# so that editing the description does not run the whole CI again.
+name: pr-body
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-body-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  real-hours:
+    # Dependabot cannot fill it in; a skipped job counts as passed.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: The description has "- Real hours: <number>"
+        env:
+          # The description is untrusted input: it only reaches the script
+          # through an environment variable, never inside `run`.
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if printf '%s\n' "$BODY" | tr -d '\r' \
+            | grep -Eq '^[[:space:]]*[-*]?[[:space:]]*Real hours:[[:space:]]*[0-9]+([.,][0-9]+)?[[:space:]]*h?[[:space:]]*$'; then
+            echo "Real hours found."
+          else
+            echo "::error::Fill in the line '- Real hours: <number>' of the PR description (D-128), for example '- Real hours: 3.5'."
+            exit 1
+          fi

@@ -76,4 +76,70 @@ void main() {
       expect(other, isNot(options));
     });
   });
+
+  group('D-125', () {
+    test('should_have_no_level_when_none_is_given', () {
+      // Act
+      final options = NewGameOptions(seed: 42);
+
+      // Assert
+      expect(options.levelId, isNull);
+    });
+
+    test('should_keep_the_level_when_one_is_given', () {
+      // Arrange
+      const levelId = 'level-001';
+
+      // Act
+      final options = NewGameOptions(seed: 42, levelId: levelId);
+
+      // Assert
+      expect(options.levelId, levelId);
+    });
+
+    test('should_be_equal_when_the_seeds_and_the_levels_are_equal', () {
+      // Arrange
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
+
+      // Act
+      final same = NewGameOptions(seed: 42, levelId: 'level-001');
+
+      // Assert
+      expect(same, options);
+      expect(same.hashCode, options.hashCode);
+    });
+
+    test('should_differ_when_the_levels_differ', () {
+      // Arrange
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
+
+      // Act
+      final other = NewGameOptions(seed: 42, levelId: 'level-002');
+
+      // Assert
+      expect(other, isNot(options));
+    });
+
+    test('should_differ_when_only_one_has_a_level', () {
+      // Arrange
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
+
+      // Act
+      final other = NewGameOptions(seed: 42);
+
+      // Assert
+      expect(other, isNot(options));
+    });
+
+    test('should_name_the_level_when_it_is_printed', () {
+      // Arrange
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
+
+      // Act
+      final text = options.toString();
+
+      // Assert
+      expect(text, 'NewGameOptions(seed: 42, levelId: level-001)');
+    });
+  });
 }

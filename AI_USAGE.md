@@ -1022,6 +1022,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió C′ (la guía completa y un solo registro para las herramientas, sin cambiar el `enum` del contrato ni RN-COM-01) entre tres opciones |
 | Lecciones | La lista de nombres prohibidos del motor estaba escrita a mano: una variante nueva que alguien olvidara agregar podía aparecer en el motor sin que el CI fallara. Con el registro, el motor que nombra a `HexaFill` falla en cuanto la variante está registrada, y una carpeta sin registrar también falla. La imagen `extensibilidad.png` queda por exportar desde la fuente (R-04): en esta máquina no hay `mmdc` |
 
+### IA-104 · El nivel de una partida nueva en `NewGameOptions.levelId` (TEC-01, D-125) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los pendientes: "Eligo B y la pregunta la i" (D-125) y "ya puse la hora me que tarde, sigamos" |
+| Resultado | Issue #64 (TEC-01), una parte. `NewGameOptions` suma el campo opcional `levelId` (en `==`, `hashCode` y `toString`), sin validarlo, porque si un id existe depende del catálogo de la fábrica; las fábricas que no son por niveles lo ignoran, así que Lines no cambia. `checkVariantFamilyContract` pide `levelBased`, obligatorio como `usesChance`: con `true`, el estado es `ILevelBased` con el id de las opciones y un id que falta o que no está en el catálogo lanza un `ArgumentError`; con `false`, el estado no es `ILevelBased` y la fábrica ignora el `levelId`. `FakeVariantFamily` puede jugarse por niveles (un catálogo de id a ancho del tablero y un `FakeLevelState`), y una prueba del motor le pasa el contrato con y sin niveles, así las pruebas por niveles ya corren. Seis pruebas nuevas de `NewGameOptions` (grupo D-125) y `EXTENSIBILITY.md` al día. Antes del PR, `architecture-reviewer` y `security-reviewer` revisaron el cambio; de ahí salieron la fábrica falsa por niveles, la prueba de que se ignora el nivel y los ids neutros (`level-001`) en las pruebas del motor. Las pruebas las escribió la IA: falta la revisión de una persona (D-59) |
+| Modificaciones del equipo | El usuario eligió B con el catálogo ya cargado en la fábrica, entre tres opciones, y que una partida guardada siga con su versión del nivel (D-165) |
+| Lecciones | En la primera versión, las pruebas por niveles del contrato no las corría ninguna fábrica: se habrían estrenado con Fit o con Sort. Con la fábrica falsa por niveles se comprobó que fallan si la fábrica no lanza el error con un id desconocido o si el estado no guarda el nivel. Un id como `fit-hex-001` en las pruebas del motor no lo detecta el CI, pero nombra una variante y una figura: se usó `level-001`. Hacer `levelBased` obligatorio obliga a Fit, Sort y Merge a declararlo, como pasa con `usesChance` |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

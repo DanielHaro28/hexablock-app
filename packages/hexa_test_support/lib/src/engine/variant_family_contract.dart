@@ -8,7 +8,14 @@ import 'package:test/test.dart';
 /// fresh factory for each test (a timed variant gets its `FakeClock` there).
 /// [options] must give a game that is still going on after two turns.
 /// [usesChance] says whether the variant's state is `IRandomSeeded`
-/// (ARQ-02 §7), so forgetting the capability fails.
+/// (ARQ-02 §7), so forgetting the capability fails. [levelBased] says
+/// whether the variant is played by levels: then [options] must name a level
+/// of the factory's catalog in `levelId`, the state must be `ILevelBased`
+/// with that id, and a missing or unknown id must throw an [ArgumentError]
+/// (D-125), which `ExceptionAspect` turns into a `Left` (D-161); otherwise
+/// the factory must ignore `levelId`. Throws an [ArgumentError] right away
+/// if [levelBased] is true and [options] names no level, so a wrong call
+/// fails with a clear message instead of inside one test.
 ///
 /// It checks what `StartGameUseCase` relies on but the types cannot
 /// enforce: a new game starts playing and is the same for the same options
@@ -28,7 +35,16 @@ void checkVariantFamilyContract<
   VariantFamily<C, TCell, TMove, TState> Function() family,
   NewGameOptions options, {
   required bool usesChance,
+  required bool levelBased,
 }) {
+  if (levelBased && options.levelId == null) {
+    throw ArgumentError.value(
+      options,
+      'options',
+      'a level-based family needs a levelId of its catalog',
+    );
+  }
+
   GameSession<C, TCell, TMove, TState> track(
     GameSession<C, TCell, TMove, TState> session,
   ) {
@@ -107,6 +123,61 @@ void checkVariantFamilyContract<
       expect(state, isNot(isA<IRandomSeeded>()));
     }
   });
+
+  test('should_record_the_level_only_when_the_game_is_level_based', () {
+    // Act
+    final state = track(family().createSession(options)).engine.state;
+
+    // Assert
+    if (levelBased) {
+      expect(
+        state,
+        isA<ILevelBased>().having((s) => s.levelId, 'levelId', options.levelId),
+      );
+    } else {
+      expect(state, isNot(isA<ILevelBased>()));
+    }
+  });
+
+  if (levelBased) {
+    test('should_throw_when_a_level_based_game_has_no_level', () {
+      // Arrange
+      final noLevel = NewGameOptions(seed: options.seed);
+
+      // Act
+      void create() => family().createSession(noLevel);
+
+      // Assert
+      expect(create, throwsArgumentError);
+    });
+
+    test('should_throw_when_the_level_is_not_in_the_catalog', () {
+      // Arrange
+      final unknown = NewGameOptions(
+        seed: options.seed,
+        levelId: '${options.levelId}-not-in-the-catalog',
+      );
+
+      // Act
+      void create() => family().createSession(unknown);
+
+      // Assert
+      expect(create, throwsArgumentError);
+    });
+  } else {
+    test('should_ignore_the_level_when_the_game_is_not_level_based', () {
+      // Arrange
+      final withLevel = NewGameOptions(seed: options.seed, levelId: 'level-1');
+      final withoutLevel = NewGameOptions(seed: options.seed);
+
+      // Act
+      final state = track(family().createSession(withLevel)).engine.state;
+
+      // Assert
+      final expected = track(family().createSession(withoutLevel)).engine.state;
+      expect(state, expected);
+    });
+  }
 
   test('should_start_paused_when_a_saved_game_continues', () {
     // Arrange

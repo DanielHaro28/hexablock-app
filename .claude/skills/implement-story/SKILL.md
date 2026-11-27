@@ -40,5 +40,5 @@ Implementa la historia **$ARGUMENTS** de `hexablock-app`. Responde en español; 
 
 1. Corre `/ai-usage`.
 2. `git push -u origin <rama>` (te va a pedir permiso).
-3. `gh pr create` con la plantilla completa: `Closes #<issue>`, historia, reglas y la autorrevisión marcada de verdad. Si la IA escribió las pruebas, dilo para que una persona las revise (D-59). Pregúntale a la persona cuántas horas le llevó este PR, contando la sesión con la IA y la revisión de las pruebas, y escribe su número en `- Real hours:`. No lo estimes tú: sin la línea, el check `pr-body` falla (D-128).
+3. `gh pr create` con la plantilla completa: `Closes #<issue>`, historia, reglas y la autorrevisión marcada de verdad. Si la IA escribió las pruebas, dilo para que una persona las revise (D-59). Pregúntale a la persona si quiere anotar cuántas horas le llevó este PR, contando la sesión con la IA y la revisión de las pruebas, y escribe en `- Real hours:` el número que te dé; es opcional (D-169). No lo estimes tú.
 4. Muestra al usuario el enlace del PR y lo que falta de la Definition of Done (D-64), por ejemplo la revisión de otra persona.

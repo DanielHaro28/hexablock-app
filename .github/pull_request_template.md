@@ -21,7 +21,7 @@
 
 ## Real hours
 
-<!-- Hours you spent on this PR, counting the AI session and the test review (D-128). A number such as 3.5: the pr-body check fails without it. You can edit it later; the check runs again. -->
+<!-- Optional (D-169): hours you spent on this PR, counting the AI session and the test review, as a number such as 3.5. tool/hours_report.dart adds them up per Issue. -->
 - Real hours:
 
 ## Sensitive changes

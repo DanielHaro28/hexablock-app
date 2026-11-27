@@ -12,13 +12,21 @@ Pass both repos so that IDs defined in one and cited in the other resolve.
 Exits with 1 if an ID is cited but not defined.
 """
 import collections
+import json
 import pathlib
 import re
 import sys
 
+# The prefix of each variant's rules and stories (RN-HL-*, HL-*) comes from the
+# registry of variants of the team's tools, so a fifth variant only adds itself
+# there (D-130).
+VARIANTS = json.loads(
+    (pathlib.Path(__file__).resolve().parent.parent / "variants.json").read_text(encoding="utf-8")
+)["variants"]
+PREFIXES = "|".join(re.escape(v["prefix"]) for v in VARIANTS)
 ID = (
-    r"(?:RN-(?:COM|TOP|HEX|TRI|SQR|CUB|HL|HF|HS|HM)-\d+|RF-\d+|RNF-\d+"
-    r"|(?:NAV|HL|HF|HS|HM|PRG|API|LVL|TEC)-\d+|E-[A-Z]+-(?:\d+|NIVEL|GEN)"
+    r"(?:RN-(?:COM|TOP|HEX|TRI|SQR|CUB|" + PREFIXES + r")-\d+|RF-\d+|RNF-\d+"
+    r"|(?:NAV|" + PREFIXES + r"|PRG|API|LVL|TEC)-\d+|E-[A-Z]+-(?:\d+|NIVEL|GEN)"
     r"|SEC-(?:API|WEB|MOB|AGT)-\d+|ARQ-[SAB]-\d+|DIS-\d+|IA-\d+|[DGAWFRPT]-\d+)"
 )
 # Not preceded by a letter, digit or hyphen, so "IA-05" is not read as "A-05"

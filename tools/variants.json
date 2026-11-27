@@ -1,0 +1,9 @@
+{
+  "$comment": "The variants the team's tools know (D-130): tool/check_architecture.dart, tools/docs-check/check_ids.py and tools/reference-sim/levelcheck.py read them from here. A fifth variant is one more entry (docs/EXTENSIBILITY.md). gameId: the contract id; dart: the prefix of its classes, forbidden in the engine and the use cases; folder: its folder in packages/hexa_variants/lib/src/; prefix: its rules (RN-<prefix>-*) and stories (<prefix>-*); levels: how many bundled levels it must have in app/assets/levels/<gameId>/, or null if it is not played by levels.",
+  "variants": [
+    { "gameId": "hexa-lines", "dart": "HexaLines", "folder": "hexa_lines", "prefix": "HL", "levels": null },
+    { "gameId": "hexa-fit", "dart": "HexaFit", "folder": "hexa_fit", "prefix": "HF", "levels": 15 },
+    { "gameId": "hexa-sort", "dart": "HexaSort", "folder": "hexa_sort", "prefix": "HS", "levels": 10 },
+    { "gameId": "hexa-merge", "dart": "HexaMerge", "folder": "hexa_merge", "prefix": "HM", "levels": null }
+  ]
+}

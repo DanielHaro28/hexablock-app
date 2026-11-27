@@ -8,7 +8,9 @@ Needs:  jsonschema >= 4.18 (same as docs/contracts/check_contracts.py)
    tier (D-54) and the search effort grows from one level to the next.
 3. Hexa Sort: RN-HS-12, the greedy bot wins (D-55) and its moves grow from one level to the next;
    levels 1-6 use topology 'any' without stacks and 7-10 use hex with stacks (D-28).
-4. Ids, order and file names match (D-47); 15 Fit and 10 Sort levels (enunciado §5.1).
+4. Ids, order and file names match (D-47); each variant has the number of levels that
+   tools/variants.json gives it (15 Fit and 10 Sort, enunciado §5.1), and every folder of levels
+   belongs to a variant registered there (D-130).
 5. Contract examples with the same id are identical to the real level, and the stars in
    E-COM-2 and E-COM-3 are possible with the thresholds of the real levels (RN-HF-62).
 6. Writes docs/levels/CATALOGO.md with a drawing of each level (outside assets/, so it is not in the APK).
@@ -44,10 +46,24 @@ registry = Registry().with_resources((s["$id"], Resource.from_contents(s)) for s
 level_schema = next(s for s in schemas if s["$id"].endswith("/level.schema.json"))
 validator = Draft202012Validator(level_schema, registry=registry)
 
+# The variants played by levels and how many each one bundles come from the registry of
+# variants of the team's tools (D-130). VALIDATED are the ones this script checks in depth
+# below; a new variant with levels needs its own section here.
+VARIANTS = load(ROOT / "tools/variants.json")["variants"]
+BY_LEVELS = {v["gameId"]: v["levels"] for v in VARIANTS if v["levels"] is not None}
+VALIDATED = {"hexa-fit", "hexa-sort"}
+for folder in sorted(p.name for p in LEVELS.iterdir() if p.is_dir()):
+    if folder not in BY_LEVELS:
+        fail(f"app/assets/levels/{folder}: not a variant with levels in tools/variants.json (D-130)")
+for game, count in BY_LEVELS.items():
+    found = len(list((LEVELS / game).glob("*.json")))
+    if found != count:
+        fail(f"{game}: expected {count} levels (tools/variants.json), found {found}")
+    if game not in VALIDATED:
+        fail(f"{game}: levelcheck.py has no validator for its levels yet (D-130)")
+
 fit = [load(f) for f in sorted((LEVELS / "hexa-fit").glob("*.json"))]
 sort = [load(f) for f in sorted((LEVELS / "hexa-sort").glob("*.json"))]
-if len(fit) != 15 or len(sort) != 10:
-    fail(f"expected 15 Fit and 10 Sort levels, found {len(fit)} and {len(sort)}")
 
 for f in sorted(LEVELS.glob("hexa-*/*.json")):
     lvl = load(f)

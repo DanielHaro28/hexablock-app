@@ -1011,6 +1011,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió D entre cuatro opciones y confirmó que aplica a los dos repos. La revisión obligatoria del *ruleset* y el campo **Horas reales** del tablero los hace él a mano. Las horas de este PR las anota él |
 | Lecciones | GitHub guarda la descripción de un PR con CRLF, así que la comprobación quita `\r` antes de buscar la línea; sin eso, una descripción bien llena fallaba. La primera versión del workflow tenía un nombre de paso con `: ` sin comillas, que YAML lee como un mapa: GitHub no lo corrió y no avisó en el PR (solo marcó una ejecución fallida en el *push*). Se detectó porque el check `real-hours` no aparecía, y se validó después con el paquete `yaml` de Dart |
 
+### IA-103 · `EXTENSIBILITY.md` con las rutas reales y un registro de variantes para las herramientas (TEC-02, D-130) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los pendientes: "C′ y armame el mensaje a dicpc" (D-130) y "2 horas en cada uno, mergealos y sigue con D-130" |
+| Resultado | Issue #65 (TEC-02), una parte. `docs/EXTENSIBILITY.md` reescrita con las rutas del código, un resumen en cinco grupos (lo que nunca cambia, clases nuevas, registro, configuración y datos, documentos) y pasos que faltaban: la carga del JSON en `dependencies.dart`, las carpetas de *assets* de `app/pubspec.yaml`, la tarjeta del inicio, el color del juego, `EventSounds`, el catálogo de niveles y cada esquema del contrato. `tools/variants.json`, el registro de variantes de las herramientas: `tool/check_architecture.dart` arma con él los nombres prohibidos en el motor y en los casos de uso, y falla si las carpetas de variantes o de niveles, o los `enum` del contrato, no coinciden; `check_ids.py` toma de ahí los prefijos y `levelcheck.py`, los conteos de niveles. `/new-variant` y sus evaluaciones, `.claude/rules/engine.md` y la fuente del diagrama de extensibilidad, al día. Cada falla nueva se probó rompiendo el caso a propósito: una carpeta sin registrar, una variante registrada que el motor nombra y que el contrato no conoce, un prefijo nuevo con IDs sin definir, una carpeta de niveles sin registrar y un conteo distinto |
+| Modificaciones del equipo | El usuario eligió C′ (la guía completa y un solo registro para las herramientas, sin cambiar el `enum` del contrato ni RN-COM-01) entre tres opciones |
+| Lecciones | La lista de nombres prohibidos del motor estaba escrita a mano: una variante nueva que alguien olvidara agregar podía aparecer en el motor sin que el CI fallara. Con el registro, el motor que nombra a `HexaFill` falla en cuanto la variante está registrada, y una carpeta sin registrar también falla. La imagen `extensibilidad.png` queda por exportar desde la fuente (R-04): en esta máquina no hay `mmdc` |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 Nueva variante: **$ARGUMENTS**. Es la prueba de extensibilidad de la defensa (enunciado §3.1, RNF-03, F-09): agregar una variante son **clases nuevas y registro en configuración**, sin tocar el motor, los casos de uso ni las otras variantes. Todo lo que hagas aquí lo puede revisar el jurado, así que el resultado tiene que poder mostrarse con un `git diff`.
 
-La guía es `docs/EXTENSIBILITY.md` §2; síguela paso a paso y en orden. Las rutas de la guía se escribieron antes del código: si no coinciden con el código real (por ejemplo, las carpetas de `packages/hexa_variants/lib/src/` se llaman `hexa_<variante>/`), **sigue el código** y anota la diferencia para el usuario.
+La guía es `docs/EXTENSIBILITY.md` §2; síguela paso a paso y en orden. Sus rutas son las del código real, con Hexa Lines como modelo (D-130). Si aun así algo no coincide, **sigue el código** y anota la diferencia para el usuario.
 
 ## 0. Antes de escribir
 
@@ -31,20 +31,22 @@ Crea los archivos de las tablas de la guía. Lo que más se equivoca:
 - **Pantalla:** el pintor de celdas sigue `docs/design/` con los ajustes de `REVISION-DISENO.md` (D-66). Si el diseño no tiene nada para esta variante, pregunta al usuario: el diseño también es una decisión del equipo.
 - **Niveles** (si es por niveles): en el esquema común con la sección propia de la variante (RN-COM-70), revisados con `python3 -I tools/reference-sim/levelcheck.py`, que regenera `docs/levels/CATALOGO.md`. Siguen D-28, D-54 y D-55; la API guarda una copia (D-61), así que van también en el PR de la API.
 
-Las **únicas líneas modificadas** de archivos existentes son las de registro: el `export` de `hexa_variants.dart` y la entrada de `app/lib/config/variants.dart`.
+Las líneas modificadas de archivos existentes son las del grupo **Registro** de la guía (§0): los `export` de `hexa_variants.dart`, el módulo y la carga de su JSON en `app/lib/config/dependencies.dart`, su tarjeta en `app/lib/config/game_catalog.dart`, la entrada de `tools/variants.json` y, si hace falta, las carpetas de *assets* de `app/pubspec.yaml`.
 
 ## 3. Backend y contrato (paso 6)
 
 - En `hexablock-api`, agrega el `gameId` a la configuración de juegos permitidos (SEC-API-06).
 - **El contrato enumera los `gameId`**: `docs/contracts/schemas/common.schema.json` (y las condiciones de `progress.schema.json` si la variante es por niveles o por récord) rechaza un `gameId` que no esté en la lista. Se cambia en la fuente, `../hexablock-api/docs/contracts/`, y se copia a este repo con `/paired-change` (D-23). Sin esto, la variante no puede guardar ni sincronizar progreso.
 
-## 4. Herramientas que conocen la lista de variantes
+## 4. Herramientas: una entrada en `tools/variants.json`
 
-Estas herramientas protegen las reglas de arquitectura y de documentos con una **lista fija** de variantes. Si no conocen la nueva, el CI pasa, pero deja de vigilarla:
+Las herramientas leen las variantes de un solo registro (D-130). Agrega la entrada **antes** de crear la carpeta: `gameId`, el prefijo de las clases (`HexaFill`), la carpeta (`hexa_fill`), el prefijo de reglas e historias y cuántos niveles trae (o `null`). Con eso:
 
-- `tool/check_architecture.dart`, la lista `_variantIds`: agrega el nombre de la clase (`HexaFill`) y el `gameId` (`hexa-fill`), o el motor podría mencionar la variante sin que el CI lo detecte (RNF-02).
-- `tools/docs-check/check_ids.py`: agrega el prefijo de las reglas (`RN-<XX>`) y el de las historias, o sus IDs quedan sin revisar.
-- Si es por niveles: `tools/reference-sim/levelcheck.py` y `tools/docs-check/check_examples.py` conocen las variantes por nombre, y el contrato también las nombra en el patrón de `levelId` y en `level`, `progress` y `leaderboard` (sección 3).
+- `tool/check_architecture.dart` prohíbe sus nombres en el motor y en los casos de uso (RNF-02, RNF-07) y falla si la carpeta, la de niveles o el `enum` del contrato no coinciden con el registro.
+- `tools/docs-check/check_ids.py` revisa sus `RN-<XX>-*` y sus historias.
+- `tools/reference-sim/levelcheck.py` cuenta sus niveles y falla hasta que tenga su sección de validación (si es por niveles).
+
+`tools/docs-check/check_examples.py` sí cambia: sus ejemplos son reglas nuevas, con sus verificaciones nuevas (sección 1).
 
 Y hay documentos que enumeran las variantes. Búscalos (`grep -rn "hexa-merge" docs/`) y muéstraselos al usuario:
 

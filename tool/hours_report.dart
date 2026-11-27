@@ -16,7 +16,7 @@ import 'dart:io';
 
 const _plan = 'docs/plan/PLAN-ENTREGA.md';
 
-/// Same line as `.github/workflows/pr-body.yml`.
+/// The `- Real hours: <n>` line of the PR template (D-128, D-169).
 final _hoursLine = RegExp(
   r'^\s*[-*]?\s*Real hours:\s*([0-9]+(?:[.,][0-9]+)?)\s*h?\s*$',
   multiLine: true,

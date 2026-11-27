@@ -36,7 +36,7 @@ El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 | @DanielHaro28 | 114.7 h (27 h de Hexa Lines, D-78) | 26 h |
 | Por definir (@dicpc y @DavidCR20, D-78) | 238.5 h + 8.3 h de tareas de los tres (≈ 123 h cada uno) | 16 h |
 
-Es una estimación con Claude Code escribiendo la mayor parte del código (D-62), y se recalcula al cerrar M1. Las horas reales van en la línea `- Real hours: <n>` de la descripción de cada PR, que el check `pr-body` revisa en los dos repos (D-128), sin ser una revisión obligatoria para integrar (D-169); `dart run tool/hours_report.dart M1` las suma por Issue, a partir de `Closes`/`Refs #n`, y las compara con las horas de la sección 5. Los PR integrados antes de D-128 no se completan (D-169): el reporte suma solo los PR que traen la línea. **Estimación (h)** del tablero sigue siendo la estimación; las horas reales no se escriben en ese campo.
+Es una estimación con Claude Code escribiendo la mayor parte del código (D-62), y se recalcula al cerrar M1. Las horas reales van en la línea `- Real hours: <n>` de la descripción de cada PR, que es opcional y no la revisa el CI (D-169); `dart run tool/hours_report.dart M1` las suma por Issue, a partir de `Closes`/`Refs #n`, y las compara con las horas de la sección 5. Los PR integrados antes de D-128 no se completan (D-169): el reporte suma solo los PR que traen la línea. **Estimación (h)** del tablero sigue siendo la estimación; las horas reales no se escriben en ese campo.
 
 ## 3. Definition of Done (D-64)
 

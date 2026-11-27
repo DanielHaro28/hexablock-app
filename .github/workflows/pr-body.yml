@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: The description has "- Real hours: <number>"
+      - name: 'The description has "- Real hours: <number>"'
         env:
           # The description is untrusted input: it only reaches the script
           # through an environment variable, never inside `run`.

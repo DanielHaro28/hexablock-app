@@ -22,7 +22,7 @@ Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ay
 | Milestone | Fechas | Issues | Horas | Meta |
 |---|---|---|---|---|
 | M0 · Preparación | 20 al 23-11 | 16 | 33 | Repos listos, CI, AWS, Claude Code configurado |
-| M1 · Base jugable | 24 al 30-11 | 26 | 134.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
+| M1 · Base jugable | 24 al 30-11 | 28 | 137.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
 | M2 · Las otras tres variantes | 1 al 7-12 | 24 | 134 | Merge, Fit y Sort jugables con sus 25 niveles; progreso local; API completa |
 | M3 · Conectado y entregable | 8 al 12-12 | 20 | 80 | Conectado (sincronización, ranking, invitado), extensibilidad, documentación y APK firmado |
 | Sin milestone (solo si sobra tiempo) | — | 5 | 47 | Cuadrados, triángulos, cubos, vista 3D, skills opcionales y ocultar los símbolos |
@@ -36,7 +36,7 @@ El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 | @DanielHaro28 | 114.7 h (27 h de Hexa Lines, D-78) | 26 h |
 | Por definir (@dicpc y @DavidCR20, D-78) | 238.5 h + 8.3 h de tareas de los tres (≈ 123 h cada uno) | 16 h |
 
-Es una estimación con Claude Code escribiendo la mayor parte del código (D-62). Se anota el tiempo real en el campo **Estimación (h)** del tablero y se recalcula al cerrar M1.
+Es una estimación con Claude Code escribiendo la mayor parte del código (D-62), y se recalcula al cerrar M1. Las horas reales van en la línea `- Real hours: <n>` de la descripción de cada PR, que el check `pr-body` exige en los dos repos (D-128); `dart run tool/hours_report.dart M1` las suma por Issue, a partir de `Closes`/`Refs #n`, y las compara con las horas de la sección 5. Para los PR integrados antes de D-128, cada persona edita la descripción y agrega la línea: el reporte la lee igual. **Estimación (h)** del tablero sigue siendo la estimación; las horas reales no se escriben en ese campo.
 
 ## 3. Definition of Done (D-64)
 
@@ -50,6 +50,7 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
 - **Columnas (campo Status):** Backlog → Por Hacer → En Curso → En revision → Hecho. Backlog es el valor por defecto.
 - **Contenido:** los 87 Issues (86 del 20-11 y G-01, que se agregó al pasar las tareas a Issues, D-69). Los de M0 y M1 (41) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
 - **Campo numérico Estimación (h):** tiene las horas de la sección 5 en todos los Issues, 417.5 h en total.
+- **Campo numérico Horas reales** (D-128): lo crea el dueño desde la web. Lo llena quien quiera ver el dato en el tablero; la fuente es la línea `Real hours` de cada PR y `tool/hours_report.dart`.
 - **Vistas:**
   - **Tablero:** las columnas.
   - **Tabla:** agrupada por milestone, con la suma de Estimación (h) por grupo.
@@ -129,6 +130,8 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #64](https://github.com/DanielHaro28/hexablock-app/issues/64) | TEC-01 · Motor genérico compartido | @DanielHaro28 | 16 |
 | [app #67](https://github.com/DanielHaro28/hexablock-app/issues/67) | TEC-06 · Topología intercambiable | @DanielHaro28 | 8 |
 | [app #72](https://github.com/DanielHaro28/hexablock-app/issues/72) | T-05 · Aplicar los ajustes al diseño DIS-01 a DIS-16 | @dicpc | 6 |
+| [app #161](https://github.com/DanielHaro28/hexablock-app/issues/161) | T-11 · Horas reales en cada PR (D-128) | @DanielHaro28 | 2.5 |
+| [api #65](https://github.com/DanielHaro28/hexablock-api/issues/65) | T-11 · Horas reales en cada PR (D-128) | @DanielHaro28 | 0.5 |
 
 ### M2 · Las otras tres variantes
 

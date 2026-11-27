@@ -19,6 +19,11 @@
 - [ ] `AI_USAGE.md` updated if AI was used in this PR.
 - [ ] Docs updated if behavior or rules changed (`docs/requirements/`, traceability).
 
+## Real hours
+
+<!-- Hours you spent on this PR, counting the AI session and the test review (D-128). A number such as 3.5: the pr-body check fails without it. You can edit it later; the check runs again. -->
+- Real hours:
+
 ## Sensitive changes
 
 - [ ] This PR changes agent or CI configuration (`CLAUDE.md`, `.claude/`, `.github/workflows/`) or security docs → I told the team.

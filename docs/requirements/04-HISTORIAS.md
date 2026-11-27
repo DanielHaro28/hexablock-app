@@ -35,12 +35,12 @@
 | 3. Hexa Fit | HF | 6 | Niveles, rotación, deshacer/rehacer, estrellas |
 | 4. Hexa Sort | HS | 5 | Pilas, cascada, metas |
 | 5. Hexa Merge | HM | 5 | Deslizar, fusión, semilla, deshacer |
-| 6. Progreso local y resultados | PRG | 4 | Victoria, derrota, guardado local, desbloqueo |
+| 6. Progreso local y resultados | PRG | 5 | Victoria, derrota, guardado local, desbloqueo, error de lectura |
 | 7. Cuenta, sincronización y ranking (parte app) | API | 7 | Registro, sesión, invitado, importar, cerrar sesión, offline, sync |
 | 8. Niveles remotos (parte app) | LVL | 1 | Descarga y validación de niveles |
 | 9. Historias técnicas (app) | TEC | 9 | Motor, extensibilidad, AOP, CI, topologías, estructura de la partida |
 
-**Total en la app: 51 historias** (42 funcionales + 9 técnicas). En `hexablock-api`: 9 (6 funcionales + 3 técnicas), de las cuales 5 comparten ID con la app (API-01, API-02, API-03, LVL-01, TEC-04).
+**Total en la app: 52 historias** (43 funcionales + 9 técnicas). En `hexablock-api`: 9 (6 funcionales + 3 técnicas), de las cuales 5 comparten ID con la app (API-01, API-02, API-03, LVL-01, TEC-04).
 
 ---
 
@@ -327,6 +327,15 @@ Como jugador, quiero que el siguiente nivel se desbloquee al completar el actual
 - Dado que completo el nivel N, entonces se desbloquea el N + 1 de esa variante, y nunca se vuelve a bloquear (RN-COM-73).
 
 **Must** · RF-61 · RN-COM-73
+
+### PRG-05 · Abrir la app aunque no se pueda leer el progreso
+Como jugador, quiero poder jugar aunque la app no logre leer mis datos, para no quedarme sin jugar ni perder lo que ya tenía.
+- Dado que abro la app, entonces veo la pantalla de carga y, si la lectura termina bien, paso al inicio (`docs/design/sistema/pantalla-carga.md`).
+- Dado que la lectura de los datos del dispositivo falla, entonces veo «No pudimos leer tu progreso» con «Reintentar» y «Jugar sin guardar».
+- Dado que toco «Reintentar», entonces la app intenta leer de nuevo.
+- Dado que toco «Jugar sin guardar», entonces puedo jugar, pero la app no escribe nada en el dispositivo ni sincroniza hasta que la vuelvo a abrir (RN-COM-114, D-145).
+
+**Should** · RF-60 · RN-COM-114 · RNF-35
 
 ---
 

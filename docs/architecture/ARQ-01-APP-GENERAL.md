@@ -201,7 +201,7 @@ El paso a paso completo, con las clases y rutas previstas, está en `docs/EXTENS
 | Componente | Responsabilidad |
 |---|---|
 | **UI** | Pantallas y widgets. El tablero se dibuja combinando dos estrategias: el **layout de la topología** (dónde está cada celda y en qué celda cayó el toque) y el **pintor del contenido** de cada variante (color, pila, número, pieza) |
-| **Audio** | Fachada (`AudioFacade`) que reacciona a los eventos de dominio: no hay audio en los casos de uso |
+| **Audio** | Fachada (`AudioFacade`, con `audioplayers`, D-150) que recibe un `SoundId`: no hay audio en los casos de uso. La pantalla toca el sonido de cada evento al animarlo, y el `EventSounds` de cada variante, entregado por su `VariantModule`, dice cuál es (D-166) |
 | **Persistencia** | Drift: tablas `profiles`, `level_results`, `records`, `downloaded_levels`, `level_sync_cursors` y `saved_games` (D-37, D-48, D-49; columnas en `ARQ-04-APP-DATOS.md`), y los repositorios que implementan sobre ellas los puertos de la capa 2: `DriftProfileRepository`, `DriftProgressRepository`, `DriftUnitOfWork` y después `DriftSavedGameRepository`, `DriftSyncOutbox` y `LevelRepository` (D-156, D-158) |
 | **Red** | dio con interceptores: token JWT, tiempo de espera, traducción de errores |
 | **Plataforma** | `flutter_secure_storage`, `shared_preferences`, conectividad, logger, y los repositorios sobre ellos (`SecureSessionStore`, el de preferencias) y `SystemClock` (D-156) |
@@ -241,7 +241,7 @@ sequenceDiagram
     D->>D: registra entrada, salida y duración
     D-->>C: resultado
     C-->>W: estado para dibujar (con animaciones por evento)
-    C-->>A: eventos (sonidos)
+    W->>A: sonido de cada evento al animarlo (EventSounds, D-166)
 ```
 
 ### 6.2 Fin de partida y progreso

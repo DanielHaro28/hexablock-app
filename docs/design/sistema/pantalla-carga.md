@@ -35,4 +35,3 @@ La primera pantalla: carga normal en máx. 1,5 s y, si la lectura de datos falla
 ## Pendiente de confirmar
 
 - Lecturas de más de 1,5 s: propuesta de pasar a Inicio si solo faltan los puntajes y mostrar error solo si la lectura falla o tarda más de 4 s.
-- «Jugar sin guardar»: si se prefiere solo «Reintentar», se quitan el botón secundario y la nota.

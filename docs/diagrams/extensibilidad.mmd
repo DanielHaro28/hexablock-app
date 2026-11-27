@@ -7,7 +7,7 @@ flowchart TB
     HF["Hexa Fit<br/>TCell = PieceId<br/>TMove = FitMove&lt;C&gt;<br/>FitLevelBuilder (sin azar)"]
     HS["Hexa Sort<br/>TCell = ColorStack<br/>TMove = PlaceStack&lt;C&gt;<br/>SortLevelBuilder · RandomStackSource"]
     HM["Hexa Merge<br/>TCell = Tile (Mergeable&lt;Tile&gt;)<br/>TMove = Slide<br/>SlideMergeResolver · RandomTileSource"]
-    H5["5ª variante (p. ej. Hexa Fill)<br/>carpeta nueva en hexa_variants<br/>+ VariantModule en app/config"]
+    H5["5ª variante (p. ej. Hexa Fill)<br/>carpeta nueva en hexa_variants<br/>+ VariantModule (con EventSounds) en app/config<br/>+ una entrada en tools/variants.json"]
 
     subgraph CORE["Motor genérico · hexa_engine — no se modifica"]
         EXT["<b>Puntos de extensión</b> (lo que implementa una variante nueva)<br/>VariantFamily&lt;C, TCell, TMove, TState&gt; · Abstract Factory<br/>IGameRules / GameRules&lt;C, TCell, TMove, TState&gt; · Strategy + Template Method<br/>IScoringPolicy&lt;TState, TEvent&gt; · IPieceSource&lt;TPiece&gt; · IProgressModel&lt;TAttempt&gt;<br/>GameState&lt;C, TCell&gt; · GameEvent&lt;C&gt; · IGameStateCodec&lt;TState&gt; (capa 3)"]

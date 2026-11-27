@@ -8,17 +8,26 @@
 import 'dart:convert';
 import 'dart:io';
 
-/// Identifiers that only a variant may use (RNF-02, RNF-07).
-const _variantIds = [
-  'HexaLines',
-  'HexaFit',
-  'HexaSort',
-  'HexaMerge',
+/// The variants the team's tools know (D-130): one entry per variant, with
+/// its `gameId`, the prefix of its classes (`dart`), its `folder` in
+/// `packages/hexa_variants/lib/src/` and its bundled `levels` (or null).
+const _registry = 'tools/variants.json';
+
+final _variants = [
+  for (final variant
+      in (jsonDecode(File(_registry).readAsStringSync())
+              as Map<String, Object?>)['variants']!
+          as List<Object?>)
+    variant! as Map<String, Object?>,
+];
+
+/// Identifiers that only a variant may use (RNF-02, RNF-07). They come from
+/// [_registry], so a variant registered there is forbidden in the engine and
+/// the use cases without anyone listing it here.
+final _variantIds = [
   'hexa_variants',
-  'hexa-lines',
-  'hexa-fit',
-  'hexa-sort',
-  'hexa-merge',
+  for (final variant in _variants)
+    for (final key in ['dart', 'gameId', 'folder']) variant[key]! as String,
 ];
 
 /// Identifiers that only a topology may use (RNF-04).
@@ -90,6 +99,7 @@ void main() {
     if (!_slash(file.path).contains('/adapters/metrics/')) _checkLogger(file);
   }
   _checkArbParity();
+  _checkVariantRegistry();
 
   if (_failures.isEmpty) {
     stdout.writeln('OK: architecture rules hold (ARQ-01-APP §8, D-36)');
@@ -303,3 +313,62 @@ void _fail(File file, int index, String message) {
 }
 
 String _slash(String path) => path.replaceAll(r'\', '/');
+
+/// The registry of variants matches the variant folders, the folders of
+/// bundled levels and the closed list of the contract (D-130, SEC-API-06), so
+/// a new variant cannot be left out of the checks above or of the contract.
+void _checkVariantRegistry() {
+  String field(Map<String, Object?> variant, String key) =>
+      variant[key]! as String;
+  final folders = {for (final v in _variants) field(v, 'folder')};
+  final games = {for (final v in _variants) field(v, 'gameId')};
+  final byLevels = {
+    for (final v in _variants)
+      if (v['levels'] != null) field(v, 'gameId'),
+  };
+  _sameSet(
+    'folders of packages/hexa_variants/lib/src/',
+    _subdirectories('packages/hexa_variants/lib/src'),
+    folders,
+  );
+  _sameSet(
+    'folders of app/assets/levels/',
+    _subdirectories('app/assets/levels'),
+    byLevels,
+  );
+  final schema = jsonDecode(
+    File('docs/contracts/schemas/common.schema.json').readAsStringSync(),
+  ) as Map<String, Object?>;
+  final defs = schema[r'$defs']! as Map<String, Object?>;
+  _sameSet('gameId enum of the contract', _enumOf(defs, 'gameId'), games);
+  _sameSet(
+    'levelGameId enum of the contract',
+    _enumOf(defs, 'levelGameId'),
+    byLevels,
+  );
+}
+
+Set<String> _subdirectories(String path) => {
+  for (final entity in Directory(path).listSync())
+    if (entity is Directory) _slash(entity.path).split('/').last,
+};
+
+Set<String> _enumOf(Map<String, Object?> defs, String name) => {
+  ...((defs[name]! as Map<String, Object?>)['enum']! as List<Object?>)
+      .cast<String>(),
+};
+
+void _sameSet(String what, Set<String> found, Set<String> registered) {
+  final unregistered = found.difference(registered);
+  final missing = registered.difference(found);
+  if (unregistered.isNotEmpty) {
+    _failures.add(
+      '$what: ${unregistered.join(', ')} not in $_registry (D-130)',
+    );
+  }
+  if (missing.isNotEmpty) {
+    _failures.add(
+      '$what: ${missing.join(', ')} of $_registry not found (D-130)',
+    );
+  }
+}

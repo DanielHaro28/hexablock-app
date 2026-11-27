@@ -1,6 +1,6 @@
 schema_version: "1.1"
 name: plans-simple-record-variant
 expected_outcome: |
-  A plan for a fifth variant without randomness or levels whose progress is a record, like Hexa Lines. It leaves out the optional pieces that do not apply (piece source, level builder, level files), reuses the existing record progress model, and still covers the contract (the gameId enum and the record condition of progress.schema.json), the backend gameId, the fixed variant lists of check_architecture.dart and check_ids.py, es/en texts, the diagram and the final git diff proof. It writes no code.
+  A plan for a fifth variant without randomness or levels whose progress is a record, like Hexa Lines. It leaves out the optional pieces that do not apply (piece source, level builder, level files), reuses the existing record progress model, and still covers the contract (the gameId enum and the record condition of progress.schema.json), the backend gameId, one entry in tools/variants.json for the tools (D-130), es/en texts, the diagram and the final git diff proof. It writes no code.
 context:
   scaffold_script: place-files.sh

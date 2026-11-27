@@ -27,7 +27,7 @@ Lo que decidió el equipo (D-07, D-29 a D-36). Las secciones 3 a 9 tienen el det
 | Figura de la celda | Registro de topologías + **Visitor** genérico, sin `switch` ni casts; `TCoord` llega hasta el widget del tablero | §3 | D-29 |
 | Tipos por variante | Estado inmutable; celda vacía = `null` (`TCell extends Object`); movimientos *sealed* por variante; `Tile implements Mergeable<Tile>` en Merge | §4 | D-30 |
 | Deshacer y rehacer | **Command + Memento** con un `UndoHistory` genérico que configura la fábrica (Fit: sin límite y con rehacer; Merge: 1; Lines y Sort: nada). `restore` mantiene la fase, exige que permita deshacer y publica `StateRestored` y, si cambió, `ScoreChanged`. La partida guardada lleva el historial como la línea de estados alrededor del actual (`UndoSnapshot`); un contador que deshacer no debe cambiar lo conserva el `carryOver` de la variante | §5 | D-31, D-102, D-103, D-107, D-109 |
-| Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro, el audio y la analítica. Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94 |
+| Eventos | Las reglas devuelven los eventos en orden; la pantalla los recibe en el `MoveResult` de `submit`; el `Stream` del motor queda para el historial, el cronómetro y la analítica; el audio lo toca la pantalla al animar cada evento (D-166). Orden fijo: fase → reglas → puntaje → fase; un rechazo publica solo `MoveRejected` | §6 | D-32, D-94, D-166 |
 | Estado inicial | Lo crea la fábrica (o lo lee el codec al continuar) y se lo pasa a `GameEngine`; `IGameRules` no tiene `initialState` | §2 | D-93 |
 | Motivo de un rechazo | Jerarquía abierta `RejectionReason` (`InvalidMove`, `NotAcceptingMoves` y los de cada variante); las reglas validan con `rejectionOf` | §6, §9.6 | D-95 |
 | Vista previa | `IGameRules.rejectionOf` es público y `GameEngine.check(move)` da el motivo que daría `submit` (la fase o las reglas) sin jugar el movimiento ni publicar nada; la pantalla lo pide mientras se arrastra una pieza | §9.6 | D-138 |
@@ -144,8 +144,8 @@ sequenceDiagram
     EN->>OB: los mismos eventos por el Stream (Observer):<br/>historial y cronómetro, síncronos
     EN-->>UC: MoveResult (estado, eventos en orden, resultado)
     UC-->>CU: Right(MoveResult), en la misma llamada
-    EN--)OB: audio y analítica, un instante después
-    CU-->>UI: estado de pantalla + animaciones
+    EN--)OB: analítica, un instante después
+    CU-->>UI: estado de pantalla + animaciones (y el sonido de cada una, D-166)
 ```
 
 ---
@@ -411,7 +411,8 @@ Opciones consideradas: Anexo A.6.
 
 1. **La pantalla** recibe el `MoveResult` como valor de retorno de `submit` → `ApplyMoveUseCase` → `GameCubit`. El retraso que ve el jugador es solo el de las animaciones, y lo controla la vista: su duración, la opción de saltarlas y el bloqueo de toques mientras se reproducen.
 2. **Los oyentes internos del dominio** se suscriben a un `StreamController.broadcast(sync: true)`, `ActiveTimer` a los eventos y `UndoHistory` a `committedTurns` (un `MoveCommand` por turno): reciben cada evento antes de que `submit` termine, así que el historial y el cronómetro ya están al día cuando la pantalla se redibuja. Ninguno de ellos llama a `submit`, lo que evita la reentrada que permite un *stream* síncrono.
-3. **Los oyentes externos** (el audio y la analítica, ARQ-A-07) se suscriben al `Stream` normal, que entrega los eventos en un instante posterior. No son urgentes.
+3. **Los oyentes externos** (la analítica, ARQ-A-07) se suscriben al `Stream` normal, que entrega los eventos en un instante posterior. No son urgentes.
+4. **El audio** no escucha el `Stream`: la pantalla toca el sonido de cada evento **cuando lo anima**, a partir del `MoveResult` (D-166, precisa D-32). Así, en una cascada de Sort o de Merge, cada sonido acompaña su paso visible (RN-COM-25), en lugar de sonar todos juntos cuando llega el turno completo. Qué sonido toca cada evento lo dice el `EventSounds` de cada variante (capa 4); `AudioFacade` solo recibe un `SoundId`.
 
 El tipo de retorno no se llama igual que los eventos para que no se confundan: `MoveRejected` es un evento (por ejemplo, para el sonido de error); `RejectedMove` es el resultado que devuelve `submit`.
 
@@ -636,7 +637,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 
 | Patrón | Dónde | Qué problema resuelve | Enunciado |
 |---|---|---|---|
-| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` en `hexa_engine` (`createRules`, `createSession(NewGameOptions)`, `continueSession`; D-100, D-116, D-124), con `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
+| **Abstract Factory** (obligatorio) | `VariantFamily<C, TCell, TMove, TState>` en `hexa_engine` (`createRules`, `createSession(NewGameOptions)`, `continueSession`; D-100, D-116, D-124). `NewGameOptions` lleva la semilla y, en una variante por niveles, el `levelId` del nivel elegido; la fábrica de Fit o de Sort recibe el catálogo de niveles de la figura y busca el nivel por ese id al crear la partida; al continuarla, usa el nivel que guarda el estado (D-125, D-165). Las fábricas son `HexaLinesFactory<C>`, `HexaFitFactory<C>`, `HexaSortFactory<C>` y `HexaMergeFactory<C>` | Crea la familia coherente de cada variante: reglas, fuente de piezas, política de puntuación, forma del tablero y la sesión con sus capacidades. La fuente y la política las conecta en sus reglas, así que no aparecen en la interfaz. Como es genérica en `C`, la misma fábrica sirve para cualquier figura | §3.3 (el ejemplo es el mismo) |
 | **Builder** | `FitLevelBuilder<C>` y `SortLevelBuilder<C>` en `hexa_variants` | Arma un nivel paso a paso (figura, piezas, metas, umbrales) y lo **valida** al final (RN-HF-12, D-19). El *mapper* de JSON (capa 3) actúa como director; el validador de niveles del CI usa el mismo builder | §3.3 |
 | **Factory Method** | `GridTopology<C>.cellsOf(ShapeSpec)`: cada topología decide cómo crear las celdas de una forma de tablero (hexágono de radio R, rectángulo N × M, hexágono de triángulos de lado n, caja de cubos) | `Board` se crea sin conocer la figura: la topología concreta fabrica sus coordenadas a partir de la configuración (RNF-11) | — |
 
@@ -655,7 +656,7 @@ El dominio son los paquetes `hexa_engine`, `hexa_topologies` y `hexa_variants` (
 | **Strategy** (obligatorio) | `IGameRules` (el motor la usa sin saber cuál es), `IScoringPolicy<TState, TEvent>`, `IPieceSource<TPiece>` (`WeightedRandomPieceSource`, `RandomStackSource`, `RandomTileSource`) e `IProgressModel<TAttempt>` (el criterio del mejor intento: récord, o estrellas, tiempo y movimientos por nivel). Esbozo en §9.7 | Todo lo que varía entre variantes se intercambia sin tocar el motor | §3.3 ("patrón central") |
 | **Template Method** | `GameRules<…>` (abstracta): `playTurn` fija el orden validar → aplicar → resolver → después de resolver → evaluar. Los pasos son *hooks*: `resolve` y `afterResolve` no hacen nada por defecto (Fit) y `evaluate`, por defecto, es "derrota si no hay movimientos válidos" (Lines, Sort y Merge) | Ninguna variante puede saltarse ni reordenar pasos (RN-COM-20, 23) | §3.3 (el ejemplo es el mismo) |
 | **State** | `GamePhase` y sus 5 fases (§8) | Ciclo de vida sin `if` repartidos | §3.3 |
-| **Observer** | Los *streams* del motor: `ActiveTimer` escucha `syncEvents` y `UndoHistory`, `committedTurns` (síncronos); el audio y la analítica, `events`. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
+| **Observer** | Los *streams* del motor: `ActiveTimer` escucha `syncEvents` y `UndoHistory`, `committedTurns` (síncronos); la analítica, `events`. La pantalla no se suscribe: recibe el `MoveResult` como retorno de `submit` (D-32) y, al animar cada evento, toca su sonido (D-166) | Notifica cada paso en orden sin que el motor conozca a sus oyentes | §3.3 |
 | **Command** | `MoveCommand<TMove, TState>` con `undo` y `redo`; `UndoHistory` es el invocador | Historial de deshacer y rehacer genérico | §3.3 |
 | **Memento** | Los estados inmutables son los mementos; el motor es el originador (`restore`) y `UndoHistory`, el cuidador | Restaurar **todo**, generador incluido, sin lógica inversa (RN-COM-61) | — |
 | **Iterator** | `GridTopology`: `lines` y `ray` devuelven `Iterable` (`ray` es perezoso, `sync*`); `neighbors` devuelve una `List`, porque son a lo sumo 6 y se recorren enteras; `validMoves` también es perezoso | Recorrer por ejes, rayos o vecindad sin exponer el mapa interno. Como es perezoso, "¿hay algún movimiento válido?" se detiene en el primero (fin de Lines, RN-HL-50) | §3.3 |

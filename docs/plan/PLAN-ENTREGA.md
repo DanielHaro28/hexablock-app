@@ -13,7 +13,7 @@
 |---|---|---|
 | @DanielHaro28 | Motor, despliegue, Hexa Lines y Hexa Sort (D-77, D-78) | Motor genérico y topologías (TEC-01, TEC-02, TEC-06 a TEC-08, T-03), AWS, CI y release de los dos repos, configuración de GitHub y Claude Code, documentación de planificación. **Hexa Lines** (HL-01 a HL-06, asignada el 22-11) y la estructura común de la partida (TEC-11, D-136). Desde el 24-11, por ahora: **Hexa Sort** (HS-01 a HS-05), el progreso (PRG-03, PRG-04), los casos de uso (TEC-03, API-05, API-06, API-08, LVL-01), la parte de la app de la cuenta (API-03, API-07), R-02 y T-08 |
 | @DavidCR20 | API y Hexa Merge (D-78) | Backend NestJS (asignado el 20-11): esqueleto (T-04), cuenta (API-01, API-02), sincronización (API-03), ranking (API-04), niveles (LVL-01, LVL-02) y errores y Swagger (TEC-05). Desde el 24-11: **Hexa Merge** (HM-01 a HM-05) |
-| @dicpc | Interfaz y Hexa Fit (D-78) | Interfaz (asignada el 20-11): pantallas y navegación (NAV-01 a NAV-08), victoria y derrota (PRG-01, PRG-02), registro e inicio de sesión en la app (API-01, API-02), ajustes al diseño (T-05) y vista 3D (TEC-09). Desde el 24-11: **Hexa Fit** (HF-01 a HF-06) |
+| @dicpc | Interfaz y Hexa Fit (D-78) | Interfaz (asignada el 20-11): pantallas y navegación (NAV-01 a NAV-08), victoria y derrota (PRG-01, PRG-02), la pantalla de carga (PRG-05, D-145), registro e inicio de sesión en la app (API-01, API-02), ajustes al diseño (T-05) y vista 3D (TEC-09). Desde el 24-11: **Hexa Fit** (HF-01 a HF-06) |
 
 Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ayudar en otra sección. Cada PR lo revisa alguien de otra área (`CODEOWNERS` pide la revisión automáticamente). El 20-11 cambió el reparto de D-62 (D-77) y el 24-11 se repartió el resto (D-78): todos los Issues abiertos tienen responsable.
 
@@ -23,9 +23,9 @@ Cada área tiene un **responsable, no un dueño exclusivo**: cualquiera puede ay
 |---|---|---|---|---|
 | M0 · Preparación | 20 al 23-11 | 16 | 33 | Repos listos, CI, AWS, Claude Code configurado |
 | M1 · Base jugable | 24 al 30-11 | 26 | 134.5 | Motor + hexágonos + **Hexa Lines** jugable de punta a punta; API con login y desplegada |
-| M2 · Las otras tres variantes | 1 al 7-12 | 23 | 128 | Merge, Fit y Sort jugables con sus 25 niveles; progreso local; API completa |
+| M2 · Las otras tres variantes | 1 al 7-12 | 24 | 134 | Merge, Fit y Sort jugables con sus 25 niveles; progreso local; API completa |
 | M3 · Conectado y entregable | 8 al 12-12 | 20 | 80 | Conectado (sincronización, ranking, invitado), extensibilidad, documentación y APK firmado |
-| Sin milestone (solo si sobra tiempo) | — | 3 | 42 | Cuadrados, triángulos, cubos y vista 3D |
+| Sin milestone (solo si sobra tiempo) | — | 5 | 47 | Cuadrados, triángulos, cubos, vista 3D, skills opcionales y ocultar los símbolos |
 
 El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 
@@ -156,6 +156,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #53](https://github.com/DanielHaro28/hexablock-app/issues/53) | HM-05 · Ganar, perder y guardar el récord | @DavidCR20 | 4 |
 | [app #54](https://github.com/DanielHaro28/hexablock-app/issues/54) | PRG-01 · Ver la pantalla de victoria | @dicpc | 6 |
 | [app #57](https://github.com/DanielHaro28/hexablock-app/issues/57) | PRG-04 · Desbloquear niveles en orden | @DanielHaro28 | 3 |
+| [app #157](https://github.com/DanielHaro28/hexablock-app/issues/157) | PRG-05 · Abrir la app aunque no se pueda leer el progreso | @dicpc | 6 |
 | [app #66](https://github.com/DanielHaro28/hexablock-app/issues/66) | TEC-03 · Aspecto transversal sobre los casos de uso | @DanielHaro28 | 10 |
 
 ### M3 · Conectado y entregable
@@ -193,8 +194,9 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [app #69](https://github.com/DanielHaro28/hexablock-app/issues/69) | TEC-08 · Cubos en el dominio | @DanielHaro28 | 10 |
 | [app #70](https://github.com/DanielHaro28/hexablock-app/issues/70) | TEC-09 · Vista 3D | @dicpc | 16 |
 | [app #116](https://github.com/DanielHaro28/hexablock-app/issues/116) | T-08 · Skills opcionales si sobra tiempo | @DanielHaro28 | 0 |
+| [app #158](https://github.com/DanielHaro28/hexablock-app/issues/158) | Mejora · Ocultar los símbolos de las fichas desde Ajustes (D-147) | — | 5 |
 
-**Asignación:** todos los Issues abiertos tienen responsable en GitHub desde el 24-11 (D-78). `tools/planning/assign_pending.py` asigna lo que diga `tools/planning/issues_created.json`.
+**Asignación:** todos los Issues abiertos tienen responsable en GitHub desde el 24-11 (D-78), salvo la mejora de los símbolos (#158), que toma quien tenga tiempo. `tools/planning/assign_pending.py` asigna lo que diga `tools/planning/issues_created.json`.
 
 ## 6. Hoja de ruta de la planificación
 

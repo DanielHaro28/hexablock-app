@@ -88,7 +88,7 @@ void main() {
 
     test('should_keep_the_level_when_one_is_given', () {
       // Arrange
-      const levelId = 'fit-hex-001';
+      const levelId = 'level-001';
 
       // Act
       final options = NewGameOptions(seed: 42, levelId: levelId);
@@ -99,10 +99,10 @@ void main() {
 
     test('should_be_equal_when_the_seeds_and_the_levels_are_equal', () {
       // Arrange
-      final options = NewGameOptions(seed: 42, levelId: 'fit-hex-001');
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
 
       // Act
-      final same = NewGameOptions(seed: 42, levelId: 'fit-hex-001');
+      final same = NewGameOptions(seed: 42, levelId: 'level-001');
 
       // Assert
       expect(same, options);
@@ -111,10 +111,10 @@ void main() {
 
     test('should_differ_when_the_levels_differ', () {
       // Arrange
-      final options = NewGameOptions(seed: 42, levelId: 'fit-hex-001');
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
 
       // Act
-      final other = NewGameOptions(seed: 42, levelId: 'fit-hex-002');
+      final other = NewGameOptions(seed: 42, levelId: 'level-002');
 
       // Assert
       expect(other, isNot(options));
@@ -122,7 +122,7 @@ void main() {
 
     test('should_differ_when_only_one_has_a_level', () {
       // Arrange
-      final options = NewGameOptions(seed: 42, levelId: 'fit-hex-001');
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
 
       // Act
       final other = NewGameOptions(seed: 42);
@@ -133,13 +133,13 @@ void main() {
 
     test('should_name_the_level_when_it_is_printed', () {
       // Arrange
-      final options = NewGameOptions(seed: 42, levelId: 'fit-hex-001');
+      final options = NewGameOptions(seed: 42, levelId: 'level-001');
 
       // Act
       final text = options.toString();
 
       // Assert
-      expect(text, 'NewGameOptions(seed: 42, levelId: fit-hex-001)');
+      expect(text, 'NewGameOptions(seed: 42, levelId: level-001)');
     });
   });
 }

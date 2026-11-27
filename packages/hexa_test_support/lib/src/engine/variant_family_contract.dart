@@ -12,7 +12,10 @@ import 'package:test/test.dart';
 /// whether the variant is played by levels: then [options] must name a level
 /// of the factory's catalog in `levelId`, the state must be `ILevelBased`
 /// with that id, and a missing or unknown id must throw an [ArgumentError]
-/// (D-125), which `ExceptionAspect` turns into a `Left` (D-161).
+/// (D-125), which `ExceptionAspect` turns into a `Left` (D-161); otherwise
+/// the factory must ignore `levelId`. Throws an [ArgumentError] right away
+/// if [levelBased] is true and [options] names no level, so a wrong call
+/// fails with a clear message instead of inside one test.
 ///
 /// It checks what `StartGameUseCase` relies on but the types cannot
 /// enforce: a new game starts playing and is the same for the same options
@@ -34,6 +37,14 @@ void checkVariantFamilyContract<
   required bool usesChance,
   required bool levelBased,
 }) {
+  if (levelBased && options.levelId == null) {
+    throw ArgumentError.value(
+      options,
+      'options',
+      'a level-based family needs a levelId of its catalog',
+    );
+  }
+
   GameSession<C, TCell, TMove, TState> track(
     GameSession<C, TCell, TMove, TState> session,
   ) {
@@ -119,7 +130,6 @@ void checkVariantFamilyContract<
 
     // Assert
     if (levelBased) {
-      expect(options.levelId, isNotNull, reason: 'options must name a level');
       expect(
         state,
         isA<ILevelBased>().having((s) => s.levelId, 'levelId', options.levelId),
@@ -153,6 +163,19 @@ void checkVariantFamilyContract<
 
       // Assert
       expect(create, throwsArgumentError);
+    });
+  } else {
+    test('should_ignore_the_level_when_the_game_is_not_level_based', () {
+      // Arrange
+      final withLevel = NewGameOptions(seed: options.seed, levelId: 'level-1');
+      final withoutLevel = NewGameOptions(seed: options.seed);
+
+      // Act
+      final state = track(family().createSession(withLevel)).engine.state;
+
+      // Assert
+      final expected = track(family().createSession(withoutLevel)).engine.state;
+      expect(state, expected);
     });
   }
 

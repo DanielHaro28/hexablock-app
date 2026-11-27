@@ -57,6 +57,7 @@ final class FakeState implements GameState<FakeCoord, FakeCell> {
 
   @override
   bool operator ==(Object other) =>
+      other.runtimeType == runtimeType &&
       other is FakeState &&
       other.board == board &&
       other.score == score &&
@@ -75,6 +76,43 @@ final class FakeState implements GameState<FakeCoord, FakeCell> {
 
   @override
   String toString() => 'FakeState(score: $score, steps: $steps, $board)';
+}
+
+/// A [FakeState] of a game played by levels (D-56): it is [ILevelBased] and
+/// keeps its [levelId] through every turn step, because [after] returns
+/// another one.
+final class FakeLevelState extends FakeState implements ILevelBased {
+  const FakeLevelState(
+    super.board, {
+    required this.levelId,
+    super.score,
+    super.steps,
+  });
+
+  @override
+  final String levelId;
+
+  @override
+  FakeLevelState after(
+    String step, {
+    Board<FakeCoord, FakeCell>? board,
+    int? score,
+  }) => FakeLevelState(
+    board ?? this.board,
+    levelId: levelId,
+    score: score ?? this.score,
+    steps: List.unmodifiable([...steps, step]),
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is FakeLevelState && other.levelId == levelId && super == other;
+
+  @override
+  int get hashCode => Object.hash(levelId, super.hashCode);
+
+  @override
+  String toString() => 'FakeLevelState($levelId, ${super.toString()})';
 }
 
 /// An event that a [FakeRules] step publishes; [label] is the step name.

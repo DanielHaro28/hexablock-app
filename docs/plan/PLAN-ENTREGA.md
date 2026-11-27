@@ -36,7 +36,7 @@ El 13 y el 14-12 quedan de margen y para ensayar la defensa.
 | @DanielHaro28 | 114.7 h (27 h de Hexa Lines, D-78) | 26 h |
 | Por definir (@dicpc y @DavidCR20, D-78) | 238.5 h + 8.3 h de tareas de los tres (≈ 123 h cada uno) | 16 h |
 
-Es una estimación con Claude Code escribiendo la mayor parte del código (D-62), y se recalcula al cerrar M1. Las horas reales van en la línea `- Real hours: <n>` de la descripción de cada PR, que el check `pr-body` exige en los dos repos (D-128); `dart run tool/hours_report.dart M1` las suma por Issue, a partir de `Closes`/`Refs #n`, y las compara con las horas de la sección 5. Para los PR integrados antes de D-128, cada persona edita la descripción y agrega la línea: el reporte la lee igual. **Estimación (h)** del tablero sigue siendo la estimación; las horas reales no se escriben en ese campo.
+Es una estimación con Claude Code escribiendo la mayor parte del código (D-62), y se recalcula al cerrar M1. Las horas reales van en la línea `- Real hours: <n>` de la descripción de cada PR, que el check `pr-body` revisa en los dos repos (D-128), sin ser una revisión obligatoria para integrar (D-169); `dart run tool/hours_report.dart M1` las suma por Issue, a partir de `Closes`/`Refs #n`, y las compara con las horas de la sección 5. Los PR integrados antes de D-128 no se completan (D-169): el reporte suma solo los PR que traen la línea. **Estimación (h)** del tablero sigue siendo la estimación; las horas reales no se escriben en ese campo.
 
 ## 3. Definition of Done (D-64)
 
@@ -50,7 +50,7 @@ El tablero de GitHub Projects se crea desde la web con la sesión del dueño (T-
 - **Columnas (campo Status):** Backlog → Por Hacer → En Curso → En revision → Hecho. Backlog es el valor por defecto.
 - **Contenido:** los 87 Issues (86 del 20-11 y G-01, que se agregó al pasar las tareas a Issues, D-69). Los de M0 y M1 (41) están en Por Hacer; los de M2, M3 y los que no tienen milestone (46) están en Backlog.
 - **Campo numérico Estimación (h):** tiene las horas de la sección 5 en todos los Issues, 417.5 h en total.
-- **Campo numérico Horas reales** (D-128): lo crea el dueño desde la web. Lo llena quien quiera ver el dato en el tablero; la fuente es la línea `Real hours` de cada PR y `tool/hours_report.dart`.
+- **Horas reales:** no hay campo en el tablero (D-169). La fuente es la línea `Real hours` de cada PR y `tool/hours_report.dart`.
 - **Vistas:**
   - **Tablero:** las columnas.
   - **Tabla:** agrupada por milestone, con la suma de Estimación (h) por grupo.

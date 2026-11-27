@@ -124,7 +124,7 @@ El contrato tiene su fuente en `hexablock-api`: se cambia allí y se copia aquí
 | Crear | Qué comprueba |
 |---|---|
 | `packages/hexa_variants/test/hexa_fill/hexa_fill_rules_test.dart` | Cada ejemplo `E-*` de `02-RN-HEXA-FILL.md`, con su ID en el `group` y nombres `should_<resultado>_when_<condición>` (RNF-22) |
-| `packages/hexa_variants/test/hexa_fill/hexa_fill_factory_test.dart` | En un `group`, `checkVariantFamilyContract(HexaFillFactory(...))` de `hexa_test_support`: una partida continuada empieza en pausa y su `snapshot()` vuelve igual (RN-COM-34, D-116) |
+| `packages/hexa_variants/test/hexa_fill/hexa_fill_factory_test.dart` | En un `group`, `checkVariantFamilyContract(HexaFillFactory(...), opciones, usesChance: …, levelBased: …)` de `hexa_test_support`: una partida continuada empieza en pausa y su `snapshot()` vuelve igual (RN-COM-34, D-116). Si se juega por niveles (`levelBased: true`), las opciones llevan un `levelId` del catálogo, el estado lo registra y un id que falta o que no está lanza un `ArgumentError` (D-125) |
 | `packages/hexa_variants/test/hexa_fill/hexa_fill_any_shape_test.dart` | Las mismas reglas con otra figura, como `hexa_lines_any_shape_test.dart` (RNF-04) |
 | Determinismo | Misma semilla y mismos movimientos → mismo estado (RNF-20) |
 | `app/test/adapters/mappers/` | Sus *mappers* leen la configuración y los niveles |

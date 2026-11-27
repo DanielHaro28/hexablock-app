@@ -1022,6 +1022,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario eligió C′ (la guía completa y un solo registro para las herramientas, sin cambiar el `enum` del contrato ni RN-COM-01) entre tres opciones |
 | Lecciones | La lista de nombres prohibidos del motor estaba escrita a mano: una variante nueva que alguien olvidara agregar podía aparecer en el motor sin que el CI fallara. Con el registro, el motor que nombra a `HexaFill` falla en cuanto la variante está registrada, y una carpeta sin registrar también falla. La imagen `extensibilidad.png` queda por exportar desde la fuente (R-04): en esta máquina no hay `mmdc` |
 
+### IA-104 · El nivel de una partida nueva en `NewGameOptions.levelId` (TEC-01, D-125) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los pendientes: "Eligo B y la pregunta la i" (D-125) y "ya puse la hora me que tarde, sigamos" |
+| Resultado | Issue #64 (TEC-01), una parte. `NewGameOptions` suma el campo opcional `levelId` (en `==`, `hashCode` y `toString`), sin validarlo, porque si un id existe depende del catálogo de la fábrica; las fábricas que no son por niveles lo ignoran, así que Lines no cambia. `checkVariantFamilyContract` pide `levelBased`, obligatorio como `usesChance`: con `true`, el estado es `ILevelBased` con el id de las opciones y un id que falta o que no está en el catálogo lanza un `ArgumentError`; con `false`, el estado no es `ILevelBased`. Seis pruebas nuevas de `NewGameOptions` (grupo D-125) y `EXTENSIBILITY.md` al día. Las pruebas las escribió la IA: falta la revisión de una persona (D-59) |
+| Modificaciones del equipo | El usuario eligió B con el catálogo ya cargado en la fábrica, entre tres opciones, y que una partida guardada siga con su versión del nivel (D-165) |
+| Lecciones | Las dos pruebas por niveles del contrato todavía no corren con ninguna fábrica: la primera que las usa es la de Fit o la de Sort (HF-01, HS-01). Hacer `levelBased` obligatorio obliga a esas fábricas a declararlo, como pasa con `usesChance` |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

@@ -18,6 +18,7 @@ void main() {
       factory,
       NewGameOptions(seed: 42),
       usesChance: true,
+      levelBased: false,
     );
   });
 

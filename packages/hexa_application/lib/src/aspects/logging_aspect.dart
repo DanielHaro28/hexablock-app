@@ -17,8 +17,10 @@ import 'redactor.dart';
 ///   about the command and the result, redacted by [Redactor] (SEC-WEB-06).
 ///   A release build logs no user data (SEC-MOB-05).
 ///
-/// It sits right outside `ExceptionAspect`, so it always gets an [Either]
-/// and needs no `try`; inside the retries, so each attempt is logged.
+/// It sits outside `MetricsAspect` and `ExceptionAspect`, so it always gets
+/// an [Either] and needs no `try`, and the time it takes to describe and
+/// redact is not measured as the use case's (D-173); inside the retries, so
+/// each attempt is logged. Its `ms` starts once the command is described.
 final class LoggingAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
   /// Logs [inner] as [name] in [_logger], timed with [_clock]; in
   /// development ([verbose]) with what [describe] says.
@@ -50,13 +52,13 @@ final class LoggingAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
 
   @override
   Future<Either<AppFailure, TResult>> execute(TCommand command) async {
-    final start = _clock.nowMillis();
     _logger.log(
       LogEntry.debug(
         '$name started',
         _details(() => _describe.command(command)),
       ),
     );
+    final start = _clock.nowMillis();
     final result = await inner.execute(command);
     final ms = _clock.nowMillis() - start;
     switch (result) {

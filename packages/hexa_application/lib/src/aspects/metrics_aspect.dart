@@ -12,7 +12,9 @@ import 'aspect.dart';
 /// Every run is recorded in [IMetrics] as [name], with the monotonic clock
 /// of the domain (RN-COM-52). With a [budget], a run that takes longer is
 /// also logged as a warning: 16 ms for a move is one frame (RNF-31). It sits
-/// inside the retries, so it measures one attempt, not the sum of all.
+/// right outside `ExceptionAspect` and inside `LoggingAspect` (D-173), so
+/// it measures the use case and not the describing and redacting of the
+/// log; and inside the retries, so it measures one attempt, not the sum.
 final class MetricsAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
   /// Measures [inner] as [name] in [_metrics] with [_clock], warning in
   /// [_logger] when a run goes over [budget].

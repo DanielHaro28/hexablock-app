@@ -283,7 +283,7 @@ legend right
   ..|> implementa una interfaz · --> usa · ..> crea o usa de paso
   o-- agregación (el aspecto envuelve otro caso de uso)
   «bind» = instancia un parámetro genérico · «...» = patrón de diseño (ARQ-03 §7)
-  Orden de los aspectos: sesión → reintentos → métricas → registro → excepciones → caso de uso (D-161)
+  Orden de los aspectos: sesión → reintentos → registro → métricas → excepciones → caso de uso (D-161, D-173)
   Los otros casos de uso (niveles, ranking, registro, invitado, ajustes) siguen
   el mismo camino: ICommandService → puerto de la capa 2 → adaptador de la capa 3 (ARQ-03 §3, §4)
   Fit, Sort y Merge tienen su módulo y su codec como Hexa Lines

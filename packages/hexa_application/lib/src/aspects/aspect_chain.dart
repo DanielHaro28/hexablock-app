@@ -9,19 +9,21 @@ import 'logging_aspect.dart';
 import 'metrics_aspect.dart';
 
 /// Wraps a use case with its aspects, always in the same order (D-41,
-/// D-161): the `Decorate` method of chapter 10 of Seemann and van Deursen.
+/// D-161, D-173): the `Decorate` method of chapter 10 of Seemann and van
+/// Deursen.
 ///
 /// The composition root calls [wrap] once per use case and chooses which
 /// aspects it gets; the order is not a choice. From the outside in:
 ///
-/// metrics → logging → exceptions → use case
+/// logging → metrics → exceptions → use case
 ///
 /// - Exceptions are innermost, so every other aspect gets an `Either`.
-/// - Logging is right outside them, so each attempt is logged.
-/// - Metrics measure one attempt.
+/// - Metrics are right outside them, so they measure the use case and not
+///   the describing and redacting that logging does in development (D-173).
+/// - Logging is outside metrics; it still logs each attempt.
 ///
 /// The retry and session aspects come with the first stories that need
-/// them, outside metrics: session → retries → metrics (D-161). Each aspect
+/// them, outside logging: session → retries → logging (D-173). Each aspect
 /// appears at most once (`Aspect`), so a service that is already wrapped
 /// cannot be wrapped again.
 final class AspectChain {
@@ -70,16 +72,6 @@ final class AspectChain {
       _logger,
       name: name,
     );
-    if (logged) {
-      wrapped = LoggingAspect(
-        wrapped,
-        _logger,
-        _clock,
-        name: name,
-        describe: describe,
-        verbose: verbose,
-      );
-    }
     if (measured || budget != null) {
       wrapped = MetricsAspect(
         wrapped,
@@ -88,6 +80,16 @@ final class AspectChain {
         _logger,
         name: name,
         budget: budget,
+      );
+    }
+    if (logged) {
+      wrapped = LoggingAspect(
+        wrapped,
+        _logger,
+        _clock,
+        name: name,
+        describe: describe,
+        verbose: verbose,
       );
     }
     return wrapped;

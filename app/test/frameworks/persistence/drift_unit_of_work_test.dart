@@ -90,4 +90,86 @@ void main() {
       },
     );
   });
+
+  group('D-171', () {
+    test(
+      'should_keep_nothing_when_the_unit_returns_a_left_after_a_write',
+      () async {
+        // Arrange
+        Future<Either<AppFailure, int>> saveThenRefuse() async {
+          await progress.save(
+            ProfileId.guest,
+            linesHex,
+            HighScoreProgress(300, date),
+          );
+          return const Left(RuleFailure('worse'));
+        }
+
+        // Act
+        final result = await unitOfWork.runEither(saveThenRefuse);
+
+        // Assert: the Left comes back as it was, not as a PersistenceFailure.
+        expect(result, const Left<AppFailure, int>(RuleFailure('worse')));
+        expect(await progress.load(ProfileId.guest, linesHex), isNull);
+      },
+    );
+
+    test('should_keep_the_writes_when_the_unit_returns_a_right', () async {
+      // Act
+      final result = await unitOfWork.runEither(() async {
+        await progress.save(
+          ProfileId.guest,
+          linesHex,
+          HighScoreProgress(300, date),
+        );
+        return const Right<AppFailure, int>(300);
+      });
+
+      // Assert
+      expect(result, const Right<AppFailure, int>(300));
+      expect(
+        await progress.load(ProfileId.guest, linesHex),
+        HighScoreProgress(300, date),
+      );
+    });
+
+    test(
+      'should_undo_only_the_inner_unit_when_a_nested_one_returns_a_left',
+      () async {
+        // Arrange
+        const linesSquare = GameKey('hexa-lines', 'square');
+
+        // Act: the inner unit is a savepoint of the outer transaction.
+        final result = await unitOfWork.runEither(() async {
+          await progress.save(
+            ProfileId.guest,
+            linesHex,
+            HighScoreProgress(300, date),
+          );
+          final inner = await unitOfWork.runEither(() async {
+            await progress.save(
+              ProfileId.guest,
+              linesSquare,
+              HighScoreProgress(500, date),
+            );
+            return const Left<AppFailure, int>(RuleFailure('worse'));
+          });
+          return Right<AppFailure, Either<AppFailure, int>>(inner);
+        });
+
+        // Assert
+        expect(
+          result,
+          const Right<AppFailure, Either<AppFailure, int>>(
+            Left(RuleFailure('worse')),
+          ),
+        );
+        expect(
+          await progress.load(ProfileId.guest, linesHex),
+          HighScoreProgress(300, date),
+        );
+        expect(await progress.load(ProfileId.guest, linesSquare), isNull);
+      },
+    );
+  });
 }

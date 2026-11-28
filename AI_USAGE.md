@@ -1055,6 +1055,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó las recomendaciones de las cinco observaciones: agregar las operaciones, no reabrir D-160 y documentar la compensación con CQS |
 | Lecciones | La primera versión puso los tres métodos en la clase sellada, como en la propuesta pegada. `architecture-reviewer` notó que, por la covarianza de los genéricos de Dart, `flatMap` sobre un `Left<NetworkFailure, int>` visto como `Either<AppFailure, int>` lanza un `TypeError`; una prueba lo confirmó y la extensión lo resuelve. También señaló una prueba de `fold` que pasaba con cualquier `RuleFailure`, porque comparaba su `toString`, y un ejemplo de ARQ-03 (encadenar guardar y sincronizar) que no se puede escribir con un `flatMap` síncrono |
 
+### IA-107 · Fallos de persistencia que no llegan al `Either` (T-13, D-171, D-172) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los aspectos (IA-106), observaciones 3 y 4: "Transacciones (`IUnitOfWork`) viven dentro del caso de uso… cuidado con `Left` + rollback" y "Operaciones de persistencia fire-and-forget escapan de `ExceptionAspect`"; "acepto tus recomendaciones" y, sobre dos hallazgos de los revisores, las opciones (a) |
+| Resultado | Issue #167 (T-13). D-171: la extensión `runEither` sobre `IUnitOfWork`, que ante un `Left` lanza una señal privada que no es una `Exception` (si lo fuera, `runDrift` la convertiría en `PersistenceException`), la atrapa afuera y devuelve el `Left` sin cambios; el doc del puerto exige que `run` relance sin cambios lo que lanza `work`, y `FakeUnitOfWork` cuenta en `failed` las unidades que la base de datos desharía. Pruebas en la capa 2 (grupo D-171, con un `Left` de tipo más estrecho) y con Drift real: un `Left` no deja nada escrito y un `runEither` anidado solo deshace su *savepoint*. D-172: el contrato de `ISavedGameRepository` para las escrituras de la cola que fallan (no escapan, se registran solo con `runtimeType`, quedan pendientes por clave, `flush()` las reintenta y lanza, y `load` y `exists` cuentan primero lo pendiente); lo implementa NAV-04. La redacción de RNF-10 en ARQ-03 y `.claude/rules/application.md` coincide ahora con D-163 y el CI. `architecture-reviewer` y `security-reviewer` revisaron el cambio antes del PR. Las pruebas las escribió la IA: falta la revisión de una persona (D-59) |
+| Modificaciones del equipo | El usuario aceptó no crear todavía un `TransactionAspect` (D-158) y la opción A del guardado sin espera. Entre los hallazgos de los revisores eligió que `load` y `exists` cuenten primero lo pendiente, en vez de hacer `flush()` antes de leer, y ajustar la redacción de RNF-10, en vez de pasarle al repositorio una función en lugar de `ILogger` |
+| Lecciones | La primera versión de D-172 prometía que un borrado fallido no dejaba una partida terminada para «Continuar», pero solo `flush()` la reintentaba y `load` leía el disco: lo encontró `architecture-reviewer`, que también notó que la cola tenía que ser por clave y que D-156 deja el repositorio en NAV-04, no en PRG-03. `security-reviewer` notó que «el tipo del error» dejaba abierto registrar el `toString()` de una `SqliteException`, que puede traer la sentencia con el estado de la partida |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -1135,6 +1146,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | La propuesta corregida de cuadrados de D-20 decía 23 piezas; con giros de 90° son 18 (IA-100) | La IA lo notó al escribirla en RN-TOP-21 | 18 en RN-TOP-21; se avisó al usuario |
 | El workflow `pr-body.yml` tenía un nombre de paso con `: ` sin comillas, inválido en YAML, así que GitHub no lo corría (IA-102) | El check `real-hours` no apareció en el PR, y `gh run list` mostró una ejecución fallida por el archivo | Nombre entre comillas, validado con el paquete `yaml` de Dart |
 | `fold`, `map` y `flatMap` como métodos de `Either`: por la covarianza de Dart, `flatMap` sobre un `Left<NetworkFailure, int>` visto como `Either<AppFailure, int>` lanzaba un `TypeError` (IA-106) | `architecture-reviewer`, antes del PR; una prueba lo reprodujo | Los tres en la extensión `EitherOperations`, con la prueba que lo reproducía |
+| D-172 prometía que un borrado fallido al terminar la partida no dejaba una partida para «Continuar», pero `load` y `exists` leían el disco y no lo pendiente (IA-107) | `architecture-reviewer`, antes del PR | `load` y `exists` cuentan primero lo pendiente, por clave (elegido por el usuario), y queda escrito el riesgo de cerrar la app con un borrado pendiente |
 
 ### 4.3 Reflexión del equipo
 

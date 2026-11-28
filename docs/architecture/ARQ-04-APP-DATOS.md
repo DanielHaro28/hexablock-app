@@ -62,6 +62,8 @@ En **una transacción**:
 3. Si el resultado mejoró, se escribe la fila con `pending = true` y `revision + 1`. Si no mejoró, no se toca nada y no hay nada que enviar.
 4. Se borra la partida guardada de esa variante y figura (RN-COM-35).
 
+La transacción es `IUnitOfWork.run` (D-158) y solo se deshace si algo lanza. Si un caso de uso que escribe en ella puede devolver un `Left` (una regla que lo detiene después de escribir), usa `runEither`, que deshace la transacción y devuelve el `Left` sin cambios (D-171).
+
 ## 4. Sincronizar (`SyncProgressUseCase`, RN-COM-86, D-49)
 
 1. Por cada `gameId` con filas `pending`, se arma el cuerpo de `PUT /v1/me/progress/{gameId}`. Las filas se agrupan por figura, con la forma de `progressUpdate`: el mapa `levels` lleva **solo** los niveles pendientes.

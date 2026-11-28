@@ -37,6 +37,24 @@ final class _EverythingDescriber
   Map<String, Object?> result(String result) => {'token': result};
 }
 
+/// A describer that takes [took] on [clock] to describe the command, as a
+/// description of a whole board can.
+final class _SlowDescriber implements CommandDescriber<_Credentials, String> {
+  _SlowDescriber(this.clock, this.took);
+
+  final FakeClock clock;
+  final Duration took;
+
+  @override
+  Map<String, Object?> command(_Credentials command) {
+    clock.advance(took);
+    return const {};
+  }
+
+  @override
+  Map<String, Object?> result(String result) => const {};
+}
+
 /// A describer whose description throws, as a broken `toString` would.
 final class _ThrowingDescriber
     implements CommandDescriber<_Credentials, String> {
@@ -100,7 +118,38 @@ void main() {
       // Assert
       expect(logger.entries.last.data['ms'], 42);
     });
+  });
 
+  group('D-173', () {
+    test(
+      'should_not_count_the_description_of_the_command_in_the_duration',
+      () async {
+        // Arrange: describing the command takes 30 ms, the service 2 ms.
+        final logger = FakeLogger();
+        final clock = FakeClock();
+        final aspect = LoggingAspect(
+          _TimedService(
+            clock,
+            const Right('token-1'),
+            took: const Duration(milliseconds: 2),
+          ),
+          logger,
+          clock,
+          name: 'Login',
+          describe: _SlowDescriber(clock, const Duration(milliseconds: 30)),
+          verbose: true,
+        );
+
+        // Act
+        await aspect.execute(credentials);
+
+        // Assert
+        expect(logger.entries.last.data['ms'], 2);
+      },
+    );
+  });
+
+  group('RNF-10', () {
     test(
       'should_log_a_warning_with_the_failure_kind_when_the_service_fails',
       () async {

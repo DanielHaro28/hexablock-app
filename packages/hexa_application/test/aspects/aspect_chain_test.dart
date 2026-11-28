@@ -36,6 +36,27 @@ final class _ValueDescriber implements CommandDescriber<int, int> {
   Map<String, Object?> result(int result) => {'value': result};
 }
 
+/// Describes the command and the result as their value, taking [took] on
+/// [clock] each time, as a description of a whole board can.
+final class _SlowDescriber implements CommandDescriber<int, int> {
+  _SlowDescriber(this.clock, this.took);
+
+  final FakeClock clock;
+  final Duration took;
+
+  @override
+  Map<String, Object?> command(int command) {
+    clock.advance(took);
+    return {'value': command};
+  }
+
+  @override
+  Map<String, Object?> result(int result) {
+    clock.advance(took);
+    return {'value': result};
+  }
+}
+
 /// The kinds of the aspects around a service, outermost first.
 List<Type> _kindsOf(ICommandService<Object?, Object?> service) => [
   for (Object? node = service; node is Aspect; node = node.inner) node.kind,
@@ -53,7 +74,7 @@ void main() {
       );
 
   group('D-161', () {
-    test('should_nest_metrics_logging_and_exceptions_when_all_are_chosen', () {
+    test('should_nest_logging_metrics_and_exceptions_when_all_are_chosen', () {
       // Arrange
       final chain = chainOf();
 
@@ -62,8 +83,8 @@ void main() {
 
       // Assert
       expect(_kindsOf(wrapped), [
-        MetricsAspect,
         LoggingAspect,
+        MetricsAspect,
         ExceptionAspect,
       ]);
     });
@@ -81,8 +102,8 @@ void main() {
 
       // Assert
       expect(_kindsOf(wrapped), [
-        MetricsAspect,
         LoggingAspect,
+        MetricsAspect,
         ExceptionAspect,
       ]);
     });
@@ -125,6 +146,32 @@ void main() {
       // Assert
       expect(again, throwsArgumentError);
     });
+  });
+
+  group('D-173', () {
+    test(
+      'should_not_count_the_description_of_the_log_when_measuring',
+      () async {
+        // Arrange: describing the command and the result takes 20 ms in all,
+        // the use case 1 ms.
+        final logger = FakeLogger();
+        final metrics = FakeMetrics();
+        final clock = FakeClock();
+        final wrapped = AspectChain(logger, metrics, clock, verbose: true).wrap(
+          _SlowService(clock, const Duration(milliseconds: 1)),
+          name: 'ApplyMove',
+          budget: AspectChain.frameBudget,
+          describe: _SlowDescriber(clock, const Duration(milliseconds: 10)),
+        );
+
+        // Act
+        await wrapped.execute(1);
+
+        // Assert
+        expect(metrics.records.single.$2, const Duration(milliseconds: 1));
+        expect(logger.messages, isNot(contains('ApplyMove over budget')));
+      },
+    );
   });
 
   group('RNF-31', () {

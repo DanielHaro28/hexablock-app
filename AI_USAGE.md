@@ -1066,6 +1066,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario aceptó no crear todavía un `TransactionAspect` (D-158) y la opción A del guardado sin espera. Entre los hallazgos de los revisores eligió que `load` y `exists` cuenten primero lo pendiente, en vez de hacer `flush()` antes de leer, y ajustar la redacción de RNF-10, en vez de pasarle al repositorio una función en lugar de `ILogger` |
 | Lecciones | La primera versión de D-172 prometía que un borrado fallido no dejaba una partida terminada para «Continuar», pero solo `flush()` la reintentaba y `load` leía el disco: lo encontró `architecture-reviewer`, que también notó que la cola tenía que ser por clave y que D-156 deja el repositorio en NAV-04, no en PRG-03. `security-reviewer` notó que «el tipo del error» dejaba abierto registrar el `toString()` de una `SqliteException`, que puede traer la sentencia con el estado de la partida |
 
+### IA-108 · Las métricas por dentro del registro (T-14, D-173) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | La misma revisión de los aspectos (IA-106), observación 5: "Orden `MetricsAspect` → `LoggingAspect` puede inflar el tiempo medido del frameBudget (16 ms)"; "acepto tus recomendaciones" |
+| Resultado | Issue #168 (T-14). D-173 reabre el orden de D-41 y D-161: de afuera hacia adentro, sesión → reintentos → registro → métricas → excepciones → caso de uso. `AspectChain` cambia de lugar los dos aspectos y `LoggingAspect` empieza a contar su `ms` después de describir el comando. Pruebas nuevas (grupo D-173): con un describidor lento, las métricas miden solo el caso de uso y no avisan de los 16 ms, y el `ms` del registro no cuenta la descripción; antes del cambio, la primera medía 21 ms para un caso de uso de 1 ms. ARQ-03 §5, `.claude/rules/application.md`, `clases-aplicacion.puml` y `capas.mmd` al día. `architecture-reviewer` y `security-reviewer` revisaron el cambio antes del PR. Las pruebas las escribió la IA: falta la revisión de una persona (D-59) |
+| Modificaciones del equipo | El usuario aceptó reabrir el orden (opción A) en vez de dejarlo y escribir que el presupuesto solo vale fuera de *debug* |
+| Lecciones | ARQ-03 §5.1 ya decía que las métricas medían el volcado del tablero en desarrollo: el problema estaba documentado, pero no resuelto. `architecture-reviewer` encontró el orden viejo en `capas.mmd`, que la búsqueda de la IA no cubrió porque el diagrama usa los nombres en inglés |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia

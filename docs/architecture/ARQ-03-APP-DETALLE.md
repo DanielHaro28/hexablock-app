@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 y el 27-11-2026 por D-170 a D-172 |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 y el 27-11-2026 por D-170 a D-173 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -185,7 +185,7 @@ Cada aspecto implementa `ICommandService` y extiende `Aspect` (D-160): tiene el 
 | Aspecto | Patrón | Qué hace | A qué casos de uso |
 |---|---|---|---|
 | `LoggingAspect<TCommand, TResult>` | Decorator | Registra `<nombre> started` (debug), y después `<nombre> finished` (info) con `ms` o `<nombre> failed` (warning) con `ms`, el tipo de fallo y, en un conflicto o una regla, su código. Solo en modo desarrollo (`verbose`, SEC-MOB-05) agrega lo que dice un `CommandDescriber` (Strategy) sobre el comando y el resultado, **redactado** por `Redactor`: contraseñas, tokens y correos, por la clave o por la forma del valor, también anidados (SEC-WEB-06). `MoveDescriber` vuelca el tablero antes y después de cada movimiento (el ejemplo del enunciado §3.5) | Todos, menos `CheckMove`: se llama en cada paso de un arrastre (D-138) |
-| `MetricsAspect<TCommand, TResult>` | Decorator | Mide cada intento con `IMonotonicClock` y lo entrega a `IMetrics`; si supera el presupuesto, lo registra como advertencia. Va por fuera del registro, así que en desarrollo también mide el volcado del tablero: el presupuesto solo es representativo en *profile* o *release* | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
+| `MetricsAspect<TCommand, TResult>` | Decorator | Mide cada intento con `IMonotonicClock` y lo entrega a `IMetrics`; si supera el presupuesto, lo registra como advertencia. Va por dentro del registro (D-173), así que no mide el volcado del tablero del modo desarrollo; aun así, en *debug* el JIT hace más lentos los tiempos, y RNF-31 se comprueba en *profile* o *release* | `ApplyMove` y `CheckMove` (16 ms, RNF-31), `StartGame`, `Undo` |
 | `ExceptionAspect<TCommand, TResult>` | Decorator | El más interno: convierte las excepciones en `Left` y deja pasar lo que devuelve el caso de uso (D-161). Registra un error inesperado con su tipo y su *stack*: es el único lugar que registra una excepción | Todos |
 | `RetryAspect<TCommand, TResult>` (T-09, D-162) | Decorator | Reintenta si recibe `Left(NetworkFailure())`, según una `RetryPolicy` (Strategy): 2 reintentos, con espera de 0,5 s y 1 s | Solo los que usan red: `SyncProgress`, `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` |
 | `SessionAspect<TCommand, TResult>` (T-10, D-162) | Proxy de protección | Antes de ejecutar, comprueba **en el dispositivo** que hay un JWT vigente (sin red); si no, devuelve `Left(SessionFailure(expired: false))` sin llamar al caso de uso | Solo `SyncProgress` e `ImportGuestProgress`. **Nunca** jugar, guardar progreso ni guardar la partida (RN-COM-81, 82, 85) |
@@ -197,8 +197,8 @@ La caché del ranking (un Proxy de caché sobre `GetLeaderboard`) queda como opc
 final class LoggingAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
   @override
   Future<Either<AppFailure, TResult>> execute(TCommand command) async {
-    final start = _clock.nowMillis();
     _logger.log(LogEntry.debug('$name started', _details(() => _describe.command(command))));
+    final start = _clock.nowMillis(); // after describing the command (D-173)
     final result = await inner.execute(command); // an Either: ExceptionAspect is inside
     final ms = _clock.nowMillis() - start;
     switch (result) {
@@ -216,13 +216,14 @@ final class LoggingAspect<TCommand, TResult> extends Aspect<TCommand, TResult> {
 }
 ```
 
-### 5.2 Orden y ensamblado (D-41, D-161)
+### 5.2 Orden y ensamblado (D-41, D-161, D-173)
 
-De afuera hacia adentro: **sesión → reintentos → métricas → registro → excepciones → caso de uso**.
+De afuera hacia adentro: **sesión → reintentos → registro → métricas → excepciones → caso de uso**.
 
 - La sesión va primero: sin cuenta no tiene sentido reintentar.
 - Las métricas van dentro de los reintentos: miden un intento, no la suma de todos.
 - El registro va dentro de los reintentos: anota cada intento con sus datos.
+- Las métricas van dentro del registro (D-173): miden el caso de uso y no lo que tarda el registro en describir y redactar en modo desarrollo (`MoveDescriber` vuelca el tablero dos veces), que con el orden anterior se sumaba al presupuesto de 16 ms y daba avisos falsos. El registro sigue anotando su propio `ms`, desde que terminó de describir el comando: sale para todo caso de uso registrado, e `IMetrics` solo para los medidos.
 - Las excepciones van pegadas al caso de uso: los demás aspectos solo ven un `Either` y ninguno necesita `try`.
 
 `AspectChain` (en `hexa_application`, porque solo usa puertos) arma la cadena. El *composition root* la usa en una línea por caso de uso: elige **qué** aspectos lleva cada uno (matriz de §5.3), y el orden no se elige. Los reintentos y la sesión se agregan aquí con T-09 y T-10 (D-162):
@@ -238,8 +239,8 @@ ICommandService<TCommand, TResult> wrap<TCommand, TResult>(
   CommandDescriber<TCommand, TResult>? describe,
 }) {
   ICommandService<TCommand, TResult> wrapped = ExceptionAspect(service, _logger, name: name);
-  if (logged) wrapped = LoggingAspect(wrapped, _logger, _clock, name: name, describe: describe, verbose: verbose);
   if (measured || budget != null) wrapped = MetricsAspect(wrapped, _metrics, _clock, _logger, name: name, budget: budget);
+  if (logged) wrapped = LoggingAspect(wrapped, _logger, _clock, name: name, describe: describe, verbose: verbose);
   return wrapped;
 }
 
@@ -329,4 +330,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03), D-163 (destino del registro), D-170 (`Either` es una mónada), D-171 (`runEither` deshace la unidad ante un `Left`) y D-172 (los fallos de la cola de la partida guardada); D-164 (los errores de producción no se envían a ningún servicio). Abierta: D-167 (qué recibe el jugador si su nivel ya no está al empezar, `PENDIENTES.md`).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03), D-163 (destino del registro), D-170 (`Either` es una mónada), D-171 (`runEither` deshace la unidad ante un `Left`), D-172 (los fallos de la cola de la partida guardada) y D-173 (las métricas van dentro del registro); D-164 (los errores de producción no se envían a ningún servicio). Abierta: D-167 (qué recibe el jugador si su nivel ya no está al empezar, `PENDIENTES.md`).

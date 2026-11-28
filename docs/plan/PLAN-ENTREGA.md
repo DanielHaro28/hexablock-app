@@ -80,6 +80,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | T-10 | Aspecto de sesión para los casos de uso que necesitan cuenta (D-162) |
 | T-12 | Operaciones de mónada en `Either` y CQS en ARQ-03 (revisión de los aspectos, D-170) |
 | T-13 | Fallos de persistencia que no llegan al `Either` (revisión de los aspectos, D-171, D-172) |
+| T-14 | Las métricas por dentro del registro (revisión de los aspectos, D-173) |
 
 ### M0 · Preparación
 
@@ -136,6 +137,7 @@ Las historias vienen de `docs/requirements/04-HISTORIAS.md` (en los dos repos pa
 | [api #65](https://github.com/DanielHaro28/hexablock-api/issues/65) | T-11 · Horas reales en cada PR (D-128) | @DanielHaro28 | 0.5 |
 | [app #166](https://github.com/DanielHaro28/hexablock-app/issues/166) | T-12 · Operaciones de mónada en Either y CQS en ARQ-03 | @DanielHaro28 | 1.5 |
 | [app #167](https://github.com/DanielHaro28/hexablock-app/issues/167) | T-13 · Fallos de persistencia que no llegan al Either | @DanielHaro28 | 2 |
+| [app #168](https://github.com/DanielHaro28/hexablock-app/issues/168) | T-14 · Las métricas por dentro del registro | @DanielHaro28 | 1 |
 
 ### M2 · Las otras tres variantes
 

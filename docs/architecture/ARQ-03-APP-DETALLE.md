@@ -223,7 +223,7 @@ De afuera hacia adentro: **sesión → reintentos → registro → métricas →
 - La sesión va primero: sin cuenta no tiene sentido reintentar.
 - Las métricas van dentro de los reintentos: miden un intento, no la suma de todos.
 - El registro va dentro de los reintentos: anota cada intento con sus datos.
-- Las métricas van dentro del registro (D-173): miden el caso de uso y no lo que tarda el registro en describir y redactar en modo desarrollo (`MoveDescriber` vuelca el tablero dos veces), que si no se sumaba al presupuesto de 16 ms y daba avisos falsos. El registro sigue anotando su propio `ms`, desde que terminó de describir el comando: sale para todo caso de uso registrado, e `IMetrics` solo para los medidos.
+- Las métricas van dentro del registro (D-173): miden el caso de uso y no lo que tarda el registro en describir y redactar en modo desarrollo (`MoveDescriber` vuelca el tablero dos veces), que con el orden anterior se sumaba al presupuesto de 16 ms y daba avisos falsos. El registro sigue anotando su propio `ms`, desde que terminó de describir el comando: sale para todo caso de uso registrado, e `IMetrics` solo para los medidos.
 - Las excepciones van pegadas al caso de uso: los demás aspectos solo ven un `Either` y ninguno necesita `try`.
 
 `AspectChain` (en `hexa_application`, porque solo usa puertos) arma la cadena. El *composition root* la usa en una línea por caso de uso: elige **qué** aspectos lleva cada uno (matriz de §5.3), y el orden no se elige. Los reintentos y la sesión se agregan aquí con T-09 y T-10 (D-162):

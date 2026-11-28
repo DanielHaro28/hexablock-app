@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 y el 27-11-2026 por D-170 |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 y el 27-11-2026 por D-170 a D-172 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -139,7 +139,9 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 }
 ```
 
-`scheduleSave` no espera la escritura: el repositorio (capa 3) la encola, conserva solo la última y escribe en una transacción. `delete` pasa por la **misma cola** y descarta el guardado pendiente, así que la última operación gana y una partida terminada nunca reaparece (D-110). `flush()` fuerza la escritura y lo llama `PauseGameUseCase` cuando la app pasa a segundo plano. Así el guardado nunca retrasa la pantalla y un cierre inesperado pierde, como mucho, el turno que se estaba escribiendo.
+`scheduleSave` no espera la escritura: el repositorio (capa 4, D-156) la encola, conserva solo la última y escribe en una transacción. `delete` pasa por la **misma cola** y descarta el guardado pendiente, así que la última operación gana y una partida terminada nunca reaparece (D-110). `flush()` fuerza la escritura y lo llama `PauseGameUseCase` cuando la app pasa a segundo plano. Así el guardado nunca retrasa la pantalla y un cierre inesperado pierde, como mucho, el turno que se estaba escribiendo.
+
+**Si una escritura de la cola falla (D-172).** Pasa después de que el caso de uso devolvió su `Right`, así que no puede llegar como `Left` ni pasar por `ExceptionAspect`. El repositorio no la deja escapar (`scheduleSave` y `delete` nunca lanzan, y la cola no deja errores sin atender), la registra como advertencia con el tipo del error y sin datos del usuario (vive en la capa 4, como los manejadores de los errores de fuera de un caso de uso, D-163) y sigue funcionando. La operación que falló queda como pendiente: la reemplaza la siguiente (un guardado escribe la partida entera) o la vuelve a escribir `flush()`, que lanza `PersistenceException` si falla otra vez, así que `PauseGameUseCase` recibe un `PersistenceFailure`. Así un borrado que falló al terminar la partida no deja una partida terminada para «Continuar». Lo implementa `DriftSavedGameRepository` en PRG-03, con una prueba de contrato con un almacén que falla. Esperar el borrado al terminar la partida se descartó: un borrado fallido convertiría la victoria en un error y la cola ya garantiza el orden. Avisar al jugador (un `Stream` de fallos que escuche `GameCubit`) se puede agregar después, encima de esto.
 
 **Qué se guarda y cuándo (D-110, D-112, D-113).** Lo guardado es el `SavedGame<TState>` de `GameSession.snapshot()`: estado, historial de deshacer y tiempo activo. Se toma siempre después de que `submit`, `undo` o `redo` devolvieron, nunca desde un oyente del motor. Guardan `ApplyMoveUseCase` (turno en curso), `UndoMoveUseCase` y `RedoMoveUseCase` (después de restaurar), `ContinuePlayingUseCase` (el turno de la victoria de Merge, al elegir seguir) y `PauseGameUseCase`, que después de `pause()` guarda un `snapshot()` nuevo y hace `flush()`, para que el tiempo jugado desde el último turno no se pierda (RN-COM-33): en Fit ese tiempo decide una estrella (RN-HF-62). Solo guarda si la partida quedó en `PausedPhase`: una pausa pedida en la victoria o en la derrota no cambia la fase, y esas partidas no se guardan (D-110, D-112). Para **continuar**, `StartGameUseCase` carga el `SavedGame<TState>` y llama a `VariantFamily.continueSession(saved)` (D-116), que arma la sesión con `GameEngine.paused(rules, saved.state)`, `UndoHistory(…, from: saved.undo)` y `ActiveTimer(…, elapsed: saved.activeTime!)` (el codec de una variante con cronómetro siempre lo escribe, ARQ-04 §8): la partida vuelve en pausa (RN-COM-34, D-111).
 
@@ -149,8 +151,8 @@ final class ApplyMoveUseCase<C extends Coord, TCell extends Object, TMove,
 |---|---|---|
 | `IProgressRepository` | `load(ProfileId, GameKey)`, `save(ProfileId, GameKey, VariantProgress)` (transacción) | `DriftProgressRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
 | `IProfileRepository` | `active()`, `activate(Profile)`, `guest()` | `DriftProfileRepository` → Drift (en `frameworks/persistence/`, capa 4, D-156) |
-| `IUnitOfWork` | `run<T>(Future<T> Function() work)`: una transacción; las unidades no se intercalan (D-158) | `DriftUnitOfWork` → transacción de Drift (en `frameworks/persistence/`, capa 4, D-156) |
-| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)` | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
+| `IUnitOfWork` | `run<T>(Future<T> Function() work)`: una transacción; las unidades no se intercalan (D-158). Solo deshace si `work` lanza: un `Left` devuelto se confirma, así que una unidad que escribe y puede devolver un `Left` usa la extensión `runEither`, que lo deshace y lo devuelve sin cambios (D-171) | `DriftUnitOfWork` → transacción de Drift (en `frameworks/persistence/`, capa 4, D-156) |
+| `ISavedGameRepository<TState>` | `scheduleSave(SavedGameKey, SavedGame<TState>)`, `flush()`, `load(SavedGameKey)`, `delete(SavedGameKey)` (en la misma cola que `scheduleSave`, D-110), `exists(ProfileId)`. `scheduleSave` y `delete` nunca lanzan, y `flush()` lanza `PersistenceException` si una escritura fallida vuelve a fallar (D-172) | `DriftSavedGameRepository<TState>` + `IGameStateCodec<TState>` de la variante → Drift |
 | `ILevelRepository` | `bundled(GameKey)`, `downloaded(GameKey)`, `store(List<LevelDefinition>)` | `LevelRepository` → assets + Drift |
 | `ISyncOutbox` | `markPending(ProfileId, GameKey, ResultKey)`, `pending(ProfileId)`, `markSent(...)` | `DriftSyncOutbox` → marca de pendiente en `level_results` y `records` (D-49) |
 | `IProgressGateway` | `push(GameKey, VariantProgress) → VariantProgress` (consolidado), `pullAll()` | `HttpProgressGateway` → dio |
@@ -327,4 +329,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03), D-163 (destino del registro) y D-170 (`Either` es una mónada). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03), D-163 (destino del registro), D-170 (`Either` es una mónada), D-171 (`runEither` deshace la unidad ante un `Left`) y D-172 (los fallos de la cola de la partida guardada). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).

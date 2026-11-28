@@ -38,6 +38,7 @@ void main() {
       // Assert
       await expectLater(failed, throwsStateError);
       expect(await next, 7);
+      expect(unitOfWork.failed, 1);
     });
   });
 }

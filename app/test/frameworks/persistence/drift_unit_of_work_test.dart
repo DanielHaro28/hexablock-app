@@ -90,4 +90,47 @@ void main() {
       },
     );
   });
+
+  group('D-171', () {
+    test(
+      'should_keep_nothing_when_the_unit_returns_a_left_after_a_write',
+      () async {
+        // Arrange
+        Future<Either<AppFailure, int>> saveThenRefuse() async {
+          await progress.save(
+            ProfileId.guest,
+            linesHex,
+            HighScoreProgress(300, date),
+          );
+          return const Left(RuleFailure('worse'));
+        }
+
+        // Act
+        final result = await unitOfWork.runEither(saveThenRefuse);
+
+        // Assert: the Left comes back as it was, not as a PersistenceFailure.
+        expect(result, const Left<AppFailure, int>(RuleFailure('worse')));
+        expect(await progress.load(ProfileId.guest, linesHex), isNull);
+      },
+    );
+
+    test('should_keep_the_writes_when_the_unit_returns_a_right', () async {
+      // Act
+      final result = await unitOfWork.runEither(() async {
+        await progress.save(
+          ProfileId.guest,
+          linesHex,
+          HighScoreProgress(300, date),
+        );
+        return const Right<AppFailure, int>(300);
+      });
+
+      // Assert
+      expect(result, const Right<AppFailure, int>(300));
+      expect(
+        await progress.load(ProfileId.guest, linesHex),
+        HighScoreProgress(300, date),
+      );
+    });
+  });
 }

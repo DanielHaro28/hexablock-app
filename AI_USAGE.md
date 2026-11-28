@@ -1044,6 +1044,17 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | Modificaciones del equipo | El usuario pidió solo anotar D-167 y D-168, sin decidir todavía, y eligió no hacer las tareas a mano de D-128 entre tres alcances (solo el arreglo del reporte, las tareas a mano o todo D-128) y después pidió sacar el *check* del CI y descartar D-168 |
 | Lecciones | Correr solo los scripts del CI no reemplaza a los revisores: desde ahora, los dos revisores corren antes de abrir cada PR |
 
+### IA-106 · `Either` como mónada y CQS en ARQ-03 (T-12, D-170) — solo app
+
+| Campo | Contenido |
+|---|---|
+| Fecha | 27-11-2026 |
+| Herramienta | Claude Code (extensión de VS Code) con Claude Opus 5.5 (`claude-opus-5-5`) |
+| Prompt | El usuario pegó cinco observaciones sobre los aspectos ("`Either<L, R>` está implementado como tipo suma, pero aún no expone operaciones de mónada", CQS en `ICommandService`, la unidad de trabajo y `Left`, el guardado sin espera y el orden de métricas y registro) y pidió "Dime como podemos solucionarlas"; después, "acepto tus recomendaciones" |
+| Resultado | Issue #166 (T-12), que salió de las observaciones 1 y 2; las demás quedaron en #167 y #168. La IA contrastó cada observación con el código y con D-41, D-158, D-160 y D-161, y propuso opciones con una recomendación para cada una. Aquí: la extensión `EitherOperations` con `fold`, `map` y `flatMap`, y 12 pruebas nuevas (grupo D-170) que comprueban las leyes del funtor y de la mónada, que un `Left` no llama a la función, que un `Right` la llama una vez y que funciona con un tipo de fallo más estrecho en ejecución. ARQ-03 §1 explica la mónada y por qué `ICommandService` también sirve a las consultas (CQS, D-160 no cambia), y la matriz de §5.3 suma la columna «Lee / escribe». `architecture-reviewer` y `security-reviewer` revisaron el cambio antes del PR. Las pruebas las escribió la IA: falta la revisión de una persona (D-59) |
+| Modificaciones del equipo | El usuario aceptó las recomendaciones de las cinco observaciones: agregar las operaciones, no reabrir D-160 y documentar la compensación con CQS |
+| Lecciones | La primera versión puso los tres métodos en la clase sellada, como en la propuesta pegada. `architecture-reviewer` notó que, por la covarianza de los genéricos de Dart, `flatMap` sobre un `Left<NetworkFailure, int>` visto como `Either<AppFailure, int>` lanza un `TypeError`; una prueba lo confirmó y la extensión lo resuelve. También señaló una prueba de `fold` que pasaba con cualquier `RuleFailure`, porque comparaba su `toString`, y un ejemplo de ARQ-03 (encadenar guardar y sincronizar) que no se puede escribir con un `flatMap` síncrono |
+
 ## 4. Evaluación crítica
 
 ### 4.1 Porcentaje aproximado de asistencia
@@ -1123,6 +1134,7 @@ Los campos marcados con ⚠️ los tiene que completar el equipo: la IA no conoc
 | D-122 decía que sin verificar la huella "el CI le entrega la clave a un servidor falso", y D-164 que un SDK de errores necesitaba aprobarse en APPROVED-TOOLS (IA-100) | Al revisarlas: en SSH la clave privada nunca viaja (RFC 4252 §7), y APPROVED-TOOLS es para herramientas de IA y servidores MCP | El riesgo y el control correctos quedaron en D-122 y D-164 |
 | La propuesta corregida de cuadrados de D-20 decía 23 piezas; con giros de 90° son 18 (IA-100) | La IA lo notó al escribirla en RN-TOP-21 | 18 en RN-TOP-21; se avisó al usuario |
 | El workflow `pr-body.yml` tenía un nombre de paso con `: ` sin comillas, inválido en YAML, así que GitHub no lo corría (IA-102) | El check `real-hours` no apareció en el PR, y `gh run list` mostró una ejecución fallida por el archivo | Nombre entre comillas, validado con el paquete `yaml` de Dart |
+| `fold`, `map` y `flatMap` como métodos de `Either`: por la covarianza de Dart, `flatMap` sobre un `Left<NetworkFailure, int>` visto como `Either<AppFailure, int>` lanzaba un `TypeError` (IA-106) | `architecture-reviewer`, antes del PR; una prueba lo reprodujo | Los tres en la extensión `EitherOperations`, con la prueba que lo reproducía |
 
 ### 4.3 Reflexión del equipo
 

@@ -96,24 +96,26 @@ void main() {
       const result = Left<AppFailure, int>(RuleFailure('odd'));
 
       // Act
-      final folded = result.fold(
-        (failure) => 'left $failure',
-        (value) => 'right',
-      );
+      final folded = result.fold<Object>((failure) => failure, (value) => 0);
 
       // Assert
-      expect(folded, 'left ${const RuleFailure('odd')}');
+      expect(folded, const RuleFailure('odd'));
     });
 
-    test('should_transform_the_value_when_mapping_a_right', () {
+    test('should_transform_the_value_once_when_mapping_a_right', () {
       // Arrange
       const result = Right<AppFailure, int>(4);
+      var calls = 0;
 
       // Act
-      final mapped = result.map((value) => '$value points');
+      final mapped = result.map((value) {
+        calls++;
+        return '$value points';
+      });
 
       // Assert
       expect(mapped, const Right<AppFailure, String>('4 points'));
+      expect(calls, 1);
     });
 
     test('should_keep_the_failure_without_calling_transform_when_mapping_a_'
@@ -133,15 +135,39 @@ void main() {
       expect(calls, 0);
     });
 
-    test('should_give_what_next_returns_when_flat_mapping_a_right', () {
+    test('should_give_what_next_returns_once_when_flat_mapping_a_right', () {
       // Arrange
       const result = Right<AppFailure, int>(3);
+      var calls = 0;
 
       // Act
-      final chained = result.flatMap(half);
+      final chained = result.flatMap((value) {
+        calls++;
+        return half(value);
+      });
 
       // Assert
       expect(chained, const Left<AppFailure, int>(RuleFailure('odd')));
+      expect(calls, 1);
+    });
+
+    test('should_chain_when_the_runtime_failure_type_is_narrower', () {
+      // Arrange: a Left built with its own failure type, seen as the
+      // Either<AppFailure, int> the use cases return. A method on the class
+      // would check `next` against Either<NetworkFailure, int> and throw.
+      const Either<AppFailure, int> narrowLeft = Left<NetworkFailure, int>(
+        NetworkFailure(),
+      );
+      const Either<AppFailure, int> narrowRight = Right<NetworkFailure, int>(8);
+
+      // Act
+      final chained = [narrowLeft.flatMap(half), narrowRight.flatMap(half)];
+
+      // Assert
+      expect(chained, [
+        const Left<AppFailure, int>(NetworkFailure()),
+        const Right<AppFailure, int>(4),
+      ]);
     });
 
     test('should_keep_the_failure_without_calling_next_when_flat_mapping_a_'
@@ -221,9 +247,10 @@ void main() {
       'should_be_the_same_however_the_steps_are_grouped_when_flat_mapping',
       () {
         // Arrange
+        // 8 goes through both steps, 0 fails at the second, 3 at the first.
         const inputs = <Either<AppFailure, int>>[
           Right(8),
-          Right(2),
+          Right(0),
           Right(3),
           Left(NetworkFailure()),
         ];

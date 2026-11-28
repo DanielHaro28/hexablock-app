@@ -13,13 +13,22 @@
 /// }
 /// ```
 ///
-/// It is also a monad (D-170): [Right] is the unit, [flatMap] chains a step
-/// that can fail and [map] transforms the value, and a [Left] goes through
-/// both unchanged. [fold] reduces both sides to one value. The tests check
-/// the functor and monad laws.
+/// It is also a monad (D-170), with the operations of [EitherOperations].
 sealed class Either<L, R> {
   const Either();
+}
 
+/// The monad operations of [Either] (D-170): [Right] is the unit, [flatMap]
+/// chains a step that can fail and [map] transforms the value, and a [Left]
+/// goes through both unchanged. [fold] reduces both sides to one value. The
+/// tests check the functor and monad laws.
+///
+/// They are an extension, not methods of the class, because Dart's generic
+/// classes are covariant: a `Left<NetworkFailure, int>` seen as an
+/// `Either<AppFailure, int>` would check the `next` of a method against
+/// `Either<NetworkFailure, int>` at run time and throw. An extension takes
+/// `L` and `R` from the static type, so there is nothing to check.
+extension EitherOperations<L, R> on Either<L, R> {
   /// What [onLeft] returns for a [Left], or [onRight] for a [Right].
   T fold<T>(T Function(L failure) onLeft, T Function(R value) onRight) =>
       switch (this) {

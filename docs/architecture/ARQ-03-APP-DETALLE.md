@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 |
+| Estado | **Decidido (19-11-2026)**: D-38 a D-43 (`docs/DECISIONES.md`); precisado el 26-11-2026 por D-160 a D-163 y el 27-11-2026 por D-170 |
 | Fecha | 2026-11-19 |
 | Repositorio | `hexablock-app` (`docs/architecture/ARQ-03-APP-DETALLE.md`) |
 | Parte de | `ARQ-01-APP-GENERAL.md` (dónde vive cada pieza) y `ARQ-02-MOTOR.md` (cómo es el motor por dentro) |
@@ -28,10 +28,19 @@ abstract interface class ICommandService<TCommand, TResult> {
 sealed class Either<L, R> { const Either(); }
 final class Left<L, R> extends Either<L, R> { const Left(this.value); final L value; }   // what went wrong
 final class Right<L, R> extends Either<L, R> { const Right(this.value); final R value; } // what it produced
+
+extension EitherOperations<L, R> on Either<L, R> {                     // D-170
+  T fold<T>(T Function(L failure) onLeft, T Function(R value) onRight); // both sides to one value
+  Either<L, T> map<T>(T Function(R value) transform);                  // functor
+  Either<L, T> flatMap<T>(Either<L, T> Function(R value) next);        // monad: Right is the unit
+}
 ```
+
+`Either` es una **mónada** (D-170): `Right` es la unidad, `flatMap` encadena un paso que puede fallar y `map` transforma el valor; un `Left` pasa sin cambios por los dos, así que el primer fallo corta la cadena, y `fold` reduce los dos lados a un valor. Las pruebas comprueban las leyes del funtor y de la mónada. Son una extensión y no métodos de la clase porque las clases genéricas de Dart son covariantes: un `Left<NetworkFailure, int>` visto como `Either<AppFailure, int>` comprobaría en ejecución el `next` de un método contra `Either<NetworkFailure, int>` y lanzaría un `TypeError`; la extensión toma `L` y `R` del tipo estático. Dentro de un caso de uso casi no hace falta, porque los puertos lanzan y no devuelven `Either` (D-161); sirve a quien recibe el resultado, como un Cubit que lo transforma con `map` o arma su estado con `fold`, y la pantalla puede seguir usando el `switch` exhaustivo. Los pasos son síncronos: encadenar dos casos de uso, que devuelven `Future<Either>` (por ejemplo, guardar el progreso y después sincronizarlo), pide una versión asíncrona, que se agrega cuando la necesite el primero que lo haga.
 
 - La entrada es **un** objeto, el comando: una clase de entrada o un *record* (`(gameKey: ..., page: 1)`). Si no hace falta entrada, el tipo es el *record* vacío `()`.
 - En lugar del `void` del libro, devuelve `Either` con el fallo fijo en `AppFailure` (D-160): los casos de uso devuelven valores (D-32: los eventos de un movimiento) y una sola abstracción sirve a los que cambian el estado y a los que solo leen, así que cada aspecto se escribe una vez y no una por abstracción. Las clases conservan su nombre (`StartGameUseCase`, `ApplyMoveUseCase`…).
+- **Comandos y consultas (CQS).** El capítulo 10 aplica la separación de comandos y consultas: `ICommandService<TCommand>` es para los comandos, que cambian el estado y no devuelven nada, y deja las consultas, que solo leen, para otra abstracción. Aquí una sola interfaz sirve a las dos, a propósito (D-160): `GetProgressUseCase` y `CheckMoveUseCase` solo leen, pero tienen el mismo tipo que `ApplyMoveUseCase` y `SaveProgressUseCase`, así que cada aspecto se escribe una vez. El costo es que el tipo no distingue una lectura de una escritura: un aspecto que solo valga para escrituras (por ejemplo, una auditoría) o solo para lecturas (una caché) se elige por caso de uso en el *composition root*, como hoy el registro y las métricas, y la matriz de §5.3 dice qué hace cada uno (columna «Lee / escribe»). Se conserva el nombre del libro, y no `IUseCase`, para que el código se pueda seguir hasta sus listados.
 - `execute` devuelve un `Future` aunque el trabajo sea síncrono (como `ApplyMoveUseCase`). Esperarlo cuesta una microtarea: la pantalla recibe el resultado antes del siguiente cuadro (D-32).
 - Los casos de uso que trabajan con una partida son **genéricos** en los cuatro parámetros del motor: `ApplyMoveUseCase<C, TCell, TMove, TState>`. Se instancian una vez por partida, en el `VariantModule` de la variante (ARQ-02 §3.1), y nunca nombran una variante (RNF-07).
 
@@ -239,14 +248,18 @@ applyMoveFor: (session) => _chain.wrap(ApplyMoveUseCase(session, savedGames, key
 
 ### 5.3 Matriz de aspectos
 
-| Caso de uso | Sesión | Errores | Reintentos | Métricas | Registro |
-|---|---|---|---|---|---|
-| `StartGame`, `Undo`, `Redo`, `Pause`, `Resume`, `ContinuePlaying` | — | ✓ | — | ✓ | ✓ |
-| `ApplyMove` | — | ✓ | — | ✓ (16 ms) | ✓ (tablero en modo desarrollo) |
-| `CheckMove` | — | ✓ | — | ✓ (16 ms; `LogMetrics` escribe cada medición en debug) | — (D-138) |
-| `SaveProgress`, `GetProgress`, `LoadLevels`, `Logout`, `GetSettings`, `UpdateSettings` | — | ✓ | — | — | ✓ |
-| `SyncProgress`, `ImportGuestProgress` | ✓ | ✓ | `SyncProgress` | — | ✓ |
-| `DownloadLevels`, `GetLeaderboard`, `Register`, `Login` | — | ✓ | ✓ | — | ✓ (redactado) |
+| Caso de uso | Lee / escribe | Sesión | Errores | Reintentos | Métricas | Registro |
+|---|---|---|---|---|---|---|
+| `StartGame`, `Undo`, `Redo`, `Pause`, `Resume`, `ContinuePlaying` | Escribe | — | ✓ | — | ✓ | ✓ |
+| `ApplyMove` | Escribe | — | ✓ | — | ✓ (16 ms) | ✓ (tablero en modo desarrollo) |
+| `CheckMove` | Lee | — | ✓ | — | ✓ (16 ms; `LogMetrics` escribe cada medición en debug) | — (D-138) |
+| `SaveProgress`, `Logout`, `UpdateSettings` | Escribe | — | ✓ | — | — | ✓ |
+| `GetProgress`, `LoadLevels`, `GetSettings` | Lee | — | ✓ | — | — | ✓ |
+| `SyncProgress`, `ImportGuestProgress` | Escribe | ✓ | ✓ | `SyncProgress` | — | ✓ |
+| `DownloadLevels`, `Register`, `Login` | Escribe | — | ✓ | ✓ | — | ✓ (redactado) |
+| `GetLeaderboard` | Lee | — | ✓ | ✓ | — | ✓ (redactado) |
+
+«Escribe» es cambiar el estado, en el dispositivo, en el servidor o en la partida que está en memoria; «lee» no cambia nada (CQS, §1).
 
 Como `ApplyMoveUseCase` es genérico, sus aspectos aplican a las 4 variantes sin cambios (enunciado §3.5).
 
@@ -314,4 +327,4 @@ El general muestra las 4 capas y las interfaces por las que se comunican; los de
 
 ## 10. Decisiones de este documento
 
-D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03) y D-163 (destino del registro). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).
+D-38 a D-41 y D-43, en `docs/DECISIONES.md` (D-67); D-160 (`ICommandService` y `Either`), D-161 (los adaptadores lanzan, los casos de uso devuelven, y las excepciones son el aspecto más interno), D-162 (alcance de TEC-03), D-163 (destino del registro) y D-170 (`Either` es una mónada). Abierta: D-164 (los errores de producción, `PENDIENTES.md`).

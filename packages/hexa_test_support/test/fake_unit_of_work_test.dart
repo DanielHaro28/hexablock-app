@@ -38,6 +38,22 @@ void main() {
       // Assert
       await expectLater(failed, throwsStateError);
       expect(await next, 7);
+    });
+  });
+
+  group('D-171', () {
+    test('should_count_only_the_units_that_throw_as_failed', () async {
+      // Arrange
+      final unitOfWork = FakeUnitOfWork();
+
+      // Act
+      final failed = unitOfWork.run<int>(() async => throw StateError('x'));
+      final next = unitOfWork.run(() async => 7);
+      await expectLater(failed, throwsStateError);
+      await next;
+
+      // Assert
+      expect(unitOfWork.runs, 2);
       expect(unitOfWork.failed, 1);
     });
   });

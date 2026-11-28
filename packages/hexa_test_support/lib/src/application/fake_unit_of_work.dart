@@ -20,6 +20,8 @@ final class FakeUnitOfWork implements IUnitOfWork {
   Future<T> run<T>(Future<T> Function() work) {
     runs++;
     final result = _last.then((_) => work());
+    // This listener is registered before the caller's own `await`, so
+    // [failed] is already counted when the caller sees the error.
     _last = result.then<void>(
       (_) {},
       onError: (Object _) {

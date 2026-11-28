@@ -132,5 +132,44 @@ void main() {
         HighScoreProgress(300, date),
       );
     });
+
+    test(
+      'should_undo_only_the_inner_unit_when_a_nested_one_returns_a_left',
+      () async {
+        // Arrange
+        const linesSquare = GameKey('hexa-lines', 'square');
+
+        // Act: the inner unit is a savepoint of the outer transaction.
+        final result = await unitOfWork.runEither(() async {
+          await progress.save(
+            ProfileId.guest,
+            linesHex,
+            HighScoreProgress(300, date),
+          );
+          final inner = await unitOfWork.runEither(() async {
+            await progress.save(
+              ProfileId.guest,
+              linesSquare,
+              HighScoreProgress(500, date),
+            );
+            return const Left<AppFailure, int>(RuleFailure('worse'));
+          });
+          return Right<AppFailure, Either<AppFailure, int>>(inner);
+        });
+
+        // Assert
+        expect(
+          result,
+          const Right<AppFailure, Either<AppFailure, int>>(
+            Left(RuleFailure('worse')),
+          ),
+        );
+        expect(
+          await progress.load(ProfileId.guest, linesHex),
+          HighScoreProgress(300, date),
+        );
+        expect(await progress.load(ProfileId.guest, linesSquare), isNull);
+      },
+    );
   });
 }

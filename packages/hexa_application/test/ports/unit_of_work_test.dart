@@ -49,22 +49,21 @@ void main() {
       expect(unitOfWork.failed, 1);
     });
 
-    test('should_run_the_next_unit_when_one_returns_a_left', () async {
-      // Arrange
-      final unitOfWork = FakeUnitOfWork();
+    test(
+      'should_return_the_left_when_its_runtime_failure_type_is_narrower',
+      () async {
+        // Arrange: a Left built with its own failure type, as in D-170.
+        final unitOfWork = FakeUnitOfWork();
+        Future<Either<AppFailure, int>> refuse() async =>
+            const Left<RuleFailure, int>(RuleFailure('worse'));
 
-      // Act
-      final first = unitOfWork.runEither(
-        () async => const Left<AppFailure, int>(RuleFailure('worse')),
-      );
-      final next = unitOfWork.runEither(
-        () async => const Right<AppFailure, int>(7),
-      );
+        // Act
+        final result = await unitOfWork.runEither(refuse);
 
-      // Assert
-      expect(await first, const Left<AppFailure, int>(RuleFailure('worse')));
-      expect(await next, const Right<AppFailure, int>(7));
-      expect(unitOfWork.runs, 2);
-    });
+        // Assert
+        expect(result, const Left<RuleFailure, int>(RuleFailure('worse')));
+        expect(unitOfWork.failed, 1);
+      },
+    );
   });
 }

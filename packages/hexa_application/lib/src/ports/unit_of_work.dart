@@ -11,13 +11,15 @@ import '../errors.dart';
 ///
 /// Only a thrown error undoes the unit. A `Left` that [run]'s work returns
 /// is an ordinary value, so what the work wrote before it is kept: a unit
-/// that writes and may then return a `Left` uses `runEither` instead
-/// (D-171).
+/// that writes and may then return a `Left` uses
+/// [EitherUnitOfWork.runEither] instead (D-171).
 abstract interface class IUnitOfWork {
   /// Runs [work] as one unit and returns its result.
   ///
   /// Units run one after another, never interleaved. If [work] throws,
-  /// nothing it wrote is kept and the error reaches the caller.
+  /// nothing it wrote is kept and whatever it threw is rethrown unchanged,
+  /// whatever its type: an adapter may translate only its own storage
+  /// errors, never what [work] throws (D-171 relies on it).
   Future<T> run<T>(Future<T> Function() work);
 }
 
